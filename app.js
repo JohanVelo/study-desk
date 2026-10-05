@@ -2,8 +2,7 @@
    Sections: 1 utils · 2 model · 3 store · 4 priority & progress · 5 scheduler · 6 icons
              7 UI pieces · 8 views · 9 motion · 10 router & actions · 11 install & offline · 12 boot */
 "use strict";
-const APP_VERSION = "2.0.0";
-const SCHEMA = 2;
+const APP_VERSION = "2.1.0";
 
 /* =====================================================================
    1. UTILS
@@ -26,9 +25,14 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
 /* =====================================================================
-   2. MODEL — builds a flat, validated index from window.STUDY_DATA
+   2. MODEL — study content lives in S.content (editable in the app, seeded from data.js)
+   ---------------------------------------------------------------------
+   Content shape (object form):
+     { from, subjects:[{id,name,code,course,hue,exam:"YYYY-MM-DD",examTime,venue,
+                         chapters:[{id,title,p1,p2,diff,calc,status?,kids:[…same…]}]}],
+       questions:[{id,node,level,q,o:[…],a,e,own?}], explain:{nodeId:{simple,uni,exam,example}} }
    ===================================================================== */
-const DATA = window.STUDY_DATA || { subjects: [], questions: [], history: {}, mistakes: {}, explain: {} };
+const DATA = window.STUDY_DATA || null;
 const STATUS = ["Not started", "Learning", "Understood", "Practised", "Revised", "Mastered"];
 const STATUS_COL = ["var(--line)", "var(--p-medium)", "var(--p-high)", "var(--pen)", "var(--p-done)", "var(--ok)"];
 const DIFF = ["", "Easy", "Medium", "Difficult"];
@@ -37,73 +41,114 @@ const TYPES = {
   learn: { label: "Learn", icon: "book" }, recall: { label: "Active recall", icon: "bulb" }, practice: { label: "Practice questions", icon: "pencil" },
   revision: { label: "Revision", icon: "loop" }, calc: { label: "Calculations", icon: "sigma" }, mock: { label: "Mock test", icon: "clip" }
 };
-const nodes = {}, subjects = {}, leavesBySubject = {}, byTitle = {}, legacyId = {};
-const dataIssues = [];
+const HUES = [24, 55, 200, 150, 265, 320, 95, 0];
+let nodes = {}, subjects = {}, leavesBySubject = {}, byTitle = {}, dataIssues = [], DSUBJ = [], leafIds = [], QS = [];
 const issue = (where, msg) => dataIssues.push({ where, msg });
+const newId = p => p + Date.now().toString(36).slice(-5) + Math.random().toString(36).slice(2, 6);
 
-(function buildModel() {
-  if (!window.STUDY_DATA) issue("data.js", "The data file did not load, so there is nothing to show.");
-  const seenS = new Set();
-  (DATA.subjects || []).forEach((s, si) => {
-    if (!s || !s.id || !s.name) { issue("Subject " + (si + 1), "Needs an id and a name."); return; }
-    if (seenS.has(s.id)) { issue(s.name, "Two subjects share the id “" + s.id + "”."); return; }
-    seenS.add(s.id);
-    if (!(s.exam && DATE_RE.test(s.exam)) && !Number.isInteger(s.examInDays)) issue(s.name, "Needs an exam date (exam:\"YYYY-MM-DD\") or examInDays.");
-    if (s.examTime && parseT(s.examTime) === null) issue(s.name, "Exam time should look like 09:00.");
-    if (typeof s.hue !== "number") s.hue = (si * 97 + 24) % 360;
-    subjects[s.id] = s; leavesBySubject[s.id] = []; s.chapterIds = [];
-    const walk = (raw, parent, depth, idx, siblingsSeen) => {
-      if (!Array.isArray(raw) || typeof raw[0] !== "string") { issue(s.name, "A topic entry is not in the [title, from, to, difficulty, …] format."); return null; }
+/* data.js uses compact arrays; convert to the editable object form once */
+function convertData(D, anchor) {
+  const seeds = {}, titleToId = {}, legacy = {};
+  const out = { from: D.contentVersion || "sample-1", subjects: [], questions: [], explain: {} };
+  (D.subjects || []).forEach((s, si) => {
+    if (!s || !s.id) return;
+    const cs = { id: s.id, name: s.name || "Subject", code: s.code || "", course: s.course || "", hue: typeof s.hue === "number" ? s.hue : HUES[si % HUES.length],
+      exam: s.exam && DATE_RE.test(s.exam) ? s.exam : addDays(anchor, Number.isInteger(s.examInDays) ? s.examInDays : 30), examTime: s.examTime || "", venue: s.venue || "", chapters: [] };
+    const walk = (raw, parentId, num, seen) => {
+      if (!Array.isArray(raw) || typeof raw[0] !== "string") return null;
       const [title, p1, p2, diff, rest, extra] = raw;
-      const num = parent ? parent.num + "." + (idx + 1) : String(idx + 1);
-      let sl = slug(title), k = 2; while (siblingsSeen.has(sl)) sl = slug(title) + "-" + (k++);
-      siblingsSeen.add(sl);
-      const id = (parent ? parent.id : s.id) + "/" + sl;
-      const where = s.name + " " + num + " " + title;
-      if (!isInt(p1, 0, 1e5) || !isInt(p2, 0, 1e5) || p1 > p2) issue(where, "Page range should be two whole numbers, first ≤ last.");
-      if (parent && (p1 < parent.p1 || p2 > parent.p2)) issue(where, `Pages ${p1}–${p2} fall outside the parent's ${parent.p1}–${parent.p2}.`);
-      if (!isInt(diff, 1, 3)) issue(where, "Difficulty should be 1, 2 or 3.");
-      const n = { id, title, p1: +p1 || 0, p2: Math.max(+p2 || 0, +p1 || 0), diff: isInt(diff, 1, 3) ? diff : 2, num, depth, subject: s.id, parent: parent ? parent.id : null, kids: [], calc: !!(extra && extra.calc) };
-      nodes[id] = n; legacyId[s.id + "-" + num.replace(/\./g, "-")] = id;
-      if (Array.isArray(rest)) { const seen = new Set(); rest.forEach((r, i) => { const c = walk(r, n, depth + 1, i, seen); if (c) n.kids.push(c.id); }); if (!n.kids.length) n.leaf = true; }
-      else n.leaf = true;
-      if (n.leaf) {
-        n.seed = isInt(rest, 0, 5) ? rest : 0;
-        if (rest !== undefined && !Array.isArray(rest) && !isInt(rest, 0, 5)) issue(where, "Starting status should be 0–5.");
-        leavesBySubject[s.id].push(n);
-        if (byTitle[title]) issue(where, "Another topic has the same title, so questions for it may attach to the wrong one.");
-        else byTitle[title] = n;
-      }
+      let sl = slug(title), k = 2; while (seen.has(sl)) sl = slug(title) + "-" + (k++); seen.add(sl);
+      const n = { id: parentId + "/" + sl, title, p1: +p1 || 0, p2: +p2 || +p1 || 0, diff: isInt(diff, 1, 3) ? diff : 2, calc: !!(extra && extra.calc), kids: [] };
+      legacy[s.id + "-" + num.replace(/\./g, "-")] = n.id;
+      if (Array.isArray(rest)) { const sn = new Set(); rest.forEach((r, i) => { const c = walk(r, n.id, num + "." + (i + 1), sn); if (c) n.kids.push(c); }); }
+      if (!n.kids.length) { seeds[n.id] = isInt(rest, 0, 5) ? rest : 0; if (!titleToId[title]) titleToId[title] = n.id; }
       return n;
     };
     const seen = new Set();
-    (s.chapters || []).forEach((c, i) => { const n = walk(c, null, 0, i, seen); if (n) s.chapterIds.push(n.id); });
-    if (!leavesBySubject[s.id].length) issue(s.name, "Has no topics yet.");
+    (s.chapters || []).forEach((c, i) => { const n = walk(c, s.id, String(i + 1), seen); if (n) cs.chapters.push(n); });
+    out.subjects.push(cs);
   });
-  DATA.questions = (DATA.questions || []).filter((q, i) => {
-    const where = "Question " + (i + 1);
-    q.id = "q" + i + "-" + slug(q.topic || "").slice(0, 24);
-    const n = byTitle[q.topic];
-    if (!n) { issue(where, "Topic “" + q.topic + "” doesn't match any subheading title."); return false; }
-    if (!Array.isArray(q.o) || q.o.length < 2) { issue(where, "Needs at least two answer options."); return false; }
-    if (!isInt(q.a, 0, q.o.length - 1)) { issue(where, "Correct answer index is out of range."); return false; }
-    if (!LEVELS[q.level]) { issue(where, "Level should be easy, medium, hard or exam."); q.level = "medium"; }
-    q.node = n.id; q.subject = n.subject; return true;
+  (D.questions || []).forEach((q, i) => { const node = titleToId[q.topic]; if (node) out.questions.push({ id: "q" + i + "-" + slug(q.topic).slice(0, 24), node, level: q.level, q: q.q, o: q.o, a: q.a, e: q.e || "" }); else issue("data.js question " + (i + 1), "Topic “" + q.topic + "” doesn't match any subheading title."); });
+  Object.entries(D.explain || {}).forEach(([t, e]) => { if (titleToId[t]) out.explain[titleToId[t]] = e; });
+  const history = {}, mistakes = {};
+  Object.entries(D.history || {}).forEach(([t, h]) => { if (titleToId[t] && h && isInt(h.a, 0, 1e4) && isInt(h.c, 0, h.a)) history[titleToId[t]] = { a: h.a, c: h.c }; });
+  Object.entries(D.mistakes || {}).forEach(([t, n]) => { const id = titleToId[t]; if (id && isInt(n, 1, 999)) mistakes[id] = { n, qs: out.questions.filter(q => q.node === id).map(q => q.id).slice(0, n) }; });
+  return { content: out, seeds, history, mistakes, legacy };
+}
+
+/* Repairs content so the rest of the app can trust it */
+function cleanContent(c) {
+  let fixes = 0;
+  const out = { from: typeof c?.from === "string" ? c.from : "", subjects: [], questions: [], explain: {} };
+  const ids = new Set();
+  const cleanNode = (n, depth) => {
+    if (!n || typeof n.title !== "string" || !n.title.trim() || depth > 6) { fixes++; return null; }
+    let id = typeof n.id === "string" && n.id && !ids.has(n.id) ? n.id : (fixes++, newId("n")); ids.add(id);
+    const p1 = isInt(n.p1, 0, 1e5) ? n.p1 : (fixes++, 0), p2 = isInt(n.p2, 0, 1e5) && n.p2 >= p1 ? n.p2 : (fixes++, p1);
+    const o = { id, title: n.title.trim().slice(0, 160), p1, p2, diff: isInt(n.diff, 1, 3) ? n.diff : (fixes++, 2), calc: !!n.calc, kids: [] };
+    (Array.isArray(n.kids) ? n.kids : []).forEach(k => { const x = cleanNode(k, depth + 1); if (x) o.kids.push(x); });
+    return o;
+  };
+  (Array.isArray(c?.subjects) ? c.subjects : []).forEach((s, i) => {
+    if (!s || typeof s.name !== "string" || !s.name.trim()) { fixes++; return; }
+    const id = typeof s.id === "string" && s.id && !ids.has(s.id) ? s.id : (fixes++, newId("s")); ids.add(id);
+    out.subjects.push({ id, name: s.name.trim().slice(0, 80), code: String(s.code || "").slice(0, 30), course: String(s.course || "").slice(0, 120), hue: typeof s.hue === "number" ? s.hue : HUES[i % HUES.length],
+      exam: DATE_RE.test(s.exam || "") ? s.exam : (fixes++, addDays(todayKey(), 30)), examTime: parseT(s.examTime) !== null ? s.examTime : "", venue: String(s.venue || "").slice(0, 80),
+      chapters: (Array.isArray(s.chapters) ? s.chapters : []).map(n => cleanNode(n, 0)).filter(Boolean) });
   });
-  Object.keys(DATA.history || {}).forEach(t => { const h = DATA.history[t]; if (!byTitle[t]) issue("History", "“" + t + "” doesn't match a topic."); else if (!(isInt(h.a, 0, 1e4) && isInt(h.c, 0, h.a))) issue("History", "“" + t + "” has more correct answers than attempts."); });
-  Object.keys(DATA.mistakes || {}).forEach(t => { if (!byTitle[t]) issue("Mistakes", "“" + t + "” doesn't match a topic."); });
-})();
-const DSUBJ = (DATA.subjects || []).filter(s => subjects[s.id] === s);
-const leafIds = Object.values(nodes).filter(n => n.leaf).map(n => n.id);
+  const qids = new Set();
+  (Array.isArray(c?.questions) ? c.questions : []).forEach(q => {
+    if (!q || !ids.has(q.node) || typeof q.q !== "string" || !Array.isArray(q.o) || q.o.length < 2 || !isInt(q.a, 0, q.o.length - 1)) { fixes++; return; }
+    const id = typeof q.id === "string" && !qids.has(q.id) ? q.id : newId("q"); qids.add(id);
+    out.questions.push({ id, node: q.node, level: LEVELS[q.level] ? q.level : "medium", q: q.q.slice(0, 600), o: q.o.map(x => String(x).slice(0, 300)), a: q.a, e: String(q.e || "").slice(0, 1200), own: !!q.own });
+  });
+  Object.entries(c?.explain || {}).forEach(([k, e]) => { if (ids.has(k) && e && typeof e === "object") out.explain[k] = { simple: String(e.simple || ""), uni: String(e.uni || ""), exam: String(e.exam || ""), example: String(e.example || "") }; });
+  return { content: out, fixes };
+}
+
+/* Builds the lookup tables every screen uses. Called again after every edit. */
+function buildModel() {
+  nodes = {}; subjects = {}; leavesBySubject = {}; byTitle = {}; dataIssues = [];
+  const C = S.content;
+  if (DATA === null) issue("data.js", "The data file didn't load. Your own subjects still work.");
+  C.subjects.forEach(raw => {
+    const s = { ...raw, raw, chapterIds: [] }; subjects[s.id] = s; leavesBySubject[s.id] = [];
+    const walk = (r, parent, depth, idx) => {
+      const num = parent ? parent.num + "." + (idx + 1) : String(idx + 1);
+      const n = { id: r.id, raw: r, title: r.title, p1: r.p1, p2: r.p2, diff: r.diff, calc: r.calc, num, depth, subject: s.id, parent: parent ? parent.id : null, kids: [] };
+      nodes[n.id] = n;
+      const where = s.name + " " + num + " " + r.title;
+      if (parent && (r.p1 < parent.p1 || r.p2 > parent.p2) && !(r.p1 === 0 && r.p2 === 0)) issue(where, `Pages ${r.p1}–${r.p2} fall outside ${parent.title} (${parent.p1}–${parent.p2}).`);
+      if (r.p1 === 0 && r.p2 === 0) issue(where, "Has no page numbers yet.");
+      r.kids.forEach((k, i) => n.kids.push(walk(k, n, depth + 1, i).id));
+      n.leaf = !n.kids.length;
+      if (n.leaf) { leavesBySubject[s.id].push(n); if (!byTitle[r.title]) byTitle[r.title] = n; }
+      return n;
+    };
+    raw.chapters.forEach((c, i) => s.chapterIds.push(walk(c, null, 0, i).id));
+    if (!leavesBySubject[s.id].length) issue(s.name, "Has no topics yet. Add chapters under My subjects.");
+  });
+  DSUBJ = C.subjects.map(s => subjects[s.id]);
+  leafIds = Object.values(nodes).filter(n => n.leaf).map(n => n.id);
+  QS = C.questions.filter(q => nodes[q.node]).map(q => ({ ...q, subject: nodes[q.node].subject }));
+}
 const pagesOf = n => Math.max(1, n.p2 - n.p1 + 1);
 const chapterOf = id => { let n = nodes[id]; while (n && n.parent) n = nodes[n.parent]; return n; };
+function findRaw(id) {
+  for (const s of S.content.subjects) {
+    const stack = [{ list: s.chapters, parent: null }];
+    while (stack.length) { const { list, parent } = stack.pop(); for (let i = 0; i < list.length; i++) { if (list[i].id === id) return { node: list[i], list, index: i, parent, subject: s }; stack.push({ list: list[i].kids, parent: list[i] }); } }
+  }
+  return null;
+}
 
 /* =====================================================================
    3. STORE — versioned, validated, backed up
    ===================================================================== */
+const SCHEMA_NOW = 3;
 const KEY = "studydesk.v2", BAK = "studydesk.v2.bak", LEGACY = "studydesk.proto.v1";
 const DEFAULT_SETTINGS = { days: [1, 2, 3, 4, 5, 6], blocks: [[540, 720], [840, 1020]], maxPerDay: 6, theme: "system", motion: "full" };
-let S, saveTimer = null, saveFailed = false, repairs = 0, restoredFrom = null, lastDay = null;
+let S, saveTimer = null, saveFailed = false, repairs = 0, restoredFrom = null, lastDay = null, contentNotice = null;
 const ls = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
   set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
@@ -114,24 +159,21 @@ function save(now) {
   const write = () => { const ok = ls.set(KEY, JSON.stringify(S)); if (!ok && !saveFailed) { saveFailed = true; toast("Couldn't save on this device. Your browser may be in private mode or out of space."); } if (ok) saveFailed = false; };
   if (now) write(); else saveTimer = setTimeout(write, 150);
 }
-addEventListener("pagehide", () => save(true));
-document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") save(true); else dayCheck(); });
+addEventListener("pagehide", () => S && save(true));
+document.addEventListener("visibilitychange", () => { if (!S) return; if (document.visibilityState === "hidden") save(true); else dayCheck(); });
 
-const examKey = sid => { const s = subjects[sid]; return s.exam && DATE_RE.test(s.exam) ? s.exam : addDays(S.anchor, s.examInDays || 0); };
+const examKey = sid => subjects[sid].exam;
 const daysLeft = sid => diffDays(examKey(sid), todayKey());
 const st = id => S.status[id] ?? 0;
 const acc = id => { const h = S.attempts[id]; return h && h.a ? h.c / h.a : null; };
 
-function blankState() {
-  const t = todayKey();
-  const s = { schema: SCHEMA, app: "study-desk", anchor: t, status: {}, attempts: {}, mistakes: {}, tasks: [], recent: [], changes: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
-  leafIds.forEach(id => s.status[id] = nodes[id].seed);
-  Object.entries(DATA.history || {}).forEach(([k, v]) => { if (byTitle[k] && isInt(v.a, 0, 1e4) && isInt(v.c, 0, v.a)) s.attempts[byTitle[k].id] = { a: v.a, c: v.c }; });
-  Object.entries(DATA.mistakes || {}).forEach(([k, n]) => { if (byTitle[k] && isInt(n, 1, 999)) { const id = byTitle[k].id; s.mistakes[id] = { n, qs: DATA.questions.filter(q => q.node === id).map(q => q.id).slice(0, n) }; } });
-  return s;
+function blankState(anchor = todayKey()) {
+  const conv = DATA ? convertData(DATA, anchor) : { content: { from: "", subjects: [], questions: [], explain: {} }, seeds: {}, history: {}, mistakes: {} };
+  return { schema: SCHEMA_NOW, app: "study-desk", anchor, content: conv.content, contentEdited: false, status: { ...conv.seeds }, attempts: conv.history, mistakes: conv.mistakes,
+    tasks: [], recent: [], changes: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
 }
 function fresh() {
-  S = blankState();
+  S = blankState(); buildModel();
   const t = S.anchor, y = addDays(t, -1);
   const a = byTitle["Central tendency"], b = byTitle["Confounding variables"];
   if (a && b) {
@@ -144,33 +186,39 @@ function fresh() {
 }
 function mkTask(date, node, type, dur, extra = {}) { return { id: "t" + (S.seq++), date, node, subject: nodes[node].subject, type, dur, start: 0, done: false, ...extra }; }
 
-/* v1 (single-file prototype) → v2: ids moved from positions to title paths */
+/* Older saves are upgraded step by step: v1 prototype → 2 (title-path ids) → 3 (content stored in the save) */
 function migrate(o) {
   if (!o || typeof o !== "object") return null;
   if (o.v === 1 && !o.schema) {
-    const map = id => legacyId[id] || null;
+    const legacy = DATA ? convertData(DATA, o.anchor || todayKey()).legacy : {};
+    const map = id => legacy[id] || null;
     const remapObj = src => { const out = {}; Object.entries(src || {}).forEach(([k, v]) => { const n = map(k); if (n) out[n] = v; }); return out; };
-    o = {
-      schema: 2, app: "study-desk", anchor: o.anchor, status: remapObj(o.status), attempts: remapObj(o.attempts),
+    o = { schema: 2, app: "study-desk", anchor: o.anchor, status: remapObj(o.status), attempts: remapObj(o.attempts),
       mistakes: Object.fromEntries(Object.entries(remapObj(o.mistakes)).map(([k, m]) => [k, { n: m.n, qs: [] }])),
       tasks: (o.tasks || []).map(t => ({ ...t, node: map(t.node) })).filter(t => t.node),
       recent: (o.recent || []).map(r => ({ ...r, id: map(r.id) })).filter(r => r.id),
-      changes: (o.changes || []).map(c => ({ when: c.when, text: c.text })), seq: o.seq || 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS))
-    };
+      changes: (o.changes || []).map(c => ({ when: c.when, text: c.text })), seq: o.seq || 0 };
   }
-  if (o.schema !== SCHEMA) return null;
+  if (o.schema === 2) {
+    const anchor = DATE_RE.test(o.anchor || "") ? o.anchor : todayKey();
+    o = { ...o, schema: 3, content: blankState(anchor).content, contentEdited: false };
+  }
+  if (o.schema !== SCHEMA_NOW) return null;
   return o;
 }
 /* Repairs anything out of shape instead of crashing. Counts what it fixed. */
 function sanitize(o) {
   let fixes = 0; const fix = () => fixes++;
-  const out = blankState();
-  if (typeof o.anchor === "string" && DATE_RE.test(o.anchor)) out.anchor = o.anchor; else fix();
+  const out = { schema: SCHEMA_NOW, app: "study-desk" };
+  out.anchor = typeof o.anchor === "string" && DATE_RE.test(o.anchor) ? o.anchor : (fix(), todayKey());
+  const cc = cleanContent(o.content); out.content = cc.content; fixes += cc.fixes; out.contentEdited = !!o.contentEdited;
+  const prevS = S; S = out; buildModel(); S = prevS;
+  out.status = {};
   Object.entries(o.status || {}).forEach(([k, v]) => { if (nodes[k] && nodes[k].leaf && isInt(v, 0, 5)) out.status[k] = v; else fix(); });
   out.attempts = {};
   Object.entries(o.attempts || {}).forEach(([k, v]) => { if (nodes[k] && v && isInt(v.a, 0, 1e5) && isInt(v.c, 0, v.a)) out.attempts[k] = { a: v.a, c: v.c }; else fix(); });
   out.mistakes = {};
-  const qIds = new Set(DATA.questions.map(q => q.id));
+  const qIds = new Set(out.content.questions.map(q => q.id));
   Object.entries(o.mistakes || {}).forEach(([k, v]) => { if (nodes[k] && v && isInt(v.n, 0, 1e5)) out.mistakes[k] = { n: v.n, qs: (Array.isArray(v.qs) ? v.qs : []).filter(q => qIds.has(q)) }; else fix(); });
   const seen = new Set(); let maxSeq = 0;
   out.tasks = (Array.isArray(o.tasks) ? o.tasks : []).filter(t => {
@@ -196,17 +244,46 @@ function loadState() {
   const main = ls.get(KEY);
   let o = tryParse(main), src = "main";
   if (!o && main) { o = tryParse(ls.get(BAK)); src = "backup"; }
-  if (!o) { const leg = ls.get(LEGACY); o = tryParse(leg); src = o ? "legacy" : null; }
+  if (!o) { o = tryParse(ls.get(LEGACY)); src = o ? "legacy" : null; }
   if (!o) return false;
   const r = sanitize(o);
   S = r.state; repairs = r.fixes; restoredFrom = src === "main" ? null : src;
-  if (main && src === "main") ls.set(BAK, main); /* last good copy from the previous session */
+  buildModel();
+  if (main && src === "main") ls.set(BAK, main);
   if (src === "legacy") ls.del(LEGACY);
   return true;
 }
+/* Drops progress and sessions that point at deleted topics, then re-plans. */
+function afterContentChange(replan = true) {
+  S.contentEdited = true;
+  buildModel();
+  Object.keys(S.status).forEach(k => { if (!nodes[k] || !nodes[k].leaf) delete S.status[k]; });
+  Object.keys(S.attempts).forEach(k => { if (!nodes[k]) delete S.attempts[k]; });
+  Object.keys(S.mistakes).forEach(k => { if (!nodes[k]) delete S.mistakes[k]; });
+  const qIds = new Set(S.content.questions.map(q => q.id));
+  Object.values(S.mistakes).forEach(m => m.qs = m.qs.filter(q => qIds.has(q)));
+  S.tasks = S.tasks.filter(t => nodes[t.node]);
+  S.tasks.forEach(t => t.subject = nodes[t.node].subject);
+  S.recent = S.recent.filter(r => nodes[r.id]);
+  if (replan) generate(todayKey());
+  save();
+}
+/* A newer data.js (e.g. Megan's real syllabus pushed by Claude) replaces the content, keeping progress for topics that still exist */
+function loadDataFile() {
+  const conv = convertData(DATA, todayKey());
+  S.content = cleanContent(conv.content).content;
+  Object.entries(conv.seeds).forEach(([k, v]) => { if (S.status[k] === undefined) S.status[k] = v; });
+  afterContentChange(true);
+  S.contentEdited = false; save();
+}
+function checkDataFile() {
+  if (!DATA || !DATA.contentVersion || DATA.contentVersion === S.content.from) return;
+  if (!S.contentEdited) { loadDataFile(); contentNotice = { auto: true }; }
+  else contentNotice = { auto: false };
+}
 
 /* ---------- backup / restore ---------- */
-function exportText() { return JSON.stringify({ app: "study-desk", schema: SCHEMA, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S }, null, 1); }
+function exportText() { return JSON.stringify({ app: "study-desk", schema: SCHEMA_NOW, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S }, null, 1); }
 function importText(txt) {
   let o; try { o = JSON.parse(txt); } catch (e) { return { error: "That isn't a Study Desk backup. Check you copied the whole file." }; }
   const raw = o && o.app === "study-desk" && o.state ? o.state : o;
@@ -218,7 +295,7 @@ function importText(txt) {
 /* ---------- undo (one step) ---------- */
 let undoSnap = null;
 const snapshot = () => { undoSnap = JSON.stringify(S); };
-function undo() { if (!undoSnap) return; S = JSON.parse(undoSnap); undoSnap = null; save(); flipRerender(); toast("Undone."); }
+function undo() { if (!undoSnap) return; S = JSON.parse(undoSnap); undoSnap = null; buildModel(); save(); flipRerender(); toast("Undone."); }
 
 /* =====================================================================
    4. PRIORITY & PROGRESS
@@ -455,6 +532,9 @@ V.today = () => {
   const changes = S.changes.filter(c => c.when === t).slice(0, 3);
   const allDone = ts.length && !left.length;
   const lede = !DSUBJ.length ? `Add your subjects in the data file to get a plan.` : !upcoming.length ? `All your exams are behind you. Well done.` : ts.length ? (left.length ? `<strong>${left.length} session${left.length > 1 ? "s" : ""}, ${Math.floor(mins / 60) ? Math.floor(mins / 60) + " h " : ""}${mins % 60} min</strong> left today. ${esc(top.name)} needs the most attention: its exam is in ${daysLeft(top.id)} day${daysLeft(top.id) === 1 ? "" : "s"}.` : `<strong>Today's plan is done.</strong> That's everything for today. Tomorrow's sessions are in the calendar.`) : `Today is a rest day. Your next sessions are in the calendar.`;
+  if (!DSUBJ.length) return `<div class="stack" style="gap:24px"><header class="hero"><div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div><h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
+      <p class="lede">Add your subjects and exam dates, and Study Desk will plan every day for you.</p></header>
+      <div class="card stack"><h2 class="h3">Get started</h2><ol class="steps"><li>Add a subject and its exam date.</li><li>Import its contents from a PDF or PowerPoint, or type the chapters and page numbers.</li><li>Come back here each day to see what to study.</li></ol><button class="btn btn-pen" data-go="editsubj:new" style="align-self:flex-start">+ Add your first subject</button></div></div>`;
   return `<div class="stack" style="gap:28px">
     <header class="hero"><div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
       <h1 id="heroTitle">What should I study <span class="hl">today?</span></h1><p class="lede">${lede}</p>
@@ -483,7 +563,8 @@ V.today = () => {
   </div>`;
 };
 
-V.exams = () => `<div class="stack" style="gap:20px"><header class="subhead"><div class="eyebrow">${DSUBJ.length} subjects</div><h1>Exam countdown</h1><p class="muted">Counted from today's date. The closer the exam and the less prepared you are, the louder the card.</p></header>
+V.exams = () => `<div class="stack" style="gap:20px"><header class="subhead"><div class="eyebrow">${DSUBJ.length} subjects</div><h1>Exam countdown</h1><p class="muted">Counted from today's date. The closer the exam and the less prepared you are, the louder the card.</p><div class="row"><button class="btn btn-line btn-sm" data-go="edit">${ico("pencil")}Edit my subjects</button></div></header>
+  ${DSUBJ.length ? "" : `<div class="card empty">No subjects yet. <button class="link" data-go="editsubj:new">Add your first subject</button></div>`}
   <div class="exams grid">${DSUBJ.slice().sort((a, b) => daysLeft(a.id) - daysLeft(b.id)).map(s => examCard(s.id)).join("")}</div></div>`;
 
 V.subject = sid => {
@@ -491,7 +572,8 @@ V.subject = sid => {
   const d = daysLeft(sid), lvl = subjLevel(sid);
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">${esc(s.code || "")}${s.course ? " · " + esc(s.course) : ""}</div><h1>${esc(s.name)}</h1>
-      <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span></div></header>
+      <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span><button class="btn btn-line btn-sm" data-go="editsubj:${sid}">${ico("pencil")}Edit</button></div></header>
+    ${!s.chapterIds.length ? `<div class="card empty">No chapters yet. <button class="link" data-go="editsubj:${sid}">Add chapters or import a PDF</button></div>` : ""}
     <div class="card stack">${progRow("Overall progress", progress(sid), subjColor(sid), "lg")}
       <div class="stat3">${progRow("Content completed", contentPct(sid), "var(--p-high)")}${progRow("Practice completed", practisedPct(sid), "var(--pen)")}${progRow("Revision completed", revisedPct(sid), "var(--p-done)")}</div></div>
     <section class="section"><div class="sec-head"><h2>Chapters</h2><span class="tiny muted">${leavesBySubject[sid].length} topics tracked</span></div>
@@ -520,7 +602,7 @@ V.topic = id => {
   const n = nodes[id]; if (!n) return V.exams();
   if (!n.leaf) return n.depth === 0 ? V.chapter(id) : headingView(id);
   const s = subjects[n.subject], cur = st(id), sp = scoreParts(id, todayKey()), a = acc(id), h = S.attempts[id], m = S.mistakes[id]?.n || 0;
-  const qs = DATA.questions.filter(q => q.node === id);
+  const qs = QS.filter(q => q.node === id);
   const ts = S.tasks.filter(t => t.node === id && t.type !== "mock" && t.date >= todayKey()).sort((x, y) => x.date.localeCompare(y.date) || x.start - y.start).slice(0, 4);
   const canMaster = cur === 4 && a !== null && a >= .8 && h.a >= 3;
   let next = "";
@@ -530,7 +612,7 @@ V.topic = id => {
     : cur < 4 ? `<div class="lock">${ico("info")}<span>Opening or reading a topic never marks it mastered. Each step needs real work: practice moves it to Practised, revision to Revised, and Mastered needs a strong practice score.</span></div>` : "";
   return `<div class="stack" style="gap:20px">
     <header class="subhead"><div class="eyebrow">${esc(s.name)} · ${n.num}</div><h1>${esc(n.title)}</h1>
-      <div class="chips"><span class="bigpages">Pages ${n.p1}–${n.p2}</span>${diffTag(n.diff)}${prPill(sp.level)}</div></header>
+      <div class="chips"><span class="bigpages">Pages ${n.p1}–${n.p2}</span>${diffTag(n.diff)}${prPill(sp.level)}<button class="btn btn-line btn-sm" data-action="node-edit" data-id="${id}">${ico("pencil")}Edit</button></div></header>
     <div class="two">
       <div class="stack">
         <section class="card stack" style="--ladder:${STATUS_COL[Math.max(cur, 1)]}"><div class="sec-head"><h2 style="font-size:18px">Where you are</h2>${statusTag(cur)}</div>
@@ -545,7 +627,8 @@ V.topic = id => {
           ${a !== null ? progRow("Accuracy", a, a < .6 ? "var(--p-urgent)" : a < .8 ? "var(--p-high)" : "var(--ok)") : `<p class="small muted">No answers yet.</p>`}
           ${m ? `<p class="small"><b style="color:var(--bad)">${m} mistake${m > 1 ? "s" : ""}</b> to review.</p>` : ""}
           <button class="btn ${qs.length ? "btn-soft" : "btn-line"}" data-action="practise" data-id="${id}">${ico("pencil")}${qs.length ? `Practise this topic (${qs.length} question${qs.length > 1 ? "s" : ""})` : `Practise ${esc(s.name)}`}</button>
-          ${qs.length ? "" : `<p class="tiny muted">This topic has no questions yet. Questions come with your real content.</p>`}</section>
+          ${qs.filter(q => q.own).length ? `<div class="ownq">${qs.filter(q => q.own).map(q => `<div class="row"><span class="grow small">${esc(q.q)}</span><button class="oa" data-action="q-del" data-id="${q.id}" aria-label="Delete question">${ico("x")}</button></div>`).join("")}</div>` : ""}
+          <button class="btn btn-line btn-sm" data-action="q-add" data-id="${id}" style="align-self:flex-start">+ Add your own question</button></section>
         <section class="card stack" style="gap:8px"><div class="sec-head"><h2 style="font-size:18px">Why ${PR[sp.level].toLowerCase()} priority</h2></div>
           ${sp.level === "done" ? `<p class="small muted">Mastered topics drop out of the plan.</p>` : `<div class="why">${sp.parts.map(p => `<div><span>${p[0]}</span><b>+${p[1]}</b></div>`).join("")}<div><span>Priority score</span><b>${sp.total}</b></div></div><p class="tiny muted">9+ urgent · 7+ high · 5+ medium · below 5 low</p>`}</section>
       </div>
@@ -597,8 +680,8 @@ V.calendar = () => {
 /* ---------- practice ---------- */
 let Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 };
 function qPool() {
-  if (Q.mode === "mistakes") { const ids = new Set(Object.values(S.mistakes).flatMap(m => m.qs)); return DATA.questions.filter(q => ids.has(q.id)); }
-  return DATA.questions.filter(q => (Q.topic ? q.node === Q.topic : true) && (Q.subj === "all" || q.subject === Q.subj) && (Q.lvl === "all" || q.level === Q.lvl));
+  if (Q.mode === "mistakes") { const ids = new Set(Object.values(S.mistakes).flatMap(m => m.qs)); return QS.filter(q => ids.has(q.id)); }
+  return QS.filter(q => (Q.topic ? q.node === Q.topic : true) && (Q.subj === "all" || q.subject === Q.subj) && (Q.lvl === "all" || q.level === Q.lvl));
 }
 V.practice = () => {
   const pool = qPool(), q = pool.length ? pool[Q.idx % pool.length] : null;
@@ -666,6 +749,7 @@ V.settings = () => {
   }[plat];
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">Study Desk ${APP_VERSION}</div><h1>Settings</h1></header>
+    <section class="card stack"><h2 class="h3">My subjects</h2><p class="small muted">${DSUBJ.length} subject${DSUBJ.length === 1 ? "" : "s"}, ${leafIds.length} topics. Add subjects, chapters and page numbers, or import them from a PDF or PowerPoint.</p><button class="btn btn-soft" data-go="edit" style="align-self:flex-start">${ico("pencil")}Edit my subjects</button></section>
     <section class="card stack"><h2 class="h3">Study days</h2>
       <div class="daypick">${order7.map(d => `<button class="chip" aria-pressed="${s.days.includes(d)}" data-action="day" data-d="${d}">${dn[d]}</button>`).join("")}</div>
       <h2 class="h3">Study times</h2>
@@ -688,12 +772,347 @@ V.settings = () => {
       <div class="row"><button class="btn btn-line btn-sm" data-action="importpaste">Restore pasted backup</button></div>
       ${importMsg ? `<div class="lock" role="status">${ico(importMsg.ok ? "check" : "info")}<span>${esc(importMsg.text)}</span></div>` : ""}</section>
     <section class="card stack"><h2 class="h3">Data check</h2>
-      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklch,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subjects, ${Object.keys(nodes).length} chapters, headings and topics, ${DATA.questions.length} questions.</span></div>`}
+      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklch,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subjects, ${Object.keys(nodes).length} chapters, headings and topics, ${QS.length} questions.</span></div>`}
       ${repairs ? `<p class="tiny muted">${repairs} saved item${repairs > 1 ? "s were" : " was"} out of shape and repaired on start-up.</p>` : ""}
-      <p class="tiny muted mono">Saved data ${used} · format v${SCHEMA} · ${navigator.serviceWorker && navigator.serviceWorker.controller ? "offline ready" : "online only"}</p></section>
+      <p class="tiny muted mono">Saved data ${used} · format v${SCHEMA_NOW} · ${navigator.serviceWorker && navigator.serviceWorker.controller ? "offline ready" : "online only"}</p></section>
     <button class="btn btn-line" data-action="reset">Reset demo data</button>
   </div>`;
 };
+
+/* =====================================================================
+   8b. MY SUBJECTS — add and edit subjects, chapters, headings, pages and questions in the app
+   ===================================================================== */
+let editHue = null, qpPreview = null, qpText = "";
+
+/* Quick paste: turns a typed or copied contents list into chapters, headings and subheadings.
+   Understands  "3.2 Variables 83-89 hard",  "Chapter 3: Research methods (pp. 75–102)",
+   "Variables ........ 83"  and indentation or bullets when there are no numbers. */
+function parseOutline(text) {
+  const warnings = [], roots = [], stack = []; let count = 0;
+  const indentStack = [];
+  text.split(/\r?\n/).forEach((line, li) => {
+    if (!line.trim()) return;
+    const ws = (line.match(/^[\t ]*/)[0] || "").replace(/\t/g, "    ").length;
+    let t = line.trim().replace(/^[-*•·▪◦‣]+\s*/, "");
+    let isChapter = /^(chapter|ch\.?|unit|part|module)\s+/i.test(t);
+    t = t.replace(/^(chapter|ch\.?|unit|part|module|section)\s+/i, "");
+    const nm = /^(\d+(?:\.\d+)*)\.?(?=[\s:)\-–—.]|$)/.exec(t);
+    let num = null; if (nm) { num = nm[1]; t = t.slice(nm[0].length); }
+    t = t.replace(/^[\s:)\-–—.]+/, "");
+    let diff = 2; const dm = /[\s,(\-–]*\b(easy|medium|med|hard|difficult|tough)\)?\s*$/i.exec(t);
+    if (dm) { diff = /easy/i.test(dm[1]) ? 1 : /med/i.test(dm[1]) ? 2 : 3; t = t.slice(0, dm.index); }
+    let p1 = null, p2 = null;
+    const pr = /[\s,(]*(?:pages?|pp?\.?)?\s*(\d{1,5})\s*(?:-|–|—|to)\s*(\d{1,5})\s*\)?\s*$/i.exec(t);
+    if (pr) { p1 = +pr[1]; p2 = +pr[2]; t = t.slice(0, pr.index); }
+    else { const ps = /(?:[\s.·…_]{2,}|[\s,(]*(?:pages?|pp?\.?)\s*|\s+)(\d{1,5})\s*\)?\s*$/i.exec(t); if (ps) { p1 = +ps[1]; t = t.slice(0, ps.index); } }
+    const title = t.replace(/[\s.·…_:,\-–—]+$/, "").trim();
+    if (!title) { warnings.push(`Line ${li + 1} has no title, so it was skipped.`); return; }
+    if (p1 !== null && p2 !== null && p2 < p1) { warnings.push(`“${title}”: the last page is before the first, so they were swapped.`); [p1, p2] = [p2, p1]; }
+    let depth;
+    if (num) depth = isChapter ? 0 : num.split(".").length - 1;
+    else if (isChapter) depth = 0;
+    else if (!indentStack.length) depth = 0;
+    else { const prev = indentStack[indentStack.length - 1]; if (ws > prev.ws) depth = prev.depth + 1; else { const m = [...indentStack].reverse().find(h => h.ws <= ws); depth = m ? m.depth : 0; } }
+    depth = Math.min(depth, 3);
+    if (depth > stack.length) { warnings.push(`“${title}” skips a level, so it was placed one level up.`); depth = stack.length; }
+    stack.length = depth;
+    const n = { id: newId("n"), title: title.slice(0, 160), p1, p2, diff, calc: false, kids: [] };
+    (depth === 0 ? roots : stack[depth - 1].kids).push(n); stack.push(n); count++; indentStack.push({ ws, depth });
+  });
+  /* fill in missing pages: a leaf ends where the next one starts; a heading spans its parts */
+  const fillLeaves = (list, parentEnd) => list.forEach((n, i) => {
+    if (n.kids.length) fillLeaves(n.kids, n.p2 ?? (list[i + 1]?.p1 != null ? list[i + 1].p1 - 1 : parentEnd));
+    else if (n.p1 != null && n.p2 == null) { const nx = list[i + 1]?.p1; n.p2 = nx != null && nx - 1 >= n.p1 ? nx - 1 : (parentEnd != null && parentEnd >= n.p1 ? parentEnd : n.p1); }
+  });
+  const span = n => { n.kids.forEach(span); if (n.kids.length) { const a = n.kids.map(k => k.p1).filter(x => x != null), b = n.kids.map(k => k.p2).filter(x => x != null); if (n.p1 == null && a.length) n.p1 = Math.min(...a); if (n.p2 == null && b.length) n.p2 = Math.max(...b); } };
+  const finish = (n, parent) => { if (n.p1 == null) { n.p1 = parent?.p1 ?? 0; warnings.push(`“${n.title}” has no page numbers.`); } if (n.p2 == null || n.p2 < n.p1) n.p2 = n.p1; n.kids.forEach(k => finish(k, n)); };
+  fillLeaves(roots, null); roots.forEach(span); roots.forEach(n => finish(n, null));
+  return { roots, warnings, count };
+}
+
+function outlineRows(list, sid, depth = 0, prefix = "") {
+  return list.map((n, i) => {
+    const num = prefix ? prefix + "." + (i + 1) : String(i + 1);
+    const leaf = !n.kids.length;
+    return `<div class="orow" style="--d:${depth}">
+      <button class="otitle" data-action="node-edit" data-id="${n.id}"><span class="onum">${num}</span><span class="grow"><span class="ot">${esc(n.title)}</span><span class="om"><span class="pages">pp ${n.p1}–${n.p2}</span>${DIFF[n.diff]}${leaf ? " · " + STATUS[st(n.id)] : ` · ${n.kids.length} part${n.kids.length > 1 ? "s" : ""}`}</span></span></button>
+      <span class="oacts">
+        <button class="oa" data-action="node-move" data-id="${n.id}" data-d="-1" aria-label="Move ${esc(n.title)} up" ${i === 0 ? "disabled" : ""}>↑</button>
+        <button class="oa" data-action="node-move" data-id="${n.id}" data-d="1" aria-label="Move ${esc(n.title)} down" ${i === list.length - 1 ? "disabled" : ""}>↓</button>
+        ${depth < 3 ? `<button class="oa" data-action="node-add" data-sid="${sid}" data-parent="${n.id}" aria-label="Add a part inside ${esc(n.title)}">+</button>` : ""}
+      </span></div>${n.kids.length ? outlineRows(n.kids, sid, depth + 1, num) : ""}`;
+  }).join("");
+}
+function previewRows(list, depth = 0, prefix = "") {
+  return list.map((n, i) => { const num = prefix ? prefix + "." + (i + 1) : String(i + 1); return `<div class="prow" style="--d:${depth}"><span class="onum">${num}</span><span class="grow">${esc(n.title)}</span><span class="pages">pp ${n.p1}–${n.p2}</span><span class="tiny muted">${DIFF[n.diff]}</span></div>` + previewRows(n.kids, depth + 1, num); }).join("");
+}
+
+V.edit = () => {
+  const sample = (S.content.from || "").startsWith("sample");
+  return `<div class="stack" style="gap:20px">
+    <header class="subhead"><div class="eyebrow">Your study content</div><h1>My subjects</h1><p class="muted">Add your subjects, exam dates, chapters and page numbers. The plan updates as you go.</p></header>
+    ${contentNotice && !contentNotice.auto ? `<div class="banner">${ico("download")}<div>New study content has been prepared for you. Loading it replaces the subjects below but keeps progress on topics that still exist. <button data-action="content-load">Load new content</button></div></div>` : ""}
+    ${sample ? `<div class="banner">${ico("info")}<div>These are <b>sample subjects</b>. Edit them, or clear them and add your own. <button data-action="content-clear">Remove all sample subjects</button></div></div>` : ""}
+    <div class="list">${DSUBJ.length ? DSUBJ.map(s => `<button class="item" data-go="editsubj:${s.id}" style="--pc:${subjColor(s.id)}"><span class="mark"></span><span class="grow"><span class="t">${esc(s.name)}</span><br><span class="s">Exam ${fmtD(s.exam, { day: "numeric", month: "short", year: "numeric" })} · ${s.chapterIds.length} chapter${s.chapterIds.length === 1 ? "" : "s"} · ${leavesBySubject[s.id].length} topics</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">No subjects yet. Add your first one below.</div>`}</div>
+    <button class="btn btn-pen" data-go="editsubj:new">+ Add a subject</button>
+    ${!sample && DSUBJ.length ? `<button class="btn btn-line btn-sm" data-action="content-clear" style="align-self:flex-start">Remove all subjects</button>` : ""}
+  </div>`;
+};
+V.editsubj = sid => {
+  const isNew = sid === "new", s = isNew ? null : subjects[sid];
+  if (!isNew && !s) return V.edit();
+  const hue = editHue ?? (s ? s.hue : HUES[DSUBJ.length % HUES.length]);
+  const raw = s ? s.raw : null;
+  return `<div class="stack" style="gap:20px">
+    <header class="subhead"><div class="eyebrow">${isNew ? "New subject" : "Edit subject"}</div><h1>${isNew ? "Add a subject" : esc(s.name)}</h1></header>
+    <section class="card stack form">
+      <label class="fld"><span>Subject name</span><input id="sf-name" value="${esc(raw?.name || "")}" placeholder="e.g. Psychology" maxlength="80" autocomplete="off"></label>
+      <div class="frow"><label class="fld"><span>Code (optional)</span><input id="sf-code" value="${esc(raw?.code || "")}" placeholder="PSY 210" maxlength="30"></label>
+        <label class="fld"><span>Exam date</span><input id="sf-exam" type="date" value="${raw?.exam || addDays(todayKey(), 30)}"></label></div>
+      <div class="frow"><label class="fld"><span>Exam time (optional)</span><input id="sf-time" type="time" value="${raw?.examTime || ""}"></label>
+        <label class="fld"><span>Venue (optional)</span><input id="sf-venue" value="${esc(raw?.venue || "")}" placeholder="Exam Hall B" maxlength="80"></label></div>
+      <label class="fld"><span>Course name (optional)</span><input id="sf-course" value="${esc(raw?.course || "")}" placeholder="Research Methods in Psychology" maxlength="120"></label>
+      <div class="fld"><span>Colour</span><div class="hues" role="radiogroup" aria-label="Colour">${HUES.map(h => `<button role="radio" aria-checked="${h === hue}" aria-label="Colour ${h}" data-action="hue" data-h="${h}" style="--h:oklch(58% 0.15 ${h})"></button>`).join("")}</div></div>
+      <p class="ferr" id="sf-err" role="alert"></p>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="subj-save" data-id="${sid}">${isNew ? "Add subject" : "Save changes"}</button>${!isNew ? `<button class="btn btn-line btn-sm" data-action="subj-del" data-id="${sid}">Delete subject</button>` : ""}</div>
+    </section>
+    ${isNew ? `<p class="small muted">After you add the subject you can add its chapters, headings and page numbers.</p>` : `
+    <section class="section"><div class="sec-head"><h2>Chapters and topics</h2><span class="tiny muted">${leavesBySubject[sid].length} topics</span></div>
+      <div class="card outline">${raw.chapters.length ? outlineRows(raw.chapters, sid) : `<div class="empty">No chapters yet. Add one, or paste the contents list below.</div>`}</div>
+      <button class="btn btn-soft" data-action="node-add" data-sid="${sid}" data-parent="">+ Add a chapter</button>
+      <p class="tiny muted">Tap a line to edit it. Use + to add a heading or subheading inside it.</p></section>
+    <section class="card stack"><h2 class="h3">Add chapters in bulk</h2>
+      <div class="dropzone" id="dropzone" data-sid="${sid}">
+        <label class="btn btn-soft" for="imp-file">${ico("upload")}Import from PDF or PowerPoint</label><input type="file" id="imp-file" class="sr" accept=".pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation" data-sid="${sid}">
+        <span class="tiny muted">or drop or paste the file here. It's read on this device and never uploaded.</span>
+        ${importBusy?.reading ? `<div class="lock" role="status"><span class="spin" aria-hidden="true"></span><span>Reading ${esc(importBusy.reading)}…</span></div>` : importBusy?.note ? `<div class="lock" role="status">${ico("check")}<span>${esc(importBusy.note)}</span></div>` : importBusy?.error ? `<div class="lock" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>` : ""}
+      </div>
+      <p class="small muted">Or type or paste one topic per line: number, title, pages, and optionally easy, medium or hard. Numbers like 3.2.1 set the level.</p>
+      <label class="sr" for="qp-text">Contents list</label>
+      <textarea id="qp-text" rows="7" placeholder="3 Research methods 75-102&#10;3.1 Research designs 75-82&#10;3.1.1 Experimental designs 76-78 easy&#10;3.1.2 Correlational designs 79-82 hard&#10;3.2 Variables 83-89 hard">${esc(qpText)}</textarea>
+      <div class="row"><button class="btn btn-line" data-action="qp-preview" data-id="${sid}">Preview</button></div>
+      ${qpPreview ? `<div class="stack" style="gap:8px">${qpPreview.count ? `<p class="small"><b>${qpPreview.count} lines understood.</b> Check them before adding:</p><div class="preview">${previewRows(qpPreview.roots)}</div>` : `<p class="small">Nothing could be read from that text.</p>`}
+        ${qpPreview.warnings.length ? `<ul class="issues">${qpPreview.warnings.slice(0, 12).map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
+        ${qpPreview.count ? `<div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="qp-apply" data-id="${sid}" data-mode="append">Add to ${esc(s.name)}</button>${raw.chapters.length ? `<button class="btn btn-line btn-sm" data-action="qp-apply" data-id="${sid}" data-mode="replace">Replace all chapters</button>` : ""}</div>` : ""}</div>` : ""}
+    </section>`}
+  </div>`;
+};
+
+/* ---------- generic bottom sheet ---------- */
+function openSheet(label, inner) {
+  $$(".scrim").forEach(s => s.remove());
+  $("#layer").insertAdjacentHTML("beforeend", `<div class="scrim" data-x="close"><div class="sheet" role="dialog" aria-modal="true" aria-label="${esc(label)}">${inner}</div></div>`);
+  const sh = $(".sheet");
+  if (FX.on) { sh.style.animation = "none"; gsap.from(sh, { y: 120, opacity: 0, duration: .5, ease: "expo.out" }); }
+  dragToClose(sh);
+  setTimeout(() => sh.querySelector("input,textarea,select")?.focus({ preventScroll: true }), 60);
+}
+const sheetHead = (eyebrow, title) => `<div class="sheet-head"><div class="grab"></div><div class="row"><div class="grow"><div class="tiny muted mono">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div><button class="icon-btn" data-x="close" aria-label="Close">${ico("x")}</button></div></div>`;
+function openNodeSheet(opts) {
+  const ex = opts.id ? findRaw(opts.id) : null, n = ex ? ex.node : null;
+  const sid = ex ? ex.subject.id : opts.sid, parent = ex ? ex.parent : (opts.parent ? findRaw(opts.parent)?.node : null);
+  const leaf = !n || !n.kids.length;
+  const kind = !parent ? "chapter" : (parent && findRaw(parent.id)?.parent ? "subheading" : "heading");
+  const title = n ? "Edit " + kind : "Add a " + kind;
+  const p1d = n ? n.p1 : (parent ? (parent.kids.length ? parent.kids[parent.kids.length - 1].p2 + 1 : parent.p1) : "");
+  openSheet(title, `${sheetHead(subjects[sid].name + (parent ? " · in " + parent.title : ""), title)}
+    <div class="stack form">
+      <label class="fld"><span>Title</span><input id="nf-title" value="${esc(n?.title || "")}" maxlength="160" placeholder="e.g. Research methods" autocomplete="off"></label>
+      <div class="frow"><label class="fld"><span>First page</span><input id="nf-p1" type="number" inputmode="numeric" min="0" value="${p1d}"></label><label class="fld"><span>Last page</span><input id="nf-p2" type="number" inputmode="numeric" min="0" value="${n ? n.p2 : ""}"></label></div>
+      <div class="frow"><label class="fld"><span>Difficulty</span><select id="nf-diff">${[1, 2, 3].map(d => `<option value="${d}" ${(n ? n.diff : 2) === d ? "selected" : ""}>${DIFF[d]}</option>`).join("")}</select></label>
+        ${leaf ? `<label class="fld"><span>Where you are</span><select id="nf-status">${STATUS.slice(0, 5).map((x, i) => `<option value="${i}" ${(n ? st(n.id) : 0) === i ? "selected" : ""}>${x}</option>`).join("")}${n && st(n.id) === 5 ? `<option value="5" selected>Mastered</option>` : ""}</select></label>` : ""}</div>
+      <label class="check-row"><input type="checkbox" id="nf-calc" ${n?.calc ? "checked" : ""}> Has calculations (plans calculation practice instead of plain questions)</label>
+      ${leaf && !n ? "" : !leaf ? `<p class="tiny muted">Progress for this ${kind} comes from its ${n.kids.length} parts.</p>` : ""}
+      <p class="ferr" id="nf-err" role="alert"></p>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="node-save" data-id="${n ? n.id : ""}" data-sid="${sid}" data-parent="${parent ? parent.id : ""}">${n ? "Save" : "Add"}</button>
+        ${n ? `<button class="btn btn-line btn-sm" data-action="node-del" data-id="${n.id}">Delete${n.kids.length ? " with its parts" : ""}</button>` : ""}
+        ${n && kind !== "subheading" ? `<button class="btn btn-line btn-sm" data-action="node-add" data-sid="${sid}" data-parent="${n.id}">+ Add a part inside</button>` : ""}</div>
+    </div>`);
+}
+function openQuestionSheet(nodeId) {
+  const n = nodes[nodeId];
+  openSheet("Add a question", `${sheetHead(subjects[n.subject].name + " · " + n.title, "Add a practice question")}
+    <div class="stack form">
+      <label class="fld"><span>Question</span><textarea id="qf-q" rows="3" maxlength="600" placeholder="Type the question"></textarea></label>
+      <div class="fld"><span>Answers (tick the correct one)</span>
+        ${[0, 1, 2, 3].map(i => `<div class="ansrow"><input type="radio" name="qf-a" id="qf-a${i}" value="${i}" ${i === 0 ? "checked" : ""} aria-label="Answer ${"ABCD"[i]} is correct"><label class="l" for="qf-a${i}">${"ABCD"[i]}</label><input id="qf-o${i}" maxlength="300" placeholder="${i < 2 ? "Answer " + "ABCD"[i] : "Answer " + "ABCD"[i] + " (optional)"}" aria-label="Answer ${"ABCD"[i]}"></div>`).join("")}</div>
+      <label class="fld"><span>Level</span><select id="qf-level">${Object.entries(LEVELS).map(([k, v]) => `<option value="${k}" ${k === "medium" ? "selected" : ""}>${v}</option>`).join("")}</select></label>
+      <label class="fld"><span>Explanation shown after answering (optional)</span><textarea id="qf-e" rows="2" maxlength="1200" placeholder="Why the correct answer is right"></textarea></label>
+      <p class="ferr" id="qf-err" role="alert"></p>
+      <div class="row"><button class="btn btn-pen" data-action="q-save" data-id="${nodeId}">Save question</button></div>
+    </div>`);
+}
+const val = id => ($("#" + id)?.value ?? "").trim();
+const showErr = (id, msg) => { const el = $("#" + id); if (el) { el.textContent = msg; if (FX.on) gsap.fromTo(el, { x: -6 }, { x: 0, duration: .4, ease: "elastic.out(1,.4)" }); } };
+
+/* returns true when the action was an editor action */
+function editorAction(act, a) {
+  const id = a.dataset.id;
+  switch (act) {
+    case "hue": editHue = +a.dataset.h; $$(".hues button").forEach(b => b.setAttribute("aria-checked", b === a)); return true;
+    case "subj-save": {
+      const name = val("sf-name"), exam = val("sf-exam"), time = val("sf-time");
+      if (!name) { showErr("sf-err", "Give the subject a name."); return true; }
+      if (!DATE_RE.test(exam)) { showErr("sf-err", "Choose the exam date."); return true; }
+      if (time && parseT(time) === null) { showErr("sf-err", "The exam time should look like 09:00."); return true; }
+      snapshot();
+      const fields = { name: name.slice(0, 80), code: val("sf-code").slice(0, 30), course: val("sf-course").slice(0, 120), exam, examTime: time, venue: val("sf-venue").slice(0, 80) };
+      if (id === "new") {
+        const s = { id: newId("s"), hue: editHue ?? HUES[DSUBJ.length % HUES.length], chapters: [], ...fields };
+        S.content.subjects.push(s); editHue = null; afterContentChange(true);
+        stack[stack.length - 1] = { v: "editsubj", a: s.id }; render(true); toast(`${s.name} added. Now add its chapters.`);
+      } else {
+        const raw = S.content.subjects.find(s => s.id === id); Object.assign(raw, fields); if (editHue !== null) raw.hue = editHue; editHue = null;
+        afterContentChange(true); rerender(); toast("Subject saved. Plan updated.", { label: "Undo", fn: undo });
+      }
+      return true;
+    }
+    case "subj-del":
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete it and its progress"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete subject"; } }, 3500); return true; }
+      snapshot(); S.content.subjects = S.content.subjects.filter(s => s.id !== id); afterContentChange(true);
+      stack.pop(); if (!stack.length) stack = [{ v: "today" }]; render(true); toast("Subject deleted.", { label: "Undo", fn: undo }); return true;
+    case "node-add": closeSheet(true); openNodeSheet({ sid: a.dataset.sid, parent: a.dataset.parent || null }); return true;
+    case "node-edit": openNodeSheet({ id }); return true;
+    case "node-save": {
+      const title = val("nf-title"), p1s = val("nf-p1"), p2s = val("nf-p2");
+      if (!title) { showErr("nf-err", "Give it a title."); return true; }
+      const p1 = p1s === "" ? 0 : Number(p1s), p2 = p2s === "" ? p1 : Number(p2s);
+      if (!isInt(p1, 0, 1e5) || !isInt(p2, 0, 1e5)) { showErr("nf-err", "Pages should be whole numbers."); return true; }
+      if (p2 < p1) { showErr("nf-err", "The last page can't be before the first page."); return true; }
+      snapshot();
+      const fields = { title: title.slice(0, 160), p1, p2, diff: +val("nf-diff") || 2, calc: !!$("#nf-calc")?.checked };
+      let nodeId = id;
+      if (id) Object.assign(findRaw(id).node, fields);
+      else {
+        const n = { id: newId("n"), ...fields, kids: [] }; nodeId = n.id;
+        const parent = a.dataset.parent ? findRaw(a.dataset.parent)?.node : null;
+        if (parent) { if (!parent.kids.length) { delete S.status[parent.id]; } parent.kids.push(n); if (parent.p2 < p2) parent.p2 = p2; if (parent.p1 > p1 && p1) parent.p1 = p1; }
+        else S.content.subjects.find(s => s.id === a.dataset.sid).chapters.push(n);
+      }
+      const stEl = $("#nf-status"); if (stEl) S.status[nodeId] = clamp(+stEl.value, 0, 5);
+      afterContentChange(true); closeSheet(); rerender(); toast(id ? "Saved." : `${fields.title} added.`, { label: "Undo", fn: undo });
+      return true;
+    }
+    case "node-del": {
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete"; } }, 3500); return true; }
+      const f = findRaw(id); if (!f) return true;
+      snapshot(); f.list.splice(f.index, 1); afterContentChange(true); closeSheet(); rerender(); toast(`${f.node.title} deleted.`, { label: "Undo", fn: undo }); return true;
+    }
+    case "node-move": {
+      const f = findRaw(id), j = f.index + +a.dataset.d; if (j < 0 || j >= f.list.length) return true;
+      [f.list[f.index], f.list[j]] = [f.list[j], f.list[f.index]];
+      const y = window.scrollY; afterContentChange(false); render(false); window.scrollTo({ top: y }); return true;
+    }
+    case "qp-preview": qpText = $("#qp-text")?.value || ""; qpPreview = parseOutline(qpText); rerender(); return true;
+    case "qp-apply": {
+      if (!qpPreview || !qpPreview.count) return true;
+      snapshot();
+      const raw = S.content.subjects.find(s => s.id === id);
+      if (a.dataset.mode === "replace") raw.chapters = qpPreview.roots; else raw.chapters.push(...qpPreview.roots);
+      const n = qpPreview.count; qpPreview = null; qpText = "";
+      afterContentChange(true); rerender(); toast(`${n} chapters, headings and topics added. Plan updated.`, { label: "Undo", fn: undo }); return true;
+    }
+    case "q-add": openQuestionSheet(id); return true;
+    case "q-save": {
+      const q = val("qf-q"), opts = [0, 1, 2, 3].map(i => val("qf-o" + i)), ans = +($("input[name=qf-a]:checked")?.value ?? 0);
+      if (!q) { showErr("qf-err", "Type the question."); return true; }
+      const filled = opts.map((o, i) => ({ o, i })).filter(x => x.o);
+      if (filled.length < 2) { showErr("qf-err", "Add at least two answers."); return true; }
+      if (!opts[ans]) { showErr("qf-err", "Tick an answer that has text in it."); return true; }
+      snapshot();
+      S.content.questions.push({ id: newId("u"), node: id, level: val("qf-level") || "medium", q, o: filled.map(x => x.o), a: filled.findIndex(x => x.i === ans), e: val("qf-e"), own: true });
+      afterContentChange(false); closeSheet(); rerender(); toast("Question added.", { label: "Undo", fn: undo }); return true;
+    }
+    case "q-del": snapshot(); S.content.questions = S.content.questions.filter(q => q.id !== id); afterContentChange(false); rerender(); toast("Question deleted.", { label: "Undo", fn: undo }); return true;
+    case "content-clear":
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.dataset.label = a.textContent; a.textContent = "Tap again to remove them all"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = a.dataset.label; } }, 3500); return true; }
+      snapshot(); S.content = { from: "own", subjects: [], questions: [], explain: {} }; S.status = {}; S.attempts = {}; S.mistakes = {}; S.tasks = []; S.recent = []; S.changes = [];
+      afterContentChange(true); rerender(); toast("All subjects removed. Add your own below.", { label: "Undo", fn: undo }); return true;
+    case "content-load":
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to replace your subjects"; return true; }
+      snapshot(); loadDataFile(); contentNotice = null; rerender(); toast("New study content loaded.", { label: "Undo", fn: undo }); return true;
+  }
+  return false;
+}
+
+/* ---------- import a contents list from a PDF or PowerPoint (read on this device, nothing is uploaded) ---------- */
+let importBusy = null;
+const stripNum = t => t.replace(/\s+/g, " ").trim().replace(/^(chapter|ch\.?|unit|part|module|section|lecture|week)\s*\d+(\.\d+)*\s*[.:)\-–—]?\s*/i, "").replace(/^\d+(\.\d+)*\s*[.:)\-–—]?\s+/, "").trim();
+async function loadPdfJs() {
+  if (window.pdfjsLib) return window.pdfjsLib;
+  const base = new URL("vendor/", document.baseURI).href;
+  const lib = await import(base + "pdf.min.mjs");
+  lib.GlobalWorkerOptions.workerSrc = base + "pdf.worker.min.mjs";
+  window.pdfjsLib = lib; return lib;
+}
+async function pdfToOutline(buf) {
+  const lib = await loadPdfJs();
+  const doc = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
+  let labels = null; try { labels = await doc.getPageLabels(); } catch (e) { }
+  const pageNo = i => { const l = labels && labels[i]; return l && /^\d+$/.test(l) ? +l : i + 1; };
+  const outline = await doc.getOutline().catch(() => null);
+  if (outline && outline.length) {
+    const lines = []; let count = 0;
+    const resolve = async it => { try { let d = it.dest; if (typeof d === "string") d = await doc.getDestination(d); if (Array.isArray(d) && d[0]) { const idx = typeof d[0] === "number" ? d[0] : await doc.getPageIndex(d[0]); return pageNo(idx); } } catch (e) { } return null; };
+    const walk = async (items, prefix, depth) => { for (let i = 0; i < items.length && count < 400; i++) { const it = items[i], num = prefix ? prefix + "." + (i + 1) : String(i + 1), p = await resolve(it), t = stripNum(it.title || ""); if (!t) continue; count++; lines.push(`${num} ${t}${p != null ? " " + p : ""}`); if (depth < 3 && it.items && it.items.length) await walk(it.items, num, depth + 1); } };
+    await walk(outline, "", 0);
+    if (lines.length) return { text: lines.join("\n"), note: `Read ${count} bookmarks from the PDF. Page numbers come from the PDF, so check they match your book.` };
+  }
+  /* no bookmarks: look for a contents page and read its lines */
+  const pageLines = async i => {
+    const pg = await doc.getPage(i), tc = await pg.getTextContent(), rows = [];
+    tc.items.forEach(it => { if (!it.str || !it.str.trim()) return; const y = Math.round(it.transform[5]), x = it.transform[4]; let r = rows.find(r => Math.abs(r.y - y) <= 3); if (!r) rows.push(r = { y, parts: [] }); r.parts.push({ x, s: it.str }); });
+    return rows.sort((a, b) => b.y - a.y).map(r => r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim());
+  };
+  const max = Math.min(doc.numPages, 30), tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
+  let start = -1, collected = [];
+  for (let i = 1; i <= max; i++) {
+    const ls = await pageLines(i);
+    if (start < 0 && ls.some(l => /^(table of )?contents$/i.test(l.trim()))) start = i;
+    if (start > 0) { const good = ls.filter(tocLike); if (i > start && good.length < 3) break; collected.push(...good); }
+  }
+  if (!collected.length) for (let i = 1; i <= max; i++) { const good = (await pageLines(i)).filter(l => tocLike(l) && /^(\d+(\.\d+)*|chapter|unit)\b/i.test(l)); if (good.length >= 4) collected.push(...good); }
+  if (collected.length) return { text: collected.slice(0, 400).join("\n"), note: start > 0 ? `Read the contents page (page ${start} of the PDF). Check the levels and page numbers before adding.` : "This PDF has no bookmarks or contents page, so these lines were picked from numbered headings. Check them carefully." };
+  return { text: "", note: "Couldn't find bookmarks or a contents page in this PDF. Type or paste the contents list instead." };
+}
+async function pptxToOutline(buf, name) {
+  if (!window.JSZip) throw new Error("zip");
+  const zip = await JSZip.loadAsync(buf);
+  const files = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => +a.match(/(\d+)\.xml$/)[1] - +b.match(/(\d+)\.xml$/)[1]);
+  const titles = [];
+  for (let i = 0; i < files.length; i++) {
+    const xml = new DOMParser().parseFromString(await zip.file(files[i]).async("string"), "application/xml");
+    const shapes = [...xml.getElementsByTagNameNS("*", "sp")];
+    const textOf = sp => [...sp.getElementsByTagNameNS("*", "p")].map(p => [...p.getElementsByTagNameNS("*", "t")].map(t => t.textContent).join("")).filter(Boolean);
+    const isTitle = sp => [...sp.getElementsByTagNameNS("*", "ph")].some(ph => /title|ctrTitle/i.test(ph.getAttribute("type") || ""));
+    let t = shapes.filter(isTitle).flatMap(textOf).join(" ").trim();
+    if (!t) t = (shapes.map(textOf).find(x => x.length) || [""])[0];
+    titles.push(stripNum(t) || `Slide ${i + 1}`);
+  }
+  if (!titles.length) return { text: "", note: "No slides found in that file." };
+  const deck = stripNum(name.replace(/\.pptx$/i, "").replace(/[_-]+/g, " ")) || "Slides";
+  const lines = [`1 ${deck} 1-${titles.length}`]; let k = 0;
+  for (let i = 0; i < titles.length; i++) { let j = i; while (j + 1 < titles.length && titles[j + 1].replace(/\s*\(cont.*\)$/i, "") === titles[i]) j++; k++; lines.push(`1.${k} ${titles[i]} ${i + 1}-${j + 1}`); i = j; }
+  return { text: lines.join("\n"), note: `Read ${titles.length} slides from ${name}. Slide numbers are used as page numbers.` };
+}
+async function importFile(file, sid) {
+  if (!file) return;
+  const name = file.name || "file", ext = (name.match(/\.(\w+)$/) || [])[1]?.toLowerCase();
+  if (file.size > 80e6) { importBusy = { error: "That file is over 80 MB. Try a smaller PDF or just the contents pages." }; rerender(); return; }
+  if (ext === "ppt") { importBusy = { error: "Old .ppt files can't be read. Open it in PowerPoint and save it as .pptx first." }; rerender(); return; }
+  if (!["pdf", "pptx"].includes(ext)) { importBusy = { error: "Choose a PDF or a PowerPoint (.pptx) file." }; rerender(); return; }
+  importBusy = { reading: name }; rerender();
+  try {
+    const buf = await file.arrayBuffer();
+    const r = ext === "pdf" ? await pdfToOutline(buf) : await pptxToOutline(buf, name);
+    importBusy = r.text ? { note: r.note } : { error: r.note };
+    if (r.text) { qpText = r.text; qpPreview = parseOutline(qpText); }
+  } catch (e) {
+    console.error(e);
+    importBusy = { error: /password/i.test(String(e && e.message)) ? "That PDF is password-protected. Remove the password and try again." : `Couldn't read ${name}. It may be damaged or scanned as images only.` };
+  }
+  if (stack[stack.length - 1].v === "editsubj" && stack[stack.length - 1].a === sid) rerender();
+}
 
 /* =====================================================================
    9. MOTION — GSAP (free, incl. Flip and SplitText) + View Transitions, all optional
@@ -778,6 +1197,8 @@ function navigate(fn, dir) {
 function go(spec) {
   const [v, ...rest] = spec.split(":"); const a = rest.join(":");
   if (!V[v]) return;
+  const cur = stack[stack.length - 1];
+  if (v === "editsubj" && !(cur.v === "editsubj" && cur.a === a)) { qpPreview = null; qpText = ""; importBusy = null; editHue = null; }
   const isTab = RAIL.some(t => t[0] === v);
   navigate(() => { if (isTab) stack = [{ v }]; else stack.push({ v, a }); }, isTab ? "tab" : "forward");
 }
@@ -792,6 +1213,8 @@ function crumbs() {
     let n = nodes[id]; const chain = []; while (n) { chain.unshift(n); n = n.parent ? nodes[n.parent] : null; }
     trail = [["subject:" + chain[0].subject, subjects[chain[0].subject].name], ...chain.map(c => [(c.depth === 0 ? "chapter:" : "topic:") + c.id, crumbTitle(c.id)])];
   } else if (r.v === "practice") trail = [["practice", "Practice"]];
+  else if (r.v === "edit") trail = [["edit", "My subjects"]];
+  else if (r.v === "editsubj") trail = [["edit", "My subjects"], ["editsubj:" + id, id === "new" ? "New subject" : (subjects[id]?.name || "Subject")]];
   const root = RAIL.find(t => t[0] === stack[0].v);
   const parts = [[stack[0].v, root[1]], ...trail];
   return `<button class="back" data-action="back" aria-label="Back">${ico("back")}</button><nav class="crumbs" aria-label="Breadcrumb">${parts.map((p, i) => i === parts.length - 1 ? `<span class="here">${esc(p[1])}</span>` : `<button data-crumb="${esc(p[0])}">${esc(p[1])}</button><span class="sep">›</span>`).join("")}</nav>`;
@@ -847,7 +1270,7 @@ function doImport(txt) {
   const r = importText(txt);
   if (r.error) { importMsg = { ok: false, text: r.error }; rerender(); return; }
   snapshot();
-  S = r.state; repairs = r.fixes; rollOver(); applySettings(false); save(true);
+  S = r.state; repairs = r.fixes; buildModel(); rollOver(); applySettings(false); save(true);
   importMsg = { ok: true, text: "Backup restored" + (r.fixes ? `, with ${r.fixes} item${r.fixes > 1 ? "s" : ""} repaired.` : ".") };
   rerender(); toast("Backup restored.", { label: "Undo", fn: undo });
 }
@@ -857,6 +1280,7 @@ document.addEventListener("click", e => {
   if (a) {
     e.preventDefault(); e.stopPropagation();
     const act = a.dataset.action, id = a.dataset.id;
+    if (editorAction(act, a)) return;
     switch (act) {
       case "back": back(); return;
       case "toggle": {
@@ -885,7 +1309,7 @@ document.addEventListener("click", e => {
       case "step": { const cur = st(id); if (cur >= 5 || (cur === 4 && !(acc(id) >= .8 && S.attempts[id].a >= 3))) return; setStatus(id, cur + 1, STATUS[cur + 1]); rerender(); FX.ladder(); FX.burst($(".rung.cur") || a, cur + 1 === 5 ? 90 : 24, cur + 1 === 5 ? 100 : 55); toast(`${nodes[id].title}: ${STATUS[cur + 1]}.`); return; }
       case "stepdown": setStatus(id, st(id) - 1); rerender(); return;
       case "dunno": openExplain(id); return;
-      case "practise": { const has = DATA.questions.some(q => q.node === id); Q = { ...Q, topic: has ? id : null, subj: has ? "all" : nodes[id].subject, lvl: "all", mode: "all", idx: 0, picked: null }; navigate(() => stack.push({ v: "practice" }), "forward"); return; }
+      case "practise": { const has = QS.some(q => q.node === id); Q = { ...Q, topic: has ? id : null, subj: has ? "all" : nodes[id].subject, lvl: "all", mode: "all", idx: 0, picked: null }; navigate(() => stack.push({ v: "practice" }), "forward"); return; }
       case "qf": Q[a.dataset.k] = a.dataset.v || (a.dataset.k === "topic" ? null : "all"); if (a.dataset.k === "mode") Q.topic = null; Q.idx = 0; Q.picked = null; rerender(); return;
       case "answer": { const ok = answer(+a.dataset.i); rerender(); if (ok) { FX.burst($(".opt.right"), 22, 50); if (FX.on) gsap.fromTo("#qscore", { scale: 1.25 }, { scale: 1, duration: .5, ease: "back.out(3)" }); } return; }
       case "nextq": Q.idx++; Q.picked = null; rerender(); if (FX.on) gsap.from("#qcard", { x: 24, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); $("#qcard")?.scrollIntoView({ block: "nearest" }); return;
@@ -922,6 +1346,7 @@ document.addEventListener("change", e => {
     if (sorted.some((x, j) => j && x[0] < sorted[j - 1][1])) { toast("Study blocks can't overlap."); rerender(); return; }
     snapshot(); S.settings.blocks = sorted; applySettings(true); rerender(); toast("Study times updated. Plan rebuilt.", { label: "Undo", fn: undo });
   }
+  if (el.id === "imp-file" && el.files && el.files[0]) { importFile(el.files[0], el.dataset.sid); return; }
   if (el.id === "importFile" && el.files && el.files[0]) {
     const f = el.files[0];
     if (f.size > 5e6) { importMsg = { ok: false, text: "That file is too big to be a Study Desk backup." }; rerender(); return; }
@@ -938,7 +1363,7 @@ setInterval(dayCheck, 60000);
 /* ---------- "I don't understand this" sheet (drag down to close) ---------- */
 let X = { id: null, mode: 0, picked: null };
 function explainFor(id) {
-  const n = nodes[id], e = (DATA.explain || {})[n.title];
+  const n = nodes[id], e = S.content.explain[id];
   if (e) return e;
   const ch = chapterOf(id);
   return {
@@ -959,7 +1384,7 @@ function closeSheet(instant) {
 }
 function drawSheet(opening) {
   const n = nodes[X.id], e = explainFor(X.id), modes = ["Very simple", "University level", "Exam focus", "Example", "Practice question"];
-  const q = DATA.questions.find(q => q.node === X.id) || DATA.questions.find(q => q.subject === n.subject);
+  const q = QS.find(q => q.node === X.id) || QS.find(q => q.subject === n.subject);
   let body;
   if (X.mode < 4) body = `<div class="explain"><p>${esc([e.simple, e.uni, e.exam, e.example][X.mode] || "")}</p>${e.generic ? `<p class="note">Sample topic without written explanations. Try “Statistical significance”, “Degrees of freedom” or “Confounding variables” to see the full version.</p>` : ""}</div>`;
   else if (!q) body = `<div class="explain"><p class="muted">No practice questions for this subject yet.</p></div>`;
@@ -993,7 +1418,7 @@ $("#layer").addEventListener("click", e => {
   const x = e.target.closest("[data-x]"); if (!x) return;
   if (x.dataset.x === "close") { if (x.classList.contains("scrim") && e.target !== x) return; closeSheet(); return; }
   if (x.dataset.x === "mode") { X.mode = +x.dataset.i; X.picked = null; drawSheet(false); return; }
-  if (x.dataset.x === "pick") { X.picked = +x.dataset.i; drawSheet(false); const q = DATA.questions.find(q => q.node === X.id) || DATA.questions.find(q => q.subject === nodes[X.id].subject); if (q && X.picked === q.a) FX.burst($(".sheet .opt.right"), 20, 50); }
+  if (x.dataset.x === "pick") { X.picked = +x.dataset.i; drawSheet(false); const q = QS.find(q => q.node === X.id) || QS.find(q => q.subject === nodes[X.id].subject); if (q && X.picked === q.a) FX.burst($(".sheet .opt.right"), 20, 50); }
 });
 
 /* =====================================================================
@@ -1021,15 +1446,22 @@ addEventListener("appinstalled", () => { deferredInstall = null; toast("Study De
    12. BOOT
    ===================================================================== */
 (function boot() {
-  if (!DSUBJ.length) {
-    S = blankState();
-    $("#main").innerHTML = `<div class="card stack" style="margin-top:40px"><h1>Study Desk</h1><p>No study data found. Check <b>data.js</b>.</p><ul class="issues">${dataIssues.map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul></div>`;
-    return;
-  }
-  if (!loadState() || diffDays(todayKey(), S.anchor) > 60) fresh();
+  if (!loadState()) fresh();
+  checkDataFile();
   if (rollOver()) save();
-  if (!S.tasks.some(t => t.date >= todayKey())) { generate(todayKey()); save(); }
+  if (DSUBJ.length && !S.tasks.some(t => t.date >= todayKey())) { generate(todayKey()); save(); }
   applySettings(false);
   render(true);
+  if (contentNotice && contentNotice.auto) toast("Your study content was updated.");
   document.documentElement.classList.add("ready");
 })();
+
+/* paste or drop a PDF / PowerPoint onto the subject editor */
+document.addEventListener("paste", e => {
+  const r = stack[stack.length - 1]; if (r.v !== "editsubj" || r.a === "new") return;
+  const f = [...(e.clipboardData?.files || [])].find(f => /\.(pdf|pptx?)$/i.test(f.name)); if (!f) return;
+  e.preventDefault(); importFile(f, r.a);
+});
+document.addEventListener("dragover", e => { const z = e.target.closest?.("#dropzone"); if (z) { e.preventDefault(); z.classList.add("over"); } });
+document.addEventListener("dragleave", e => { const z = e.target.closest?.("#dropzone"); if (z) z.classList.remove("over"); });
+document.addEventListener("drop", e => { const z = e.target.closest?.("#dropzone"); if (!z) return; e.preventDefault(); z.classList.remove("over"); const f = e.dataTransfer?.files?.[0]; if (f) importFile(f, z.dataset.sid); });

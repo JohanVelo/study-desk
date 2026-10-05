@@ -10,6 +10,7 @@
    The app checks this file on start-up and lists any problems under Settings → Data check.
 */
 window.STUDY_DATA = {
+  contentVersion: "sample-1",   /* change this whenever the content below changes, so installed apps load it */
   subjects: [
     { id:"psy", name:"Psychology", code:"PSY 210", course:"Research Methods in Psychology", hue:24, examInDays:10, examTime:"09:00", venue:"Exam Hall B",
       chapters:[
