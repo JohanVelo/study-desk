@@ -2,7 +2,7 @@
    Sections: 1 utils · 2 model · 3 store · 4 priority & progress · 5 scheduler · 6 icons
              7 UI pieces · 8 views · 9 motion · 10 router & actions · 11 install & offline · 12 boot */
 "use strict";
-const APP_VERSION = "2.1.0";
+const APP_VERSION = "3.0.0";
 
 /* =====================================================================
    1. UTILS
@@ -49,7 +49,7 @@ const newId = p => p + Date.now().toString(36).slice(-5) + Math.random().toStrin
 /* data.js uses compact arrays; convert to the editable object form once */
 function convertData(D, anchor) {
   const seeds = {}, titleToId = {}, legacy = {};
-  const out = { from: D.contentVersion || "sample-1", subjects: [], questions: [], explain: {} };
+  const out = { from: D.contentVersion || "sample-1", subjects: [], questions: [], explain: {}, notes: {} };
   (D.subjects || []).forEach((s, si) => {
     if (!s || !s.id) return;
     const cs = { id: s.id, name: s.name || "Subject", code: s.code || "", course: s.course || "", hue: typeof s.hue === "number" ? s.hue : HUES[si % HUES.length],
@@ -70,6 +70,8 @@ function convertData(D, anchor) {
   });
   (D.questions || []).forEach((q, i) => { const node = titleToId[q.topic]; if (node) out.questions.push({ id: "q" + i + "-" + slug(q.topic).slice(0, 24), node, level: q.level, q: q.q, o: q.o, a: q.a, e: q.e || "" }); else issue("data.js question " + (i + 1), "Topic “" + q.topic + "” doesn't match any subheading title."); });
   Object.entries(D.explain || {}).forEach(([t, e]) => { if (titleToId[t]) out.explain[titleToId[t]] = e; });
+  out.notes = {}; Object.entries(D.notes || {}).forEach(([t, txt]) => { if (titleToId[t] && typeof txt === "string") out.notes[titleToId[t]] = txt; });
+  Object.entries(D.summaries || {}).forEach(([t, sm]) => { const id = titleToId[t]; if (id) out.explain[id] = { ...(out.explain[id] || {}), summary: sm }; });
   const history = {}, mistakes = {};
   Object.entries(D.history || {}).forEach(([t, h]) => { if (titleToId[t] && h && isInt(h.a, 0, 1e4) && isInt(h.c, 0, h.a)) history[titleToId[t]] = { a: h.a, c: h.c }; });
   Object.entries(D.mistakes || {}).forEach(([t, n]) => { const id = titleToId[t]; if (id && isInt(n, 1, 999)) mistakes[id] = { n, qs: out.questions.filter(q => q.node === id).map(q => q.id).slice(0, n) }; });
@@ -79,7 +81,7 @@ function convertData(D, anchor) {
 /* Repairs content so the rest of the app can trust it */
 function cleanContent(c) {
   let fixes = 0;
-  const out = { from: typeof c?.from === "string" ? c.from : "", subjects: [], questions: [], explain: {} };
+  const out = { from: typeof c?.from === "string" ? c.from : "", subjects: [], questions: [], explain: {}, notes: {} };
   const ids = new Set();
   const cleanNode = (n, depth) => {
     if (!n || typeof n.title !== "string" || !n.title.trim() || depth > 6) { fixes++; return null; }
@@ -102,7 +104,8 @@ function cleanContent(c) {
     const id = typeof q.id === "string" && !qids.has(q.id) ? q.id : newId("q"); qids.add(id);
     out.questions.push({ id, node: q.node, level: LEVELS[q.level] ? q.level : "medium", q: q.q.slice(0, 600), o: q.o.map(x => String(x).slice(0, 300)), a: q.a, e: String(q.e || "").slice(0, 1200), own: !!q.own });
   });
-  Object.entries(c?.explain || {}).forEach(([k, e]) => { if (ids.has(k) && e && typeof e === "object") out.explain[k] = { simple: String(e.simple || ""), uni: String(e.uni || ""), exam: String(e.exam || ""), example: String(e.example || "") }; });
+  Object.entries(c?.explain || {}).forEach(([k, e]) => { if (ids.has(k) && e && typeof e === "object") out.explain[k] = { simple: String(e.simple || ""), uni: String(e.uni || ""), exam: String(e.exam || ""), example: String(e.example || ""), ...(e.summary ? { summary: Array.isArray(e.summary) ? e.summary.map(String) : String(e.summary) } : {}) }; });
+  out.notes = {}; Object.entries(c?.notes || {}).forEach(([k, t]) => { if (ids.has(k) && typeof t === "string") out.notes[k] = t.slice(0, 80000); });
   return { content: out, fixes };
 }
 
@@ -168,9 +171,9 @@ const st = id => S.status[id] ?? 0;
 const acc = id => { const h = S.attempts[id]; return h && h.a ? h.c / h.a : null; };
 
 function blankState(anchor = todayKey()) {
-  const conv = DATA ? convertData(DATA, anchor) : { content: { from: "", subjects: [], questions: [], explain: {} }, seeds: {}, history: {}, mistakes: {} };
+  const conv = DATA ? convertData(DATA, anchor) : { content: { from: "", subjects: [], questions: [], explain: {}, notes: {} }, seeds: {}, history: {}, mistakes: {} };
   return { schema: SCHEMA_NOW, app: "study-desk", anchor, content: conv.content, contentEdited: false, status: { ...conv.seeds }, attempts: conv.history, mistakes: conv.mistakes,
-    tasks: [], recent: [], changes: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
+    tasks: [], recent: [], changes: [], log: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
 }
 function fresh() {
   S = blankState(); buildModel();
@@ -182,6 +185,7 @@ function fresh() {
     S.recent = r.filter(x => byTitle[x[0]]).map(x => ({ id: byTitle[x[0]].id, text: x[1], when: addDays(t, x[2]) }));
   }
   generate(t);
+  seedLog();
   save(true);
 }
 function mkTask(date, node, type, dur, extra = {}) { return { id: "t" + (S.seq++), date, node, subject: nodes[node].subject, type, dur, start: 0, done: false, ...extra }; }
@@ -229,6 +233,7 @@ function sanitize(o) {
   out.seq = Math.max(isInt(o.seq, 0, 1e9) ? o.seq : 0, maxSeq + 1);
   out.recent = (Array.isArray(o.recent) ? o.recent : []).filter(r => r && nodes[r.id] && DATE_RE.test(r.when)).slice(0, 20);
   out.changes = (Array.isArray(o.changes) ? o.changes : []).filter(c => c && typeof c.text === "string" && DATE_RE.test(c.when)).slice(0, 30);
+  out.log = (Array.isArray(o.log) ? o.log : []).filter(e => e && DATE_RE.test(e.d) && ["task", "q", "step", "listen"].includes(e.t) && (!e.n || nodes[e.n])).slice(-3000);
   const st0 = o.settings || {}, d = DEFAULT_SETTINGS;
   out.settings = {
     days: Array.isArray(st0.days) && st0.days.length && st0.days.every(x => isInt(x, 0, 6)) ? [...new Set(st0.days)].sort() : (fix(), d.days.slice()),
@@ -462,6 +467,9 @@ const P = {
   download: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>', upload: '<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>',
   copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 00-2-2H6a2 2 0 00-2 2v8a2 2 0 002 2h2"/>',
   phone: '<rect x="7" y="2.5" width="10" height="19" rx="2.5"/><path d="M11 18.5h2"/>', laptop: '<rect x="4" y="5" width="16" height="11" rx="1.5"/><path d="M2 19h20"/>',
+  headphones: '<path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>',
+  play: '<path d="M8 5v14l11-7z"/>',
+  notes: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
   shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 const ico = (k, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[k]}</svg>`;
@@ -526,39 +534,45 @@ const V = {};
 V.today = () => {
   const t = todayKey(), ts = tasksOn(t), left = ts.filter(x => !x.done), mins = left.reduce((a, x) => a + x.dur, 0);
   const upcoming = DSUBJ.filter(s => daysLeft(s.id) >= 0).sort((a, b) => daysLeft(a.id) - daysLeft(b.id));
-  const top = upcoming[0];
-  const urgent = leafIds.map(id => ({ id, ...scoreParts(id, t) })).filter(x => x.level === "urgent" || x.level === "high").sort((a, b) => b.total - a.total).slice(0, 4);
-  const weak = weakList().slice(0, 4);
-  const changes = S.changes.filter(c => c.when === t).slice(0, 3);
-  const allDone = ts.length && !left.length;
-  const lede = !DSUBJ.length ? `Add your subjects in the data file to get a plan.` : !upcoming.length ? `All your exams are behind you. Well done.` : ts.length ? (left.length ? `<strong>${left.length} session${left.length > 1 ? "s" : ""}, ${Math.floor(mins / 60) ? Math.floor(mins / 60) + " h " : ""}${mins % 60} min</strong> left today. ${esc(top.name)} needs the most attention: its exam is in ${daysLeft(top.id)} day${daysLeft(top.id) === 1 ? "" : "s"}.` : `<strong>Today's plan is done.</strong> That's everything for today. Tomorrow's sessions are in the calendar.`) : `Today is a rest day. Your next sessions are in the calendar.`;
-  if (!DSUBJ.length) return `<div class="stack" style="gap:24px"><header class="hero"><div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div><h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
+  const dateLine = `<div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long" })}${streak() > 1 ? ` · <span class="streak">${streak()}-day streak</span>` : ""}</div>`;
+  if (!DSUBJ.length) return `<div class="stack" style="gap:24px"><header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
       <p class="lede">Add your subjects and exam dates, and Study Desk will plan every day for you.</p></header>
       <div class="card stack"><h2 class="h3">Get started</h2><ol class="steps"><li>Add a subject and its exam date.</li><li>Import its contents from a PDF or PowerPoint, or type the chapters and page numbers.</li><li>Come back here each day to see what to study.</li></ol><button class="btn btn-pen" data-go="editsubj:new" style="align-self:flex-start">+ Add your first subject</button></div></div>`;
-  return `<div class="stack" style="gap:28px">
-    <header class="hero"><div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}</div>
-      <h1 id="heroTitle">What should I study <span class="hl">today?</span></h1><p class="lede">${lede}</p>
-      ${allDone ? `<div class="donebadge">${ico("check")}Day complete</div>` : ""}</header>
+  const nowM = new Date().getHours() * 60 + new Date().getMinutes();
+  const next = left.find(x => x.start + x.dur > nowM) || left[0];
+  const rest = ts.filter(x => x !== next);
+  const changes = S.changes.filter(c => c.when === t).slice(0, 2);
+  const top = upcoming[0];
+  const lede = !ts.length ? `Rest day. Nothing planned today.` : !left.length ? `<strong>All done for today.</strong> Nice work.` : `<strong>${left.length} session${left.length > 1 ? "s" : ""} · ${fmtMins(mins)}</strong> left${top ? `. ${esc(top.name)} exam in ${daysLeft(top.id)} day${daysLeft(top.id) === 1 ? "" : "s"}.` : "."}`;
+  let hero = "";
+  if (next) {
+    const n = nodes[next.node], s = subjects[next.subject], ty = TYPES[next.type], isMock = next.type === "mock", ch = chapterOf(next.node);
+    const lvl = isMock ? "high" : scoreParts(next.node, t).level, live = nowM >= next.start && nowM < next.start + next.dur;
+    hero = `<section class="upnext" data-flip-id="${next.id}" style="--pc:${subjColor(next.subject)}">
+      <div class="un-top"><span class="un-label">${live ? '<span class="live"></span>Now' : "Up next"} · ${fmtT(next.start)}–${fmtT(next.start + next.dur)}</span>${prPill(lvl)}</div>
+      <button class="un-body" data-go="${isMock ? "subject:" + next.subject : "topic:" + next.node}">
+        <span class="un-kind">${ico(ty.icon)}${ty.label} · ${next.dur} min</span>
+        <span class="un-title">${esc(isMock ? s.name + " mock exam" : n.title)}</span>
+        <span class="un-meta"><b style="color:${subjColor(next.subject)}">${esc(s.name)}</b>${isMock ? "" : ` · Ch ${ch.num} ${esc(ch.title)} · <span class="pages">pp ${n.p1}–${n.p2}</span>`}</span></button>
+      <div class="un-acts"><button class="btn btn-pen" data-action="toggle" data-id="${next.id}">${ico("check")}Done</button>${isMock ? "" : `<button class="btn btn-soft" data-action="ep-play" data-kind="topic" data-id="${next.node}">${ico("headphones")}Listen</button>`}<button class="btn btn-line btn-sm" data-action="miss" data-id="${next.id}">Not today</button></div>
+    </section>`;
+  } else if (ts.length) hero = `<section class="upnext done-card"><div class="un-title">Day complete</div><p class="muted">Every session on today's plan is done.</p><div class="un-acts"><button class="btn btn-soft" data-go="practice">${ico("pencil")}Practise a weak topic</button><button class="btn btn-line btn-sm" data-action="ep-play" data-kind="week">${ico("headphones")}Hear your week</button></div></section>`;
+  const week = Array.from({ length: 7 }, (_, i) => addDays(t, i)), exams = {}; DSUBJ.forEach(s => exams[s.exam] = s);
+  return `<div class="stack" style="gap:24px">
+    <header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1><p class="lede">${lede}</p></header>
     ${restoredFrom ? `<div class="banner">${ico("shield")}<div>${restoredFrom === "legacy" ? "Your progress from the first prototype was carried over." : "Your saved data couldn't be read, so Study Desk restored it from the automatic backup."}</div></div>` : ""}
-    ${changes.length ? `<div class="banner">${ico("shift")}<div>${changes.map(c => esc(c.text)).join("<br>")}<br><button data-go="calendar">See it in the calendar</button></div></div>` : ""}
+    ${changes.length ? `<div class="banner">${ico("shift")}<div>${changes.map(c => esc(c.text)).join("<br>")}</div></div>` : ""}
     <div class="dash">
-      <section class="section" aria-labelledby="plan-h"><div class="sec-head"><h2 id="plan-h">Today's study plan</h2><span class="tiny muted mono">${ts.filter(x => x.done).length}/${ts.length} done</span></div>
-        <div class="card plan-card">${planList(ts)}</div>
-        <p class="tiny muted">Tap a session to open the topic. If you can't finish one, tap “I didn't get to this” and the plan moves it to your next free study slot.</p></section>
-      <div class="side stack" style="gap:28px">
-        <section class="section"><div class="sec-head"><h2>Overall progress</h2><button class="link" data-go="progress">Details</button></div>
-          <div class="card stack" style="gap:14px">${progRow("All subjects", progress(), "var(--pen)", "lg")}${DSUBJ.map(s => progRow(esc(s.name), progress(s.id), subjColor(s.id))).join("")}</div></section>
-        <section class="section"><div class="sec-head"><h2>Urgent topics</h2></div>
-          <div class="list">${urgent.length ? urgent.map(u => topicItem(u.id, `${esc(subjects[nodes[u.id].subject].name)} · ${STATUS[st(u.id)]} · ${DIFF[nodes[u.id].diff]}`)).join("") : `<div class="empty">Nothing urgent right now.</div>`}</div></section>
+      <div class="stack" style="gap:18px">${hero}
+        ${rest.length ? `<section class="section"><div class="sec-head"><h2>${next ? "Rest of today" : "Today"}</h2><span class="tiny muted mono">${ts.filter(x => x.done).length}/${ts.length} done</span></div><div class="card plan-card">${planList(rest, { compact: true })}</div></section>` : ""}
       </div>
-    </div>
-    <section class="section"><div class="sec-head"><h2>Upcoming exams</h2><button class="link" data-go="exams">All subjects</button></div>
-      <div class="exams">${(upcoming.length ? upcoming : DSUBJ).map(s => examCard(s.id)).join("")}</div></section>
-    <div class="dash">
-      <section class="section"><div class="sec-head"><h2>My weak areas</h2><button class="link" data-go="practice">Practise</button></div>
-        <div class="list">${weak.length ? weak.map(w => `<button class="item" data-go="topic:${w.id}" style="--pc:${PRC[w.sev]}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[w.id].title)}</span><br><span class="s">${w.why}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">No weak areas. Keep practising to keep it that way.</div>`}</div></section>
-      <section class="section"><div class="sec-head"><h2>Recently completed</h2></div>
-        <div class="list">${S.recent.length ? S.recent.slice(0, 4).map(r => `<button class="item" data-go="topic:${r.id}" style="--pc:var(--ok)"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[r.id].title)}</span><br><span class="s">${esc(r.text)} · ${r.when === t ? "today" : fmtD(r.when, { weekday: "long" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">Finished sessions will show up here.</div>`}</div></section>
+      <div class="side stack" style="gap:18px">
+        <section class="section"><div class="sec-head"><h2>This week</h2><button class="link" data-go="calendar">Calendar</button></div>
+          <div class="weekstrip">${week.map(d => { const n = tasksOn(d).length, dn = tasksOn(d).filter(x => x.done).length, ex = exams[d]; return `<button class="wd ${d === t ? "today" : ""} ${ex ? "ex" : ""}" style="${ex ? `--pc:${subjColor(ex.id)}` : ""}" data-action="cal-open" data-k="${d}" aria-label="${fmtD(d, { weekday: "long", day: "numeric" })}: ${ex ? ex.name + " exam" : n + " sessions"}"><span class="wd-d">${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span><b>${parseKey(d).getDate()}</b><span class="wd-n">${ex ? "Exam" : n ? (d === t ? dn + "/" + n : n) : "–"}</span></button>`; }).join("")}</div></section>
+        <section class="section"><div class="sec-head"><h2>Exams</h2><button class="link" data-go="exams">All</button></div>
+          <div class="minis">${upcoming.slice(0, 3).map(s => { const d = daysLeft(s.id), lvl = subjLevel(s.id); return `<button class="mini" data-go="subject:${s.id}" style="--pc:${PRC[lvl]}"><b data-count="${d}">${d}</b><span class="grow"><span class="t">${esc(s.name)}</span><span class="tiny muted">${d === 1 ? "day" : "days"} · ${pct(progress(s.id))}% done</span></span></button>`; }).join("") || `<div class="card empty">No upcoming exams.</div>`}</div></section>
+        <button class="card weekteaser" data-go="progress">${(() => { const w = weekStats(addDays(t, -6), t); return `<span class="grow"><b>Your week</b><span class="tiny muted">${w.sessions} sessions · ${fmtMins(w.mins)}${w.answered ? ` · ${pct(w.right / w.answered)}% right` : ""}</span></span>`; })()}${ico("chev", 'class="chev"')}</button>
+      </div>
     </div>
   </div>`;
 };
@@ -572,7 +586,8 @@ V.subject = sid => {
   const d = daysLeft(sid), lvl = subjLevel(sid);
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">${esc(s.code || "")}${s.course ? " · " + esc(s.course) : ""}</div><h1>${esc(s.name)}</h1>
-      <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span><button class="btn btn-line btn-sm" data-go="editsubj:${sid}">${ico("pencil")}Edit</button></div></header>
+      <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span><button class="btn btn-line btn-sm" data-go="editsubj:${sid}">${ico("pencil")}Edit</button></div>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-go="summary:${sid}">${ico("notes")}Summary of everything</button>${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0]}">${ico("headphones")}Listen</button>` : ""}</div></header>
     ${!s.chapterIds.length ? `<div class="card empty">No chapters yet. <button class="link" data-go="editsubj:${sid}">Add chapters or import a PDF</button></div>` : ""}
     <div class="card stack">${progRow("Overall progress", progress(sid), subjColor(sid), "lg")}
       <div class="stat3">${progRow("Content completed", contentPct(sid), "var(--p-high)")}${progRow("Practice completed", practisedPct(sid), "var(--pen)")}${progRow("Revision completed", revisedPct(sid), "var(--p-done)")}</div></div>
@@ -618,6 +633,9 @@ V.topic = id => {
         <section class="card stack" style="--ladder:${STATUS_COL[Math.max(cur, 1)]}"><div class="sec-head"><h2 style="font-size:18px">Where you are</h2>${statusTag(cur)}</div>
           <div class="ladder" aria-label="Stage: ${STATUS[cur]}">${STATUS.map((x, i) => `<div class="rung ${i <= cur && i > 0 ? "on" : ""} ${i === cur ? "cur" : ""}"><span class="b"></span>${x}</div>`).join("")}</div>
           <div class="row" style="flex-wrap:wrap">${next}${cur > 0 ? `<button class="btn btn-line btn-sm" data-action="stepdown" data-id="${id}">Undo a step</button>` : ""}</div>${lockMsg}</section>
+        ${(() => { const sm = summaryOf(id); return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary</h2><span class="tiny muted">${sm ? (sm.source === "auto" ? "From your notes" : sm.source === "written" ? "Written for you" : "From the explanations") : ""}</span></div>
+          ${sm ? `<ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}` : `<p class="small muted">${notesReady ? "No notes for this topic yet. Add notes, or import the chapter's PDF from My subjects." : "Loading notes…"}</p>`}
+          <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-action="ep-play" data-kind="topic" data-id="${id}">${ico("headphones")}Listen</button><button class="btn btn-line btn-sm" data-action="notes" data-id="${id}">${ico("notes")}${notesOf(id) ? "Edit notes" : "Add notes"}</button></div></section>`; })()}
         <button class="btn btn-hl dunno" data-action="dunno" data-id="${id}"><span class="q">?</span>I don't understand this</button>
         <section class="section"><div class="sec-head"><h2 style="font-size:18px">Planned sessions</h2></div>
           <div class="card plan-card">${ts.length ? planList(ts, { date: true, compact: true }) : `<div class="empty">${cur >= 5 ? "Mastered. No more sessions needed." : "No upcoming sessions for this topic."}</div>`}</div></section>
@@ -716,6 +734,8 @@ V.progress = () => {
   const counts = [0, 0, 0, 0, 0, 0]; leafIds.forEach(id => counts[st(id)]++);
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">${leafIds.length} topics tracked</div><h1>Progress</h1></header>
+    ${weekView()}
+    <h2 style="font-size:20px;margin-top:8px">All topics</h2>
     <div class="card stack">${progRow("Overall", progress(), "var(--pen)", "lg")}
       <div class="dist" role="img" aria-label="Topics by stage">${counts.map((c, i) => c ? `<i style="flex:${c};--c:${i === 0 ? "var(--sunken)" : STATUS_COL[i]}"></i>` : "").join("")}</div>
       <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x} <b class="mono">${counts[i]}</b></span>`).join("")}</div>
@@ -726,6 +746,7 @@ V.progress = () => {
           <div class="lvl2">${c.kids.map(h => `<button data-go="topic:${h}" style="text-align:left">${progRow(`<span class="small">${nodes[h].num} ${esc(nodes[h].title)}</span>`, progress(h), "var(--ink-2)")}</button>`).join("")}</div></div>`; }).join("")}</div></details>`).join("")}</div></section>
     <div class="dash">
       <section class="section"><div class="sec-head"><h2>My weak areas</h2></div><div class="list">${weakList().map(w => `<button class="item" data-go="topic:${w.id}" style="--pc:${PRC[w.sev]}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[w.id].title)}</span><br><span class="s">${esc(subjects[nodes[w.id].subject].name)} · ${w.why}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") || `<div class="empty">No weak areas right now.</div>`}</div></section>
+      <section class="section"><div class="sec-head"><h2>Recently completed</h2></div><div class="list">${S.recent.length ? S.recent.slice(0, 5).map(r => `<button class="item" data-go="topic:${r.id}" style="--pc:var(--ok)"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[r.id].title)}</span><br><span class="s">${esc(r.text)} · ${r.when === todayKey() ? "today" : fmtD(r.when, { weekday: "long" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">Finished sessions will show up here.</div>`}</div></section>
       <section class="section"><div class="sec-head"><h2>The revision ladder</h2></div><div class="card stack" style="gap:10px">
         ${[["Not started", "Nothing done yet."], ["Learning", "You have started reading or done a Learn session."], ["Understood", "You can explain it without notes (after active recall)."], ["Practised", "You have answered questions on it."], ["Revised", "You came back to it after a gap."], ["Mastered", "Revised and 80%+ on practice questions. Opening a topic never does this."]].map((x, i) => `<div class="row" style="align-items:flex-start"><span style="width:12px;height:12px;border-radius:4px;margin-top:5px;flex:none;background:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></span><span class="small"><b>${x[0]}.</b> ${x[1]}</span></div>`).join("")}</div></section>
     </div>
@@ -1003,14 +1024,14 @@ function editorAction(act, a) {
       [f.list[f.index], f.list[j]] = [f.list[j], f.list[f.index]];
       const y = window.scrollY; afterContentChange(false); render(false); window.scrollTo({ top: y }); return true;
     }
-    case "qp-preview": qpText = $("#qp-text")?.value || ""; qpPreview = parseOutline(qpText); rerender(); return true;
+    case "qp-preview": qpText = $("#qp-text")?.value || ""; qpPreview = parseOutline(qpText); lastImport = null; rerender(); return true;
     case "qp-apply": {
       if (!qpPreview || !qpPreview.count) return true;
       snapshot();
       const raw = S.content.subjects.find(s => s.id === id);
       if (a.dataset.mode === "replace") raw.chapters = qpPreview.roots; else raw.chapters.push(...qpPreview.roots);
-      const n = qpPreview.count; qpPreview = null; qpText = "";
-      afterContentChange(true); rerender(); toast(`${n} chapters, headings and topics added. Plan updated.`, { label: "Undo", fn: undo }); return true;
+      const n = qpPreview.count, roots = qpPreview.roots; qpPreview = null; qpText = "";
+      afterContentChange(true); storeImportText(roots); rerender(); toast(`${n} chapters, headings and topics added. Plan updated.`, { label: "Undo", fn: undo }); return true;
     }
     case "q-add": openQuestionSheet(id); return true;
     case "q-save": {
@@ -1026,7 +1047,7 @@ function editorAction(act, a) {
     case "q-del": snapshot(); S.content.questions = S.content.questions.filter(q => q.id !== id); afterContentChange(false); rerender(); toast("Question deleted.", { label: "Undo", fn: undo }); return true;
     case "content-clear":
       if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.dataset.label = a.textContent; a.textContent = "Tap again to remove them all"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = a.dataset.label; } }, 3500); return true; }
-      snapshot(); S.content = { from: "own", subjects: [], questions: [], explain: {} }; S.status = {}; S.attempts = {}; S.mistakes = {}; S.tasks = []; S.recent = []; S.changes = [];
+      snapshot(); S.content = { from: "own", subjects: [], questions: [], explain: {}, notes: {} }; S.status = {}; S.attempts = {}; S.mistakes = {}; S.tasks = []; S.recent = []; S.changes = [];
       afterContentChange(true); rerender(); toast("All subjects removed. Add your own below.", { label: "Undo", fn: undo }); return true;
     case "content-load":
       if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to replace your subjects"; return true; }
@@ -1036,7 +1057,27 @@ function editorAction(act, a) {
 }
 
 /* ---------- import a contents list from a PDF or PowerPoint (read on this device, nothing is uploaded) ---------- */
-let importBusy = null;
+let importBusy = null, lastImport = null;
+async function pdfPageLines(doc, i) {
+  const pg = await doc.getPage(i), tc = await pg.getTextContent(), rows = [];
+  tc.items.forEach(it => { if (!it.str || !it.str.trim()) return; const y = Math.round(it.transform[5]), x = it.transform[4]; let r = rows.find(r => Math.abs(r.y - y) <= 3); if (!r) rows.push(r = { y, parts: [] }); r.parts.push({ x, s: it.str }); });
+  return rows.sort((a, b) => b.y - a.y).map(r => r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim());
+}
+/* After an import is added, keep each topic's own pages or slides as its notes, for summaries and podcasts */
+async function storeImportText(roots) {
+  const imp = lastImport; if (!imp) return;
+  const leaves = []; const walk = l => l.forEach(n => n.kids.length ? walk(n.kids) : leaves.push(n)); walk(roots);
+  let saved = 0, pagesRead = 0;
+  for (const n of leaves) {
+    let text = "";
+    if (imp.kind === "pdf") {
+      const idx = p => { if (imp.labels) { const k = imp.labels.indexOf(String(p)); if (k >= 0) return k + 1; } return p; };
+      for (let p = n.p1; p <= Math.min(n.p2, n.p1 + 19) && pagesRead < 400; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; text += (await pdfPageLines(imp.doc, i)).join(" ") + " "; pagesRead++; }
+    } else if (imp.kind === "pptx") { for (let p = n.p1; p <= n.p2; p++) if (imp.slides[p - 1]) text += imp.slides[p - 1] + " "; }
+    if (text.trim().length > 60 && nodes[n.id]) { await saveNotes(n.id, text.trim()); saved++; }
+  }
+  if (saved) { toast(`Saved the text of ${saved} topic${saved > 1 ? "s" : ""}. Summaries and podcasts are ready.`); if (["editsubj", "topic", "summary", "listen"].includes(stack[stack.length - 1].v)) rerender(); }
+}
 const stripNum = t => t.replace(/\s+/g, " ").trim().replace(/^(chapter|ch\.?|unit|part|module|section|lecture|week)\s*\d+(\.\d+)*\s*[.:)\-–—]?\s*/i, "").replace(/^\d+(\.\d+)*\s*[.:)\-–—]?\s+/, "").trim();
 async function loadPdfJs() {
   if (window.pdfjsLib) return window.pdfjsLib;
@@ -1049,6 +1090,7 @@ async function pdfToOutline(buf) {
   const lib = await loadPdfJs();
   const doc = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
   let labels = null; try { labels = await doc.getPageLabels(); } catch (e) { }
+  lastImport = { kind: "pdf", doc, labels };
   const pageNo = i => { const l = labels && labels[i]; return l && /^\d+$/.test(l) ? +l : i + 1; };
   const outline = await doc.getOutline().catch(() => null);
   if (outline && outline.length) {
@@ -1059,11 +1101,7 @@ async function pdfToOutline(buf) {
     if (lines.length) return { text: lines.join("\n"), note: `Read ${count} bookmarks from the PDF. Page numbers come from the PDF, so check they match your book.` };
   }
   /* no bookmarks: look for a contents page and read its lines */
-  const pageLines = async i => {
-    const pg = await doc.getPage(i), tc = await pg.getTextContent(), rows = [];
-    tc.items.forEach(it => { if (!it.str || !it.str.trim()) return; const y = Math.round(it.transform[5]), x = it.transform[4]; let r = rows.find(r => Math.abs(r.y - y) <= 3); if (!r) rows.push(r = { y, parts: [] }); r.parts.push({ x, s: it.str }); });
-    return rows.sort((a, b) => b.y - a.y).map(r => r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim());
-  };
+  const pageLines = i => pdfPageLines(doc, i);
   const max = Math.min(doc.numPages, 30), tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
   let start = -1, collected = [];
   for (let i = 1; i <= max; i++) {
@@ -1079,7 +1117,7 @@ async function pptxToOutline(buf, name) {
   if (!window.JSZip) throw new Error("zip");
   const zip = await JSZip.loadAsync(buf);
   const files = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => +a.match(/(\d+)\.xml$/)[1] - +b.match(/(\d+)\.xml$/)[1]);
-  const titles = [];
+  const titles = [], slideText = [];
   for (let i = 0; i < files.length; i++) {
     const xml = new DOMParser().parseFromString(await zip.file(files[i]).async("string"), "application/xml");
     const shapes = [...xml.getElementsByTagNameNS("*", "sp")];
@@ -1088,8 +1126,10 @@ async function pptxToOutline(buf, name) {
     let t = shapes.filter(isTitle).flatMap(textOf).join(" ").trim();
     if (!t) t = (shapes.map(textOf).find(x => x.length) || [""])[0];
     titles.push(stripNum(t) || `Slide ${i + 1}`);
+    slideText.push(shapes.flatMap(textOf).join(". ").replace(/\.\s*\./g, "."));
   }
   if (!titles.length) return { text: "", note: "No slides found in that file." };
+  lastImport = { kind: "pptx", slides: slideText };
   const deck = stripNum(name.replace(/\.pptx$/i, "").replace(/[_-]+/g, " ")) || "Slides";
   const lines = [`1 ${deck} 1-${titles.length}`]; let k = 0;
   for (let i = 0; i < titles.length; i++) { let j = i; while (j + 1 < titles.length && titles[j + 1].replace(/\s*\(cont.*\)$/i, "") === titles[i]) j++; k++; lines.push(`1.${k} ${titles[i]} ${i + 1}-${j + 1}`); i = j; }
@@ -1113,6 +1153,339 @@ async function importFile(file, sid) {
   }
   if (stack[stack.length - 1].v === "editsubj" && stack[stack.length - 1].a === sid) rerender();
 }
+
+/* =====================================================================
+   8c. NOTES, SUMMARIES, ACTIVITY, LISTEN
+   ===================================================================== */
+
+/* ---------- on-device file store (IndexedDB): topic notes from imports, and audio recordings ---------- */
+const IDB = (() => {
+  let dbp = null, mem = { notes: new Map(), audio: new Map() }, ok = true;
+  const open = () => dbp || (dbp = new Promise((res) => {
+    try {
+      const r = indexedDB.open("studydesk", 1);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); };
+      r.onsuccess = () => res(r.result); r.onerror = () => { ok = false; res(null); }; r.onblocked = () => { ok = false; res(null); };
+    } catch (e) { ok = false; res(null); }
+  }));
+  const tx = async (store, mode, fn) => { const d = await open(); if (!d) return fn(null); return new Promise((res, rej) => { const t = d.transaction(store, mode), s = t.objectStore(store); const out = fn(s); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }); };
+  return {
+    get ok() { return ok; },
+    put: (store, v) => tx(store, "readwrite", s => s ? s.put(v) : mem[store].set(v.id, v)),
+    del: (store, k) => tx(store, "readwrite", s => s ? s.delete(k) : mem[store].delete(k)),
+    get: (store, k) => tx(store, "readonly", s => s ? s.get(k) : { result: mem[store].get(k) }),
+    all: (store) => tx(store, "readonly", s => s ? s.getAll() : { result: [...mem[store].values()] })
+  };
+})();
+let NOTES = {}, notesReady = false, RECS = [];
+async function loadLocalFiles() {
+  try { (await IDB.all("notes") || []).forEach(n => { if (nodes[n.id]) NOTES[n.id] = n.text; }); } catch (e) { }
+  try { RECS = (await IDB.all("audio") || []).map(r => ({ ...r, blob: undefined })).sort((a, b) => b.added - a.added); } catch (e) { }
+  notesReady = true;
+  const v = stack[stack.length - 1].v; if (["topic", "summary", "listen", "progress"].includes(v)) rerender();
+}
+const notesOf = id => NOTES[id] || S.content.notes?.[id] || "";
+async function saveNotes(id, text) { text = String(text || "").slice(0, 80000); if (text.trim()) { NOTES[id] = text; await IDB.put("notes", { id, text }); } else { delete NOTES[id]; await IDB.del("notes", id); } }
+
+/* ---------- activity log (feeds the weekly summary) ---------- */
+function logEvent(e) { S.log.push({ d: todayKey(), ...e }); if (S.log.length > 3000) S.log = S.log.slice(-3000); }
+function seedLog() {
+  const t = todayKey(), L = [];
+  const leaves = leafIds.filter(id => st(id) >= 2);
+  [[-6, 3, 7], [-5, 4, 6], [-4, 2, 0], [-3, 5, 8], [-2, 4, 5], [-1, 2, 3], [-9, 3, 4], [-8, 4, 6], [-10, 2, 2]].forEach(([off, sessions, qs], k) => {
+    const d = addDays(t, off);
+    for (let i = 0; i < sessions; i++) L.push({ d, t: "task", n: leaves[(k * 3 + i) % leaves.length], m: [25, 30, 35, 40, 20][(k + i) % 5] });
+    for (let i = 0; i < qs; i++) L.push({ d, t: "q", n: leaves[(k + i) % leaves.length], ok: (k + i) % 3 !== 0 });
+    if (k % 2 === 0) L.push({ d, t: "step", n: leaves[k % leaves.length] });
+  });
+  S.log = L;
+}
+function weekStats(fromK, toK) {
+  const ev = S.log.filter(e => e.d >= fromK && e.d <= toK);
+  const tasks = ev.filter(e => e.t === "task"), qs = ev.filter(e => e.t === "q"), listens = ev.filter(e => e.t === "listen");
+  const mins = tasks.reduce((a, e) => a + (e.m || 0), 0) + listens.reduce((a, e) => a + (e.m || 0), 0);
+  const subj = {}; tasks.forEach(e => { const s = nodes[e.n]?.subject; if (s) subj[s] = (subj[s] || 0) + (e.m || 0); });
+  const days = new Set(ev.map(e => e.d)).size;
+  return { sessions: tasks.length, mins, answered: qs.length, right: qs.filter(e => e.ok).length, steps: ev.filter(e => e.t === "step").length, listens: listens.length, subj, days };
+}
+function streak() { let n = 0, d = todayKey(); const days = new Set(S.log.map(e => e.d)); if (!days.has(d)) d = addDays(d, -1); while (days.has(d)) { n++; d = addDays(d, -1); } return n; }
+const fmtMins = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60) + " min" : ""}` : `${m} min`;
+
+/* ---------- summaries: Claude-written when provided, otherwise picked from the notes on this device ---------- */
+const STOP = new Set("a an and are as at be been being but by can could did do does each for from had has have how however if in into is it its may more most much must no not of on one only or other our out over so some such than that the their them then there these they this those through to too under up upon use used using very was we were what when where which while who why will with within without would you your also both between during etc example examples first however i.e e.g many often same second several since therefore thus usually".split(" "));
+const words = s => (s.toLowerCase().match(/[a-z][a-z'’-]{2,}/g) || []).filter(w => !STOP.has(w));
+function summarize(text, title = "", max = 6) {
+  text = String(text || "").replace(/-\n(\w)/g, "$1").replace(/\s+/g, " ").trim().slice(0, 60000);
+  if (text.length < 80) return null;
+  const sents = text.split(/(?<=[.!?])\s+(?=[A-Z0-9“"‘(])/).map(s => s.trim()).filter(s => s.length >= 35 && s.length <= 420 && (s.match(/\d/g) || []).length < s.length / 6 && s !== s.toUpperCase());
+  if (!sents.length) return null;
+  const freq = {}; sents.forEach(s => words(s).forEach(w => freq[w] = (freq[w] || 0) + 1));
+  const top = Math.max(1, ...Object.values(freq)), tw = new Set(words(title));
+  const scored = sents.map((s, i) => {
+    const ws = words(s); if (!ws.length) return { s, i, sc: 0 };
+    let sc = ws.reduce((a, w) => a + freq[w] / top, 0) / Math.sqrt(ws.length);
+    sc += .35 * ws.filter(w => tw.has(w)).length;
+    if (i < 2) sc += .25;
+    if (/\b(is defined as|refers to|means|is called|is known as|is the|are the|the main|key|important)\b/i.test(s)) sc += .35;
+    return { s, i, sc, ws: new Set(ws) };
+  }).sort((a, b) => b.sc - a.sc);
+  const pick = [];
+  for (const c of scored) { if (pick.length >= max) break; if (pick.some(p => { const inter = [...c.ws].filter(w => p.ws.has(w)).length; return inter / Math.min(c.ws.size, p.ws.size) > .6; })) continue; pick.push(c); }
+  const terms = Object.entries(freq).filter(([w]) => w.length > 4 && !tw.has(w)).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([w]) => w);
+  return { bullets: pick.sort((a, b) => a.i - b.i).map(p => p.s), terms, source: "auto" };
+}
+const sumCache = new Map();
+function summaryOf(id) {
+  const e = S.content.explain[id];
+  if (e && e.summary) return { bullets: Array.isArray(e.summary) ? e.summary : String(e.summary).split(/\n+/).filter(Boolean), terms: [], source: "written" };
+  const n = notesOf(id), key = id + ":" + n.length;
+  if (sumCache.has(key)) return sumCache.get(key);
+  let r = n ? summarize(n, nodes[id].title) : null;
+  if (!r && e && (e.uni || e.simple)) r = { bullets: [e.simple, e.uni, e.exam].filter(Boolean), terms: [], source: "explain" };
+  sumCache.set(key, r); return r;
+}
+
+/* ---------- Listen: podcast episodes spoken by the device voice ---------- */
+const TTS = window.speechSynthesis || null;
+const P_ = { ep: null, i: 0, playing: false, rate: 1, voice: null, timer: null, started: 0 };
+try { const r = parseFloat(localStorage.getItem("studydesk.rate")); if (r) P_.rate = r; } catch (e) { }
+function pickVoice() {
+  if (!TTS) return null;
+  const vs = TTS.getVoices().filter(v => /^en/i.test(v.lang));
+  let pref = null; try { pref = localStorage.getItem("studydesk.voice"); } catch (e) { }
+  return vs.find(v => v.name === pref) || vs.find(v => /natural|enhanced|premium|neural/i.test(v.name) && /GB|US|AU|ZA/.test(v.lang)) || vs.find(v => /Google UK English Female|Samantha|Karen|Daniel|Serena/i.test(v.name)) || vs.find(v => /en-(GB|ZA|AU)/i.test(v.lang)) || vs[0] || null;
+}
+if (TTS) { TTS.onvoiceschanged = () => { P_.voice = pickVoice(); }; P_.voice = pickVoice(); }
+const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;:])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out; };
+function buildEpisode(title, subtitle, leafList, opts = {}) {
+  const segs = [], add = (text, kind = "body", extra = {}) => chunk(text).forEach(c => segs.push({ text: c, kind, ...extra }));
+  const pause = ms => segs.push({ kind: "pause", ms, text: "" });
+  add(opts.intro || `Welcome to Study Desk. This episode is ${title}. ${leafList.length} topic${leafList.length === 1 ? "" : "s"}.`, "intro");
+  pause(600);
+  leafList.forEach((id, k) => {
+    const n = nodes[id]; if (!n) return;
+    add(`${k === 0 ? "First" : k === leafList.length - 1 && k > 0 ? "Finally" : "Next"}: ${n.title}.`, "title", { node: id });
+    pause(350);
+    const sm = summaryOf(id);
+    if (sm) add(sm.bullets.join(" "), "body", { node: id });
+    else add(`There are no notes for this topic yet. It covers pages ${n.p1} to ${n.p2}. Add notes or import the chapter to hear a summary here.`, "body", { node: id });
+    const q = QS.find(q => q.node === id);
+    if (q && opts.questions !== false) {
+      pause(500);
+      add(`Quick question. ${q.q} ${q.o.map((o, i) => `${"ABCD"[i]}: ${o}.`).join(" ")}`, "q", { node: id });
+      pause(3500);
+      add(`The answer is ${"ABCD"[q.a]}: ${q.o[q.a]}. ${q.e || ""}`, "a", { node: id });
+    }
+    pause(700);
+  });
+  add(opts.outro || "That's the end of this episode. Well done for putting in the time.", "outro");
+  const wordsN = segs.reduce((a, s) => a + (s.text ? s.text.split(" ").length : 0), 0);
+  return { id: opts.id || newId("ep"), title, subtitle, segs, mins: Math.max(1, Math.round(wordsN / 155)), nodes: leafList };
+}
+function weekScript() {
+  const t = todayKey(), w = weekStats(addDays(t, -6), t), prev = weekStats(addDays(t, -13), addDays(t, -7));
+  const parts = [`Here is your study week.`];
+  parts.push(w.sessions ? `In the last seven days you finished ${w.sessions} study sessions, about ${fmtMins(w.mins)} of focused work, on ${w.days} different days.` : `You haven't logged any study sessions in the last seven days yet.`);
+  if (prev.mins) parts.push(w.mins >= prev.mins ? `That's more than the week before, when you did ${fmtMins(prev.mins)}.` : `That's a little less than the week before, when you did ${fmtMins(prev.mins)}.`);
+  if (w.answered) parts.push(`You answered ${w.answered} practice questions and got ${w.right} right, which is ${pct(w.right / w.answered)} percent.`);
+  const sk = streak(); if (sk > 1) parts.push(`You're on a ${sk} day study streak.`);
+  DSUBJ.filter(s => daysLeft(s.id) >= 0).sort((a, b) => daysLeft(a.id) - daysLeft(b.id)).forEach(s => parts.push(`${s.name}: ${pct(progress(s.id))} percent done, exam in ${daysLeft(s.id)} days.`));
+  const focus = leafIds.map(id => ({ id, ...scoreParts(id, t) })).filter(x => x.level !== "done").sort((a, b) => b.total - a.total).slice(0, 3);
+  if (focus.length) parts.push(`Next, focus on ${focus.map(f => nodes[f.id].title).join(", ")}.`);
+  parts.push("Keep going. Small sessions every day add up.");
+  return parts.join(" ");
+}
+function episodeFor(kind, arg) {
+  const t = todayKey();
+  if (kind === "today") { const ids = [...new Set(tasksOn(t).filter(x => x.type !== "mock").map(x => x.node))]; return buildEpisode("Today's topics", fmtD(t, { weekday: "long", day: "numeric", month: "long" }), ids, { id: "today", intro: `Welcome to Study Desk. Here are today's ${ids.length} topics, so you can listen before you start.` }); }
+  if (kind === "topic") { const n = nodes[arg]; const ids = leavesUnder(arg); return buildEpisode(n.title, subjects[n.subject].name + " · " + n.num, ids, { id: "topic:" + arg }); }
+  if (kind === "week") { const segs = chunk(weekScript()).map(c => ({ text: c, kind: "body" })); return { id: "week", title: "Your week", subtitle: "A spoken summary of your work", segs, mins: Math.max(1, Math.round(segs.reduce((a, s) => a + s.text.split(" ").length, 0) / 155)), nodes: [] }; }
+}
+function speakNext() {
+  clearTimeout(P_.timer);
+  const ep = P_.ep; if (!ep || !P_.playing) return;
+  if (P_.i >= ep.segs.length) { P_.playing = false; logEvent({ t: "listen", m: ep.mins }); save(); updatePlayer(); toast("Episode finished."); return; }
+  const s = ep.segs[P_.i]; updatePlayer();
+  if (s.kind === "pause") { P_.timer = setTimeout(() => { P_.i++; speakNext(); }, s.ms / P_.rate); return; }
+  const u = new SpeechSynthesisUtterance(s.text); u.rate = P_.rate; if (P_.voice) { u.voice = P_.voice; u.lang = P_.voice.lang; } else u.lang = "en-GB";
+  const myI = P_.i;
+  u.onend = () => { if (P_.playing && P_.i === myI) { P_.i++; speakNext(); } };
+  u.onerror = e => { if (e.error === "interrupted" || e.error === "canceled") return; P_.playing = false; updatePlayer(); };
+  TTS.speak(u);
+}
+function playEpisode(ep, from = 0) {
+  if (!TTS) { toast("This browser can't read aloud. Try Chrome, Edge or Safari."); return; }
+  RP.stop();
+  TTS.cancel(); P_.ep = ep; P_.i = from; P_.playing = true; P_.started = Date.now(); speakNext(); updatePlayer();
+}
+function playerToggle() { if (!P_.ep) return; if (P_.playing) { P_.playing = false; TTS.cancel(); clearTimeout(P_.timer); } else { P_.playing = true; speakNext(); } updatePlayer(); }
+function playerSeek(d) { if (!P_.ep) return; let i = P_.i + d; const segs = P_.ep.segs; while (segs[i] && segs[i].kind === "pause") i += d > 0 ? 1 : -1; P_.i = clamp(i, 0, segs.length - 1); TTS.cancel(); if (P_.playing) setTimeout(speakNext, 60); else updatePlayer(); }
+function playerStop() { P_.playing = false; P_.ep = null; TTS && TTS.cancel(); clearTimeout(P_.timer); updatePlayer(); }
+function setRate(r) { P_.rate = r; try { localStorage.setItem("studydesk.rate", r); } catch (e) { } if (P_.playing) { TTS.cancel(); setTimeout(speakNext, 60); } updatePlayer(); }
+
+/* mini player bar (always visible while an episode is loaded) */
+function updatePlayer() {
+  let bar = $("#player");
+  const ep = P_.ep;
+  document.documentElement.classList.toggle("has-player", !!ep);
+  if (!ep) { bar && bar.remove(); return; }
+  if (!bar) { bar = document.createElement("div"); bar.id = "player"; bar.className = "player"; document.body.appendChild(bar); }
+  const seg = ep.segs[Math.min(P_.i, ep.segs.length - 1)], prog = ep.segs.length ? P_.i / ep.segs.length : 0;
+  bar.innerHTML = `<div class="pl-prog" style="transform:scaleX(${prog})"></div>
+    <button class="pl-main" data-go="episode" aria-label="Open player"><span class="eq ${P_.playing ? "on" : ""}" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span class="grow"><b>${esc(ep.title)}</b><span class="tiny muted">${esc(seg && seg.text ? seg.text : ep.subtitle || "")}</span></span></button>
+    <button class="pl-btn" data-action="pl-toggle" aria-label="${P_.playing ? "Pause" : "Play"}">${P_.playing ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}</button>
+    <button class="pl-btn" data-action="pl-stop" aria-label="Close player">${ico("x")}</button>`;
+  if (stack[stack.length - 1].v === "episode") { const cur = $(`.tline[data-i="${P_.i}"]`); $$(".tline.cur").forEach(x => x !== cur && x.classList.remove("cur")); if (cur && !cur.classList.contains("cur")) { cur.classList.add("cur"); cur.scrollIntoView({ block: "center", behavior: FX.on ? "smooth" : "auto" }); } const pb = $("#ep-play"); if (pb) pb.innerHTML = P_.playing ? "Pause" : "Play"; }
+}
+
+/* ---------- recordings: lectures or podcasts she adds, kept on the device ---------- */
+const RP = {
+  el: null, cur: null, lastSave: 0,
+  async play(id) {
+    playerStop();
+    const r = await IDB.get("audio", id); if (!r || !r.blob) { toast("Couldn't open that recording."); return; }
+    if (this.el) { this.el.pause(); URL.revokeObjectURL(this.el.src); }
+    const a = this.el = new Audio(URL.createObjectURL(r.blob)); this.cur = r;
+    a.playbackRate = P_.rate; a.currentTime = r.pos || 0;
+    a.ontimeupdate = () => { const now = Date.now(); if (now - this.lastSave > 4000) { this.lastSave = now; r.pos = a.currentTime; IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.pos = a.currentTime; } const bar = $("#rec-prog-" + id); if (bar && a.duration) bar.style.transform = `scaleX(${a.currentTime / a.duration})`; const t = $("#rec-time-" + id); if (t) t.textContent = fmtClock(a.currentTime) + " / " + fmtClock(a.duration || 0); };
+    a.onended = () => { r.pos = 0; IDB.put("audio", r); logEvent({ t: "listen", m: Math.round((a.duration || 0) / 60) }); save(); rerender(); };
+    a.onloadedmetadata = () => { if (!r.dur) { r.dur = a.duration; IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.dur = a.duration; } };
+    try { await a.play(); } catch (e) { toast("Tap play again to start the recording."); }
+    if ("mediaSession" in navigator) { navigator.mediaSession.metadata = new MediaMetadata({ title: r.name, artist: "Study Desk", album: subjects[r.subject]?.name || "Recordings" }); }
+    rerender();
+  },
+  toggle() { if (!this.el) return; this.el.paused ? this.el.play() : this.el.pause(); setTimeout(rerender, 50); },
+  skip(s) { if (this.el) this.el.currentTime = clamp(this.el.currentTime + s, 0, this.el.duration || 1e9); },
+  stop() { if (this.el) { this.el.pause(); } }
+};
+const fmtClock = s => { s = Math.floor(s || 0); return Math.floor(s / 60) + ":" + pad(s % 60); };
+async function addRecording(file, sid) {
+  if (!/^audio\//.test(file.type) && !/\.(mp3|m4a|wav|aac|ogg|opus|webm)$/i.test(file.name)) { toast("Choose an audio file, like an MP3 or M4A."); return; }
+  if (file.size > 300e6) { toast("That recording is over 300 MB. Try a shorter file."); return; }
+  try { if (navigator.storage && navigator.storage.persist) await navigator.storage.persist(); } catch (e) { }
+  const r = { id: newId("a"), name: file.name.replace(/\.\w+$/, ""), subject: sid || "", size: file.size, added: Date.now(), pos: 0, dur: 0, transcript: "", blob: file };
+  try { await IDB.put("audio", r); RECS.unshift({ ...r, blob: undefined }); toast("Recording added."); rerender(); }
+  catch (e) { toast("Couldn't save that recording. Your device may be out of space."); }
+}
+
+/* ---------- views ---------- */
+V.listen = () => {
+  const t = todayKey(), todayIds = [...new Set(tasksOn(t).filter(x => x.type !== "mock").map(x => x.node))];
+  const playing = id => P_.ep && P_.ep.id === id;
+  const epCard = (id, title, sub, action, extra = "", big = false) => `<button class="ep ${big ? "big" : ""} ${playing(id) ? "on" : ""}" data-action="ep-play" data-kind="${action}" ${extra}><span class="ep-art" aria-hidden="true"><span class="eq ${playing(id) && P_.playing ? "on" : ""}"><i></i><i></i><i></i><i></i></span></span><span class="grow"><b>${esc(title)}</b><span class="tiny muted">${esc(sub)}</span></span><span class="ep-go">${playing(id) && P_.playing ? "Playing" : "Play"}</span></button>`;
+  return `<div class="stack" style="gap:22px">
+    <header class="subhead"><div class="eyebrow">Listen</div><h1>Study podcasts</h1><p class="muted">Episodes are made from your notes and read aloud by your device. Good for the bus, the gym or a walk.</p></header>
+    ${!TTS ? `<div class="banner">${ico("info")}<div>This browser can't read aloud. Your recordings below still play.</div></div>` : ""}
+    <section class="section">
+      ${todayIds.length ? epCard("today", "Today's topics", `${todayIds.length} topics from today's plan`, "today", "", true) : ""}
+      ${epCard("week", "Your week", "A spoken summary of your study week", "week")}
+    </section>
+    <section class="section"><div class="sec-head"><h2>By chapter</h2></div>
+      ${DSUBJ.length ? DSUBJ.map(s => `<details class="card subj-ep" ${s === DSUBJ[0] ? "open" : ""}><summary class="row"><span class="mark" style="--pc:${subjColor(s.id)}"></span><b class="grow">${esc(s.name)}</b>${ico("chev", 'class="caret"')}</summary>
+        <div class="stack" style="gap:8px;margin-top:10px">${s.chapterIds.map(cid => { const c = nodes[cid], n = leavesUnder(cid).length, withNotes = leavesUnder(cid).filter(l => summaryOf(l)).length; return epCard("topic:" + cid, `Ch ${c.num} · ${c.title}`, `${n} topics · ${withNotes ? withNotes + " with notes" : "no notes yet"}`, "topic", `data-id="${cid}"`); }).join("")}
+        <button class="btn btn-line btn-sm" data-go="summary:${s.id}" style="align-self:flex-start">Read the ${esc(s.name)} summary</button></div></details>`).join("") : `<div class="card empty">Add a subject to get episodes.</div>`}
+    </section>
+    <section class="section"><div class="sec-head"><h2>My recordings</h2></div>
+      <div class="card stack" style="gap:10px">
+        <p class="small muted">Add lecture recordings or podcast episodes. They stay on this device and remember where you stopped.</p>
+        <div class="row" style="flex-wrap:wrap"><label class="btn btn-soft" for="rec-file">${ico("upload")}Add a recording</label><input type="file" id="rec-file" class="sr" accept="audio/*,.mp3,.m4a,.wav,.aac,.ogg,.opus">
+        ${DSUBJ.length ? `<label class="sr" for="rec-subj">Subject</label><select id="rec-subj" class="mini-select"><option value="">No subject</option>${DSUBJ.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("")}</select>` : ""}</div>
+      </div>
+      ${RECS.length ? `<div class="list">${RECS.map(r => { const on = RP.cur && RP.cur.id === r.id, paused = !RP.el || RP.el.paused; return `<div class="rec ${on ? "on" : ""}">
+        <div class="row"><button class="pl-btn ${on && !paused ? "act" : ""}" data-action="rec-play" data-id="${r.id}" aria-label="${on && !paused ? "Pause" : "Play"} ${esc(r.name)}">${on && !paused ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}</button>
+          <span class="grow"><b>${esc(r.name)}</b><span class="tiny muted" id="rec-time-${r.id}">${r.subject && subjects[r.subject] ? esc(subjects[r.subject].name) + " · " : ""}${r.dur ? fmtClock(r.pos) + " / " + fmtClock(r.dur) : (r.size / 1e6).toFixed(1) + " MB"}</span></span>
+          ${on ? `<button class="oa" data-action="rec-skip" data-s="-15" aria-label="Back 15 seconds">−15</button><button class="oa" data-action="rec-skip" data-s="30" aria-label="Forward 30 seconds">+30</button>` : ""}
+          <button class="oa" data-action="rec-more" data-id="${r.id}" aria-label="Summary and options">${ico("chev")}</button></div>
+        <div class="rec-bar"><i id="rec-prog-${r.id}" style="transform:scaleX(${r.dur ? (r.pos || 0) / r.dur : 0})"></i></div></div>`; }).join("")}</div>` : ""}
+    </section>
+    <section class="card stack" style="gap:8px"><div class="row"><span class="small grow">Speed</span><div class="segctl">${[0.8, 1, 1.25, 1.5].map(r => `<button role="radio" aria-checked="${P_.rate === r}" data-action="pl-rate" data-r="${r}">${r}×</button>`).join("")}</div></div>
+      ${TTS && TTS.getVoices().filter(v => /^en/i.test(v.lang)).length > 1 ? `<div class="row"><label class="small grow" for="voice-pick">Voice</label><select id="voice-pick" class="mini-select">${TTS.getVoices().filter(v => /^en/i.test(v.lang)).map(v => `<option ${P_.voice && P_.voice.name === v.name ? "selected" : ""}>${esc(v.name)}</option>`).join("")}</select></div>` : ""}
+      <p class="tiny muted">Tip: on iPhone, better voices are in Settings → Accessibility → Spoken Content → Voices.</p></section>
+  </div>`;
+};
+V.episode = () => {
+  const ep = P_.ep; if (!ep) return V.listen();
+  return `<div class="stack" style="gap:18px">
+    <header class="subhead"><div class="eyebrow">Now playing · about ${ep.mins} min</div><h1>${esc(ep.title)}</h1><p class="muted">${esc(ep.subtitle || "")}</p></header>
+    <div class="card stack nowplay"><div class="wave ${P_.playing ? "on" : ""}" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--k:${i}"></i>`).join("")}</div>
+      <div class="row" style="justify-content:center;gap:14px"><button class="icon-btn" data-action="pl-seek" data-d="-1" aria-label="Back">${ico("left")}</button><button class="btn btn-pen" id="ep-play" data-action="pl-toggle" style="min-width:120px">${P_.playing ? "Pause" : "Play"}</button><button class="icon-btn" data-action="pl-seek" data-d="1" aria-label="Forward">${ico("chev")}</button></div>
+      <div class="row" style="justify-content:center"><div class="segctl">${[0.8, 1, 1.25, 1.5].map(r => `<button role="radio" aria-checked="${P_.rate === r}" data-action="pl-rate" data-r="${r}">${r}×</button>`).join("")}</div></div></div>
+    <section class="section"><div class="sec-head"><h2>Transcript</h2><span class="tiny muted">Tap a line to jump there</span></div>
+      <div class="card transcript">${ep.segs.map((s, i) => s.kind === "pause" ? "" : `<button class="tline k-${s.kind} ${i === P_.i ? "cur" : ""}" data-action="pl-jump" data-i="${i}">${esc(s.text)}</button>`).join("")}</div></section>
+  </div>`;
+};
+V.summary = sid => {
+  const s = subjects[sid]; if (!s) return V.listen();
+  const leaves = leavesBySubject[sid], have = leaves.filter(l => summaryOf(l)).length;
+  return `<div class="stack" style="gap:20px">
+    <header class="subhead"><div class="eyebrow">${esc(s.name)} · summary</div><h1>Everything in ${esc(s.name)}</h1>
+      <p class="muted">${have} of ${leaves.length} topics have notes to summarise.${have < leaves.length ? " Import the textbook PDF or add notes to fill in the rest." : ""}</p>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0] || ""}" ${s.chapterIds.length ? "" : "disabled"}>${ico("spark")}Listen from chapter 1</button></div></header>
+    ${s.chapterIds.map(cid => { const c = nodes[cid]; return `<section class="card stack sumch"><div class="sec-head"><h2 class="h3">Chapter ${c.num} · ${esc(c.title)}</h2><button class="link small" data-action="ep-play" data-kind="topic" data-id="${cid}">Listen</button></div>
+      ${leavesUnder(cid).map(l => { const n = nodes[l], sm = summaryOf(l); return `<div class="sumtopic"><button class="sumt" data-go="topic:${l}"><span class="onum">${n.num}</span>${esc(n.title)}<span class="pages">pp ${n.p1}–${n.p2}</span></button>${sm ? `<ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}` : `<p class="tiny muted">No notes yet.</p>`}</div>`; }).join("")}</section>`; }).join("")}
+  </div>`;
+};
+function weekView() {
+  const t = todayKey(), from = addDays(t, -6), w = weekStats(from, t), prev = weekStats(addDays(t, -13), addDays(t, -7)), sk = streak();
+  const days = Array.from({ length: 14 }, (_, i) => addDays(t, i - 13)), perDay = days.map(d => S.log.filter(e => e.d === d && (e.t === "task" || e.t === "listen")).reduce((a, e) => a + (e.m || 0), 0)), mx = Math.max(30, ...perDay);
+  const delta = prev.mins ? Math.round((w.mins - prev.mins) / prev.mins * 100) : null;
+  const focus = leafIds.map(id => ({ id, ...scoreParts(id, t) })).filter(x => x.level !== "done").sort((a, b) => b.total - a.total).slice(0, 3);
+  const ring = (p, col) => { const c = 2 * Math.PI * 26; return `<svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--sunken)" stroke-width="7"/><circle class="ring-v" cx="32" cy="32" r="26" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p)}" style="--c:${c}" transform="rotate(-90 32 32)"/></svg>`; };
+  return `<section class="week stack" style="gap:16px">
+    <div class="week-hero"><div class="eyebrow mono">${fmtD(from, { day: "numeric", month: "short" })} – ${fmtD(t, { day: "numeric", month: "short" })}</div>
+      <h2 class="week-h">${w.mins ? `You studied <b data-countmin="${w.mins}">${fmtMins(w.mins)}</b> this week` : "A fresh week starts now"}</h2>
+      <p class="muted">${w.sessions} sessions on ${w.days} day${w.days === 1 ? "" : "s"}${delta !== null ? ` · ${delta >= 0 ? "up" : "down"} ${Math.abs(delta)}% on last week` : ""}${sk > 1 ? ` · ${sk}-day streak` : ""}</p>
+      <button class="btn btn-hl btn-sm" data-action="ep-play" data-kind="week" style="align-self:flex-start">${ico("spark")}Listen to your week</button></div>
+    <div class="tiles">
+      <div class="tile"><b data-count-up="${w.sessions}">${w.sessions}</b><span>sessions done</span></div>
+      <div class="tile"><b data-count-up="${w.answered}">${w.answered}</b><span>questions answered${w.answered ? ` · ${pct(w.right / w.answered)}% right` : ""}</span></div>
+      <div class="tile"><b data-count-up="${w.steps}">${w.steps}</b><span>topics moved up a stage</span></div>
+      <div class="tile"><b data-count-up="${w.listens}">${w.listens}</b><span>episodes listened to</span></div>
+    </div>
+    <div class="card stack" style="gap:10px"><div class="sec-head"><h2 class="h3">Last 14 days</h2><span class="tiny muted">minutes studied</span></div>
+      <div class="bars" role="img" aria-label="Minutes studied per day for the last 14 days">${days.map((d, i) => `<div class="bar ${d === t ? "today" : ""}"><i style="height:${Math.max(3, perDay[i] / mx * 100)}%;--k:${i}" title="${fmtD(d)}: ${perDay[i]} min"></i><span>${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span></div>`).join("")}</div></div>
+    <div class="subj-rings">${DSUBJ.map(s => { const p = progress(s.id), m = w.subj[s.id] || 0, d = daysLeft(s.id); return `<button class="card sring" data-go="subject:${s.id}">${ring(p, subjColor(s.id))}<span class="grow"><b>${esc(s.name)}</b><span class="tiny muted">${pct(p)}% done · ${m ? fmtMins(m) + " this week" : "not studied this week"}</span><span class="tiny ${d >= 0 && d <= 10 ? "warn" : "muted"}">${d < 0 ? "Exam finished" : d === 0 ? "Exam today" : `Exam in ${d} day${d === 1 ? "" : "s"}`}</span></span></button>`; }).join("")}</div>
+    ${focus.length ? `<div class="card stack" style="gap:6px"><h2 class="h3">Focus next</h2>${focus.map(f => `<button class="item" data-go="topic:${f.id}" style="--pc:${PRC[f.level]};padding-inline:0"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[f.id].title)}</span><br><span class="s">${esc(subjects[nodes[f.id].subject].name)} · ${f.parts[0][0]}</span></span>${ico("chev", 'class="chev"')}</button>`).join("")}</div>` : ""}
+  </section>`;
+}
+function openNotesSheet(id) {
+  const n = nodes[id];
+  openSheet("Notes for " + n.title, `${sheetHead(subjects[n.subject].name + " · " + n.num, "Notes: " + n.title)}
+    <div class="stack form"><p class="small muted">Paste or type notes for this topic. Summaries and podcast episodes are made from them. Kept on this device.</p>
+      <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea>
+      <div class="row"><button class="btn btn-pen" data-action="notes-save" data-id="${id}">Save notes</button></div></div>`);
+}
+function openRecSheet(id) {
+  const r = RECS.find(x => x.id === id); if (!r) return;
+  const sm = r.transcript ? summarize(r.transcript, r.name, 7) : null;
+  openSheet(r.name, `${sheetHead("Recording", r.name)}
+    <div class="stack form">
+      ${sm ? `<div class="card stack" style="gap:6px;box-shadow:none;background:var(--sunken)"><h3 class="h3">Summary</h3><ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}<p class="tiny muted">Picked from the key sentences in the transcript.</p></div>` : ""}
+      <label class="fld"><span>Transcript or notes</span><textarea id="rec-tr" rows="6" placeholder="Paste the episode's transcript or your notes to get a summary">${esc(r.transcript || "")}</textarea></label>
+      <p class="tiny muted">Many podcasts publish transcripts. For lectures without one, send the recording to Claude in your project and the summary can be added for you.</p>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="rec-save" data-id="${id}">Save and summarise</button><button class="btn btn-line btn-sm" data-action="rec-del" data-id="${id}">Delete recording</button></div></div>`);
+}
+async function v3Action(act, a) {
+  const id = a.dataset.id;
+  switch (act) {
+    case "ep-play": { const k = a.dataset.kind; if (k === "topic" && !nodes[id]) return true; const ep = episodeFor(k, id); if (!ep.segs.length) return true; playEpisode(ep); if (stack[stack.length - 1].v !== "episode") go("episode"); return true; }
+    case "pl-toggle": playerToggle(); if (stack[stack.length - 1].v === "listen") rerender(); return true;
+    case "pl-stop": playerStop(); if (["episode", "listen"].includes(stack[stack.length - 1].v)) rerender(); return true;
+    case "pl-seek": playerSeek(+a.dataset.d); return true;
+    case "pl-jump": P_.i = +a.dataset.i; TTS && TTS.cancel(); if (!P_.playing) P_.playing = true; setTimeout(speakNext, 60); return true;
+    case "pl-rate": setRate(+a.dataset.r); if (RP.el) RP.el.playbackRate = P_.rate; $$(`[data-action="pl-rate"]`).forEach(b => b.setAttribute("aria-checked", +b.dataset.r === P_.rate)); return true;
+    case "rec-play": if (RP.cur && RP.cur.id === id) RP.toggle(); else await RP.play(id); return true;
+    case "rec-skip": RP.skip(+a.dataset.s); return true;
+    case "rec-more": openRecSheet(id); return true;
+    case "rec-save": { const r = await IDB.get("audio", id); if (!r) return true; r.transcript = ($("#rec-tr")?.value || "").slice(0, 200000); await IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.transcript = r.transcript; openRecSheet(id); toast(r.transcript.trim() ? "Saved. Summary below." : "Saved."); return true; }
+    case "rec-del": if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete"; return true; } if (RP.cur && RP.cur.id === id) { RP.stop(); RP.cur = null; } await IDB.del("audio", id); RECS = RECS.filter(x => x.id !== id); closeSheet(); rerender(); toast("Recording deleted."); return true;
+    case "notes": openNotesSheet(id); return true;
+    case "notes-save": await saveNotes(id, $("#notes-text")?.value || ""); closeSheet(); rerender(); toast("Notes saved."); return true;
+  }
+  return false;
+}
+
+const V3_ACTS = new Set(["ep-play","pl-toggle","pl-stop","pl-seek","pl-jump","pl-rate","rec-play","rec-skip","rec-more","rec-save","rec-del","notes","notes-save"]);
 
 /* =====================================================================
    9. MOTION — GSAP (free, incl. Flip and SplitText) + View Transitions, all optional
@@ -1147,6 +1520,9 @@ const FX = {
     if (fresh) {
       $$("[data-count]", v).forEach(el => { const to = +el.dataset.count, o = { n: Math.min(to + 12, to * 2 + 9) }; el.textContent = Math.round(o.n); gsap.to(o, { n: to, duration: 1.1, ease: "power3.out", delay: .15, onUpdate: () => el.textContent = Math.round(o.n) }); });
       $$("[data-num]", v).slice(0, 12).forEach(el => { const to = +el.dataset.num, o = { n: 0 }; gsap.to(o, { n: to, duration: .9, ease: "power2.out", onUpdate: () => el.textContent = Math.round(o.n) + "%" }); });
+      $$("[data-count-up]", v).forEach(el => { const to = +el.dataset.countUp, o = { n: 0 }; gsap.to(o, { n: to, duration: 1, ease: "power2.out", delay: .2, onUpdate: () => el.textContent = Math.round(o.n) }); });
+      $$(".ring-v", v).forEach(c => gsap.from(c, { strokeDashoffset: c.style.getPropertyValue("--c"), duration: 1.2, ease: "power3.out", delay: .15 }));
+      gsap.from($$(".upnext, .tile, .sring, .wd, .mini, .ep, .rec", v).slice(0, 30), { y: 16, opacity: 0, duration: .55, ease: "power3.out", stagger: .04, clearProps: "transform,opacity" });
       gsap.from($$(".task, .exam, .list > .item, .chapter, .heading, .qcard, .day", v).slice(0, 40), { y: 14, opacity: 0, duration: .5, ease: "power3.out", stagger: .03, delay: .05, clearProps: "transform,opacity" });
     }
     if (view === "today" && this.intro && window.SplitText) {
@@ -1183,8 +1559,8 @@ function placeIndicator(container) {
    10. ROUTER & ACTIONS
    ===================================================================== */
 let stack = [{ v: "today" }];
-const TABS = [["today", "Today", "today"], ["exams", "Exams", "exams"], ["calendar", "Calendar", "cal"], ["practice", "Practice", "practice"], ["progress", "Progress", "progress"]];
-const RAIL = [...TABS, ["settings", "Settings", "gear"]];
+const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Practice", "practice"], ["progress", "Progress", "progress"]];
+const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
 const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams" })[r.v] || r.v;
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
@@ -1214,6 +1590,9 @@ function crumbs() {
     trail = [["subject:" + chain[0].subject, subjects[chain[0].subject].name], ...chain.map(c => [(c.depth === 0 ? "chapter:" : "topic:") + c.id, crumbTitle(c.id)])];
   } else if (r.v === "practice") trail = [["practice", "Practice"]];
   else if (r.v === "edit") trail = [["edit", "My subjects"]];
+  else if (r.v === "episode") trail = [["episode", "Now playing"]];
+  else if (r.v === "calendar") trail = [["calendar", "Calendar"]];
+  else if (r.v === "summary" && subjects[id]) trail = [["subject:" + id, subjects[id].name], ["summary:" + id, "Summary"]];
   else if (r.v === "editsubj") trail = [["edit", "My subjects"], ["editsubj:" + id, id === "new" ? "New subject" : (subjects[id]?.name || "Subject")]];
   const root = RAIL.find(t => t[0] === stack[0].v);
   const parts = [[stack[0].v, root[1]], ...trail];
@@ -1248,7 +1627,7 @@ function toast(msg, action) {
 function setStatus(id, s, label) { S.status[id] = clamp(s, 0, 5); if (label) { S.recent.unshift({ id, text: label, when: todayKey() }); S.recent = S.recent.slice(0, 20); } save(); }
 function answer(i) {
   const pool = qPool(), q = pool[Q.idx % pool.length]; if (!q || Q.picked !== null) return;
-  Q.picked = i; Q.done++; const ok = i === q.a; if (ok) Q.right++;
+  Q.picked = i; Q.done++; const ok = i === q.a; if (ok) Q.right++; logEvent({ t: "q", n: q.node, ok });
   const h = S.attempts[q.node] || (S.attempts[q.node] = { a: 0, c: 0 }); h.a++; if (ok) h.c++;
   if (!ok) { const m = S.mistakes[q.node] || (S.mistakes[q.node] = { n: 0, qs: [] }); m.n++; if (!m.qs.includes(q.id)) m.qs.push(q.id); }
   else { const m = S.mistakes[q.node]; if (m && m.qs.includes(q.id)) { m.n = Math.max(0, m.n - 1); m.qs = m.qs.filter(x => x !== q.id); } }
@@ -1281,6 +1660,7 @@ document.addEventListener("click", e => {
     e.preventDefault(); e.stopPropagation();
     const act = a.dataset.action, id = a.dataset.id;
     if (editorAction(act, a)) return;
+    if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
       case "toggle": {
@@ -1289,13 +1669,13 @@ document.addEventListener("click", e => {
         if (t.done) {
           t.prev = st(t.node);
           if (t.type !== "mock") { const ns = { learn: 1, recall: 2, practice: 3, calc: 3, revision: 4 }[t.type]; if (ns > st(t.node)) setStatus(t.node, ns); }
-          S.recent.unshift({ id: t.node, text: TYPES[t.type].label, when: todayKey() }); S.recent = S.recent.slice(0, 20); save();
+          S.recent.unshift({ id: t.node, text: TYPES[t.type].label, when: todayKey() }); S.recent = S.recent.slice(0, 20); logEvent({ t: "task", n: t.node, m: t.dur, tid: t.id }); save();
           a.setAttribute("aria-checked", "true");
           const moved = t.type !== "mock" && st(t.node) !== t.prev;
           FX.floatChip(a, moved ? "→ " + STATUS[st(t.node)] : "Done");
           const left = tasksOn(t.date).filter(x => !x.done).length;
           setTimeout(() => { flipRerender(); if (t.date === todayKey() && left === 0) { FX.party(); toast("Day complete. Everything on today's plan is done."); } else toast(t.type === "mock" ? "Mock test logged." : `${nodes[t.node].title} is now “${STATUS[st(t.node)]}”.` + (t.type === "learn" && moved ? " Active recall moves it to Understood." : "")); }, FX.on ? 320 : 0);
-        } else { if (t.prev !== undefined) S.status[t.node] = t.prev; const i = S.recent.findIndex(r => r.id === t.node); if (i === 0) S.recent.shift(); save(); flipRerender(); }
+        } else { if (t.prev !== undefined) S.status[t.node] = t.prev; const i = S.recent.findIndex(r => r.id === t.node); if (i === 0) S.recent.shift(); const li = S.log.findIndex(e => e.tid === t.id); if (li >= 0) S.log.splice(li, 1); save(); flipRerender(); }
         return;
       }
       case "miss": {
@@ -1306,13 +1686,14 @@ document.addEventListener("click", e => {
         if (FX.on && row) gsap.to(row, { x: 60, opacity: 0, duration: .28, ease: "power2.in", onComplete: done }); else done();
         return;
       }
-      case "step": { const cur = st(id); if (cur >= 5 || (cur === 4 && !(acc(id) >= .8 && S.attempts[id].a >= 3))) return; setStatus(id, cur + 1, STATUS[cur + 1]); rerender(); FX.ladder(); FX.burst($(".rung.cur") || a, cur + 1 === 5 ? 90 : 24, cur + 1 === 5 ? 100 : 55); toast(`${nodes[id].title}: ${STATUS[cur + 1]}.`); return; }
+      case "step": { const cur = st(id); if (cur >= 5 || (cur === 4 && !(acc(id) >= .8 && S.attempts[id].a >= 3))) return; logEvent({ t: "step", n: id }); setStatus(id, cur + 1, STATUS[cur + 1]); rerender(); FX.ladder(); FX.burst($(".rung.cur") || a, cur + 1 === 5 ? 90 : 24, cur + 1 === 5 ? 100 : 55); toast(`${nodes[id].title}: ${STATUS[cur + 1]}.`); return; }
       case "stepdown": setStatus(id, st(id) - 1); rerender(); return;
       case "dunno": openExplain(id); return;
       case "practise": { const has = QS.some(q => q.node === id); Q = { ...Q, topic: has ? id : null, subj: has ? "all" : nodes[id].subject, lvl: "all", mode: "all", idx: 0, picked: null }; navigate(() => stack.push({ v: "practice" }), "forward"); return; }
       case "qf": Q[a.dataset.k] = a.dataset.v || (a.dataset.k === "topic" ? null : "all"); if (a.dataset.k === "mode") Q.topic = null; Q.idx = 0; Q.picked = null; rerender(); return;
       case "answer": { const ok = answer(+a.dataset.i); rerender(); if (ok) { FX.burst($(".opt.right"), 22, 50); if (FX.on) gsap.fromTo("#qscore", { scale: 1.25 }, { scale: 1, duration: .5, ease: "back.out(3)" }); } return; }
       case "nextq": Q.idx++; Q.picked = null; rerender(); if (FX.on) gsap.from("#qcard", { x: 24, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); $("#qcard")?.scrollIntoView({ block: "nearest" }); return;
+      case "cal-open": calSel = a.dataset.k; calMonth = calSel.slice(0, 7) + "-01"; go("calendar"); return;
       case "pickday": calSel = a.dataset.k; if (calSel.slice(0, 7) !== calMonth.slice(0, 7)) calMonth = calSel.slice(0, 7) + "-01"; rerender(); return;
       case "month": { const d = parseKey(calMonth), dir = +a.dataset.d; d.setMonth(d.getMonth() + dir); calMonth = keyOf(d); rerender(); if (FX.on) gsap.from("#calGrid", { x: 30 * dir, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); return; }
       case "replan": snapshot(); generate(todayKey()); S.changes.unshift({ when: todayKey(), text: "Plan rebuilt from today using your latest progress and practice scores." }); save(); flipRerender(); toast("Plan rebuilt from today.", { label: "Undo", fn: undo }); return;
@@ -1347,6 +1728,8 @@ document.addEventListener("change", e => {
     snapshot(); S.settings.blocks = sorted; applySettings(true); rerender(); toast("Study times updated. Plan rebuilt.", { label: "Undo", fn: undo });
   }
   if (el.id === "imp-file" && el.files && el.files[0]) { importFile(el.files[0], el.dataset.sid); return; }
+  if (el.id === "rec-file" && el.files && el.files[0]) { addRecording(el.files[0], ($("#rec-subj") || {}).value || ""); return; }
+  if (el.id === "voice-pick") { const v = TTS.getVoices().find(v => v.name === el.value); if (v) { P_.voice = v; try { localStorage.setItem("studydesk.voice", v.name); } catch (e) { } } return; }
   if (el.id === "importFile" && el.files && el.files[0]) {
     const f = el.files[0];
     if (f.size > 5e6) { importMsg = { ok: false, text: "That file is too big to be a Study Desk backup." }; rerender(); return; }
@@ -1452,6 +1835,7 @@ addEventListener("appinstalled", () => { deferredInstall = null; toast("Study De
   if (DSUBJ.length && !S.tasks.some(t => t.date >= todayKey())) { generate(todayKey()); save(); }
   applySettings(false);
   render(true);
+  setTimeout(loadLocalFiles, 0);
   if (contentNotice && contentNotice.auto) toast("Your study content was updated.");
   document.documentElement.classList.add("ready");
 })();
