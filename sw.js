@@ -1,6 +1,6 @@
 /* Study Desk service worker: the app shell is cached so it opens offline.
    Bump VERSION on every release so phones pick up the new files. */
-const VERSION = "study-desk-3.0.0";
+const VERSION = "study-desk-3.1.0";
 const SHELL = [
   "./", "index.html", "styles.css", "data.js", "app.js", "manifest.webmanifest",
   "vendor/gsap.min.js", "vendor/Flip.min.js", "vendor/SplitText.min.js", "vendor/confetti.min.js", "vendor/jszip.min.js", "vendor/register.js",

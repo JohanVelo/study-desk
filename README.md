@@ -9,15 +9,22 @@ Open the site link, then:
 - **Windows / Mac (Chrome or Edge):** click the install icon at the right of the address bar, or Settings → Install app.
 - **Mac (Safari):** File → **Add to Dock**.
 
-Each device keeps its own progress. Use Settings → Backup to move progress between devices.
+Each device keeps its own progress. Use Settings → Backup to move progress between devices. Backups include progress, plan, subjects and notes; audio recordings stay on the device that added them.
+
+## What it does
+- **Today:** the one session to do next, a focus timer, the rest of the day, the week ahead and exam countdowns.
+- **Subjects:** chapter → heading → subheading with page ranges, summaries, and an editor (add by hand, or import from a PDF or PowerPoint).
+- **Listen:** study podcasts read aloud by the device, plus your own lecture recordings.
+- **Practice, Progress, Calendar:** questions, weak topics, mistakes, the revision ladder and an animated weekly recap.
+- Search everything with the magnifier (or press `/` on a laptop).
 
 ## Put in real study data
-Edit **data.js** only. The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
+The easiest way is inside the app: Subjects → Edit my subjects. To ship content with the app instead, edit **data.js**. The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
 - `index.html` app page · `styles.css` design · `app.js` logic · `data.js` study content
 - `sw.js` offline cache · `manifest.webmanifest` install details · `icons/` app icons
-- `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence) and canvas-confetti (ISC)
+- `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT) and pdf.js (Apache 2.0)
 - `fonts/` Bricolage Grotesque, Atkinson Hyperlegible, JetBrains Mono (SIL Open Font Licence)
 - `artifact.html` the same app as a claude.ai preview page
 

@@ -2,7 +2,7 @@
    Sections: 1 utils · 2 model · 3 store · 4 priority & progress · 5 scheduler · 6 icons
              7 UI pieces · 8 views · 9 motion · 10 router & actions · 11 install & offline · 12 boot */
 "use strict";
-const APP_VERSION = "3.0.0";
+const APP_VERSION = "3.1.0";
 
 /* =====================================================================
    1. UTILS
@@ -288,13 +288,15 @@ function checkDataFile() {
 }
 
 /* ---------- backup / restore ---------- */
-function exportText() { return JSON.stringify({ app: "study-desk", schema: SCHEMA_NOW, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S }, null, 1); }
+function exportText() { return JSON.stringify({ app: "study-desk", schema: SCHEMA_NOW, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S, notes: NOTES }, null, 1); }
 function importText(txt) {
   let o; try { o = JSON.parse(txt); } catch (e) { return { error: "That isn't a Study Desk backup. Check you copied the whole file." }; }
   const raw = o && o.app === "study-desk" && o.state ? o.state : o;
   const m = migrate(raw);
   if (!m) return { error: "This backup is from a version of Study Desk this app can't read." };
-  return sanitize(m);
+  const r = sanitize(m);
+  r.notes = o && o.notes && typeof o.notes === "object" && !Array.isArray(o.notes) ? o.notes : null;
+  return r;
 }
 
 /* ---------- undo (one step) ---------- */
@@ -470,6 +472,8 @@ const P = {
   headphones: '<path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>',
   play: '<path d="M8 5v14l11-7z"/>',
   notes: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
+  timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
   shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
 };
 const ico = (k, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${P[k]}</svg>`;
@@ -554,7 +558,7 @@ V.today = () => {
         <span class="un-kind">${ico(ty.icon)}${ty.label} · ${next.dur} min</span>
         <span class="un-title">${esc(isMock ? s.name + " mock exam" : n.title)}</span>
         <span class="un-meta"><b style="color:${subjColor(next.subject)}">${esc(s.name)}</b>${isMock ? "" : ` · Ch ${ch.num} ${esc(ch.title)} · <span class="pages">pp ${n.p1}–${n.p2}</span>`}</span></button>
-      <div class="un-acts"><button class="btn btn-pen" data-action="toggle" data-id="${next.id}">${ico("check")}Done</button>${isMock ? "" : `<button class="btn btn-soft" data-action="ep-play" data-kind="topic" data-id="${next.node}">${ico("headphones")}Listen</button>`}<button class="btn btn-line btn-sm" data-action="miss" data-id="${next.id}">Not today</button></div>
+      <div class="un-acts"><button class="btn btn-pen" data-action="focus" data-id="${next.id}">${ico("timer")}${F && F.tid === next.id ? `Resume · <span class="mono">${fmtClock(Math.ceil(fLeft() / 1000))}</span>` : "Start"}</button><button class="btn btn-soft un-done" data-action="toggle" data-id="${next.id}" aria-label="Done">${ico("check")}<span>Done</span></button>${isMock ? "" : `<button class="btn btn-soft btn-icon" data-action="ep-play" data-kind="topic" data-id="${next.node}" aria-label="Listen to ${esc(n.title)}">${ico("headphones")}</button>`}<button class="btn btn-line btn-sm" data-action="miss" data-id="${next.id}">Not today</button></div>
     </section>`;
   } else if (ts.length) hero = `<section class="upnext done-card"><div class="un-title">Day complete</div><p class="muted">Every session on today's plan is done.</p><div class="un-acts"><button class="btn btn-soft" data-go="practice">${ico("pencil")}Practise a weak topic</button><button class="btn btn-line btn-sm" data-action="ep-play" data-kind="week">${ico("headphones")}Hear your week</button></div></section>`;
   const week = Array.from({ length: 7 }, (_, i) => addDays(t, i)), exams = {}; DSUBJ.forEach(s => exams[s.exam] = s);
@@ -567,6 +571,7 @@ V.today = () => {
         ${rest.length ? `<section class="section"><div class="sec-head"><h2>${next ? "Rest of today" : "Today"}</h2><span class="tiny muted mono">${ts.filter(x => x.done).length}/${ts.length} done</span></div><div class="card plan-card">${planList(rest, { compact: true })}</div></section>` : ""}
       </div>
       <div class="side stack" style="gap:18px">
+        ${backupDue() ? `<div class="banner">${ico("shield")}<div class="grow">It's been a while since your last backup. Save one so your progress is safe if this device is lost.</div><button class="btn btn-soft btn-sm" data-action="export">Save backup</button><button class="icon-btn sm" data-action="bak-later" aria-label="Remind me later">${ico("x")}</button></div>` : ""}
         <section class="section"><div class="sec-head"><h2>This week</h2><button class="link" data-go="calendar">Calendar</button></div>
           <div class="weekstrip">${week.map(d => { const n = tasksOn(d).length, dn = tasksOn(d).filter(x => x.done).length, ex = exams[d]; return `<button class="wd ${d === t ? "today" : ""} ${ex ? "ex" : ""}" style="${ex ? `--pc:${subjColor(ex.id)}` : ""}" data-action="cal-open" data-k="${d}" aria-label="${fmtD(d, { weekday: "long", day: "numeric" })}: ${ex ? ex.name + " exam" : n + " sessions"}"><span class="wd-d">${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span><b>${parseKey(d).getDate()}</b><span class="wd-n">${ex ? "Exam" : n ? (d === t ? dn + "/" + n : n) : "–"}</span></button>`; }).join("")}</div></section>
         <section class="section"><div class="sec-head"><h2>Exams</h2><button class="link" data-go="exams">All</button></div>
@@ -1488,6 +1493,136 @@ async function v3Action(act, a) {
 const V3_ACTS = new Set(["ep-play","pl-toggle","pl-stop","pl-seek","pl-jump","pl-rate","rec-play","rec-skip","rec-more","rec-save","rec-del","notes","notes-save"]);
 
 /* =====================================================================
+   8d. FOCUS TIMER, SEARCH, BACKUP REMINDER, SAFETY NETS
+   ===================================================================== */
+const FKEY = "studydesk.focus", MKEY = "studydesk.meta";
+let F = null, fTick = null, wakeLock = null;
+let META = (() => { try { return JSON.parse(ls.get(MKEY) || "null") || {}; } catch (e) { return {}; } })();
+if (!META.first) { META.first = Date.now(); }
+function metaSave() { ls.set(MKEY, JSON.stringify(META)); }
+metaSave();
+function markBackup() { META.last = Date.now(); metaSave(); }
+function backupDue() {
+  const day = 864e5, since = Date.now() - Math.max(META.last || 0, META.first || 0, META.snooze || 0);
+  const used = S.contentEdited || S.log.some(e => e.d >= addDays(todayKey(), -14) && !e.seed);
+  return used && since > 14 * day;
+}
+const FOCUS_TIP = {
+  learn: "Read actively. At the end, close the book and say the main idea out loud.",
+  recall: "Close your notes. Write down everything you remember, then check what you missed.",
+  practice: "Answer without notes first, then mark your answers.",
+  calc: "Work each problem step by step, then check the answer.",
+  revision: "Skim your notes, then test yourself on the key terms.",
+  mock: "Exam conditions: no notes, no phone, keep to the time."
+};
+const fLeft = () => !F ? 0 : F.paused ? F.left : Math.max(0, F.end - Date.now());
+function focusSave() { if (F) ls.set(FKEY, JSON.stringify(F)); else ls.del(FKEY); }
+function focusLoad() {
+  try { const o = JSON.parse(ls.get(FKEY) || "null"); if (o && o.tid && o.total > 0 && S.tasks.some(t => t.id === o.tid && !t.done)) F = o; else ls.del(FKEY); } catch (e) { ls.del(FKEY); }
+}
+function focusStart(tid) {
+  const t = S.tasks.find(x => x.id === tid); if (!t || t.done) return;
+  if (!F || F.tid !== tid) { const total = clamp(t.dur, 5, 240) * 60000; F = { tid, total, end: Date.now() + total, left: total, paused: false, done: false }; }
+  focusSave(); openFocus();
+}
+async function keepAwake(on) {
+  try {
+    if (on && !wakeLock && "wakeLock" in navigator && document.visibilityState === "visible") { wakeLock = await navigator.wakeLock.request("screen"); wakeLock.addEventListener("release", () => { wakeLock = null; }); }
+    if (!on && wakeLock) { const w = wakeLock; wakeLock = null; await w.release(); }
+  } catch (e) { wakeLock = null; }
+}
+function chime() {
+  try {
+    const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const c = new C();
+    [0, .18, .36].forEach((d, i) => { const o = c.createOscillator(), g = c.createGain(); o.frequency.value = [660, 880, 990][i]; g.gain.setValueAtTime(.0001, c.currentTime + d); g.gain.exponentialRampToValueAtTime(.18, c.currentTime + d + .02); g.gain.exponentialRampToValueAtTime(.0001, c.currentTime + d + .5); o.connect(g).connect(c.destination); o.start(c.currentTime + d); o.stop(c.currentTime + d + .55); });
+    setTimeout(() => c.close(), 1500);
+  } catch (e) { }
+  try { navigator.vibrate && navigator.vibrate([120, 80, 120]); } catch (e) { }
+}
+const FR = 88, FC = 2 * Math.PI * FR;
+function focusHTML() {
+  const t = S.tasks.find(x => x.id === F.tid), n = nodes[t.node], s = subjects[t.subject], isMock = t.type === "mock", left = fLeft();
+  return `<div class="focus" role="dialog" aria-modal="true" aria-label="Focus session" style="--pc:${subjColor(t.subject)}">
+    <div class="row"><span class="tiny mono muted grow">${esc(s.name)} · ${TYPES[t.type].label} · ${t.dur} min</span><button class="icon-btn" data-f="min" aria-label="Minimise timer">${ico("x")}</button></div>
+    <h2 class="focus-title">${esc(isMock ? s.name + " mock exam" : n.title)}</h2>
+    <p class="muted small">${!isMock && n.p1 ? `Pages ${n.p1}–${n.p2}. ` : ""}${FOCUS_TIP[t.type] || ""}</p>
+    <div class="focus-ring ${F.paused ? "paused" : ""} ${F.done ? "over" : ""}"><svg viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="${FR}" class="fr-bg"/><circle cx="100" cy="100" r="${FR}" class="fr-fg" id="fRing" stroke-dasharray="${FC.toFixed(1)}" stroke-dashoffset="${(FC * (1 - left / F.total)).toFixed(1)}"/></svg>
+      <div class="focus-time"><b id="fTime">${fmtClock(Math.ceil(left / 1000))}</b><span class="tiny muted" id="fState">${F.done ? "Time's up. Nice work." : F.paused ? "Paused" : "Focus"}</span></div></div>
+    <div class="row" style="justify-content:center;flex-wrap:wrap">${F.done ? "" : `<button class="btn btn-line" data-f="pause">${F.paused ? "Resume" : "Pause"}</button>`}<button class="btn btn-pen" data-f="finish">${ico("check")}Finished, mark done</button></div>
+    <button class="link small" data-f="stop" style="align-self:center">Stop without marking done</button></div>`;
+}
+function drawFocus(enter) {
+  let sc = $(".focus-scrim");
+  if (!sc) { sc = document.createElement("div"); sc.className = "focus-scrim"; $("#layer").appendChild(sc); }
+  sc.innerHTML = focusHTML();
+  if (enter && FX.on) gsap.from($(".focus", sc), { y: 40, scale: .97, opacity: 0, duration: .5, ease: "expo.out" });
+}
+function openFocus() {
+  closeSheet(true); drawFocus(true); keepAwake(!F.paused && !F.done);
+  clearInterval(fTick); fTick = setInterval(focusTickFn, 250); focusTickFn();
+  setTimeout(() => $(".focus [data-f=pause], .focus [data-f=finish]")?.focus({ preventScroll: true }), 80);
+}
+function focusTickFn() {
+  if (!F) { clearInterval(fTick); return; }
+  const left = fLeft();
+  if (!F.done && !F.paused && left <= 0) { F.done = true; F.left = 0; focusSave(); chime(); keepAwake(false); if ($(".focus-scrim")) drawFocus(false); else { toast("Focus time is up. Tap Resume on Today to finish."); rerenderIfToday(); } return; }
+  const tEl = $("#fTime"); if (tEl) { tEl.textContent = fmtClock(Math.ceil(left / 1000)); const r = $("#fRing"); if (r) r.setAttribute("stroke-dashoffset", (FC * (1 - left / F.total)).toFixed(1)); }
+  if (!$(".focus-scrim") && !F.done) { const b = $(`.upnext [data-action=focus] .mono`); if (b) b.textContent = fmtClock(Math.ceil(left / 1000)); }
+}
+function rerenderIfToday() { if (stack[stack.length - 1].v === "today") rerender(); }
+function closeFocus() { const sc = $(".focus-scrim"); if (!sc) return; if (FX.on) gsap.to(sc, { opacity: 0, duration: .22, onComplete: () => sc.remove() }); else sc.remove(); }
+function focusAction(k) {
+  if (!F) { closeFocus(); return; }
+  if (k === "pause") {
+    if (F.paused) { F.end = Date.now() + F.left; F.paused = false; keepAwake(true); } else { F.left = fLeft(); F.paused = true; keepAwake(false); }
+    focusSave(); drawFocus(false); return;
+  }
+  if (k === "min") { closeFocus(); keepAwake(false); rerenderIfToday(); return; }
+  const tid = F.tid; F = null; focusSave(); clearInterval(fTick); keepAwake(false); closeFocus();
+  if (k === "finish") {
+    const t = S.tasks.find(x => x.id === tid); if (!t || t.done) { rerenderIfToday(); return; }
+    const press = () => { const b = $(`[data-action=toggle][data-id="${tid}"]`); if (b) b.click(); };
+    if (stack[stack.length - 1].v === "today" || stack[stack.length - 1].v === "calendar") press(); else { go("today"); setTimeout(press, 450); }
+    return;
+  }
+  rerenderIfToday();
+}
+document.addEventListener("visibilitychange", () => { if (F && !F.paused && !F.done && $(".focus-scrim") && document.visibilityState === "visible") { keepAwake(true); focusTickFn(); } });
+
+/* ---------- search: every subject, chapter, heading and subheading, plus your notes ---------- */
+function openSearch() {
+  openSheet("Search", `${sheetHead("Find anything", "Search")}<div class="stack" style="gap:10px"><label class="sr" for="srch">Search topics</label><input id="srch" type="search" placeholder="Topic, heading or subject" autocomplete="off" enterkeyhint="search" spellcheck="false"><div id="srchRes" class="list srch-res"></div></div>`);
+  drawSearch("");
+}
+const hiText = (t, q) => { const i = t.toLowerCase().indexOf(q); return i < 0 ? esc(t) : esc(t.slice(0, i)) + "<mark>" + esc(t.slice(i, i + q.length)) + "</mark>" + esc(t.slice(i + q.length)); };
+function drawSearch(raw) {
+  const el = $("#srchRes"); if (!el) return;
+  const q = raw.trim().toLowerCase();
+  if (!q) { el.innerHTML = `<p class="small muted" style="padding:6px 2px">Type part of a title. Your notes are searched too.${matchMedia("(pointer:fine)").matches ? " Press / anywhere to search." : ""}</p>`; return; }
+  const hits = [];
+  DSUBJ.forEach(s => { if (s.name.toLowerCase().includes(q)) hits.push({ go: "subject:" + s.id, title: s.name, sub: "Subject", sid: s.id, rank: 0 }); });
+  Object.values(nodes).forEach(n => {
+    const tl = n.title.toLowerCase(), inTitle = tl.includes(q);
+    const inNotes = !inTitle && q.length > 2 && notesOf(n.id).toLowerCase().includes(q);
+    if (!inTitle && !inNotes) return;
+    hits.push({ go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}${inNotes ? " · found in your notes" : ""}`, sid: n.subject, rank: inNotes ? 3 : tl.startsWith(q) ? 1 : 2 });
+  });
+  hits.sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
+  el.innerHTML = hits.length ? hits.slice(0, 40).map(h => `<button class="item" data-sgo="${esc(h.go)}" style="--pc:${subjColor(h.sid)}"><span class="mark"></span><span class="grow"><span class="t">${hiText(h.title, q)}</span><br><span class="s">${esc(h.sub)}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") + (hits.length > 40 ? `<p class="tiny muted">${hits.length - 40} more. Type more letters to narrow it down.</p>` : "")
+    : `<p class="small muted" style="padding:6px 2px">Nothing matches “${esc(raw.trim())}”.</p>`;
+}
+
+/* ---------- safety nets: other open tabs, unexpected errors ---------- */
+addEventListener("storage", e => {
+  if (e.key !== KEY || !e.newValue || !S) return;
+  try { const m = migrate(JSON.parse(e.newValue)); if (!m) return; const r = sanitize(m); S = r.state; buildModel(); if (!$(".scrim") && !$(".focus-scrim")) render(false); } catch (err) { }
+});
+let errShown = false;
+function onFail(msg) { console.error(msg); if (errShown || !document.body) return; errShown = true; try { toast("Something didn't work. Your data is safe. If it keeps happening, reload the app."); } catch (e) { } }
+addEventListener("error", e => { if (e.filename && !e.filename.startsWith(location.origin)) return; if (!e.message) return; onFail(e.message); });
+addEventListener("unhandledrejection", e => onFail(e.reason && e.reason.message || String(e.reason)));
+
+/* =====================================================================
    9. MOTION — GSAP (free, incl. Flip and SplitText) + View Transitions, all optional
    ===================================================================== */
 const mqReduce = matchMedia("(prefers-reduced-motion: reduce)");
@@ -1581,7 +1716,7 @@ function go(spec) {
 function back() { if (stack.length > 1) navigate(() => stack.pop(), "back"); }
 function crumbs() {
   const r = stack[stack.length - 1];
-  if (stack.length === 1) return `<div class="brand"><i></i>Study Desk</div>${deferredInstall && !isStandalone() ? `<button class="proto" data-action="install">Install app</button>` : `<span class="proto">Sample data</span>`}<button class="icon-btn sm gear" data-go="settings" aria-label="Settings">${ico("gear")}</button>`;
+  if (stack.length === 1) return `<div class="brand"><i></i>Study Desk</div>${deferredInstall && !isStandalone() ? `<button class="proto" data-action="install">Install app</button>` : `<span class="proto">Sample data</span>`}<button class="icon-btn sm srch" data-action="search" aria-label="Search topics">${ico("search")}</button><button class="icon-btn sm gear" data-go="settings" aria-label="Settings">${ico("gear")}</button>`;
   let trail = [];
   const id = r.a;
   if (r.v === "subject" && subjects[id]) trail = [["subject:" + id, subjects[id].name]];
@@ -1650,6 +1785,7 @@ function doImport(txt) {
   if (r.error) { importMsg = { ok: false, text: r.error }; rerender(); return; }
   snapshot();
   S = r.state; repairs = r.fixes; buildModel(); rollOver(); applySettings(false); save(true);
+  if (r.notes) Object.entries(r.notes).forEach(([id, text]) => { if (nodes[id] && typeof text === "string") saveNotes(id, text).catch(() => { }); });
   importMsg = { ok: true, text: "Backup restored" + (r.fixes ? `, with ${r.fixes} item${r.fixes > 1 ? "s" : ""} repaired.` : ".") };
   rerender(); toast("Backup restored.", { label: "Undo", fn: undo });
 }
@@ -1663,6 +1799,9 @@ document.addEventListener("click", e => {
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
+      case "focus": focusStart(id); return;
+      case "search": openSearch(); return;
+      case "bak-later": META.snooze = Date.now(); metaSave(); rerender(); return;
       case "toggle": {
         const t = S.tasks.find(x => x.id === id); if (!t) return;
         t.done = !t.done;
@@ -1701,8 +1840,8 @@ document.addEventListener("click", e => {
       case "perday": S.settings.maxPerDay = clamp(S.settings.maxPerDay + +a.dataset.d, 2, 10); applySettings(true); rerender(); return;
       case "setopt": S.settings[a.dataset.k] = a.dataset.v; applySettings(false); rerender(); return;
       case "install": if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.finally(() => { deferredInstall = null; rerender(); }); } else go("settings"); return;
-      case "export": { const ok = download(`study-desk-backup-${todayKey()}.json`, exportText()); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); return; }
-      case "copybak": { const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
+      case "export": { markBackup(); const ok = download(`study-desk-backup-${todayKey()}.json`, exportText()); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); return; }
+      case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
       case "reset": if (a.dataset.confirm) { snapshot(); ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Demo data reset.", { label: "Undo", fn: undo }); } else { a.dataset.confirm = "1"; a.textContent = "Tap again to reset everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Reset demo data"; } }, 3000); } return;
     }
@@ -1738,8 +1877,10 @@ document.addEventListener("change", e => {
 });
 document.addEventListener("keydown", e => {
   if ((e.key === "Enter" || e.key === " ") && e.target.matches('[role="button"][data-action],[role="link"][data-go]')) { e.preventDefault(); e.target.click(); }
-  if (e.key === "Escape") closeSheet();
+  if (e.key === "Escape") { if ($(".focus-scrim")) focusAction("min"); else closeSheet(); }
+  if (e.key === "/" && !e.target.closest("input,textarea,select,[contenteditable]") && !$(".scrim")) { e.preventDefault(); openSearch(); }
 });
+document.addEventListener("input", e => { if (e.target.id === "srch") drawSearch(e.target.value); });
 function dayCheck() { if (S && lastDay && lastDay !== todayKey()) { if (rollOver()) save(); render(false); } }
 setInterval(dayCheck, 60000);
 
@@ -1798,6 +1939,8 @@ function dragToClose(sh) {
   sh.addEventListener("pointerup", end); sh.addEventListener("pointercancel", end);
 }
 $("#layer").addEventListener("click", e => {
+  const sg = e.target.closest("[data-sgo]"); if (sg) { closeSheet(true); go(sg.dataset.sgo); return; }
+  const f = e.target.closest("[data-f]"); if (f) { focusAction(f.dataset.f); return; }
   const x = e.target.closest("[data-x]"); if (!x) return;
   if (x.dataset.x === "close") { if (x.classList.contains("scrim") && e.target !== x) return; closeSheet(); return; }
   if (x.dataset.x === "mode") { X.mode = +x.dataset.i; X.picked = null; drawSheet(false); return; }
@@ -1834,6 +1977,7 @@ addEventListener("appinstalled", () => { deferredInstall = null; toast("Study De
   if (rollOver()) save();
   if (DSUBJ.length && !S.tasks.some(t => t.date >= todayKey())) { generate(todayKey()); save(); }
   applySettings(false);
+  focusLoad(); if (F) fTick = setInterval(focusTickFn, 1000);
   render(true);
   setTimeout(loadLocalFiles, 0);
   if (contentNotice && contentNotice.auto) toast("Your study content was updated.");
