@@ -16,6 +16,8 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 ## What it does
 - **Today:** the one session to do next, a focus timer, the rest of the day, the week ahead and exam countdowns.
 - **Subjects:** chapter → heading → subheading with page ranges, summaries, and an editor (add by hand, or import from a PDF or PowerPoint).
+- **Summaries you can trust:** every bullet is a sentence from your own notes (nothing is made up). The summary covers every heading or slide, always keeps definitions, formulas, numbers, dates and "exam" lines, checks that every key term appears, and shows how much it covered. Definitions become flashcards, and the same summary feeds podcasts, search, the blurt check and the explain sheet.
+- **Imports:** PDFs are read with their headings, without running headers, footers or page numbers. PowerPoints are read in slide order with titles, bullet levels, tables and speaker notes. PDFs without bookmarks or a contents page are split by their headings.
 - **Listen:** study podcasts read aloud by the device, plus your own lecture recordings.
 - **Review:** flashcards made automatically from notes and summaries, scheduled with FSRS spaced repetition (the same method Anki uses), plus a "blurt check" that compares what you remember with your notes.
 - **Snap a page:** photograph a textbook page and the text is read on the device (Tesseract), no upload.
@@ -27,7 +29,7 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 The easiest way is inside the app: Subjects → Edit my subjects. To ship content with the app instead, edit **data.js**. The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
-- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `data.js` study content
+- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content
 - `sw.js` offline cache · `manifest.webmanifest` install details · `icons/` app icons
 - `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT), pdf.js (Apache 2.0), ts-fsrs (MIT), MiniSearch (MIT) and Tesseract.js (Apache 2.0)
 - `fonts/` Bricolage Grotesque, Atkinson Hyperlegible, JetBrains Mono (SIL Open Font Licence)

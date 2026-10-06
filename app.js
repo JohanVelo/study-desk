@@ -2,7 +2,9 @@
    Sections: 1 utils · 2 model · 3 store · 4 priority & progress · 5 scheduler · 6 icons
              7 UI pieces · 8 views · 9 motion · 10 router & actions · 11 install & offline · 12 boot */
 "use strict";
-const APP_VERSION = "4.0.0";
+/* "Tap" on touch screens, "Click" with a mouse or trackpad */
+const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
+const APP_VERSION = "4.1.0";
 
 /* =====================================================================
    1. UTILS
@@ -513,7 +515,7 @@ function taskRow(t, opts = {}) {
   return `<div class="task ${t.done ? "done" : ""} ${isNow ? "now" : ""}" data-flip-id="${t.id}" style="--pc:${PRC[lvl]}">
     <div class="time">${fmtT(t.start)}<small>${fmtT(t.start + t.dur)}</small>${opts.date ? `<small>${fmtD(t.date, { day: "numeric", month: "short" })}</small>` : ""}</div>
     <div class="body" role="link" tabindex="0" data-go="${go}" aria-label="Open ${esc(title)}">
-      <span class="kind">${ico(ty.icon)}${ty.label} · ${t.dur} min<span class="grow"></span>${prPill(lvl)}</span>
+      <span class="kind"><span class="k">${ico(ty.icon)}<span>${ty.label} · ${t.dur} min</span></span><span class="grow"></span>${prPill(lvl)}</span>
       <span class="title">${esc(title)}</span>
       <span class="meta"><span style="color:${subjColor(t.subject)};font-weight:700">${s.name}</span>${opts.compact ? "" : `<span>${where}</span>`}${t.type !== "mock" ? pagesTag(n) : ""}${t.carried && !t.done ? `<span class="carried">Moved here</span>` : ""}${isNow ? `<span class="carried nowtag">Now</span>` : ""}</span>
       ${!t.done && !opts.noMove ? `<span class="acts"><span class="miss" role="button" tabindex="0" data-action="miss" data-id="${t.id}">${ico("shift")}I didn't get to this</span></span>` : ""}
@@ -604,7 +606,7 @@ V.today = () => {
         <section class="section"><div class="sec-head"><h2>This week</h2><button class="link" data-go="calendar">Calendar</button></div>
           <div class="weekstrip">${week.map(d => { const n = tasksOn(d).length, dn = tasksOn(d).filter(x => x.done).length, ex = exams[d]; return `<button class="wd ${d === t ? "today" : ""} ${ex ? "ex" : ""}" style="${ex ? `--pc:${subjColor(ex.id)}` : ""}" data-action="cal-open" data-k="${d}" aria-label="${fmtD(d, { weekday: "long", day: "numeric" })}: ${ex ? ex.name + " exam" : n + " sessions"}"><span class="wd-d">${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span><b>${parseKey(d).getDate()}</b><span class="wd-n">${ex ? "Exam" : n ? (d === t ? dn + "/" + n : n) : "–"}</span></button>`; }).join("")}</div></section>
         <section class="section"><div class="sec-head"><h2>Exams</h2><button class="link" data-go="exams">All</button></div>
-          <div class="minis">${upcoming.slice(0, 3).map(s => { const d = daysLeft(s.id), lvl = subjLevel(s.id); return `<button class="mini" data-go="subject:${s.id}" style="--pc:${PRC[lvl]}"><b data-count="${d}">${d}</b><span class="grow"><span class="t">${esc(s.name)}</span><span class="tiny muted">${d === 1 ? "day" : "days"} · ${pct(progress(s.id))}% done</span></span></button>`; }).join("") || `<div class="card empty">No upcoming exams.</div>`}</div></section>
+          <div class="minis">${upcoming.slice(0, 3).map(s => { const d = daysLeft(s.id), lvl = subjLevel(s.id); return `<button class="mini" data-go="subject:${s.id}" style="--pc:${PRC[lvl]}"><b data-count="${d}">${d}</b><span class="grow"><span class="t">${esc(s.name)}</span><span class="tiny muted">${d === 1 ? "day" : "days"} left · ${pct(progress(s.id))}% done</span></span></button>`; }).join("") || `<div class="card empty">No upcoming exams.</div>`}</div></section>
         <button class="card weekteaser" data-go="progress">${(() => { const w = weekStats(addDays(t, -6), t); return `<span class="grow"><b>Your week</b><span class="tiny muted">${w.sessions} sessions · ${fmtMins(w.mins)}${w.answered ? ` · ${pct(w.right / w.answered)}% right` : ""}</span></span>`; })()}${ico("chev", 'class="chev"')}</button>
       </div>
     </div>
@@ -612,7 +614,7 @@ V.today = () => {
 };
 
 V.exams = () => `<div class="stack" style="gap:20px"><header class="subhead"><div class="eyebrow">${DSUBJ.length} subjects</div><h1>Exam countdown</h1><p class="muted">Counted from today's date. The closer the exam and the less prepared you are, the louder the card.</p><div class="row"><button class="btn btn-line btn-sm" data-go="edit">${ico("pencil")}Edit my subjects</button></div></header>
-  ${DSUBJ.length ? "" : `<div class="card empty">No subjects yet. <button class="link" data-go="editsubj:new">Add your first subject</button></div>`}
+  ${DSUBJ.length ? "" : `<div class="card empty stack" style="align-items:flex-start;gap:12px"><p style="margin:0">No subjects yet. Add one with its exam date and chapters to get a daily plan.</p><button class="btn btn-pen" data-go="editsubj:new">${ico("plus")}Add your first subject</button></div>`}
   <div class="exams grid">${DSUBJ.slice().sort((a, b) => daysLeft(a.id) - daysLeft(b.id)).map(s => examCard(s.id)).join("")}</div></div>`;
 
 V.subject = sid => {
@@ -668,7 +670,7 @@ V.topic = id => {
           <div class="ladder" aria-label="Stage: ${STATUS[cur]}">${STATUS.map((x, i) => `<div class="rung ${i <= cur && i > 0 ? "on" : ""} ${i === cur ? "cur" : ""}"><span class="b"></span>${x}</div>`).join("")}</div>
           <div class="row" style="flex-wrap:wrap">${next}${cur > 0 ? `<button class="btn btn-line btn-sm" data-action="stepdown" data-id="${id}">Undo a step</button>` : ""}</div>${lockMsg}</section>
         ${(() => { const sm = summaryOf(id); return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary</h2><span class="tiny muted">${sm ? (sm.source === "auto" ? "From your notes" : sm.source === "written" ? "Written for you" : "From the explanations") : ""}</span></div>
-          ${sm ? `<ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}` : `<p class="small muted">${notesReady ? "No notes for this topic yet. Add notes, or import the chapter's PDF from My subjects." : "Loading notes…"}</p>`}
+          ${sm ? sumHTML(sm) : `<p class="small muted">${notesReady ? "No notes for this topic yet. Add notes, or import the chapter's PDF from My subjects." : "Loading notes…"}</p>`}
           <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-action="ep-play" data-kind="topic" data-id="${id}">${ico("headphones")}Listen</button><button class="btn btn-line btn-sm" data-action="notes" data-id="${id}">${ico("notes")}${notesOf(id) ? "Edit notes" : "Add notes"}</button></div></section>`; })()}
         <button class="btn btn-hl dunno" data-action="dunno" data-id="${id}"><span class="q">?</span>I don't understand this</button>
         <section class="section"><div class="sec-head"><h2 style="font-size:18px">Planned sessions</h2></div>
@@ -679,7 +681,7 @@ V.topic = id => {
         <section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Practice</h2>${a !== null ? `<span class="score">${h.c}/${h.a} correct</span>` : ""}</div>
           ${a !== null ? progRow("Accuracy", a, a < .6 ? "var(--p-urgent)" : a < .8 ? "var(--p-high)" : "var(--ok)") : `<p class="small muted">No answers yet.</p>`}
           ${m ? `<p class="small"><b style="color:var(--bad)">${m} mistake${m > 1 ? "s" : ""}</b> to review.</p>` : ""}
-          <button class="btn ${qs.length ? "btn-soft" : "btn-line"}" data-action="practise" data-id="${id}">${ico("pencil")}${qs.length ? `Practise this topic (${qs.length} question${qs.length > 1 ? "s" : ""})` : `Practise ${esc(s.name)}`}</button>
+          <button class="btn ${qs.length ? "btn-soft" : "btn-line"}" data-action="practise" data-id="${id}">${ico("pencil")}${qs.length ? `Practise · ${qs.length} question${qs.length > 1 ? "s" : ""}` : `Practise ${esc(s.name)}`}</button>
           ${qs.filter(q => q.own).length ? `<div class="ownq">${qs.filter(q => q.own).map(q => `<div class="row"><span class="grow small">${esc(q.q)}</span><button class="oa" data-action="q-del" data-id="${q.id}" aria-label="Delete question">${ico("x")}</button></div>`).join("")}</div>` : ""}
           <button class="btn btn-line btn-sm" data-action="q-add" data-id="${id}" style="align-self:flex-start">+ Add your own question</button></section>
         <section class="card stack" style="gap:8px"><div class="sec-head"><h2 style="font-size:18px">Why ${PR[sp.level].toLowerCase()} priority</h2></div>
@@ -711,7 +713,7 @@ V.calendar = () => {
     const k = addDays(base, i - startOff), inM = k.slice(0, 7) === base.slice(0, 7), ts = tasksOn(k), ex = examDays[k];
     const types = [...new Set(ts.map(x => x.type === "recall" ? "learn" : x.type === "calc" ? "practice" : x.type))];
     cells += `<button class="day ${inM ? "" : "out"} ${k === t ? "today" : ""} ${k === calSel ? "sel" : ""} ${ex ? "examday" : ""}" style="${ex ? `--pc:${subjColor(ex[0])}` : ""}" data-action="pickday" data-k="${k}" aria-label="${fmtD(k, { weekday: "long", day: "numeric", month: "long" })}${ex ? ", " + ex.map(x => subjects[x].name).join(" and ") + " exam" : ""}${ts.length ? ", " + ts.length + " sessions" : ""}">
-      <span>${parseKey(k).getDate()}</span>${ex ? `<span class="ex">${esc(subjects[ex[0]].name.slice(0, 4))} exam</span>` : `<span class="dots">${types.map(ty => `<i style="--c:${TYPE_COL[ty]}"></i>`).join("")}</span>`}</button>`;
+      <span>${parseKey(k).getDate()}</span>${ex ? `<span class="ex">${esc(subjects[ex[0]].name.slice(0, 4))}<span class="exw"> exam</span></span>` : `<span class="dots">${types.map(ty => `<i style="--c:${TYPE_COL[ty]}"></i>`).join("")}</span>`}</button>`;
   }
   const sel = tasksOn(calSel), exSel = examDays[calSel];
   const mins = sel.reduce((a, x) => a + x.dur, 0);
@@ -761,16 +763,16 @@ V.practice = () => {
     ${blurtable.length ? `<section class="section"><div class="sec-head"><h2>Blurt check</h2><span class="tiny muted">Explain it without notes</span></div><div class="list">${blurtable.map(id => `<button class="item" data-action="blurt" data-id="${id}" style="--pc:${subjColor(nodes[id].subject)}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[id].title)}</span><br><span class="s">${esc(subjects[nodes[id].subject].name)} · write what you remember, see what you missed</span></span>${ico("chev", 'class="chev"')}</button>`).join("")}</div></section>` : ""}
     <h2 class="sec-title">Practice questions</h2>`;
   return `<div class="stack" style="gap:18px">
-    <header class="subhead"><div class="eyebrow">Review</div><h1>Test yourself</h1>${Q.done ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
+    <header class="subhead"><div class="eyebrow">Review</div><h1>Test yourself</h1>${Q.done && DSUBJ.length ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
     ${reviewHero}
     ${Q.topic ? `<div class="banner">${ico("pencil")}<div>Showing questions for <b>${esc(nodes[Q.topic].title)}</b>. <button data-action="qf" data-k="topic" data-v="">Show all topics</button></div></div>` : ""}
     <div class="filters" role="group" aria-label="Question set">${chip("mode", "all", "All questions")}${chip("mode", "mistakes", "Mistakes to review")}</div>
     ${Q.mode === "all" && !Q.topic ? `<div class="filters" role="group" aria-label="Subject">${chip("subj", "all", "All subjects")}${DSUBJ.map(s => chip("subj", s.id, esc(s.name))).join("")}</div>
     <div class="filters" role="group" aria-label="Difficulty">${chip("lvl", "all", "Any level")}${Object.entries(LEVELS).map(([k, v]) => chip("lvl", k, v)).join("")}</div>` : ""}
     ${qh}
-    <section class="section"><div class="sec-head"><h2>Mistakes to review</h2></div>
+    ${Q.mode === "mistakes" ? "" : `<section class="section"><div class="sec-head"><h2>Mistakes to review</h2></div>
       <div class="list">${mist.length ? mist.map(([id, m]) => topicItem(id, `${esc(subjects[nodes[id].subject].name)} · ${m.n} incorrect answer${m.n > 1 ? "s" : ""}`)).join("") : `<div class="empty">No mistakes to review. Wrong answers will show up here.</div>`}</div>
-      <p class="tiny muted">Topics with repeated mistakes get a higher priority in your plan.</p></section>
+      <p class="tiny muted">Topics with repeated mistakes get a higher priority in your plan.</p></section>`}
   </div>`;
 };
 
@@ -786,14 +788,14 @@ V.progress = () => {
       <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x} <b class="mono">${counts[i]}</b></span>`).join("")}</div>
       <p class="tiny muted">Progress comes from each subheading's stage, weighted by its number of pages, then rolls up to heading, chapter, subject and overall.</p></div>
     <section class="section"><div class="sec-head"><h2>By subject and chapter</h2></div>
-      <div class="tree-prog">${DSUBJ.map((s, si) => `<details class="subj card" ${si === 0 ? "open" : ""}><summary class="stack" style="gap:8px"><div class="row">${ico("chev", 'class="caret"')}<span class="grow" style="font-family:var(--f-display);font-weight:650;font-size:18px">${esc(s.name)}</span><b class="mono">${pct(progress(s.id))}%</b></div>${seg(progress(s.id), "lg", subjColor(s.id))}</summary>
+      <div class="tree-prog">${DSUBJ.length ? "" : `<p class="small muted card">No subjects yet. Add one under My subjects to see progress for each chapter.</p>`}${DSUBJ.map((s, si) => `<details class="subj card" ${si === 0 ? "open" : ""}><summary class="stack" style="gap:8px"><div class="row">${ico("chev", 'class="caret"')}<span class="grow" style="font-family:var(--f-display);font-weight:650;font-size:18px">${esc(s.name)}</span><b class="mono">${pct(progress(s.id))}%</b></div>${seg(progress(s.id), "lg", subjColor(s.id))}</summary>
         <div class="lvl1" style="margin-top:14px">${s.chapterIds.map(cid => { const c = nodes[cid]; return `<div class="stack" style="gap:10px"><button data-go="chapter:${cid}" style="text-align:left">${progRow(`Chapter ${c.num}: ${esc(c.title)}`, progress(cid), subjColor(s.id))}</button>
           <div class="lvl2">${c.kids.map(h => `<button data-go="topic:${h}" style="text-align:left">${progRow(`<span class="small">${nodes[h].num} ${esc(nodes[h].title)}</span>`, progress(h), "var(--ink-2)")}</button>`).join("")}</div></div>`; }).join("")}</div></details>`).join("")}</div></section>
     <div class="dash">
       <section class="section"><div class="sec-head"><h2>My weak areas</h2></div><div class="list">${weakList().map(w => `<button class="item" data-go="topic:${w.id}" style="--pc:${PRC[w.sev]}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[w.id].title)}</span><br><span class="s">${esc(subjects[nodes[w.id].subject].name)} · ${w.why}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") || `<div class="empty">No weak areas right now.</div>`}</div></section>
-      <section class="section"><div class="sec-head"><h2>Recently completed</h2></div><div class="list">${S.recent.length ? S.recent.slice(0, 5).map(r => `<button class="item" data-go="topic:${r.id}" style="--pc:var(--ok)"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[r.id].title)}</span><br><span class="s">${esc(r.text)} · ${r.when === todayKey() ? "today" : fmtD(r.when, { weekday: "long" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">Finished sessions will show up here.</div>`}</div></section>
+      <section class="section"><div class="sec-head"><h2>Recently completed</h2></div><div class="list">${S.recent.length ? S.recent.slice(0, 5).map(r => `<button class="item" data-go="topic:${r.id}" style="--pc:var(--ok)"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[r.id].title)}</span><br><span class="s">${esc(r.text)} · ${r.when === todayKey() ? "Today" : fmtD(r.when, { weekday: "long" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">Finished sessions will show up here.</div>`}</div></section>
       <section class="section"><div class="sec-head"><h2>The revision ladder</h2></div><div class="card stack" style="gap:10px">
-        ${[["Not started", "Nothing done yet."], ["Learning", "You have started reading or done a Learn session."], ["Understood", "You can explain it without notes (after active recall)."], ["Practised", "You have answered questions on it."], ["Revised", "You came back to it after a gap."], ["Mastered", "Revised and 80%+ on practice questions. Opening a topic never does this."]].map((x, i) => `<div class="row" style="align-items:flex-start"><span style="width:12px;height:12px;border-radius:4px;margin-top:5px;flex:none;background:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></span><span class="small"><b>${x[0]}.</b> ${x[1]}</span></div>`).join("")}</div></section>
+        ${[["Not started", "Nothing done yet."], ["Learning", "You have started reading it or done a Learn session."], ["Understood", "You can explain it without notes (after active recall)."], ["Practised", "You have answered questions on it."], ["Revised", "You came back to it after a gap."], ["Mastered", "Revised and 80%+ on practice questions. Opening a topic never does this."]].map((x, i) => `<div class="row" style="align-items:flex-start"><span style="width:12px;height:12px;border-radius:4px;margin-top:5px;flex:none;background:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></span><span class="small"><b>${x[0]}.</b> ${x[1]}</span></div>`).join("")}</div></section>
     </div>
   </div>`;
 };
@@ -819,14 +821,14 @@ V.settings = () => {
     <section class="card stack"><h2 class="h3">Study days</h2>
       <div class="daypick">${order7.map(d => `<button class="chip" aria-pressed="${s.days.includes(d)}" data-action="day" data-d="${d}">${dn[d]}</button>`).join("")}</div>
       <h2 class="h3">Study times</h2>
-      <div class="times">${s.blocks.map((b, i) => `<div class="timerow"><span class="small" style="min-width:86px">${i === 0 ? "Morning" : i === 1 ? "Afternoon" : "Block " + (i + 1)}</span><label class="sr" for="bs${i}">Start</label><input type="time" id="bs${i}" value="${fmtT(b[0])}" data-block="${i}" data-edge="0"><span class="muted">to</span><label class="sr" for="be${i}">End</label><input type="time" id="be${i}" value="${fmtT(b[1])}" data-block="${i}" data-edge="1"></div>`).join("")}</div>
+      <div class="times">${s.blocks.map((b, i) => `<div class="timerow"><span class="small tr-l">${i === 0 ? "Morning" : i === 1 ? "Afternoon" : "Block " + (i + 1)}</span><label class="sr" for="bs${i}">Start</label><input type="time" id="bs${i}" value="${fmtT(b[0])}" data-block="${i}" data-edge="0"><span class="muted">to</span><label class="sr" for="be${i}">End</label><input type="time" id="be${i}" value="${fmtT(b[1])}" data-block="${i}" data-edge="1"></div>`).join("")}</div>
       <div class="row"><span class="small grow">Most sessions per day</span><div class="stepper"><button class="icon-btn sm" data-action="perday" data-d="-1" aria-label="Fewer">−</button><b class="mono" id="perday">${s.maxPerDay}</b><button class="icon-btn sm" data-action="perday" data-d="1" aria-label="More">+</button></div></div>
       <p class="tiny muted">Changes rebuild your plan from today. Finished sessions are kept.</p></section>
     <section class="card stack"><h2 class="h3">Appearance</h2>
       <div class="row" style="flex-wrap:wrap"><span class="small grow">Theme</span>${seg3("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
       <div class="row" style="flex-wrap:wrap"><span class="small grow">Animations</span>${seg3("motion", [["full", "Full"], ["reduced", "Calm"]])}</div></section>
     <section class="card stack" id="install"><h2 class="h3">Install on phone or laptop</h2>
-      ${isStandalone() ? `<div class="lock" style="background:color-mix(in oklch,var(--ok) 12%,var(--surface))">${ico("check")}<span>Study Desk is installed and works offline.</span></div>` : `
+      ${isStandalone() ? `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("check")}<span>Study Desk is installed and works offline.</span></div>` : `
       ${deferredInstall ? `<button class="btn btn-pen" data-action="install">${ico("download")}Install app</button>` : ""}
       <ol class="steps">${steps.map(x => `<li>${x}</li>`).join("")}</ol>
       <p class="tiny muted">${ico("phone", 'style="width:14px;height:14px;vertical-align:-2px"')} Phone and ${ico("laptop", 'style="width:14px;height:14px;vertical-align:-2px"')} laptop each keep their own progress. Use Backup below to move it between them.</p>`}</section>
@@ -838,7 +840,7 @@ V.settings = () => {
       <div class="row"><button class="btn btn-line btn-sm" data-action="importpaste">Restore pasted backup</button></div>
       ${importMsg ? `<div class="lock" role="status">${ico(importMsg.ok ? "check" : "info")}<span>${esc(importMsg.text)}</span></div>` : ""}</section>
     <section class="card stack"><h2 class="h3">Data check</h2>
-      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklch,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subjects, ${Object.keys(nodes).length} chapters, headings and topics, ${QS.length} questions.</span></div>`}
+      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subjects, ${Object.keys(nodes).length} chapters, headings and topics, ${QS.length} questions.</span></div>`}
       ${repairs ? `<p class="tiny muted">${repairs} saved item${repairs > 1 ? "s were" : " was"} out of shape and repaired on start-up.</p>` : ""}
       <p class="tiny muted mono">Saved data ${used} · format v${SCHEMA_NOW} · ${navigator.serviceWorker && navigator.serviceWorker.controller ? "offline ready" : "online only"}</p></section>
     <button class="btn btn-line" data-action="reset">Reset demo data</button>
@@ -891,7 +893,7 @@ function parseOutline(text) {
     else if (n.p1 != null && n.p2 == null) { const nx = list[i + 1]?.p1; n.p2 = nx != null && nx - 1 >= n.p1 ? nx - 1 : (parentEnd != null && parentEnd >= n.p1 ? parentEnd : n.p1); }
   });
   const span = n => { n.kids.forEach(span); if (n.kids.length) { const a = n.kids.map(k => k.p1).filter(x => x != null), b = n.kids.map(k => k.p2).filter(x => x != null); if (n.p1 == null && a.length) n.p1 = Math.min(...a); if (n.p2 == null && b.length) n.p2 = Math.max(...b); } };
-  const finish = (n, parent) => { if (n.p1 == null) { n.p1 = parent?.p1 ?? 0; warnings.push(`“${n.title}” has no page numbers.`); } if (n.p2 == null || n.p2 < n.p1) n.p2 = n.p1; n.kids.forEach(k => finish(k, n)); };
+  const finish = (n, parent) => { if (n.p1 == null) { n.p1 = parent?.p1 ?? 0; warnings.push(`“${n.title}” has no page numbers, so it uses ${parent ? "the pages of the line above it" : "page 0"}. Add pages to fix this.`); } if (n.p2 == null || n.p2 < n.p1) n.p2 = n.p1; n.kids.forEach(k => finish(k, n)); };
   fillLeaves(roots, null); roots.forEach(span); roots.forEach(n => finish(n, null));
   return { roots, warnings, count };
 }
@@ -909,8 +911,8 @@ function outlineRows(list, sid, depth = 0, prefix = "") {
       </span></div>${n.kids.length ? outlineRows(n.kids, sid, depth + 1, num) : ""}`;
   }).join("");
 }
-function previewRows(list, depth = 0, prefix = "") {
-  return list.map((n, i) => { const num = prefix ? prefix + "." + (i + 1) : String(i + 1); return `<div class="prow" style="--d:${depth}"><span class="onum">${num}</span><span class="grow">${esc(n.title)}</span><span class="pages">pp ${n.p1}–${n.p2}</span><span class="tiny muted">${DIFF[n.diff]}</span></div>` + previewRows(n.kids, depth + 1, num); }).join("");
+function previewRows(list, depth = 0, prefix = "", start = 0) {
+  return list.map((n, i) => { const num = prefix ? prefix + "." + (i + 1) : String(start + i + 1); return `<div class="prow" style="--d:${depth}"><span class="onum">${num}</span><span class="grow"><span class="pt">${esc(n.title)}</span><span class="pm"><span class="pages">pp ${n.p1}–${n.p2}</span><span class="tiny muted">${DIFF[n.diff]}</span></span></span></div>` + previewRows(n.kids, depth + 1, num, 0); }).join("");
 }
 
 V.edit = () => {
@@ -920,7 +922,7 @@ V.edit = () => {
     ${contentNotice && !contentNotice.auto ? `<div class="banner">${ico("download")}<div>New study content has been prepared for you. Loading it replaces the subjects below but keeps progress on topics that still exist. <button data-action="content-load">Load new content</button></div></div>` : ""}
     ${sample ? `<div class="banner">${ico("info")}<div>These are <b>sample subjects</b>. Edit them, or clear them and add your own. <button data-action="content-clear">Remove all sample subjects</button></div></div>` : ""}
     <div class="list">${DSUBJ.length ? DSUBJ.map(s => `<button class="item" data-go="editsubj:${s.id}" style="--pc:${subjColor(s.id)}"><span class="mark"></span><span class="grow"><span class="t">${esc(s.name)}</span><br><span class="s">Exam ${fmtD(s.exam, { day: "numeric", month: "short", year: "numeric" })} · ${s.chapterIds.length} chapter${s.chapterIds.length === 1 ? "" : "s"} · ${leavesBySubject[s.id].length} topics</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">No subjects yet. Add your first one below.</div>`}</div>
-    <button class="btn btn-pen" data-go="editsubj:new">+ Add a subject</button>
+    <button class="btn btn-pen btn-auto" data-go="editsubj:new">${ico("plus")}Add a subject</button>
     ${!sample && DSUBJ.length ? `<button class="btn btn-line btn-sm" data-action="content-clear" style="align-self:flex-start">Remove all subjects</button>` : ""}
   </div>`;
 };
@@ -946,7 +948,7 @@ V.editsubj = sid => {
     <section class="section"><div class="sec-head"><h2>Chapters and topics</h2><span class="tiny muted">${leavesBySubject[sid].length} topics</span></div>
       <div class="card outline">${raw.chapters.length ? outlineRows(raw.chapters, sid) : `<div class="empty">No chapters yet. Add one, or paste the contents list below.</div>`}</div>
       <button class="btn btn-soft" data-action="node-add" data-sid="${sid}" data-parent="">+ Add a chapter</button>
-      <p class="tiny muted">Tap a line to edit it. Use + to add a heading or subheading inside it.</p></section>
+      <p class="tiny muted">${TAP} a line to edit it. Use + to add a heading or subheading inside it.</p></section>
     <section class="card stack"><h2 class="h3">Add chapters in bulk</h2>
       <div class="dropzone" id="dropzone" data-sid="${sid}">
         <label class="btn btn-soft" for="imp-file">${ico("upload")}Import from PDF or PowerPoint</label><input type="file" id="imp-file" class="sr" accept=".pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation" data-sid="${sid}">
@@ -957,7 +959,7 @@ V.editsubj = sid => {
       <label class="sr" for="qp-text">Contents list</label>
       <textarea id="qp-text" rows="7" placeholder="3 Research methods 75-102&#10;3.1 Research designs 75-82&#10;3.1.1 Experimental designs 76-78 easy&#10;3.1.2 Correlational designs 79-82 hard&#10;3.2 Variables 83-89 hard">${esc(qpText)}</textarea>
       <div class="row"><button class="btn btn-line" data-action="qp-preview" data-id="${sid}">Preview</button></div>
-      ${qpPreview ? `<div class="stack" style="gap:8px">${qpPreview.count ? `<p class="small"><b>${qpPreview.count} lines understood.</b> Check them before adding:</p><div class="preview">${previewRows(qpPreview.roots)}</div>` : `<p class="small">Nothing could be read from that text.</p>`}
+      ${qpPreview ? `<div class="stack" style="gap:8px">${qpPreview.count ? `<p class="small"><b>${qpPreview.count} lines understood.</b> Check them before adding:</p><div class="preview">${previewRows(qpPreview.roots, 0, "", (subjects[sid] && subjects[sid].chapterIds.length) || 0)}</div>` : `<p class="small">Nothing could be read from that text.</p>`}
         ${qpPreview.warnings.length ? `<ul class="issues">${qpPreview.warnings.slice(0, 12).map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
         ${qpPreview.count ? `<div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="qp-apply" data-id="${sid}" data-mode="append">Add to ${esc(s.name)}</button>${raw.chapters.length ? `<button class="btn btn-line btn-sm" data-action="qp-apply" data-id="${sid}" data-mode="replace">Replace all chapters</button>` : ""}</div>` : ""}</div>` : ""}
     </section>`}
@@ -973,7 +975,7 @@ function openSheet(label, inner) {
   dragToClose(sh);
   setTimeout(() => sh.querySelector("input,textarea,select")?.focus({ preventScroll: true }), 60);
 }
-const sheetHead = (eyebrow, title) => `<div class="sheet-head"><div class="grab"></div><div class="row"><div class="grow"><div class="tiny muted mono">${esc(eyebrow)}</div><h2>${esc(title)}</h2></div><button class="icon-btn" data-x="close" aria-label="Close">${ico("x")}</button></div></div>`;
+const sheetHead = (eyebrow, title) => `<div class="sheet-head"><div class="grab"></div><div class="row"><div class="grow"><div class="tiny muted mono">${esc(eyebrow).replace(/(\d)–(\d)/g, "$1\u2060–\u2060$2")}</div><h2>${esc(title)}</h2></div><button class="icon-btn" data-x="close" aria-label="Close">${ico("x")}</button></div></div>`;
 function openNodeSheet(opts) {
   const ex = opts.id ? findRaw(opts.id) : null, n = ex ? ex.node : null;
   const sid = ex ? ex.subject.id : opts.sid, parent = ex ? ex.parent : (opts.parent ? findRaw(opts.parent)?.node : null);
@@ -1034,7 +1036,7 @@ function editorAction(act, a) {
       return true;
     }
     case "subj-del":
-      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete it and its progress"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete subject"; } }, 3500); return true; }
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = TAP + " again to delete it and its progress"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete subject"; } }, 3500); return true; }
       snapshot(); S.content.subjects = S.content.subjects.filter(s => s.id !== id); afterContentChange(true);
       stack.pop(); if (!stack.length) stack = [{ v: "today" }]; render(true); toast("Subject deleted.", { label: "Undo", fn: undo }); return true;
     case "node-add": closeSheet(true); openNodeSheet({ sid: a.dataset.sid, parent: a.dataset.parent || null }); return true;
@@ -1060,7 +1062,7 @@ function editorAction(act, a) {
       return true;
     }
     case "node-del": {
-      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete"; } }, 3500); return true; }
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = TAP + " again to delete"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Delete"; } }, 3500); return true; }
       const f = findRaw(id); if (!f) return true;
       snapshot(); f.list.splice(f.index, 1); afterContentChange(true); closeSheet(); rerender(); toast(`${f.node.title} deleted.`, { label: "Undo", fn: undo }); return true;
     }
@@ -1091,11 +1093,11 @@ function editorAction(act, a) {
     }
     case "q-del": snapshot(); S.content.questions = S.content.questions.filter(q => q.id !== id); afterContentChange(false); rerender(); toast("Question deleted.", { label: "Undo", fn: undo }); return true;
     case "content-clear":
-      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.dataset.label = a.textContent; a.textContent = "Tap again to remove them all"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = a.dataset.label; } }, 3500); return true; }
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.dataset.label = a.textContent; a.textContent = TAP + " again to remove them all"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = a.dataset.label; } }, 3500); return true; }
       snapshot(); S.content = { from: "own", subjects: [], questions: [], explain: {}, notes: {} }; S.status = {}; S.attempts = {}; S.mistakes = {}; S.tasks = []; S.recent = []; S.changes = [];
       afterContentChange(true); rerender(); toast("All subjects removed. Add your own below.", { label: "Undo", fn: undo }); return true;
     case "content-load":
-      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to replace your subjects"; return true; }
+      if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = TAP + " again to replace your subjects"; return true; }
       snapshot(); loadDataFile(); contentNotice = null; rerender(); toast("New study content loaded.", { label: "Undo", fn: undo }); return true;
   }
   return false;
@@ -1108,20 +1110,69 @@ async function pdfPageLines(doc, i) {
   tc.items.forEach(it => { if (!it.str || !it.str.trim()) return; const y = Math.round(it.transform[5]), x = it.transform[4]; let r = rows.find(r => Math.abs(r.y - y) <= 3); if (!r) rows.push(r = { y, parts: [] }); r.parts.push({ x, s: it.str }); });
   return rows.sort((a, b) => b.y - a.y).map(r => r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim());
 }
+/* Read a PDF page as lines with their font size and position, so headings, headers and footers can be told apart */
+async function pdfPageItems(doc, i) {
+  const pg = await doc.getPage(i), vp = pg.getViewport({ scale: 1 }), tc = await pg.getTextContent(), rows = [];
+  tc.items.forEach(it => {
+    if (!it.str || !it.str.trim()) return;
+    const y = Math.round(it.transform[5]), x = it.transform[4], size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
+    let r = rows.find(r => Math.abs(r.y - y) <= Math.max(2, size * .3)); if (!r) rows.push(r = { y, parts: [], size: 0, chars: 0 });
+    r.parts.push({ x, s: it.str }); r.size = Math.max(r.size, size); r.chars += it.str.length;
+  });
+  const lines = rows.sort((a, b) => b.y - a.y).map(r => ({ s: r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim(), size: r.size, chars: r.chars, rel: 1 - r.y / (vp.height || 842) })).filter(l => l.s);
+  return lines;
+}
+const PAGE_NUM = /^(page|p\.|pg\.?)?\s*[-–]?\s*\d{1,4}\s*[-–]?(\s*(of|\/)\s*\d{1,4})?$/i;
+const hfKey = s => s.toLowerCase().replace(/\d+/g, "#").replace(/\s+/g, " ").trim();
+/* lines that repeat at the top or bottom of most pages (running headers, footers, copyright lines) */
+async function pdfRepeats(imp) {
+  if (imp.repeats) return imp.repeats;
+  const n = imp.doc.numPages, pick = [...new Set(Array.from({ length: Math.min(16, n) }, (_, k) => 1 + Math.floor(k * n / Math.min(16, n))))];
+  const seen = new Map();
+  for (const i of pick) { const ls = await pdfPageItems(imp.doc, i); new Set(ls.filter(l => l.rel < .09 || l.rel > .91).map(l => hfKey(l.s))).forEach(k => seen.set(k, (seen.get(k) || 0) + 1)); }
+  imp.repeats = new Set([...seen].filter(([, c]) => pick.length >= 3 && c >= Math.max(2, pick.length * .4)).map(([k]) => k));
+  return imp.repeats;
+}
+/* turn PDF pages into clean notes: "## " before headings, no page numbers, headers or footers */
+function pagesToNotes(pages, repeats) {
+  const sizes = []; pages.flat().forEach(l => { for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); });
+  sizes.sort((a, b) => a - b); const body = sizes[Math.floor(sizes.length / 2)] || 10;
+  const out = [];
+  pages.forEach(ls => {
+    ls.forEach(l => {
+      const edge = l.rel < .09 || l.rel > .91;
+      if (PAGE_NUM.test(l.s) || (edge && repeats.has(hfKey(l.s)))) return;
+      const head = l.size >= body * 1.18 && l.s.length < 100 && /[a-z]{2}/i.test(l.s) && !/[.,;]$/.test(l.s);
+      if (head) { const last = out[out.length - 1]; if (last && last.h && last.t.length + l.s.length < 110) last.t += " " + l.s; else out.push({ h: true, t: l.s }); }
+      else out.push({ h: false, t: l.s });
+    });
+  });
+  return out.map(x => x.h ? `\n## ${x.t.replace(/^#+\s*/, "")}` : x.t).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+}
 /* After an import is added, keep each topic's own pages or slides as its notes, for summaries and podcasts */
 async function storeImportText(roots) {
   const imp = lastImport; if (!imp) return;
   const leaves = []; const walk = l => l.forEach(n => n.kids.length ? walk(n.kids) : leaves.push(n)); walk(roots);
   let saved = 0, pagesRead = 0;
+  const repeats = imp.kind === "pdf" ? await pdfRepeats(imp) : null;
   for (const n of leaves) {
     let text = "";
     if (imp.kind === "pdf") {
       const idx = p => { if (imp.labels) { const k = imp.labels.indexOf(String(p)); if (k >= 0) return k + 1; } return p; };
-      for (let p = n.p1; p <= Math.min(n.p2, n.p1 + 19) && pagesRead < 400; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; text += (await pdfPageLines(imp.doc, i)).join(" ") + " "; pagesRead++; }
-    } else if (imp.kind === "pptx") { for (let p = n.p1; p <= n.p2; p++) if (imp.slides[p - 1]) text += imp.slides[p - 1] + " "; }
+      const pages = [];
+      for (let p = n.p1; p <= Math.min(n.p2, n.p1 + 39) && pagesRead < 800; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; pages.push(await pdfPageItems(imp.doc, i)); pagesRead++; }
+      text = pagesToNotes(pages, repeats);
+      /* topics that share a page: start at this topic's heading and stop at the next topic's heading */
+      const lines = text.split("\n"), norm = t => stripNum(t.replace(/^#+\s*/, "")).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      const me = norm(n.title), nextT = leaves[leaves.indexOf(n) + 1] ? norm(leaves[leaves.indexOf(n) + 1].title) : null;
+      const a = lines.findIndex(l => /^##\s/.test(l) && norm(l) === me);
+      const b = nextT ? lines.findIndex((l, i) => i > Math.max(a, -1) && /^##\s/.test(l) && norm(l) === nextT) : -1;
+      if (a >= 0 || b > 0) text = lines.slice(Math.max(a, 0), b > 0 ? b : lines.length).join("\n");
+    } else if (imp.kind === "pptx") { const parts = []; for (let p = n.p1; p <= n.p2; p++) if (imp.slides[p - 1]) parts.push(imp.slides[p - 1]); text = parts.join("\n\n"); }
     if (text.trim().length > 60 && nodes[n.id]) { await saveNotes(n.id, text.trim()); saved++; }
   }
-  if (saved) { toast(`Saved the text of ${saved} topic${saved > 1 ? "s" : ""}. Summaries and podcasts are ready.`); if (["editsubj", "topic", "summary", "listen"].includes(stack[stack.length - 1].v)) rerender(); }
+  sumCache.clear();
+  if (saved) { toast(`Saved the text of ${saved} topic${saved > 1 ? "s" : ""}. Summaries, flashcards and podcasts are ready.`); if (["editsubj", "topic", "summary", "listen"].includes(stack[stack.length - 1].v)) rerender(); }
 }
 const stripNum = t => t.replace(/\s+/g, " ").trim().replace(/^(chapter|ch\.?|unit|part|module|section|lecture|week)\s*\d+(\.\d+)*\s*[.:)\-–—]?\s*/i, "").replace(/^\d+(\.\d+)*\s*[.:)\-–—]?\s+/, "").trim();
 async function loadPdfJs() {
@@ -1131,7 +1182,7 @@ async function loadPdfJs() {
   lib.GlobalWorkerOptions.workerSrc = base + "pdf.worker.min.mjs";
   window.pdfjsLib = lib; return lib;
 }
-async function pdfToOutline(buf) {
+async function pdfToOutline(buf, name = "") {
   const lib = await loadPdfJs();
   const doc = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
   let labels = null; try { labels = await doc.getPageLabels(); } catch (e) { }
@@ -1156,29 +1207,77 @@ async function pdfToOutline(buf) {
   }
   if (!collected.length) for (let i = 1; i <= max; i++) { const good = (await pageLines(i)).filter(l => tocLike(l) && /^(\d+(\.\d+)*|chapter|unit)\b/i.test(l)); if (good.length >= 4) collected.push(...good); }
   if (collected.length) return { text: collected.slice(0, 400).join("\n"), note: start > 0 ? `Read the contents page (page ${start} of the PDF). Check the levels and page numbers before adding.` : "This PDF has no bookmarks or contents page, so these lines were picked from numbered headings. Check them carefully." };
-  return { text: "", note: "Couldn't find bookmarks or a contents page in this PDF. Type or paste the contents list instead." };
+  /* no contents page either: use the headings (lines in a bigger font) as topics */
+  const heads = [], sizes = [], pages = Math.min(doc.numPages, 300), perPage = [];
+  for (let i = 1; i <= pages; i++) { const ls = await pdfPageItems(doc, i); perPage.push(ls); ls.forEach(l => { for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); }); }
+  sizes.sort((a, b) => a - b); const body = sizes[Math.floor(sizes.length / 2)] || 10;
+  perPage.forEach((ls, k) => ls.forEach(l => { if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } }));
+  if (heads.length >= 2 && heads.length <= 300) {
+    const deck = stripNum(name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")) || "Imported PDF", last = pageNo(pages - 1);
+    const lines = [`1 ${deck} ${heads[0].p}-${last}`]; heads.forEach((h, k) => { const end = k + 1 < heads.length ? Math.max(h.p, heads[k + 1].p) : last; /* shares the next heading's page; the text is split at the heading */ lines.push(`1.${k + 1} ${stripNum(h.t) || h.t} ${h.p}-${end}`); });
+    return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${heads.length} headings were picked from the text. Check them before adding.` };
+  }
+  return { text: "", note: "Couldn't find bookmarks, a contents page or headings in this PDF. Type or paste the contents list instead." };
 }
+/* PowerPoint: slides in the order the deck shows them, with titles, bullet levels, tables and speaker notes */
 async function pptxToOutline(buf, name) {
   if (!window.JSZip) throw new Error("zip");
   const zip = await JSZip.loadAsync(buf);
-  const files = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => +a.match(/(\d+)\.xml$/)[1] - +b.match(/(\d+)\.xml$/)[1]);
+  const xml = async f => { const z = zip.file(f); return z ? new DOMParser().parseFromString(await z.async("string"), "application/xml") : null; };
+  const all = (el, tag) => el ? [...el.getElementsByTagNameNS("*", tag)] : [];
+  const rels = async f => { const d = await xml(f); const m = {}; all(d, "Relationship").forEach(r => m[r.getAttribute("Id")] = { t: r.getAttribute("Target"), type: r.getAttribute("Type") || "" }); return m; };
+  const resolve = (base, t) => { if (t.startsWith("/")) return t.slice(1); const parts = base.split("/").slice(0, -1); t.split("/").forEach(x => x === ".." ? parts.pop() : x !== "." && parts.push(x)); return parts.join("/"); };
+  /* true slide order comes from presentation.xml, not from the file names */
+  let files = [];
+  try {
+    const pres = await xml("ppt/presentation.xml"), pr = await rels("ppt/_rels/presentation.xml.rels");
+    files = all(pres, "sldId").map(el => { const id = el.getAttributeNS("http://schemas.openxmlformats.org/officeDocument/2006/relationships", "id") || el.getAttribute("r:id"); return pr[id] && resolve("ppt/presentation.xml", pr[id].t); }).filter(f => f && zip.file(f));
+  } catch (e) { }
+  if (!files.length) files = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => +a.match(/(\d+)\.xml$/)[1] - +b.match(/(\d+)\.xml$/)[1]);
+  const phType = sp => (all(sp, "ph")[0]?.getAttribute("type")) || (all(sp, "ph").length ? "body" : "");
+  const paras = el => all(el, "p").filter(p => p.namespaceURI && /drawingml/.test(p.namespaceURI)).map(p => {
+    const t = [...p.childNodes].map(c => c.localName === "r" || c.localName === "fld" ? all(c, "t").map(x => x.textContent).join("") : c.localName === "br" ? " " : "").join("").replace(/\s+/g, " ").trim();
+    const lvl = +(all(p, "pPr")[0]?.getAttribute("lvl") || 0);
+    return { t, lvl };
+  }).filter(x => x.t);
   const titles = [], slideText = [];
   for (let i = 0; i < files.length; i++) {
-    const xml = new DOMParser().parseFromString(await zip.file(files[i]).async("string"), "application/xml");
-    const shapes = [...xml.getElementsByTagNameNS("*", "sp")];
-    const textOf = sp => [...sp.getElementsByTagNameNS("*", "p")].map(p => [...p.getElementsByTagNameNS("*", "t")].map(t => t.textContent).join("")).filter(Boolean);
-    const isTitle = sp => [...sp.getElementsByTagNameNS("*", "ph")].some(ph => /title|ctrTitle/i.test(ph.getAttribute("type") || ""));
-    let t = shapes.filter(isTitle).flatMap(textOf).join(" ").trim();
-    if (!t) t = (shapes.map(textOf).find(x => x.length) || [""])[0];
-    titles.push(stripNum(t) || `Slide ${i + 1}`);
-    slideText.push(shapes.flatMap(textOf).join(". ").replace(/\.\s*\./g, "."));
+    const d = await xml(files[i]); if (!d) continue;
+    const shapes = all(d, "sp");
+    const titleSp = shapes.filter(sp => /^(title|ctrTitle)$/.test(phType(sp)));
+    let t = titleSp.flatMap(paras).map(x => x.t).join(" ").trim();
+    const body = [];
+    shapes.forEach(sp => {
+      const ty = phType(sp); if (/^(title|ctrTitle|sldNum|dt|ftr|hdr)$/.test(ty)) return;
+      const ps = paras(sp); if (!ps.length) return;
+      if (!t && ty === "subTitle") { body.push(...ps.map(x => x.t)); return; }
+      ps.forEach(x => body.push(`${"  ".repeat(Math.min(x.lvl, 3))}- ${x.t}`));
+    });
+    /* tables: each row becomes "First cell – Column: value; Column: value" so it reads as a fact */
+    all(d, "tbl").forEach(tb => {
+      const rows = all(tb, "tr").map(tr => all(tr, "tc").map(tc => paras(tc).map(x => x.t).join(" ")));
+      const head = rows.length > 1 && rows[0].every(c => c && c.length < 40) ? rows.shift() : null;
+      rows.forEach(r => { if (!r.some(Boolean)) return; body.push(`- ${head && r.length > 1 ? `${r[0]} – ${r.slice(1).map((c, k) => c ? `${head[k + 1] ? head[k + 1].replace(/[?:]$/, "") + ": " : ""}${c}` : "").filter(Boolean).join("; ")}` : r.filter(Boolean).join(" | ")}`); });
+    });
+    if (!t) t = (body[0] || "").replace(/^\s*-\s*/, "");
+    /* speaker notes often hold what the lecturer actually said */
+    let notes = [];
+    try {
+      const sr = await rels(files[i].replace(/slides\/(slide\d+\.xml)$/, "slides/_rels/$1.rels"));
+      const nr = Object.values(sr).find(r => /notesSlide$/.test(r.type));
+      if (nr) { const nd = await xml(resolve(files[i], nr.t)); notes = all(nd, "sp").filter(sp => phType(sp) === "body").flatMap(paras).map(x => x.t).filter(x => !/^\d+$/.test(x)); }
+    } catch (e) { }
+    const clean = stripNum(t) || `Slide ${i + 1}`;
+    titles.push(clean);
+    slideText.push([`## ${clean}`, ...body, ...(notes.length ? ["Notes:", ...notes] : [])].join("\n"));
   }
   if (!titles.length) return { text: "", note: "No slides found in that file." };
   lastImport = { kind: "pptx", slides: slideText };
   const deck = stripNum(name.replace(/\.pptx$/i, "").replace(/[_-]+/g, " ")) || "Slides";
   const lines = [`1 ${deck} 1-${titles.length}`]; let k = 0;
   for (let i = 0; i < titles.length; i++) { let j = i; while (j + 1 < titles.length && titles[j + 1].replace(/\s*\(cont.*\)$/i, "") === titles[i]) j++; k++; lines.push(`1.${k} ${titles[i]} ${i + 1}-${j + 1}`); i = j; }
-  return { text: lines.join("\n"), note: `Read ${titles.length} slides from ${name}. Slide numbers are used as page numbers.` };
+  const withNotes = slideText.filter(x => x.includes("\nNotes:")).length;
+  return { text: lines.join("\n"), note: `Read ${titles.length} slides from ${name}${withNotes ? `, including speaker notes on ${withNotes}` : ""}. Slide numbers are used as page numbers.` };
 }
 async function importFile(file, sid) {
   if (!file) return;
@@ -1189,7 +1288,7 @@ async function importFile(file, sid) {
   importBusy = { reading: name }; rerender();
   try {
     const buf = await file.arrayBuffer();
-    const r = ext === "pdf" ? await pdfToOutline(buf) : await pptxToOutline(buf, name);
+    const r = ext === "pdf" ? await pdfToOutline(buf, name) : await pptxToOutline(buf, name);
     importBusy = r.text ? { note: r.note } : { error: r.note };
     if (r.text) { qpText = r.text; qpPreview = parseOutline(qpText); }
   } catch (e) {
@@ -1259,34 +1358,41 @@ const fmtMins = m => m >= 60 ? `${Math.floor(m / 60)} h${m % 60 ? " " + (m % 60)
 /* ---------- summaries: Claude-written when provided, otherwise picked from the notes on this device ---------- */
 const STOP = new Set("a an and are as at be been being but by can could did do does each for from had has have how however if in into is it its may more most much must no not of on one only or other our out over so some such than that the their them then there these they this those through to too under up upon use used using very was we were what when where which while who why will with within without would you your also both between during etc example examples first however i.e e.g many often same second several since therefore thus usually".split(" "));
 const words = s => (s.toLowerCase().match(/[a-z][a-z'’-]{2,}/g) || []).filter(w => !STOP.has(w));
-function summarize(text, title = "", max = 6) {
-  text = String(text || "").replace(/-\n(\w)/g, "$1").replace(/\s+/g, " ").trim().slice(0, 60000);
-  if (text.length < 80) return null;
-  const sents = text.split(/(?<=[.!?])\s+(?=[A-Z0-9“"‘(])/).map(s => s.trim()).filter(s => s.length >= 35 && s.length <= 420 && (s.match(/\d/g) || []).length < s.length / 6 && s !== s.toUpperCase());
-  if (!sents.length) return null;
-  const freq = {}; sents.forEach(s => words(s).forEach(w => freq[w] = (freq[w] || 0) + 1));
-  const top = Math.max(1, ...Object.values(freq)), tw = new Set(words(title));
-  const scored = sents.map((s, i) => {
-    const ws = words(s); if (!ws.length) return { s, i, sc: 0 };
-    let sc = ws.reduce((a, w) => a + freq[w] / top, 0) / Math.sqrt(ws.length);
-    sc += .35 * ws.filter(w => tw.has(w)).length;
-    if (i < 2) sc += .25;
-    if (/\b(is defined as|refers to|means|is called|is known as|is the|are the|the main|key|important)\b/i.test(s)) sc += .35;
-    return { s, i, sc, ws: new Set(ws) };
-  }).sort((a, b) => b.sc - a.sc);
-  const pick = [];
-  for (const c of scored) { if (pick.length >= max) break; if (pick.some(p => { const inter = [...c.ws].filter(w => p.ws.has(w)).length; return inter / Math.min(c.ws.size, p.ws.size) > .6; })) continue; pick.push(c); }
-  const terms = Object.entries(freq).filter(([w]) => w.length > 4 && !tw.has(w)).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([w]) => w);
-  return { bullets: pick.sort((a, b) => a.i - b.i).map(p => p.s), terms, source: "auto" };
+/* The summary engine lives in summary.js: it covers every section, keeps definitions, formulas, numbers and
+   exam cues, checks every key term is in a bullet, and reports what it covered. It only uses sentences from the notes. */
+function summarize(text, title = "", max) { try { return window.SDSummary ? SDSummary.summarize(text, title, max ? { max } : {}) : null; } catch (e) { console.error(e); return null; } }
+const asSections = bullets => [{ h: "", items: bullets.map(t => ({ t, kinds: [], def: null })) }];
+/* one renderer for every summary in the app (topic page, subject summary, recordings) */
+function sumHTML(sm, opts = {}) {
+  const li = x => {
+    let t = esc(x.t);
+    if (x.def && x.def.term) { const k = esc(x.def.term); const i = t.toLowerCase().indexOf(k.toLowerCase()); if (i >= 0 && i < 160) t = t.slice(0, i) + `<b>${t.slice(i, i + k.length)}</b>` + t.slice(i + k.length); }
+    const tag = x.kinds?.includes("formula") ? `<span class="ktag f">Formula</span>` : x.kinds?.includes("exam") ? `<span class="ktag e">Exam</span>` : "";
+    return `<li${x.kinds?.includes("formula") ? ' class="fx"' : ""}>${t}${tag}</li>`;
+  };
+  const secs = sm.sections || asSections(sm.bullets);
+  const many = secs.length > 1;
+  const body = secs.map(sc => `${many && sc.h ? `<h4 class="sumh">${esc(sc.h)}</h4>` : ""}<ul class="bul">${sc.items.map(li).join("")}</ul>`).join("");
+  const terms = sm.terms && sm.terms.length ? `<div class="terms" aria-label="Key terms">${sm.terms.slice(0, 12).map(t => `<span>${esc(t)}</span>`).join("")}</div>` : "";
+  const defs = sm.defs && sm.defs.length && !opts.noDefs ? `<details class="defs"><summary>Key definitions <span class="muted">(${sm.defs.length})</span></summary><dl>${sm.defs.map(d => `<div><dt>${esc(d.term)}</dt><dd>${esc(d.def)}</dd></div>`).join("")}</dl></details>` : "";
+  const c = sm.coverage;
+  let cov = "";
+  if (c) {
+    const secTxt = c.sections > 1 ? (c.sectionsCovered === c.sections ? `all ${c.sections} sections` : `${c.sectionsCovered} of ${c.sections} sections`) : "";
+    const termTxt = c.terms ? (c.termsCovered === c.terms ? `all ${c.terms} key terms` : `${c.termsCovered} of ${c.terms} key terms`) : "";
+    const what = [secTxt, termTxt].filter(Boolean).join(" and ");
+    cov = `<p class="cov tiny">${ico("check")}<span>${what ? `Covers ${what}` : "Covers your notes"} · ${c.vocab}% of the important words.${c.vocab < 85 && c.missed.length ? ` Not in the summary: ${c.missed.map(esc).join(", ")}. Check your notes for these.` : ""}</span></p>`;
+  }
+  return body + terms + defs + (opts.noCov ? "" : cov);
 }
 const sumCache = new Map();
 function summaryOf(id) {
   const e = S.content.explain[id];
-  if (e && e.summary) return { bullets: Array.isArray(e.summary) ? e.summary : String(e.summary).split(/\n+/).filter(Boolean), terms: [], source: "written" };
+  if (e && e.summary) { const bullets = Array.isArray(e.summary) ? e.summary : String(e.summary).split(/\n+/).filter(Boolean); return { bullets, sections: asSections(bullets), terms: [], defs: [], source: "written" }; }
   const n = notesOf(id), key = id + ":" + n.length;
   if (sumCache.has(key)) return sumCache.get(key);
   let r = n ? summarize(n, nodes[id].title) : null;
-  if (!r && e && (e.uni || e.simple)) r = { bullets: [e.simple, e.uni, e.exam].filter(Boolean), terms: [], source: "explain" };
+  if (!r && e && (e.uni || e.simple)) { const bullets = [e.simple, e.uni, e.exam].filter(Boolean); r = { bullets, sections: asSections(bullets), terms: [], defs: [], source: "explain" }; }
   sumCache.set(key, r); return r;
 }
 
@@ -1301,7 +1407,7 @@ function pickVoice() {
   return vs.find(v => v.name === pref) || vs.find(v => /natural|enhanced|premium|neural/i.test(v.name) && /GB|US|AU|ZA/.test(v.lang)) || vs.find(v => /Google UK English Female|Samantha|Karen|Daniel|Serena/i.test(v.name)) || vs.find(v => /en-(GB|ZA|AU)/i.test(v.lang)) || vs[0] || null;
 }
 if (TTS) { TTS.onvoiceschanged = () => { P_.voice = pickVoice(); }; P_.voice = pickVoice(); }
-const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;:])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out.reduce((m, s) => { if (m.length && m[m.length - 1].length < 14 && m[m.length - 1].length + s.length <= 240) m[m.length - 1] += " " + s; else m.push(s); return m; }, []); };
+const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out.reduce((m, s) => { if (m.length && m[m.length - 1].length < 14 && m[m.length - 1].length + s.length <= 240) m[m.length - 1] += " " + s; else m.push(s); return m; }, []); };
 function buildEpisode(title, subtitle, leafList, opts = {}) {
   const segs = [], add = (text, kind = "body", extra = {}) => chunk(text).forEach(c => segs.push({ text: c, kind, ...extra }));
   const pause = ms => segs.push({ kind: "pause", ms, text: "" });
@@ -1312,12 +1418,17 @@ function buildEpisode(title, subtitle, leafList, opts = {}) {
     add(`${k === 0 ? "First" : k === leafList.length - 1 && k > 0 ? "Finally" : "Next"}: ${n.title}.`, "title", { node: id });
     pause(350);
     const sm = summaryOf(id);
-    if (sm) add(sm.bullets.join(" "), "body", { node: id });
+    if (sm) {
+      (sm.sections || asSections(sm.bullets)).forEach((sc, k) => { if (sc.h && (sm.sections.length > 1)) { if (k) pause(300); add(sc.h + ".", "title", { node: id }); } add(sc.items.map(x => x.t).join(" "), "body", { node: id }); });
+      const kt = [...new Set([...(sm.defs || []).map(d => d.term), ...(sm.terms || [])].map(t => t.toLowerCase()))].slice(0, 8);
+      if (kt.length > 2) { pause(400); add(`Key terms to remember: ${kt.slice(0, -1).join(", ")} and ${kt[kt.length - 1]}.`, "body", { node: id }); }
+    }
     else add(`There are no notes for this topic yet. It covers pages ${n.p1} to ${n.p2}. Add notes or import the chapter to hear a summary here.`, "body", { node: id });
     const q = QS.find(q => q.node === id);
     if (q && opts.questions !== false) {
       pause(500);
-      add(`Quick question. ${q.q} ${q.o.map((o, i) => `${"ABCD"[i]}: ${o}.`).join(" ")}`, "q", { node: id });
+      add(`Quick question. ${q.q}`, "q", { node: id });
+      q.o.forEach((o, i) => add(`${"ABCD"[i]}: ${o}.`, "q", { node: id }));
       pause(3500);
       add(`The answer is ${"ABCD"[q.a]}: ${q.o[q.a]}. ${q.e || ""}`, "a", { node: id });
     }
@@ -1395,7 +1506,7 @@ const RP = {
     a.ontimeupdate = () => { const now = Date.now(); if (now - this.lastSave > 4000) { this.lastSave = now; r.pos = a.currentTime; IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.pos = a.currentTime; } const bar = $("#rec-prog-" + id); if (bar && a.duration) bar.style.transform = `scaleX(${a.currentTime / a.duration})`; const t = $("#rec-time-" + id); if (t) t.textContent = fmtClock(a.currentTime) + " / " + fmtClock(a.duration || 0); };
     a.onended = () => { r.pos = 0; IDB.put("audio", r); logEvent({ t: "listen", m: Math.round((a.duration || 0) / 60) }); save(); rerender(); };
     a.onloadedmetadata = () => { if (!r.dur) { r.dur = a.duration; IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.dur = a.duration; } };
-    try { await a.play(); } catch (e) { toast("Tap play again to start the recording."); }
+    try { await a.play(); } catch (e) { toast(TAP + " play again to start the recording."); }
     if ("mediaSession" in navigator) { navigator.mediaSession.metadata = new MediaMetadata({ title: r.name, artist: "Study Desk", album: subjects[r.subject]?.name || "Recordings" }); }
     rerender();
   },
@@ -1438,7 +1549,7 @@ V.listen = () => {
       </div>
       ${RECS.length ? `<div class="list">${RECS.map(r => { const on = RP.cur && RP.cur.id === r.id, paused = !RP.el || RP.el.paused; return `<div class="rec ${on ? "on" : ""}">
         <div class="row"><button class="pl-btn ${on && !paused ? "act" : ""}" data-action="rec-play" data-id="${r.id}" aria-label="${on && !paused ? "Pause" : "Play"} ${esc(r.name)}">${on && !paused ? '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>' : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" fill="currentColor"/></svg>'}</button>
-          <span class="grow"><b>${esc(r.name)}</b><span class="tiny muted" id="rec-time-${r.id}">${r.subject && subjects[r.subject] ? esc(subjects[r.subject].name) + " · " : ""}${r.dur ? fmtClock(r.pos) + " / " + fmtClock(r.dur) : (r.size / 1e6).toFixed(1) + " MB"}</span></span>
+          <span class="grow"><b>${esc(r.name)}</b><span class="tiny muted" id="rec-time-${r.id}">${r.subject && subjects[r.subject] ? esc(subjects[r.subject].name) + " · " : ""}${r.dur ? fmtClock(r.pos) + " / " + fmtClock(r.dur) : (r.size >= 1e6 ? (r.size / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(r.size / 1e3)) + " KB")}</span></span>
           ${on ? `<button class="oa" data-action="rec-skip" data-s="-15" aria-label="Back 15 seconds">−15</button><button class="oa" data-action="rec-skip" data-s="30" aria-label="Forward 30 seconds">+30</button>` : ""}
           <button class="oa" data-action="rec-more" data-id="${r.id}" aria-label="Summary and options">${ico("chev")}</button></div>
         <div class="rec-bar"><i id="rec-prog-${r.id}" style="transform:scaleX(${r.dur ? (r.pos || 0) / r.dur : 0})"></i></div></div>`; }).join("")}</div>` : ""}
@@ -1455,19 +1566,19 @@ V.episode = () => {
     <div class="card stack nowplay"><div class="wave ${P_.playing ? "on" : ""}" aria-hidden="true">${Array.from({ length: 28 }, (_, i) => `<i style="--k:${i}"></i>`).join("")}</div>
       <div class="row" style="justify-content:center;gap:14px"><button class="icon-btn" data-action="pl-seek" data-d="-1" aria-label="Back">${ico("left")}</button><button class="btn btn-pen" id="ep-play" data-action="pl-toggle" style="min-width:120px">${P_.playing ? "Pause" : "Play"}</button><button class="icon-btn" data-action="pl-seek" data-d="1" aria-label="Forward">${ico("chev")}</button></div>
       <div class="row" style="justify-content:center"><div class="segctl">${[0.8, 1, 1.25, 1.5].map(r => `<button role="radio" aria-checked="${P_.rate === r}" data-action="pl-rate" data-r="${r}">${r}×</button>`).join("")}</div></div></div>
-    <section class="section"><div class="sec-head"><h2>Transcript</h2><span class="tiny muted">Tap a line to jump there</span></div>
+    <section class="section"><div class="sec-head"><h2>Transcript</h2><span class="tiny muted">${TAP} a line to jump there</span></div>
       <div class="card transcript">${ep.segs.map((s, i) => s.kind === "pause" ? "" : `<button class="tline k-${s.kind} ${i === P_.i ? "cur" : ""}" data-action="pl-jump" data-i="${i}">${esc(s.text)}</button>`).join("")}</div></section>
   </div>`;
 };
 V.summary = sid => {
   const s = subjects[sid]; if (!s) return V.listen();
-  const leaves = leavesBySubject[sid], have = leaves.filter(l => summaryOf(l)).length;
+  const leaves = leavesBySubject[sid], have = leaves.filter(l => summaryOf(l.id)).length;
   return `<div class="stack" style="gap:20px">
     <header class="subhead"><div class="eyebrow">${esc(s.name)} · summary</div><h1>Everything in ${esc(s.name)}</h1>
       <p class="muted">${have} of ${leaves.length} topics have notes to summarise.${have < leaves.length ? " Import the textbook PDF or add notes to fill in the rest." : ""}</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0] || ""}" ${s.chapterIds.length ? "" : "disabled"}>${ico("spark")}Listen from chapter 1</button></div></header>
     ${s.chapterIds.map(cid => { const c = nodes[cid]; return `<section class="card stack sumch"><div class="sec-head"><h2 class="h3">Chapter ${c.num} · ${esc(c.title)}</h2><button class="link small" data-action="ep-play" data-kind="topic" data-id="${cid}">Listen</button></div>
-      ${leavesUnder(cid).map(l => { const n = nodes[l], sm = summaryOf(l); return `<div class="sumtopic"><button class="sumt" data-go="topic:${l}"><span class="onum">${n.num}</span>${esc(n.title)}<span class="pages">pp ${n.p1}–${n.p2}</span></button>${sm ? `<ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}` : `<p class="tiny muted">No notes yet.</p>`}</div>`; }).join("")}</section>`; }).join("")}
+      ${leavesUnder(cid).map(l => { const n = nodes[l], sm = summaryOf(l); return `<div class="sumtopic"><button class="sumt" data-go="topic:${l}"><span class="onum">${n.num}</span>${esc(n.title)}<span class="pages">pp ${n.p1}–${n.p2}</span></button>${sm ? sumHTML(sm, { noCov: true }) : `<p class="tiny muted">No notes yet.</p>`}</div>`; }).join("")}</section>`; }).join("")}
   </div>`;
 };
 function weekView() {
@@ -1497,18 +1608,18 @@ function openNotesSheet(id) {
   const n = nodes[id];
   openSheet("Notes for " + n.title, `${sheetHead(subjects[n.subject].name + " · " + n.num, "Notes: " + n.title)}
     <div class="stack form"><p class="small muted">Paste or type notes for this topic. Summaries and podcast episodes are made from them. Kept on this device.</p>
-      <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea>
+      <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea><p class="tiny muted" style="margin:-4px 0 0">Tip: start a line with ## to mark a heading. The summary gives every heading at least one point and keeps definitions, formulas and dates.</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="notes-save" data-id="${id}">Save notes</button><label class="btn btn-soft" for="ocr-file">${ico("camera")}Snap a page</label><input type="file" id="ocr-file" class="sr" accept="image/*" capture="environment" multiple></div>
       <div class="lock ocr-status" id="ocr-status" role="status"><span class="tiny muted">Snap a page photographs printed text (a textbook or handout) and turns it into notes. It's read on this device.</span></div></div>`);
 }
 function openRecSheet(id) {
   const r = RECS.find(x => x.id === id); if (!r) return;
-  const sm = r.transcript ? summarize(r.transcript, r.name, 7) : null;
+  const sm = r.transcript ? summarize(r.transcript, r.name) : null;
   openSheet(r.name, `${sheetHead("Recording", r.name)}
     <div class="stack form">
-      ${sm ? `<div class="card stack" style="gap:6px;box-shadow:none;background:var(--sunken)"><h3 class="h3">Summary</h3><ul class="bul">${sm.bullets.map(b => `<li>${esc(b)}</li>`).join("")}</ul>${sm.terms.length ? `<div class="terms">${sm.terms.map(t => `<span>${esc(t)}</span>`).join("")}</div>` : ""}<p class="tiny muted">Picked from the key sentences in the transcript.</p></div>` : ""}
+      ${sm ? `<div class="card stack" style="gap:8px;box-shadow:none;background:var(--sunken)"><h3 class="h3">Summary</h3>${sumHTML(sm)}<p class="tiny muted">Every line is taken from the transcript, nothing is made up.</p></div>` : ""}
       <label class="fld"><span>Transcript or notes</span><textarea id="rec-tr" rows="6" placeholder="Paste the episode's transcript or your notes to get a summary">${esc(r.transcript || "")}</textarea></label>
-      <p class="tiny muted">Many podcasts publish transcripts. For lectures without one, send the recording to Claude in your project and the summary can be added for you.</p>
+      <p class="tiny muted">Many podcasts publish a transcript you can paste here. For a lecture, paste your own notes or the text from the lecture slides.</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="rec-save" data-id="${id}">Save and summarise</button><button class="btn btn-line btn-sm" data-action="rec-del" data-id="${id}">Delete recording</button></div></div>`);
 }
 async function v3Action(act, a) {
@@ -1524,9 +1635,9 @@ async function v3Action(act, a) {
     case "rec-skip": RP.skip(+a.dataset.s); return true;
     case "rec-more": openRecSheet(id); return true;
     case "rec-save": { const r = await IDB.get("audio", id); if (!r) return true; r.transcript = ($("#rec-tr")?.value || "").slice(0, 200000); await IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.transcript = r.transcript; openRecSheet(id); toast(r.transcript.trim() ? "Saved. Summary below." : "Saved."); return true; }
-    case "rec-del": if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = "Tap again to delete"; return true; } if (RP.cur && RP.cur.id === id) { RP.stop(); RP.cur = null; } await IDB.del("audio", id); RECS = RECS.filter(x => x.id !== id); closeSheet(); rerender(); toast("Recording deleted."); return true;
+    case "rec-del": if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = TAP + " again to delete"; return true; } if (RP.cur && RP.cur.id === id) { RP.stop(); RP.cur = null; } await IDB.del("audio", id); RECS = RECS.filter(x => x.id !== id); closeSheet(); rerender(); toast("Recording deleted."); return true;
     case "notes": openNotesSheet(id); return true;
-    case "notes-save": await saveNotes(id, $("#notes-text")?.value || ""); closeSheet(); rerender(); toast("Notes saved."); return true;
+    case "notes-save": await saveNotes(id, $("#notes-text")?.value || ""); closeSheet(); rerender(); toast("Notes saved. Summary, flashcards and podcast are updated."); return true;
   }
   return false;
 }
@@ -1606,7 +1717,7 @@ function openFocus() {
 function focusTickFn() {
   if (!F) { clearInterval(fTick); return; }
   const left = fLeft();
-  if (!F.done && !F.paused && left <= 0) { F.done = true; F.left = 0; focusSave(); chime(); keepAwake(false); if ($(".focus-scrim")) drawFocus(false); else { toast("Focus time is up. Tap Resume on Today to finish."); rerenderIfToday(); } return; }
+  if (!F.done && !F.paused && left <= 0) { F.done = true; F.left = 0; focusSave(); chime(); keepAwake(false); if ($(".focus-scrim")) drawFocus(false); else { toast("Focus time is up. " + TAP + " Resume on Today to finish."); rerenderIfToday(); } return; }
   const tEl = $("#fTime"); if (tEl) { tEl.textContent = fmtClock(Math.ceil(left / 1000)); const r = $("#fRing"); if (r) r.setAttribute("stroke-dashoffset", (FC * (1 - left / F.total)).toFixed(1)); }
   if (!$(".focus-scrim") && !F.done) { const b = $(`.upnext [data-action=focus] .mono`); if (b) b.textContent = fmtClock(Math.ceil(left / 1000)); }
 }
@@ -1898,7 +2009,7 @@ document.addEventListener("click", e => {
       case "nextq": Q.idx++; Q.picked = null; rerender(); if (FX.on) gsap.from("#qcard", { x: 24, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); $("#qcard")?.scrollIntoView({ block: "nearest" }); return;
       case "cal-open": calSel = a.dataset.k; calMonth = calSel.slice(0, 7) + "-01"; go("calendar"); return;
       case "pickday": calSel = a.dataset.k; if (calSel.slice(0, 7) !== calMonth.slice(0, 7)) calMonth = calSel.slice(0, 7) + "-01"; rerender(); return;
-      case "month": { const d = parseKey(calMonth), dir = +a.dataset.d; d.setMonth(d.getMonth() + dir); calMonth = keyOf(d); rerender(); if (FX.on) gsap.from("#calGrid", { x: 30 * dir, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); return; }
+      case "month": { const d = parseKey(calMonth), dir = +a.dataset.d; d.setMonth(d.getMonth() + dir); calMonth = keyOf(d); { const t = todayKey(); calSel = t.slice(0, 7) === calMonth.slice(0, 7) ? t : calMonth; } rerender(); if (FX.on) gsap.from("#calGrid", { x: 30 * dir, opacity: 0, duration: .35, ease: "power3.out", clearProps: "all" }); return; }
       case "replan": snapshot(); generate(todayKey()); S.changes.unshift({ when: todayKey(), text: "Plan rebuilt from today using your latest progress and practice scores." }); save(); flipRerender(); toast("Plan rebuilt from today.", { label: "Undo", fn: undo }); return;
       case "day": { const d = +a.dataset.d, days = S.settings.days; if (days.includes(d)) { if (days.length === 1) { toast("Keep at least one study day."); return; } S.settings.days = days.filter(x => x !== d); } else S.settings.days = [...days, d].sort(); snapshot(); applySettings(true); rerender(); toast("Study days updated. Plan rebuilt.", { label: "Undo", fn: undo }); return; }
       case "perday": S.settings.maxPerDay = clamp(S.settings.maxPerDay + +a.dataset.d, 2, 10); applySettings(true); rerender(); return;
@@ -1907,7 +2018,7 @@ document.addEventListener("click", e => {
       case "export": { markBackup(); const ok = download(`study-desk-backup-${todayKey()}.json`, exportText()); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); return; }
       case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
-      case "reset": if (a.dataset.confirm) { snapshot(); ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Demo data reset.", { label: "Undo", fn: undo }); } else { a.dataset.confirm = "1"; a.textContent = "Tap again to reset everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Reset demo data"; } }, 3000); } return;
+      case "reset": if (a.dataset.confirm) { snapshot(); ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Demo data reset.", { label: "Undo", fn: undo }); } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to reset everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Reset demo data"; } }, 3000); } return;
     }
   }
   if (c) {
@@ -1954,12 +2065,26 @@ function explainFor(id) {
   const n = nodes[id], e = S.content.explain[id];
   if (e) return e;
   const ch = chapterOf(id);
+  /* no written explanation: build one from this topic's own notes (via the summary), never invent it */
+  const sm = notesOf(id) ? summaryOf(id) : null, items = sm && sm.sections ? sm.sections.flatMap(x => x.items) : [];
+  if (sm && items.length) {
+    const tl = n.title.toLowerCase(), def = (sm.defs || []).find(d => tl.includes(d.term.toLowerCase()) || d.term.toLowerCase().includes(tl)) || (sm.defs || [])[0];
+    const ex = items.find(x => /\b(for example|e\.g\.|such as|for instance)\b/i.test(x.t));
+    const examLines = items.filter(x => x.kinds.includes("exam") || x.kinds.includes("formula")).map(x => x.t);
+    return {
+      generic: true, fromNotes: true,
+      simple: def ? `${def.term}: ${def.def}.` : items[0].t,
+      uni: items.filter(x => !def || !x.t.includes(def.def)).slice(0, 4).map(x => x.t).join(" "),
+      exam: examLines.length ? examLines.slice(0, 3).join(" ") : `Make sure you can define and explain these key terms: ${(sm.terms || []).slice(0, 6).join(", ")}.`,
+      example: ex ? ex.t : ""
+    };
+  }
   return {
     generic: true,
-    simple: `${n.title} is one idea inside “${ch.title}”. In everyday words: [a plain-language explanation from your real notes goes here].`,
-    uni: `On pages ${n.p1}–${n.p2} the textbook defines ${n.title.toLowerCase()} and links it to the rest of chapter ${ch.num}. [The academic explanation will be written from your real study material.]`,
-    exam: `For the exam: define ${n.title.toLowerCase()} precisely, give one example, and connect it to a key theory from chapter ${ch.num}. [Exam tips will come from your real past papers and marking guides.]`,
-    example: `[A worked example for ${n.title} will appear here once real content is added.]`
+    simple: `${n.title} is part of “${ch.title}” (pages ${n.p1}–${n.p2}). Add your notes for this topic and a plain-language explanation is built from them.`,
+    uni: `Read pages ${n.p1}–${n.p2}, then import the chapter or paste your notes so this view can explain it in your textbook's words.`,
+    exam: `For the exam: define ${n.title.toLowerCase()} precisely, give one example, and connect it to the rest of chapter ${ch.num}.`,
+    example: ""
   };
 }
 function openExplain(id) { X = { id, mode: 0, picked: null }; drawSheet(true); }
@@ -1974,7 +2099,7 @@ function drawSheet(opening) {
   const n = nodes[X.id], e = explainFor(X.id), modes = ["Very simple", "University level", "Exam focus", "Example", "Practice question"];
   const q = QS.find(q => q.node === X.id) || QS.find(q => q.subject === n.subject);
   let body;
-  if (X.mode < 4) body = `<div class="explain"><p>${esc([e.simple, e.uni, e.exam, e.example][X.mode] || "")}</p>${e.generic ? `<p class="note">Sample topic without written explanations. Try “Statistical significance”, “Degrees of freedom” or “Confounding variables” to see the full version.</p>` : ""}</div>`;
+  if (X.mode < 4) body = `<div class="explain"><p>${esc([e.simple, e.uni, e.exam, e.example][X.mode] || (X.mode === 3 ? "Your notes for this topic don't include an example yet. Add one to your notes and it shows up here." : ""))}</p>${e.fromNotes ? `<p class="note">Built from your notes for this topic. Every sentence comes from them.</p>` : e.generic ? `<p class="note">No notes for this topic yet. Add or import them and this explanation is built from them.</p>` : ""}</div>`;
   else if (!q) body = `<div class="explain"><p class="muted">No practice questions for this subject yet.</p></div>`;
   else body = `<div class="explain"><p style="font-weight:700">${esc(q.q)}</p><div class="opts" style="margin-top:12px">${q.o.map((o, i) => { let c = ""; if (X.picked !== null) c = i === q.a ? "right" : i === X.picked ? "wrong" : "fade"; return `<button class="opt ${c}" data-x="pick" data-i="${i}" ${X.picked !== null ? "disabled" : ""}><span class="l">${"ABCDEFG"[i]}</span><span>${esc(o)}</span></button>`; }).join("")}</div>
     ${X.picked !== null ? `<div class="verdict ${X.picked === q.a ? "ok" : "no"}" style="margin-top:12px"><h3>${ico(X.picked === q.a ? "check" : "x")}${X.picked === q.a ? "Correct" : "Incorrect"}</h3><p>${esc(q.e || "")}</p></div>` : ""}${q.node !== X.id ? `<p class="note">No question for this exact topic yet, so here is one from ${esc(subjects[n.subject].name)}.</p>` : ""}</div>`;

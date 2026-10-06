@@ -1,8 +1,8 @@
 /* Study Desk service worker: the app shell is cached so it opens offline.
    Bump VERSION on every release so phones pick up the new files. */
-const VERSION = "study-desk-4.0.0";
+const VERSION = "study-desk-4.1.0";
 const SHELL = [
-  "./", "index.html", "styles.css", "data.js", "app.js", "tools.js", "vendor/fsrs.umd.js", "vendor/minisearch.umd.js", "manifest.webmanifest",
+  "./", "index.html", "styles.css", "data.js", "summary.js", "app.js", "tools.js", "vendor/fsrs.umd.js", "vendor/minisearch.umd.js", "manifest.webmanifest",
   "vendor/gsap.min.js", "vendor/Flip.min.js", "vendor/SplitText.min.js", "vendor/confetti.min.js", "vendor/jszip.min.js", "vendor/register.js",
   "fonts/bricolage.woff2", "fonts/atkinson-400.woff2", "fonts/atkinson-700.woff2", "fonts/jbmono-500.woff2", "fonts/jbmono-700.woff2",
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"

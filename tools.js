@@ -18,7 +18,7 @@ function loadScript(src) {
 const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { } };
 
 /* ---------- flashcards ---------- */
-const NEW_PER_DAY = 20, AUTO_PER_TOPIC = 5;
+const NEW_PER_DAY = 20, AUTO_PER_TOPIC = 10;
 let FS = null;
 async function fsrsReady() {
   if (FS) return FS;
@@ -34,8 +34,16 @@ const nowISO = () => new Date().toISOString();
 function autoCardsFor(id) {
   const n = nodes[id], sm = summaryOf(id), out = [];
   if (!sm || !sm.bullets.length) return out;
-  const used = new Set();
+  const used = new Set(), done = new Set();
+  /* definitions from the notes become "What is …?" cards */
+  for (const d of sm.defs || []) {
+    if (out.length >= AUTO_PER_TOPIC - 1) break;
+    if (d.def.length < 8 || d.def.length > 320) continue;
+    out.push({ k: id + ":def:" + hash(d.term.toLowerCase()), f: `What does “${d.term}” mean?`, b: d.def, hint: n.title });
+    done.add(d.term.toLowerCase());
+  }
   for (const t of sm.terms) {
+    if (done.has(t.toLowerCase())) continue;
     if (out.length >= AUTO_PER_TOPIC - 1) break;
     const re = new RegExp(`\\b(${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\w{0,3})\\b`, "i");
     const b = sm.bullets.find(x => re.test(x) && !used.has(x)); if (!b) continue;
@@ -110,7 +118,7 @@ V.review = () => {
   if (R.i >= total) {
     const mins = Math.max(1, Math.round((Date.now() - R.start) / 60000)), next = (S.cards || []).filter(c => c.due).sort((a, b) => Date.parse(a.due) - Date.parse(b.due)).find(c => Date.parse(c.due) > Date.now());
     return `<div class="stack review-done" style="gap:18px"><header class="subhead"><div class="eyebrow">Flashcards</div><h1>Review done</h1></header>
-      <div class="tiles"><div class="tile"><b data-count="${R.done}">${R.done}</b><span>cards reviewed</span></div><div class="tile"><b>${R.done ? Math.round(R.right / R.done * 100) : 0}%</b><span>remembered</span></div><div class="tile"><b>${mins}</b><span>minute${mins > 1 ? "s" : ""}</span></div><div class="tile"><b>${next ? ivl(next, Date.now()) : "–"}</b><span>until the next card</span></div></div>
+      <div class="tiles"><div class="tile"><b data-count="${R.done}">${R.done}</b><span>cards reviewed</span></div><div class="tile"><b>${R.done ? Math.round(R.right / R.done * 100) : 0}%</b><span>remembered</span></div><div class="tile"><b>${mins}</b><span>minute${mins > 1 ? "s" : ""}</span></div>${next ? `<div class="tile"><b>${ivl(next, Date.now())}</b><span>until the next card</span></div>` : `<div class="tile"><b>0</b><span>cards waiting</span></div>`}</div>
       <p class="muted">Cards you forgot come back sooner, and cards you knew come back later. That spacing is what makes it stick.</p>
       <div class="row"><button class="btn btn-pen" data-go="practice">Back to Review</button><button class="btn btn-line" data-go="today">Today</button></div></div>`;
   }
@@ -123,7 +131,7 @@ V.review = () => {
     <div class="rv-top"><button class="icon-btn" data-action="fc-quit" aria-label="End review">${ico("x")}</button><div class="rv-bar" role="progressbar" aria-label="Review progress" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${R.i}"><i style="transform:scaleX(${R.i / total})"></i></div><span class="mono small">${R.i + 1}/${total}</span></div>
     <div class="fcard ${R.shown ? "flip" : ""}" style="--pc:${subjColor(n.subject)}">
       <div class="fc-in">
-        <button class="fc-face fc-front" data-action="fc-show" aria-label="Show answer"><span class="fc-meta">${esc(subjects[n.subject].name)} · ${esc(n.title)}${c.kind === "own" ? " · your card" : ""}</span><span class="fc-q">${esc(c.f)}</span><span class="fc-tap">Tap to show the answer</span></button>
+        <button class="fc-face fc-front" data-action="fc-show" aria-label="Show answer"><span class="fc-meta">${esc(subjects[n.subject].name)} · ${esc(n.title)}${c.kind === "own" ? " · your card" : ""}</span><span class="fc-q">${esc(c.f)}</span><span class="fc-tap">${TAP} to show the answer</span></button>
         <div class="fc-face fc-back" aria-live="polite"><span class="fc-meta">Answer</span><span class="fc-a">${esc(c.b)}</span><span class="fc-q small">${esc(c.f)}</span></div>
       </div>
     </div>
@@ -141,6 +149,7 @@ function openCardSheet(node, cid) {
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="fc-save" data-node="${node}" data-id="${c ? c.id : ""}">${c ? "Save card" : "Add card"}</button>${c ? `<button class="btn btn-line btn-sm" data-action="fc-del" data-id="${c.id}">Delete card</button>` : ""}</div></div>`);
 }
 function cardsSection(id) {
+  if (st(id) >= 1) ensureCards();
   const cs = (S.cards || []).filter(c => c.node === id), due = cs.filter(c => !c.s || Date.parse(c.due) <= Date.now()).length;
   return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Flashcards</h2><span class="tiny muted">${cs.length} card${cs.length === 1 ? "" : "s"}${due ? ` · ${due} due` : ""}</span></div>
     ${cs.length ? `<div class="fc-list">${cs.slice(0, 8).map(c => `<button class="fc-row" data-action="fc-edit" data-id="${c.id}" data-node="${id}"><span class="grow">${esc(c.f)}</span><span class="tiny muted">${c.kind === "own" ? "yours" : "auto"}</span></button>`).join("")}${cs.length > 8 ? `<p class="tiny muted">and ${cs.length - 8} more</p>` : ""}</div>`
@@ -168,8 +177,8 @@ function openBlurt(id, result) {
   openSheet("Blurt check", `${sheetHead(subjects[n.subject].name + " · " + n.num, "Blurt check: " + n.title)}
     <div class="stack form">
       ${result ? `<div class="blurt-score" style="--p:${result.score}"><b>${Math.round(result.score * 100)}%</b><span>${result.score >= .7 ? "Great recall. This topic is sticking." : result.score >= .4 ? "Good start. Read the missed ideas, then try again tomorrow." : "Lots to review. Read the missed ideas below, then blurt again later."}</span></div>
-        <ul class="blurt-list">${result.ideas.map(x => `<li class="${x.ok ? "ok" : "miss"}">${ico(x.ok ? "check" : "x")}<span>${esc(x.b)}</span></li>`).join("")}</ul>
-        ${result.terms.length ? `<div class="terms">${result.terms.map(x => `<span class="${x.ok ? "" : "miss"}">${x.ok ? "✓ " : ""}${esc(x.t)}</span>`).join("")}</div>` : ""}
+        <ul class="blurt-list">${result.ideas.map(x => `<li class="${x.ok ? "ok" : "gap"}">${ico(x.ok ? "check" : "x")}<span>${esc(x.b)}</span></li>`).join("")}</ul>
+        ${result.terms.length ? `<div class="terms">${result.terms.map(x => `<span class="${x.ok ? "" : "gap"}">${x.ok ? "✓ " : ""}${esc(x.t)}</span>`).join("")}</div>` : ""}
         <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft" data-action="blurt" data-id="${id}">Try again</button><button class="btn btn-line" data-x="close">Done</button></div>`
       : `<p class="small muted">Close your notes. Write down everything you remember about this topic: key ideas, terms, examples. Don't worry about spelling or order. Then tap Check.</p>
         <label class="sr" for="blurt-text">What you remember</label><textarea id="blurt-text" rows="9" class="notes-ta" placeholder="Everything I remember about ${esc(n.title)}…"></textarea>
@@ -239,10 +248,13 @@ V.map = sid => {
   const s = subjects[sid]; if (!s) return V.exams();
   const tall = matchMedia("(max-width: 699px)").matches;
   if (tall) return `<div class="stack" style="gap:16px">
-    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. Tap any line to open it.</p></header>
+    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. ${TAP} any line to open it.</p></header>
     <div class="card mm-wrap">${mapTall(sid)}</div>
     <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x}</span>`).join("")}</div></div>`;
-  const rowH = 34, colW = [0, 190, 230, 250], pad = 16, rows = [];
+  const rowH = 34, pad = 16, rows = [];
+  /* columns are as wide as their longest label, so titles aren't cut short */
+  const lenAt = d => Math.max(10, ...Object.values(nodes).filter(n => n.subject === sid && n.depth === d - 1).map(n => Math.min(44, (d === 1 ? n.num.length + 1 : 0) + n.title.length)));
+  const colW = [0, 190, Math.max(200, Math.round(7.6 * lenAt(1) + 60)), Math.max(220, Math.round(7.2 * lenAt(2) + 60))];
   let y = 0;
   const place = (id, depth) => {
     const n = nodes[id], kids = n.kids || [];
@@ -261,10 +273,10 @@ V.map = sid => {
   rows.forEach(r => (nodes[r.id].kids || []).forEach(kid => { links += link({ x: pos[r.id].x + Math.min(colW[r.depth + 1] - 40, 7.2 * nodes[r.id].title.length + 34), y: pos[r.id].y }, pos[kid], k++); }));
   const col = id => { const n = nodes[id]; return n.leaf ? (st(id) ? STATUS_COL[st(id)] : "var(--line)") : subjColor(sid); };
   const label = (t, max) => t.length > max ? t.slice(0, max - 1) + "…" : t;
-  const nodesSvg = rows.map(r => { const n = nodes[r.id], p = pos[r.id], max = r.depth === 1 ? 22 : r.depth === 2 ? 28 : 30;
+  const nodesSvg = rows.map(r => { const n = nodes[r.id], p = pos[r.id], max = 44;
     return `<a class="mm-n d${r.depth}" href="#" data-go="${r.depth === 1 ? "chapter:" : "topic:"}${r.id}" style="--d:${r.depth}"><title>${esc(n.num + " " + n.title)} (${n.leaf ? STATUS[st(r.id)] : pct(progress(r.id)) + "% done"})</title><rect class="mm-hit" x="${p.x - 8}" y="${p.y - 17}" width="${Math.min(colW[Math.min(r.depth + 1, 3)] || 250, 7.4 * label((r.depth === 1 ? n.num + " " : "") + n.title, max).length + 26)}" height="34"/><circle cx="${p.x}" cy="${p.y}" r="${r.depth === 1 ? 6 : 4.5}" style="fill:${col(r.id)}" stroke="var(--surface)" stroke-width="2"/><text x="${p.x + 10}" y="${p.y + 4}">${esc(label((r.depth === 1 ? n.num + " " : "") + n.title, max))}</text></a>`; }).join("");
   return `<div class="stack" style="gap:16px">
-    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. Tap any branch to open it. Scroll sideways to see the whole map.</p></header>
+    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. ${TAP} any branch to open it.</p></header>
     <div class="card mm-wrap"><svg class="mm" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="Mind map of ${esc(s.name)}">
       ${links}<g class="mm-root"><rect x="${pos[sid].x - 6}" y="${pos[sid].y - 17}" rx="12" width="${Math.min(170, 9 * s.name.length + 30)}" height="34" style="fill:${subjColor(sid)}"/><text x="${pos[sid].x + 8}" y="${pos[sid].y + 5}" fill="var(--surface)">${esc(label(s.name, 16))}</text></g>${nodesSvg}</svg></div>
     <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x}</span>`).join("")}</div>
@@ -274,12 +286,12 @@ V.map = sid => {
 /* ---------- fuzzy search (MiniSearch), falls back to the simple search ---------- */
 let MS = null, msKey = "";
 async function searchIndex() {
-  const key = Object.keys(nodes).length + ":" + Object.keys(NOTES).length + ":" + DSUBJ.length;
+  const key = Object.keys(nodes).length + ":" + Object.values(NOTES).reduce((a, t) => a + t.length, 0) + ":" + DSUBJ.length;
   if (MS && msKey === key) return MS;
   await loadScript("vendor/minisearch.umd.js");
-  MS = new MiniSearch({ fields: ["title", "notes", "subject"], storeFields: ["go", "title", "sub", "sid", "kind"], searchOptions: { boost: { title: 4, subject: 2 }, prefix: true, fuzzy: .2 } });
+  MS = new MiniSearch({ fields: ["title", "notes", "subject", "terms"], storeFields: ["go", "title", "sub", "sid", "kind"], searchOptions: { boost: { title: 4, terms: 3, subject: 2 }, prefix: true, fuzzy: .2 } });
   const docs = DSUBJ.map(s => ({ id: "s:" + s.id, go: "subject:" + s.id, title: s.name, notes: "", subject: s.name, sub: "Subject", sid: s.id, kind: "s" }));
-  Object.values(nodes).forEach(n => docs.push({ id: "n:" + n.id, go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, notes: notesOf(n.id).slice(0, 20000), subject: subjects[n.subject].name, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}`, sid: n.subject, kind: "n" }));
+  Object.values(nodes).forEach(n => docs.push({ id: "n:" + n.id, go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, notes: notesOf(n.id).slice(0, 20000), terms: (() => { const sm = n.leaf ? summaryOf(n.id) : null; return sm ? [...(sm.terms || []), ...(sm.defs || []).map(d => d.term)].join(" ") : ""; })(), subject: subjects[n.subject].name, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}`, sid: n.subject, kind: "n" }));
   MS.addAll(docs); msKey = key; return MS;
 }
 async function fuzzySearch(q) {
