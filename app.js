@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.1.0";
+const APP_VERSION = "4.2.0";
 
 /* =====================================================================
    1. UTILS
@@ -135,7 +135,7 @@ function buildModel() {
   });
   DSUBJ = C.subjects.map(s => subjects[s.id]);
   leafIds = Object.values(nodes).filter(n => n.leaf).map(n => n.id);
-  QS = C.questions.filter(q => nodes[q.node]).map(q => ({ ...q, subject: nodes[q.node].subject }));
+  QS = C.questions.filter(q => nodes[q.node]).map(q => ({ ...q, subject: nodes[q.node].subject })).concat(typeof AQ !== "undefined" ? AQ.filter(q => nodes[q.node]) : []);
 }
 const pagesOf = n => Math.max(1, n.p2 - n.p1 + 1);
 const chapterOf = id => { let n = nodes[id]; while (n && n.parent) n = nodes[n.parent]; return n; };
@@ -672,6 +672,7 @@ V.topic = id => {
         ${(() => { const sm = summaryOf(id); return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary</h2><span class="tiny muted">${sm ? (sm.source === "auto" ? "From your notes" : sm.source === "written" ? "Written for you" : "From the explanations") : ""}</span></div>
           ${sm ? sumHTML(sm) : `<p class="small muted">${notesReady ? "No notes for this topic yet. Add notes, or import the chapter's PDF from My subjects." : "Loading notes…"}</p>`}
           <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-action="ep-play" data-kind="topic" data-id="${id}">${ico("headphones")}Listen</button><button class="btn btn-line btn-sm" data-action="notes" data-id="${id}">${ico("notes")}${notesOf(id) ? "Edit notes" : "Add notes"}</button></div></section>`; })()}
+        ${typeof topicExtras === "function" ? topicExtras(id) : ""}
         <button class="btn btn-hl dunno" data-action="dunno" data-id="${id}"><span class="q">?</span>I don't understand this</button>
         <section class="section"><div class="sec-head"><h2 style="font-size:18px">Planned sessions</h2></div>
           <div class="card plan-card">${ts.length ? planList(ts, { date: true, compact: true }) : `<div class="empty">${cur >= 5 ? "Mastered. No more sessions needed." : "No upcoming sessions for this topic."}</div>`}</div></section>
@@ -782,6 +783,7 @@ V.progress = () => {
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">${leafIds.length} topics tracked</div><h1>Progress</h1></header>
     ${weekView()}
+    ${typeof progressCharts === "function" ? progressCharts() : ""}
     <h2 style="font-size:20px;margin-top:8px">All topics</h2>
     <div class="card stack">${progRow("Overall", progress(), "var(--pen)", "lg")}
       <div class="dist" role="img" aria-label="Topics by stage">${counts.map((c, i) => c ? `<i style="flex:${c};--c:${i === 0 ? "var(--sunken)" : STATUS_COL[i]}"></i>` : "").join("")}</div>
@@ -831,7 +833,8 @@ V.settings = () => {
       ${isStandalone() ? `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("check")}<span>Study Desk is installed and works offline.</span></div>` : `
       ${deferredInstall ? `<button class="btn btn-pen" data-action="install">${ico("download")}Install app</button>` : ""}
       <ol class="steps">${steps.map(x => `<li>${x}</li>`).join("")}</ol>
-      <p class="tiny muted">${ico("phone", 'style="width:14px;height:14px;vertical-align:-2px"')} Phone and ${ico("laptop", 'style="width:14px;height:14px;vertical-align:-2px"')} laptop each keep their own progress. Use Backup below to move it between them.</p>`}</section>
+      <p class="tiny muted">${ico("phone", 'style="width:14px;height:14px;vertical-align:-2px"')} Phone and ${ico("laptop", 'style="width:14px;height:14px;vertical-align:-2px"')} laptop each keep their own progress. Use Sync below to copy it between them.</p>`}</section>
+    ${typeof settingsExtras === "function" ? settingsExtras() : ""}
     <section class="card stack"><h2 class="h3">Backup and restore</h2>
       <p class="small muted">Your progress is saved on this device automatically, with a safety copy from your last visit. Make a backup before clearing your browser or switching devices.</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft" data-action="export">${ico("download")}Save backup file</button><button class="btn btn-line" data-action="copybak">${ico("copy")}Copy backup</button></div>
@@ -951,7 +954,7 @@ V.editsubj = sid => {
       <p class="tiny muted">${TAP} a line to edit it. Use + to add a heading or subheading inside it.</p></section>
     <section class="card stack"><h2 class="h3">Add chapters in bulk</h2>
       <div class="dropzone" id="dropzone" data-sid="${sid}">
-        <label class="btn btn-soft" for="imp-file">${ico("upload")}Import from PDF or PowerPoint</label><input type="file" id="imp-file" class="sr" accept=".pdf,.pptx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation" data-sid="${sid}">
+        <label class="btn btn-soft" for="imp-file">${ico("upload")}Import from PDF, PowerPoint or Word</label><input type="file" id="imp-file" class="sr" accept=".pdf,.pptx,.docx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document" data-sid="${sid}">
         <span class="tiny muted">or drop or paste the file here. It's read on this device and never uploaded.</span>
         ${importBusy?.reading ? `<div class="lock" role="status"><span class="spin" aria-hidden="true"></span><span>Reading ${esc(importBusy.reading)}…</span></div>` : importBusy?.note ? `<div class="lock" role="status">${ico("check")}<span>${esc(importBusy.note)}</span></div>` : importBusy?.error ? `<div class="lock" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>` : ""}
       </div>
@@ -1284,11 +1287,12 @@ async function importFile(file, sid) {
   const name = file.name || "file", ext = (name.match(/\.(\w+)$/) || [])[1]?.toLowerCase();
   if (file.size > 80e6) { importBusy = { error: "That file is over 80 MB. Try a smaller PDF or just the contents pages." }; rerender(); return; }
   if (ext === "ppt") { importBusy = { error: "Old .ppt files can't be read. Open it in PowerPoint and save it as .pptx first." }; rerender(); return; }
-  if (!["pdf", "pptx"].includes(ext)) { importBusy = { error: "Choose a PDF or a PowerPoint (.pptx) file." }; rerender(); return; }
+  if (ext === "doc") { importBusy = { error: "Old .doc files can't be read. Open it in Word and save it as .docx first." }; rerender(); return; }
+  if (!["pdf", "pptx", "docx"].includes(ext)) { importBusy = { error: "Choose a PDF, a PowerPoint (.pptx) or a Word (.docx) file." }; rerender(); return; }
   importBusy = { reading: name }; rerender();
   try {
     const buf = await file.arrayBuffer();
-    const r = ext === "pdf" ? await pdfToOutline(buf, name) : await pptxToOutline(buf, name);
+    const r = ext === "pdf" ? await pdfToOutline(buf, name) : ext === "docx" ? await docxToOutline(buf, name) : await pptxToOutline(buf, name);
     importBusy = r.text ? { note: r.note } : { error: r.note };
     if (r.text) { qpText = r.text; qpPreview = parseOutline(qpText); }
   } catch (e) {
@@ -1304,11 +1308,11 @@ async function importFile(file, sid) {
 
 /* ---------- on-device file store (IndexedDB): topic notes from imports, and audio recordings ---------- */
 const IDB = (() => {
-  let dbp = null, mem = { notes: new Map(), audio: new Map() }, ok = true;
+  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map() }, ok = true;
   const open = () => dbp || (dbp = new Promise((res) => {
     try {
-      const r = indexedDB.open("studydesk", 1);
-      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); };
+      const r = indexedDB.open("studydesk", 2);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); };
       r.onsuccess = () => res(r.result); r.onerror = () => { ok = false; res(null); }; r.onblocked = () => { ok = false; res(null); };
     } catch (e) { ok = false; res(null); }
   }));
@@ -1463,21 +1467,29 @@ function speakNext() {
   if (P_.i >= ep.segs.length) { P_.playing = false; logEvent({ t: "listen", m: ep.mins }); save(); updatePlayer(); toast("Episode finished."); return; }
   const s = ep.segs[P_.i]; updatePlayer();
   if (s.kind === "pause") { P_.timer = setTimeout(() => { P_.i++; speakNext(); }, s.ms / P_.rate); return; }
-  const u = new SpeechSynthesisUtterance(s.text); u.rate = P_.rate; if (P_.voice) { u.voice = P_.voice; u.lang = P_.voice.lang; } else u.lang = "en-GB";
   const myI = P_.i;
+  if (typeof NV !== "undefined" && NV.on() && !NV.failed) {
+    NV.prefetch(ep.segs, P_.i);
+    NV.speak(s.text, P_.rate, () => { if (P_.playing && P_.i === myI) { P_.i++; speakNext(); } },
+      () => { /* fall back to the device voice rather than stopping the episode */ if (P_.i !== myI || NV.failed) return; NV.failed = true; toast("The natural voice isn't ready, so this is the device voice. Connect to the internet once to finish the download."); if (P_.playing) speakNext(); });
+    return;
+  }
+  const u = new SpeechSynthesisUtterance(s.text); u.rate = P_.rate; if (P_.voice) { u.voice = P_.voice; u.lang = P_.voice.lang; } else u.lang = "en-GB";
   u.onend = () => { if (P_.playing && P_.i === myI) { P_.i++; speakNext(); } };
   u.onerror = e => { if (e.error === "interrupted" || e.error === "canceled") return; P_.playing = false; updatePlayer(); };
   TTS.speak(u);
 }
+const stopSpeech = () => { TTS && TTS.cancel(); typeof NV !== "undefined" && NV.stop(); };
 function playEpisode(ep, from = 0) {
-  if (!TTS) { toast("This browser can't read aloud. Try Chrome, Edge or Safari."); return; }
+  if (typeof NV !== "undefined" && NV.on()) NV.unlock();
+  else if (!TTS) { toast("This browser can't read aloud. Try Chrome, Edge or Safari."); return; }
   RP.stop();
-  TTS.cancel(); P_.ep = ep; P_.i = from; P_.playing = true; P_.started = Date.now(); speakNext(); updatePlayer();
+  stopSpeech(); P_.ep = ep; P_.i = from; P_.playing = true; P_.started = Date.now(); speakNext(); updatePlayer();
 }
-function playerToggle() { if (!P_.ep) return; if (P_.playing) { P_.playing = false; TTS.cancel(); clearTimeout(P_.timer); } else { P_.playing = true; speakNext(); } updatePlayer(); }
-function playerSeek(d) { if (!P_.ep) return; let i = P_.i + d; const segs = P_.ep.segs; while (segs[i] && segs[i].kind === "pause") i += d > 0 ? 1 : -1; P_.i = clamp(i, 0, segs.length - 1); TTS.cancel(); if (P_.playing) setTimeout(speakNext, 60); else updatePlayer(); }
-function playerStop() { P_.playing = false; P_.ep = null; TTS && TTS.cancel(); clearTimeout(P_.timer); updatePlayer(); }
-function setRate(r) { P_.rate = r; try { localStorage.setItem("studydesk.rate", r); } catch (e) { } if (P_.playing) { TTS.cancel(); setTimeout(speakNext, 60); } updatePlayer(); }
+function playerToggle() { if (!P_.ep) return; if (P_.playing) { P_.playing = false; stopSpeech(); clearTimeout(P_.timer); } else { P_.playing = true; typeof NV !== "undefined" && NV.on() && NV.unlock(); speakNext(); } updatePlayer(); }
+function playerSeek(d) { if (!P_.ep) return; let i = P_.i + d; const segs = P_.ep.segs; while (segs[i] && segs[i].kind === "pause") i += d > 0 ? 1 : -1; P_.i = clamp(i, 0, segs.length - 1); stopSpeech(); if (P_.playing) setTimeout(speakNext, 60); else updatePlayer(); }
+function playerStop() { P_.playing = false; P_.ep = null; stopSpeech(); clearTimeout(P_.timer); updatePlayer(); }
+function setRate(r) { P_.rate = r; try { localStorage.setItem("studydesk.rate", r); } catch (e) { } if (P_.playing) { stopSpeech(); setTimeout(speakNext, 60); } updatePlayer(); }
 
 /* mini player bar (always visible while an episode is loaded) */
 function updatePlayer() {
@@ -1608,7 +1620,8 @@ function openNotesSheet(id) {
   const n = nodes[id];
   openSheet("Notes for " + n.title, `${sheetHead(subjects[n.subject].name + " · " + n.num, "Notes: " + n.title)}
     <div class="stack form"><p class="small muted">Paste or type notes for this topic. Summaries and podcast episodes are made from them. Kept on this device.</p>
-      <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea><p class="tiny muted" style="margin:-4px 0 0">Tip: start a line with ## to mark a heading. The summary gives every heading at least one point and keeps definitions, formulas and dates.</p>
+      <div class="md-bar" role="toolbar" aria-label="Formatting"><button data-action="md-h" aria-label="Heading"><b>H</b></button><button data-action="md-b" aria-label="Bold"><b>B</b></button><button data-action="md-i" aria-label="Italic"><i>I</i></button><button data-action="md-li" aria-label="Bullet point">•</button><button data-action="md-math" aria-label="Formula">${ico("sigma")}</button><span class="grow"></span><button class="md-pv" data-action="md-preview" aria-pressed="false">Preview</button></div>
+      <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea><div id="notes-preview" class="md notes-pv" data-md="preview" hidden></div><p class="tiny muted" style="margin:-4px 0 0">Tip: start a line with ## for a heading, wrap words in **stars** for bold, and write formulas between $ signs, like $E = mc^2$.</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="notes-save" data-id="${id}">Save notes</button><label class="btn btn-soft" for="ocr-file">${ico("camera")}Snap a page</label><input type="file" id="ocr-file" class="sr" accept="image/*" capture="environment" multiple></div>
       <div class="lock ocr-status" id="ocr-status" role="status"><span class="tiny muted">Snap a page photographs printed text (a textbook or handout) and turns it into notes. It's read on this device.</span></div></div>`);
 }
@@ -1619,7 +1632,8 @@ function openRecSheet(id) {
     <div class="stack form">
       ${sm ? `<div class="card stack" style="gap:8px;box-shadow:none;background:var(--sunken)"><h3 class="h3">Summary</h3>${sumHTML(sm)}<p class="tiny muted">Every line is taken from the transcript, nothing is made up.</p></div>` : ""}
       <label class="fld"><span>Transcript or notes</span><textarea id="rec-tr" rows="6" placeholder="Paste the episode's transcript or your notes to get a summary">${esc(r.transcript || "")}</textarea></label>
-      <p class="tiny muted">Many podcasts publish a transcript you can paste here. For a lecture, paste your own notes or the text from the lecture slides.</p>
+      <p class="tiny muted">Many podcasts publish a transcript you can paste here.</p>
+      ${typeof sttHTML === "function" ? sttHTML(r) : ""}
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="rec-save" data-id="${id}">Save and summarise</button><button class="btn btn-line btn-sm" data-action="rec-del" data-id="${id}">Delete recording</button></div></div>`);
 }
 async function v3Action(act, a) {
@@ -1629,7 +1643,7 @@ async function v3Action(act, a) {
     case "pl-toggle": playerToggle(); if (stack[stack.length - 1].v === "listen") rerender(); return true;
     case "pl-stop": playerStop(); if (["episode", "listen"].includes(stack[stack.length - 1].v)) rerender(); return true;
     case "pl-seek": playerSeek(+a.dataset.d); return true;
-    case "pl-jump": P_.i = +a.dataset.i; TTS && TTS.cancel(); if (!P_.playing) P_.playing = true; setTimeout(speakNext, 60); return true;
+    case "pl-jump": P_.i = +a.dataset.i; stopSpeech(); if (!P_.playing) P_.playing = true; setTimeout(speakNext, 60); return true;
     case "pl-rate": setRate(+a.dataset.r); if (RP.el) RP.el.playbackRate = P_.rate; $$(`[data-action="pl-rate"]`).forEach(b => b.setAttribute("aria-checked", +b.dataset.r === P_.rate)); return true;
     case "rec-play": if (RP.cur && RP.cur.id === id) RP.toggle(); else await RP.play(id); return true;
     case "rec-skip": RP.skip(+a.dataset.s); return true;
@@ -1971,6 +1985,8 @@ document.addEventListener("click", e => {
     const act = a.dataset.action, id = a.dataset.id;
     if (editorAction(act, a)) return;
     if (typeof TOOL_ACTS !== "undefined" && TOOL_ACTS.has(act)) { toolAction(act, a); return; }
+    if (typeof X_ACTS !== "undefined" && X_ACTS.has(act)) { xAction(act, a); return; }
+    if (typeof SP_ACTS !== "undefined" && SP_ACTS.has(act)) { spAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;

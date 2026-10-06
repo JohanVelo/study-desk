@@ -62,6 +62,8 @@
   }
 
   function structure(text, title) {
+    /* formatted notes: drop markdown marks (bold, italics, code, links, quotes, rules); headings and bullets stay as they are understood below */
+    text = String(text).replace(/\*\*(.+?)\*\*|__(.+?)__/g, "$1$2").replace(/(^|[\s(])\*(?!\s)([^*\n]+?)\*(?=[\s).,;:!?]|$)/gm, "$1$2").replace(/`([^`\n]+)`/g, "$1").replace(/!?\[([^\]]+)\]\([^)]*\)/g, "$1").replace(/^\s{0,3}>\s?/gm, "").replace(/^\s{0,3}(-{3,}|\*{3,}|_{3,})\s*$/gm, "").replace(/^(#{1,6})\s+/gm, "## ").replace(/^\s*\* /gm, "- ").replace(/^\s*(\d+)\. /gm, "- ");
     text = norm(text).replace(/\r/g, "").replace(/-\n(?=[a-z])/g, "").replace(/[ \t]+/g, " ").replace(/\n{3,}/g, "\n\n");
     const lines = text.split("\n").map(l => l.trim());
     const sections = []; let cur = { h: "", paras: [] }, para = "";
