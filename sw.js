@@ -1,21 +1,26 @@
 /* Study Desk service worker: the app shell is cached so it opens offline.
    Bump VERSION on every release so phones pick up the new files. */
-const VERSION = "study-desk-3.1.0";
+const VERSION = "study-desk-4.0.0";
 const SHELL = [
-  "./", "index.html", "styles.css", "data.js", "app.js", "manifest.webmanifest",
+  "./", "index.html", "styles.css", "data.js", "app.js", "tools.js", "vendor/fsrs.umd.js", "vendor/minisearch.umd.js", "manifest.webmanifest",
   "vendor/gsap.min.js", "vendor/Flip.min.js", "vendor/SplitText.min.js", "vendor/confetti.min.js", "vendor/jszip.min.js", "vendor/register.js",
   "fonts/bricolage.woff2", "fonts/atkinson-400.woff2", "fonts/atkinson-700.woff2", "fonts/jbmono-500.woff2", "fonts/jbmono-700.woff2",
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"
 ];
 self.addEventListener("install", e => { e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL))); });
 self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== VERSION + "-fonts").map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== VERSION && k !== VERSION + "-fonts" && k !== "study-desk-ocr-7").map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener("message", e => { if (e.data === "skipWaiting") self.skipWaiting(); });
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  if (url.origin === location.origin && url.pathname.includes("/vendor/ocr/")) {
+    /* the text reader is large: keep it in its own cache that survives app updates */
+    e.respondWith(caches.open("study-desk-ocr-7").then(c => c.match(req).then(hit => hit || fetch(req).then(r => { if (r.ok) c.put(req, r.clone()); return r; }))));
+    return;
+  }
   if (url.origin === location.origin) {
     /* pages: network first so updates arrive, cache when offline */
     if (req.mode === "navigate") {

@@ -2,7 +2,7 @@
    Sections: 1 utils · 2 model · 3 store · 4 priority & progress · 5 scheduler · 6 icons
              7 UI pieces · 8 views · 9 motion · 10 router & actions · 11 install & offline · 12 boot */
 "use strict";
-const APP_VERSION = "3.1.0";
+const APP_VERSION = "4.0.0";
 
 /* =====================================================================
    1. UTILS
@@ -20,7 +20,7 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const isInt = (v, lo, hi) => Number.isInteger(v) && v >= lo && v <= hi;
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const slug = s => String(s).toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
+const slug = s => String(s).toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "x";
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 
@@ -173,7 +173,7 @@ const acc = id => { const h = S.attempts[id]; return h && h.a ? h.c / h.a : null
 function blankState(anchor = todayKey()) {
   const conv = DATA ? convertData(DATA, anchor) : { content: { from: "", subjects: [], questions: [], explain: {}, notes: {} }, seeds: {}, history: {}, mistakes: {} };
   return { schema: SCHEMA_NOW, app: "study-desk", anchor, content: conv.content, contentEdited: false, status: { ...conv.seeds }, attempts: conv.history, mistakes: conv.mistakes,
-    tasks: [], recent: [], changes: [], log: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
+    tasks: [], recent: [], changes: [], log: [], cards: [], cardsGone: [], seq: 0, settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)) };
 }
 function fresh() {
   S = blankState(); buildModel();
@@ -233,7 +233,15 @@ function sanitize(o) {
   out.seq = Math.max(isInt(o.seq, 0, 1e9) ? o.seq : 0, maxSeq + 1);
   out.recent = (Array.isArray(o.recent) ? o.recent : []).filter(r => r && nodes[r.id] && DATE_RE.test(r.when)).slice(0, 20);
   out.changes = (Array.isArray(o.changes) ? o.changes : []).filter(c => c && typeof c.text === "string" && DATE_RE.test(c.when)).slice(0, 30);
-  out.log = (Array.isArray(o.log) ? o.log : []).filter(e => e && DATE_RE.test(e.d) && ["task", "q", "step", "listen"].includes(e.t) && (!e.n || nodes[e.n])).slice(-3000);
+  out.log = (Array.isArray(o.log) ? o.log : []).filter(e => e && DATE_RE.test(e.d) && ["task", "q", "step", "listen", "card", "blurt"].includes(e.t) && (!e.n || nodes[e.n])).slice(-3000);
+  const cardSeen = new Set();
+  out.cards = (Array.isArray(o.cards) ? o.cards : []).filter(c => {
+    const ok = c && typeof c.id === "string" && !cardSeen.has(c.id) && nodes[c.node] && nodes[c.node].leaf && typeof c.f === "string" && typeof c.b === "string" && c.f.length <= 4000 && c.b.length <= 6000
+      && (c.due === null || c.due === undefined || !isNaN(Date.parse(c.due))) && (!c.s || (typeof c.s === "object" && isFinite(c.s.stability) && isFinite(c.s.difficulty) && isInt(c.s.state, 0, 3)));
+    if (!ok) { fix(); return false; }
+    cardSeen.add(c.id); c.kind = c.kind === "own" ? "own" : "auto"; if (!c.s) { c.s = null; c.due = null; } else if (!c.due) { c.s = null; } return true;
+  }).slice(-20000);
+  out.cardsGone = (Array.isArray(o.cardsGone) ? o.cardsGone : []).filter(k => typeof k === "string").slice(-3000);
   const st0 = o.settings || {}, d = DEFAULT_SETTINGS;
   out.settings = {
     days: Array.isArray(st0.days) && st0.days.length && st0.days.every(x => isInt(x, 0, 6)) ? [...new Set(st0.days)].sort() : (fix(), d.days.slice()),
@@ -472,6 +480,9 @@ const P = {
   headphones: '<path d="M4 15v-3a8 8 0 0116 0v3"/><rect x="3" y="14" width="5" height="7" rx="2"/><rect x="16" y="14" width="5" height="7" rx="2"/>',
   play: '<path d="M8 5v14l11-7z"/>',
   notes: '<path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/>',
+  cards: '<rect x="3" y="6" width="14" height="14" rx="2.5"/><path d="M7 3h11.5A2.5 2.5 0 0 1 21 5.5V17"/>',
+  map: '<circle cx="5" cy="12" r="2.2"/><circle cx="19" cy="5" r="2.2"/><circle cx="19" cy="12" r="2.2"/><circle cx="19" cy="19" r="2.2"/><path d="M7.2 12H17M7 11c4-6 6-6 10-6M7 13c4 6 6 6 10 6"/>',
+  camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   timer: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>',
   search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
   shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/>'
@@ -481,7 +492,7 @@ const ico = (k, extra = "") => `<svg viewBox="0 0 24 24" fill="none" stroke="cur
 /* =====================================================================
    7. UI PIECES
    ===================================================================== */
-const subjColor = sid => `oklch(58% 0.15 ${subjects[sid].hue})`;
+const subjColor = sid => `oklch(var(--sl) 0.15 ${subjects[sid].hue})`;
 function seg(p, cls = "", color) { let h = ""; for (let i = 0; i < 10; i++) { const f = clamp(p * 10 - i, 0, 1); h += `<span>${f > 0 ? `<i style="width:${f * 100}%;--k:${i}"></i>` : ""}</span>`; } return `<div class="seg ${cls}" style="${color ? `--bar:${color}` : ""}" role="img" aria-label="${pct(p)}%">${h}</div>`; }
 const progRow = (label, p, color, cls = "") => `<div class="prog"><div class="lab"><span>${label}</span><b data-num="${pct(p)}">${pct(p)}%</b></div>${seg(p, cls, color)}</div>`;
 const prPill = lvl => `<span class="pill pr-${lvl}"><span class="dot"></span>${PR[lvl]}</span>`;
@@ -535,6 +546,22 @@ const topicItem = (id, sub) => { const n = nodes[id]; return `<button class="ite
    8. VIEWS
    ===================================================================== */
 const V = {};
+/* the Day Dial: today's study window as a ring, one arc per session */
+function dayDial(ts, nowM) {
+  if (!ts.length) return "";
+  const b = S.settings.blocks, start = Math.min(b[0][0], ...ts.map(x => x.start)), end = Math.max(b[b.length - 1][1], ...ts.map(x => x.start + x.dur));
+  const span = Math.max(60, end - start), R = 52, C = 64;
+  const ang = m => -90 + 360 * clamp((m - start) / span, 0, 1);
+  const pt = a => [C + R * Math.cos(a * Math.PI / 180), C + R * Math.sin(a * Math.PI / 180)];
+  const arc = (a0, a1) => { const [x0, y0] = pt(a0), [x1, y1] = pt(a1); return `M${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`; };
+  const live = ts.find(x => !x.done && nowM >= x.start && nowM < x.start + x.dur), nxt = ts.filter(x => !x.done).sort((x, y) => x.start - y.start).find(x => x.start >= nowM);
+  const leftAll = ts.filter(x => !x.done).length;
+  const centre = !leftAll ? `<b>Done</b><span>${ts.length}/${ts.length}</span>` : live ? `<b>${live.start + live.dur - nowM}m</b><span>left now</span>` : nxt ? (nxt.start - nowM <= 90 ? `<b>${nxt.start - nowM}m</b><span>until next</span>` : `<b>${fmtT(nxt.start)}</b><span>next up</span>`) : `<b>${leftAll}</b><span>to catch up</span>`;
+  const arcs = ts.map((x, i) => { const a0 = ang(x.start) + 1.6, a1 = Math.max(a0 + 2, ang(x.start + x.dur) - 1.6); return `<path d="${arc(a0, a1)}" pathLength="1" class="dd-a ${x.done ? "done" : ""} ${x === live ? "live" : ""}" style="--c:${x.type === "mock" ? "var(--mock)" : subjColor(x.subject)};--k:${i}"/>`; }).join("");
+  const inWin = nowM >= start && nowM <= end, [nx, ny] = pt(ang(nowM));
+  const label = `Today's sessions: ${ts.filter(x => x.done).length} of ${ts.length} done.`;
+  return `<div class="daydial" role="img" aria-label="${label}"><svg viewBox="0 0 128 128" aria-hidden="true"><circle cx="${C}" cy="${C}" r="${R}" class="dd-track"/>${arcs}${inWin ? `<circle cx="${nx.toFixed(2)}" cy="${ny.toFixed(2)}" r="4.5" class="dd-now"/>` : ""}</svg><div class="dd-c">${centre}</div></div>`;
+}
 V.today = () => {
   const t = todayKey(), ts = tasksOn(t), left = ts.filter(x => !x.done), mins = left.reduce((a, x) => a + x.dur, 0);
   const upcoming = DSUBJ.filter(s => daysLeft(s.id) >= 0).sort((a, b) => daysLeft(a.id) - daysLeft(b.id));
@@ -563,11 +590,13 @@ V.today = () => {
   } else if (ts.length) hero = `<section class="upnext done-card"><div class="un-title">Day complete</div><p class="muted">Every session on today's plan is done.</p><div class="un-acts"><button class="btn btn-soft" data-go="practice">${ico("pencil")}Practise a weak topic</button><button class="btn btn-line btn-sm" data-action="ep-play" data-kind="week">${ico("headphones")}Hear your week</button></div></section>`;
   const week = Array.from({ length: 7 }, (_, i) => addDays(t, i)), exams = {}; DSUBJ.forEach(s => exams[s.exam] = s);
   return `<div class="stack" style="gap:24px">
-    <header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1><p class="lede">${lede}</p></header>
+    <header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
+      <div class="hero-row">${dayDial(ts, nowM)}<div class="hero-stats">${!ts.length ? `<p class="lede">Rest day. Nothing planned today.</p>` : !left.length ? `<p class="lede"><strong>All done for today.</strong> Nice work.</p>` : `<div class="hs"><b>${left.length}</b><span>session${left.length > 1 ? "s" : ""} left</span></div><div class="hs"><b>${mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? " " + (mins % 60) + "m" : "") : mins + "m"}</b><span>of study</span></div>`}${top ? `<div class="hs"><b>${daysLeft(top.id)}d</b><span>to ${esc(top.name)}</span></div>` : ""}</div></div></header>
     ${restoredFrom ? `<div class="banner">${ico("shield")}<div>${restoredFrom === "legacy" ? "Your progress from the first prototype was carried over." : "Your saved data couldn't be read, so Study Desk restored it from the automatic backup."}</div></div>` : ""}
     ${changes.length ? `<div class="banner">${ico("shift")}<div>${changes.map(c => esc(c.text)).join("<br>")}</div></div>` : ""}
     <div class="dash">
       <div class="stack" style="gap:18px">${hero}
+        ${(() => { const n = typeof cardsDueCount === "function" ? cardsDueCount() : 0; return n ? `<button class="card cards-due" data-action="fc-start"><span class="cd-ico" aria-hidden="true">${ico("cards")}</span><span class="grow"><b>${n} flashcard${n > 1 ? "s" : ""} due</b><span class="tiny muted">About ${Math.max(1, Math.round(n * 0.15))} min · keeps what you learned from fading</span></span>${ico("chev", 'class="chev"')}</button>` : ""; })()}
         ${rest.length ? `<section class="section"><div class="sec-head"><h2>${next ? "Rest of today" : "Today"}</h2><span class="tiny muted mono">${ts.filter(x => x.done).length}/${ts.length} done</span></div><div class="card plan-card">${planList(rest, { compact: true })}</div></section>` : ""}
       </div>
       <div class="side stack" style="gap:18px">
@@ -592,7 +621,7 @@ V.subject = sid => {
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">${esc(s.code || "")}${s.course ? " · " + esc(s.course) : ""}</div><h1>${esc(s.name)}</h1>
       <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span><button class="btn btn-line btn-sm" data-go="editsubj:${sid}">${ico("pencil")}Edit</button></div>
-      <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-go="summary:${sid}">${ico("notes")}Summary of everything</button>${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0]}">${ico("headphones")}Listen</button>` : ""}</div></header>
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-go="summary:${sid}">${ico("notes")}Summary of everything</button>${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-go="map:${sid}">${ico("map")}Mind map</button>` : ""}${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0]}">${ico("headphones")}Listen</button>` : ""}</div></header>
     ${!s.chapterIds.length ? `<div class="card empty">No chapters yet. <button class="link" data-go="editsubj:${sid}">Add chapters or import a PDF</button></div>` : ""}
     <div class="card stack">${progRow("Overall progress", progress(sid), subjColor(sid), "lg")}
       <div class="stat3">${progRow("Content completed", contentPct(sid), "var(--p-high)")}${progRow("Practice completed", practisedPct(sid), "var(--pen)")}${progRow("Revision completed", revisedPct(sid), "var(--p-done)")}</div></div>
@@ -646,6 +675,7 @@ V.topic = id => {
           <div class="card plan-card">${ts.length ? planList(ts, { date: true, compact: true }) : `<div class="empty">${cur >= 5 ? "Mastered. No more sessions needed." : "No upcoming sessions for this topic."}</div>`}</div></section>
       </div>
       <div class="stack">
+        ${cardsSection(id)}
         <section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Practice</h2>${a !== null ? `<span class="score">${h.c}/${h.a} correct</span>` : ""}</div>
           ${a !== null ? progRow("Accuracy", a, a < .6 ? "var(--p-urgent)" : a < .8 ? "var(--p-high)" : "var(--ok)") : `<p class="small muted">No answers yet.</p>`}
           ${m ? `<p class="small"><b style="color:var(--bad)">${m} mistake${m > 1 ? "s" : ""}</b> to review.</p>` : ""}
@@ -721,8 +751,18 @@ V.practice = () => {
         <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="nextq">Next question</button><button class="btn btn-line" data-go="topic:${q.node}">Open topic</button></div>` : ""}
     </div>`;
   }
+  const added = typeof ensureCards === "function" ? ensureCards() : 0, due = typeof dueCards === "function" ? dueCards() : [], allCards = (S.cards || []).length;
+  const blurtable = leafIds.filter(id => st(id) === 1 && summaryOf(id)).slice(0, 3);
+  const reviewHero = `<section class="rv-hero">
+      <div class="rv-stack" aria-hidden="true"><i></i><i></i><i>${due.length}</i></div>
+      <div class="grow stack" style="gap:6px"><div class="eyebrow">Flashcards</div><h2>${due.length ? `${due.length} card${due.length > 1 ? "s" : ""} to review` : allCards ? "All caught up" : "No cards yet"}</h2>
+        <p class="small">${due.length ? `About ${Math.max(1, Math.round(due.length * 0.15))} min. Cards come back just before you'd forget them.` : allCards ? "Nothing due right now. Cards return on the day you're about to forget them." : "Cards are made from your notes once you start a topic. You can also write your own on any topic."}</p>
+        ${due.length ? `<button class="btn btn-hl" data-action="fc-start" style="align-self:flex-start">${ico("cards")}Start review</button>` : ""}</div></section>
+    ${blurtable.length ? `<section class="section"><div class="sec-head"><h2>Blurt check</h2><span class="tiny muted">Explain it without notes</span></div><div class="list">${blurtable.map(id => `<button class="item" data-action="blurt" data-id="${id}" style="--pc:${subjColor(nodes[id].subject)}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[id].title)}</span><br><span class="s">${esc(subjects[nodes[id].subject].name)} · write what you remember, see what you missed</span></span>${ico("chev", 'class="chev"')}</button>`).join("")}</div></section>` : ""}
+    <h2 class="sec-title">Practice questions</h2>`;
   return `<div class="stack" style="gap:18px">
-    <header class="subhead"><div class="eyebrow">Practice</div><h1>Test yourself</h1>${Q.done ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
+    <header class="subhead"><div class="eyebrow">Review</div><h1>Test yourself</h1>${Q.done ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
+    ${reviewHero}
     ${Q.topic ? `<div class="banner">${ico("pencil")}<div>Showing questions for <b>${esc(nodes[Q.topic].title)}</b>. <button data-action="qf" data-k="topic" data-v="">Show all topics</button></div></div>` : ""}
     <div class="filters" role="group" aria-label="Question set">${chip("mode", "all", "All questions")}${chip("mode", "mistakes", "Mistakes to review")}</div>
     ${Q.mode === "all" && !Q.topic ? `<div class="filters" role="group" aria-label="Subject">${chip("subj", "all", "All subjects")}${DSUBJ.map(s => chip("subj", s.id, esc(s.name))).join("")}</div>
@@ -1261,7 +1301,7 @@ function pickVoice() {
   return vs.find(v => v.name === pref) || vs.find(v => /natural|enhanced|premium|neural/i.test(v.name) && /GB|US|AU|ZA/.test(v.lang)) || vs.find(v => /Google UK English Female|Samantha|Karen|Daniel|Serena/i.test(v.name)) || vs.find(v => /en-(GB|ZA|AU)/i.test(v.lang)) || vs[0] || null;
 }
 if (TTS) { TTS.onvoiceschanged = () => { P_.voice = pickVoice(); }; P_.voice = pickVoice(); }
-const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;:])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out; };
+const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;:])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out.reduce((m, s) => { if (m.length && m[m.length - 1].length < 14 && m[m.length - 1].length + s.length <= 240) m[m.length - 1] += " " + s; else m.push(s); return m; }, []); };
 function buildEpisode(title, subtitle, leafList, opts = {}) {
   const segs = [], add = (text, kind = "body", extra = {}) => chunk(text).forEach(c => segs.push({ text: c, kind, ...extra }));
   const pause = ms => segs.push({ kind: "pause", ms, text: "" });
@@ -1435,7 +1475,7 @@ function weekView() {
   const days = Array.from({ length: 14 }, (_, i) => addDays(t, i - 13)), perDay = days.map(d => S.log.filter(e => e.d === d && (e.t === "task" || e.t === "listen")).reduce((a, e) => a + (e.m || 0), 0)), mx = Math.max(30, ...perDay);
   const delta = prev.mins ? Math.round((w.mins - prev.mins) / prev.mins * 100) : null;
   const focus = leafIds.map(id => ({ id, ...scoreParts(id, t) })).filter(x => x.level !== "done").sort((a, b) => b.total - a.total).slice(0, 3);
-  const ring = (p, col) => { const c = 2 * Math.PI * 26; return `<svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--sunken)" stroke-width="7"/><circle class="ring-v" cx="32" cy="32" r="26" fill="none" stroke="${col}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p)}" style="--c:${c}" transform="rotate(-90 32 32)"/></svg>`; };
+  const ring = (p, col) => { const c = 2 * Math.PI * 26; return `<svg class="ring" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--sunken)" stroke-width="7"/><circle class="ring-v" cx="32" cy="32" r="26" fill="none" stroke-width="7" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c * (1 - p)}" style="--c:${c};stroke:${col}" transform="rotate(-90 32 32)"/></svg>`; };
   return `<section class="week stack" style="gap:16px">
     <div class="week-hero"><div class="eyebrow mono">${fmtD(from, { day: "numeric", month: "short" })} – ${fmtD(t, { day: "numeric", month: "short" })}</div>
       <h2 class="week-h">${w.mins ? `You studied <b data-countmin="${w.mins}">${fmtMins(w.mins)}</b> this week` : "A fresh week starts now"}</h2>
@@ -1458,7 +1498,8 @@ function openNotesSheet(id) {
   openSheet("Notes for " + n.title, `${sheetHead(subjects[n.subject].name + " · " + n.num, "Notes: " + n.title)}
     <div class="stack form"><p class="small muted">Paste or type notes for this topic. Summaries and podcast episodes are made from them. Kept on this device.</p>
       <label class="sr" for="notes-text">Notes</label><textarea id="notes-text" rows="10" class="notes-ta" placeholder="Paste notes, a lecture transcript or textbook text here">${esc(notesOf(id))}</textarea>
-      <div class="row"><button class="btn btn-pen" data-action="notes-save" data-id="${id}">Save notes</button></div></div>`);
+      <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="notes-save" data-id="${id}">Save notes</button><label class="btn btn-soft" for="ocr-file">${ico("camera")}Snap a page</label><input type="file" id="ocr-file" class="sr" accept="image/*" capture="environment" multiple></div>
+      <div class="lock ocr-status" id="ocr-status" role="status"><span class="tiny muted">Snap a page photographs printed text (a textbook or handout) and turns it into notes. It's read on this device.</span></div></div>`);
 }
 function openRecSheet(id) {
   const r = RECS.find(x => x.id === id); if (!r) return;
@@ -1608,6 +1649,14 @@ function drawSearch(raw) {
     hits.push({ go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}${inNotes ? " · found in your notes" : ""}`, sid: n.subject, rank: inNotes ? 3 : tl.startsWith(q) ? 1 : 2 });
   });
   hits.sort((a, b) => a.rank - b.rank || a.title.localeCompare(b.title));
+  renderHits(el, hits, q, raw);
+  if (typeof fuzzySearch === "function" && q.length >= 3) fuzzySearch(q).then(fz => {
+    if (!fz || ($("#srch") || {}).value !== raw) return;
+    const seen = new Set(hits.map(h => h.go)), extra = fz.filter(h => !seen.has(h.go));
+    if (extra.length) renderHits(el, [...hits, ...extra.map(h => ({ ...h, sub: h.sub + (hits.length ? "" : " · closest match") }))], q, raw);
+  });
+}
+function renderHits(el, hits, q, raw) {
   el.innerHTML = hits.length ? hits.slice(0, 40).map(h => `<button class="item" data-sgo="${esc(h.go)}" style="--pc:${subjColor(h.sid)}"><span class="mark"></span><span class="grow"><span class="t">${hiText(h.title, q)}</span><br><span class="s">${esc(h.sub)}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") + (hits.length > 40 ? `<p class="tiny muted">${hits.length - 40} more. Type more letters to narrow it down.</p>` : "")
     : `<p class="small muted" style="padding:6px 2px">Nothing matches “${esc(raw.trim())}”.</p>`;
 }
@@ -1694,9 +1743,9 @@ function placeIndicator(container) {
    10. ROUTER & ACTIONS
    ===================================================================== */
 let stack = [{ v: "today" }];
-const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Practice", "practice"], ["progress", "Progress", "progress"]];
+const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Review", "cards"], ["progress", "Progress", "progress"]];
 const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
-const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams" })[r.v] || r.v;
+const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice" })[r.v] || r.v;
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
   if (FX.on && document.startViewTransition) {
@@ -1723,7 +1772,9 @@ function crumbs() {
   else if (nodes[id]) {
     let n = nodes[id]; const chain = []; while (n) { chain.unshift(n); n = n.parent ? nodes[n.parent] : null; }
     trail = [["subject:" + chain[0].subject, subjects[chain[0].subject].name], ...chain.map(c => [(c.depth === 0 ? "chapter:" : "topic:") + c.id, crumbTitle(c.id)])];
-  } else if (r.v === "practice") trail = [["practice", "Practice"]];
+  } else if (r.v === "practice") trail = [["practice", "Review"]];
+  else if (r.v === "review") trail = [["review", "Flashcards"]];
+  else if (r.v === "map" && subjects[id]) trail = [["subject:" + id, subjects[id].name], ["map:" + id, "Mind map"]];
   else if (r.v === "edit") trail = [["edit", "My subjects"]];
   else if (r.v === "episode") trail = [["episode", "Now playing"]];
   else if (r.v === "calendar") trail = [["calendar", "Calendar"]];
@@ -1738,13 +1789,25 @@ function render(fresh) {
   let html;
   try { html = V[r.v](r.a); }
   catch (e) { console.error(e); html = `<div class="card stack"><h2>Something went wrong on this screen</h2><p class="muted">Your data is safe. Go back to Today and try again.</p><button class="btn btn-pen" data-go="today">Go to Today</button></div>`; }
-  $("#main").innerHTML = `<div class="topbar">${crumbs()}</div><div class="view" data-view="${r.v}">${html}</div>`;
+  $("#main").innerHTML = `<div class="topbar">${crumbs()}<span class="tb-title" aria-hidden="true"></span></div><div class="view" data-view="${r.v}">${html}</div>`;
+  watchTitle();
+  document.documentElement.classList.toggle("immersive", r.v === "review");
+  const cr = $(".crumbs"); if (cr) cr.scrollLeft = cr.scrollWidth;
   const cur = tabOf(stack[0]);
   const mk = list => `<span class="ind" aria-hidden="true"></span>` + list.map(([k, l, i]) => `<button class="tab" data-go="${k}" ${cur === k ? 'aria-current="page"' : ""}>${ico(i)}<span>${l}</span></button>`).join("");
   $("#tabs").innerHTML = mk(TABS); $("#railTabs").innerHTML = mk(RAIL);
   requestAnimationFrame(() => { placeIndicator($("#tabs")); placeIndicator($("#railTabs")); });
   if (fresh) { window.scrollTo({ top: 0 }); FX.enter(r.v, true); }
   lastDay = todayKey();
+}
+/* show a compact title in the top bar once the page's big title scrolls out of view */
+let titleObs = null;
+function watchTitle() {
+  if (titleObs) titleObs.disconnect();
+  const h = $(".view h1"), tb = $(".topbar"), t = $(".tb-title"); if (!h || !tb || !t || stack.length > 1 || !("IntersectionObserver" in window)) return;
+  t.textContent = h.textContent.trim();
+  titleObs = new IntersectionObserver(([en]) => tb.classList.toggle("scrolled", !en.isIntersecting && en.boundingClientRect.top < 0), { rootMargin: "-64px 0px 0px 0px" });
+  titleObs.observe(h);
 }
 function rerender() { const y = window.scrollY; render(false); $$(".view").forEach(v => v.style.animation = "none"); window.scrollTo({ top: y }); }
 addEventListener("resize", () => { placeIndicator($("#tabs")); placeIndicator($("#railTabs")); });
@@ -1796,6 +1859,7 @@ document.addEventListener("click", e => {
     e.preventDefault(); e.stopPropagation();
     const act = a.dataset.action, id = a.dataset.id;
     if (editorAction(act, a)) return;
+    if (typeof TOOL_ACTS !== "undefined" && TOOL_ACTS.has(act)) { toolAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
@@ -1971,7 +2035,7 @@ addEventListener("appinstalled", () => { deferredInstall = null; toast("Study De
 /* =====================================================================
    12. BOOT
    ===================================================================== */
-(function boot() {
+function boot() {
   if (!loadState()) fresh();
   checkDataFile();
   if (rollOver()) save();
@@ -1982,7 +2046,11 @@ addEventListener("appinstalled", () => { deferredInstall = null; toast("Study De
   setTimeout(loadLocalFiles, 0);
   if (contentNotice && contentNotice.auto) toast("Your study content was updated.");
   document.documentElement.classList.add("ready");
-})();
+}
+/* boot once every script (including tools.js) has run */
+let booted = false;
+const bootOnce = () => { if (booted) return; booted = true; boot(); };
+if (document.readyState === "complete") bootOnce(); else { document.addEventListener("DOMContentLoaded", bootOnce); addEventListener("load", bootOnce); }
 
 /* paste or drop a PDF / PowerPoint onto the subject editor */
 document.addEventListener("paste", e => {

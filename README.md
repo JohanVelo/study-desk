@@ -17,16 +17,19 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - **Today:** the one session to do next, a focus timer, the rest of the day, the week ahead and exam countdowns.
 - **Subjects:** chapter → heading → subheading with page ranges, summaries, and an editor (add by hand, or import from a PDF or PowerPoint).
 - **Listen:** study podcasts read aloud by the device, plus your own lecture recordings.
-- **Practice, Progress, Calendar:** questions, weak topics, mistakes, the revision ladder and an animated weekly recap.
+- **Review:** flashcards made automatically from notes and summaries, scheduled with FSRS spaced repetition (the same method Anki uses), plus a "blurt check" that compares what you remember with your notes.
+- **Snap a page:** photograph a textbook page and the text is read on the device (Tesseract), no upload.
+- **Mind map** of every subject, and search that forgives typos.
+- **Progress, Calendar:** questions, weak topics, mistakes, the revision ladder and an animated weekly recap.
 - Search everything with the magnifier (or press `/` on a laptop).
 
 ## Put in real study data
 The easiest way is inside the app: Subjects → Edit my subjects. To ship content with the app instead, edit **data.js**. The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
-- `index.html` app page · `styles.css` design · `app.js` logic · `data.js` study content
+- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `data.js` study content
 - `sw.js` offline cache · `manifest.webmanifest` install details · `icons/` app icons
-- `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT) and pdf.js (Apache 2.0)
+- `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT), pdf.js (Apache 2.0), ts-fsrs (MIT), MiniSearch (MIT) and Tesseract.js (Apache 2.0)
 - `fonts/` Bricolage Grotesque, Atkinson Hyperlegible, JetBrains Mono (SIL Open Font Licence)
 - `artifact.html` the same app as a claude.ai preview page
 
