@@ -1,5 +1,7 @@
 # Study Desk
 
+Live app: https://johanvelo.github.io/study-desk/
+
 A personal university study planner: what to study today, exam countdowns, chapter → heading → subheading tracking, practice questions, revision stages and progress. Works offline and installs on phone and laptop (it's a Progressive Web App).
 
 ## Install it
