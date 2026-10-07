@@ -280,7 +280,7 @@ async function hydrateCharts(root) {
 
 /* ---------- 8. export flashcards to Anki (anki-apkg-export, MIT; sql.js, MIT) ---------- */
 async function exportAnki() {
-  const cards = (S.cards || []).filter(c => nodes[c.node]);
+  const cards = (S.cards || []).filter(c => nodes[c.node] && c.kind !== "pic");
   if (!cards.length) { toast("No flashcards yet. Cards appear once you start a topic that has notes."); return; }
   toast("Making the Anki deck…");
   try {

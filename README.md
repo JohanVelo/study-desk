@@ -34,6 +34,11 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - **Snap a page:** photograph a textbook page and the text is read on the device (Tesseract), no upload.
 - **Mind map** of every subject, and search that forgives typos.
 - **Progress, Calendar:** questions, weak topics, mistakes, the revision ladder and an animated weekly recap.
+- **Picture cards:** cover the labels on a diagram; each box becomes a flashcard (image occlusion).
+- **Practice exam:** timed questions from your notes, marked at the end, with a breakdown by chapter.
+- **Search by meaning (optional, about 23 MB):** finds passages in your notes that mean the same thing, and only ever shows your own words.
+- **Focus sounds:** rain, brown noise or waves, generated on the device. **Study rhythm:** a streak heatmap on Progress.
+- **Pair by QR code** for sync, and a short guided tour (Settings → Help).
 - Search everything with the magnifier (or press `/` on a laptop).
 
 ## Put in real study data
@@ -44,10 +49,10 @@ Copies that still held the old sample subjects remove them once on update (v4.3)
 To ship content with the app instead, edit **data.js** (empty by default). The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
-- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `extras.js` questions from notes, maths, Word import, calendar, formatted notes, sketches, charts, Anki, sync, laptop AI · `speech.js` natural voices and recordings-to-text (with `voice-worker.js` and `stt-worker.js`) · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content
+- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `extras.js` questions from notes, maths, Word import, calendar, formatted notes, sketches, charts, Anki, sync, laptop AI · `speech.js` natural voices and recordings-to-text (with `voice-worker.js` and `stt-worker.js`) · `more.js` search by meaning (with `embed-worker.js`), picture cards, practice exams, focus sounds, study rhythm, QR pairing and the tour · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content
 - `sw.js` offline cache · `manifest.webmanifest` install details · `icons/` app icons
 - `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT), pdf.js (Apache 2.0), ts-fsrs (MIT), MiniSearch (MIT) and Tesseract.js (Apache 2.0)
-- `vendor/x/` compromise (MIT), Temml (MIT), mammoth (BSD-2), marked (MIT), DOMPurify (Apache-2.0/MPL-2.0), perfect-freehand (MIT), µPlot (MIT), Trystero (MIT), anki-apkg-export (MIT) and sql.js (MIT). One local change: µPlot's number formatter falls back to en-GB if the browser reports a locale tag `Intl` rejects.
+- `vendor/x/` compromise (MIT), Temml (MIT), mammoth (BSD-2), marked (MIT), DOMPurify (Apache-2.0/MPL-2.0), perfect-freehand (MIT), µPlot (MIT), Trystero (MIT), anki-apkg-export (MIT), sql.js (MIT), driver.js (MIT), lean-qr (MIT) and qr-scanner (MIT), with licences in `vendor/x/licenses/`. One local change: µPlot's number formatter falls back to en-GB if the browser reports a locale tag `Intl` rejects.
 - `vendor/ai/` transformers.js (Apache-2.0), ONNX Runtime Web (MIT), piper-tts-web (MIT) and piper-phonemize/espeak-ng (GPL-3). Voice and speech models are downloaded from Hugging Face the first time they are used, then cached for offline use.
 - `fonts/` Bricolage Grotesque, Atkinson Hyperlegible, JetBrains Mono (SIL Open Font Licence)
 - `artifact.html` the same app as a claude.ai preview page
