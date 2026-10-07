@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.9.0";
+const APP_VERSION = "4.10.0";
 
 /* =====================================================================
    1. UTILS
@@ -107,7 +107,7 @@ function cleanContent(c) {
     out.questions.push({ id, node: q.node, level: LEVELS[q.level] ? q.level : "medium", q: q.q.slice(0, 600), o: q.o.map(x => String(x).slice(0, 300)), a: q.a, e: String(q.e || "").slice(0, 1200), own: !!q.own });
   });
   Object.entries(c?.explain || {}).forEach(([k, e]) => { if (ids.has(k) && e && typeof e === "object") out.explain[k] = { simple: String(e.simple || ""), uni: String(e.uni || ""), exam: String(e.exam || ""), example: String(e.example || ""), ...(e.summary ? { summary: Array.isArray(e.summary) ? e.summary.map(String) : String(e.summary) } : {}) }; });
-  out.notes = {}; Object.entries(c?.notes || {}).forEach(([k, t]) => { if (ids.has(k) && typeof t === "string") out.notes[k] = t.slice(0, 80000); });
+  out.notes = {}; Object.entries(c?.notes || {}).forEach(([k, t]) => { if (ids.has(k) && typeof t === "string") out.notes[k] = t.slice(0, 3000000); });
   return { content: out, fixes };
 }
 
@@ -235,7 +235,7 @@ function sanitize(o) {
   out.seq = Math.max(isInt(o.seq, 0, 1e9) ? o.seq : 0, maxSeq + 1);
   out.recent = (Array.isArray(o.recent) ? o.recent : []).filter(r => r && nodes[r.id] && DATE_RE.test(r.when)).slice(0, 20);
   out.changes = (Array.isArray(o.changes) ? o.changes : []).filter(c => c && typeof c.text === "string" && DATE_RE.test(c.when)).slice(0, 30);
-  out.log = (Array.isArray(o.log) ? o.log : []).filter(e => e && DATE_RE.test(e.d) && ["task", "q", "step", "listen", "card", "blurt"].includes(e.t) && (!e.n || nodes[e.n])).slice(-3000);
+  out.log = (Array.isArray(o.log) ? o.log : []).filter(e => e && DATE_RE.test(e.d) && ["task", "q", "step", "listen", "card", "blurt"].includes(e.t) && (!e.n || nodes[e.n])).slice(-20000);
   const cardSeen = new Set();
   out.cards = (Array.isArray(o.cards) ? o.cards : []).filter(c => {
     const ok = c && typeof c.id === "string" && !cardSeen.has(c.id) && nodes[c.node] && nodes[c.node].leaf && typeof c.f === "string" && typeof c.b === "string" && c.f.length <= 4000 && c.b.length <= 6000
@@ -243,7 +243,7 @@ function sanitize(o) {
     if (!ok) { fix(); return false; }
     cardSeen.add(c.id); c.kind = c.kind === "own" ? "own" : c.kind === "pic" && typeof c.pic === "string" && Array.isArray(c.box) && c.box.length === 4 && c.box.every(Number.isFinite) ? "pic" : "auto"; if (c.kind === "pic" && !(Array.isArray(c.boxes) && c.boxes.every(b => Array.isArray(b) && b.length === 4))) c.boxes = [c.box]; if (!c.s) { c.s = null; c.due = null; } else if (!c.due) { c.s = null; } return true;
   }).slice(-20000);
-  out.cardsGone = (Array.isArray(o.cardsGone) ? o.cardsGone : []).filter(k => typeof k === "string").slice(-3000);
+  out.cardsGone = (Array.isArray(o.cardsGone) ? o.cardsGone : []).filter(k => typeof k === "string").slice(-20000);
   const st0 = o.settings || {}, d = DEFAULT_SETTINGS;
   out.settings = {
     days: Array.isArray(st0.days) && st0.days.length && st0.days.every(x => isInt(x, 0, 6)) ? [...new Set(st0.days)].sort() : (fix(), d.days.slice()),
@@ -330,7 +330,19 @@ function checkDataFile() {
 }
 
 /* ---------- backup / restore ---------- */
-function exportText() { return JSON.stringify({ app: "study-desk", schema: SCHEMA_NOW, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S, notes: NOTES }, null, 1); }
+/* one object, stringified once and compact, so backups of very big books stay quick */
+function exportObj() { return { app: "study-desk", schema: SCHEMA_NOW, version: APP_VERSION, exportedAt: new Date().toISOString(), state: S, notes: NOTES }; }
+function exportText() { return JSON.stringify(exportObj()); }
+/* the same backup built in pieces, one topic's notes at a time, so a very big library never freezes the screen */
+async function exportParts() {
+  const { notes, ...rest } = exportObj(), head = JSON.stringify(rest), ks = Object.keys(notes || {}), parts = [head.slice(0, -1) + ',"notes":{'];
+  let t = performance.now();
+  for (let i = 0; i < ks.length; i++) {
+    parts.push((i ? "," : "") + JSON.stringify(ks[i]) + ":" + JSON.stringify(notes[ks[i]]));
+    if (performance.now() - t > 30) { await new Promise(r => setTimeout(r, 0)); t = performance.now(); }
+  }
+  parts.push("}}"); return parts;
+}
 function importText(txt) {
   let o; try { o = JSON.parse(txt); } catch (e) { return { error: "That isn't a Study Desk backup. Check you copied the whole file." }; }
   const raw = o && o.app === "study-desk" && o.state ? o.state : o;
@@ -704,7 +716,7 @@ V.topic = id => {
         <section class="card stack" style="--ladder:${STATUS_COL[Math.max(cur, 1)]}"><div class="sec-head"><h2 style="font-size:18px">Where you are</h2>${statusTag(cur)}</div>
           <div class="ladder" aria-label="Stage: ${STATUS[cur]}">${STATUS.map((x, i) => `<div class="rung ${i <= cur && i > 0 ? "on" : ""} ${i === cur ? "cur" : ""}"><span class="b"></span>${x}</div>`).join("")}</div>
           <div class="row" style="flex-wrap:wrap">${next}${cur > 0 ? `<button class="btn btn-line btn-sm" data-action="stepdown" data-id="${id}">Undo a step</button>` : ""}</div>${lockMsg}</section>
-        ${(() => { const sm = summaryOf(id); return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary</h2><span class="tiny muted">${sm ? (sm.source === "auto" ? "From your notes" : sm.source === "written" ? "Written for you" : "From the explanations") : ""}</span></div>
+        ${(() => { const sm = summaryOf(id); return `<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary</h2>${sm && sm.source === "auto" ? `<div class="segctl sm-mode" role="radiogroup" aria-label="How much detail"><button role="radio" aria-checked="${SUM_DETAIL}" data-action="sum-mode" data-v="detail">Every detail</button><button role="radio" aria-checked="${!SUM_DETAIL}" data-action="sum-mode" data-v="short">Short</button></div>` : `<span class="tiny muted">${sm ? (sm.source === "written" ? "Written for you" : "From the explanations") : ""}</span>`}</div>
           ${sm ? sumHTML(sm) : `<p class="small muted">${notesReady ? "No notes for this topic yet. Add notes, or import the chapter's PDF from My subjects." : "Loading notes…"}</p>`}
           <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-action="ep-play" data-kind="topic" data-id="${id}">${ico("headphones")}Listen</button><button class="btn btn-line btn-sm" data-action="notes" data-id="${id}">${ico("notes")}${notesOf(id) ? "Edit notes" : "Add notes"}</button></div></section>`; })()}
         ${typeof topicExtras === "function" ? topicExtras(id) : ""}
@@ -828,7 +840,7 @@ V.progress = () => {
     <section class="section"><div class="sec-head"><h2>By subject and chapter</h2></div>
       <div class="tree-prog">${DSUBJ.length ? "" : `<p class="small muted card">No subjects yet. <button class="link" data-go="import">Import a file</button> to see progress for each chapter.</p>`}${DSUBJ.map((s, si) => `<details class="subj card" ${si === 0 ? "open" : ""}><summary class="stack" style="gap:8px"><div class="row">${ico("chev", 'class="caret"')}<span class="grow" style="font-family:var(--f-display);font-weight:650;font-size:18px">${esc(s.name)}</span><b class="mono">${pct(progress(s.id))}%</b></div>${seg(progress(s.id), "lg", subjColor(s.id))}</summary>
         <div class="lvl1" style="margin-top:14px">${s.chapterIds.map(cid => { const c = nodes[cid]; return `<div class="stack" style="gap:10px"><button data-go="chapter:${cid}" style="text-align:left">${progRow(`Chapter ${c.num}: ${esc(c.title)}`, progress(cid), subjColor(s.id))}</button>
-          <div class="lvl2">${c.kids.map(h => `<button data-go="topic:${h}" style="text-align:left">${progRow(`<span class="small">${nodes[h].num} ${esc(nodes[h].title)}</span>`, progress(h), "var(--ink-2)")}</button>`).join("")}</div></div>`; }).join("")}</div></details>`).join("")}</div></section>
+          ${leavesBySubject[s.id].length > 150 ? "" : `<div class="lvl2">${c.kids.map(h => `<button data-go="topic:${h}" style="text-align:left">${progRow(`<span class="small">${nodes[h].num} ${esc(nodes[h].title)}</span>`, progress(h), "var(--ink-2)")}</button>`).join("")}</div>`}</div>`; }).join("")}</div></details>`).join("")}</div></section>
     <div class="dash">
       <section class="section"><div class="sec-head"><h2>My weak areas</h2></div><div class="list">${weakList().map(w => `<button class="item" data-go="topic:${w.id}" style="--pc:${PRC[w.sev]}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[w.id].title)}</span><br><span class="s">${esc(subjects[nodes[w.id].subject].name)} · ${w.why}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") || `<div class="empty">No weak areas right now.</div>`}</div></section>
       <section class="section"><div class="sec-head"><h2>Recently completed</h2></div><div class="list">${S.recent.length ? S.recent.slice(0, 5).map(r => `<button class="item" data-go="topic:${r.id}" style="--pc:var(--ok)"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[r.id].title)}</span><br><span class="s">${esc(r.text)} · ${r.when === todayKey() ? "Today" : fmtD(r.when, { weekday: "long" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">Finished sessions will show up here.</div>`}</div></section>
@@ -1017,7 +1029,7 @@ V.import = () => {
     const busy = importBusy?.reading;
     body = `<div class="for-chip"><span class="mark" style="--pc:${subjColor(s.id)}"></span><span>For <b>${esc(s.name)}</b></span><button class="linkish" data-action="imp-change">Change</button></div>
       <section class="card drop-big ${busy ? "busy" : ""}" id="dropzone" data-sid="${s.id}">
-        ${busy ? `<span class="spin big" aria-hidden="true"></span><h2 class="h3" role="status">Reading ${esc(busy)}…</h2><p class="small muted">Finding the chapters and headings. Big files can take a minute.</p>`
+        ${busy ? impProgHTML()
         : `<span class="drop-ic">${ico("upload")}</span><h2 class="h3">Choose a file</h2><p class="small muted">A textbook chapter, lecture slides or your own notes.<br><span style="white-space:nowrap">PDF, PowerPoint (.pptx)</span> or <span style="white-space:nowrap">Word (.docx).</span></p>
           <label class="btn btn-pen" for="imp-file">${ico("file")}Choose a file</label><input type="file" id="imp-file" class="sr" accept="${IMP_ACCEPT}" data-sid="${s.id}">
           <p class="tiny muted drop-hint">or drag it onto this box</p>`}
@@ -1049,7 +1061,7 @@ V.import = () => {
       <span class="done-ic">${ico("check")}</span>
       <h2>${esc(s ? s.name : "Your subject")} is ready</h2>
       <p class="muted">${d.leaves} topic${d.leaves === 1 ? "" : "s"} ${d.mode === "replace" ? "now make up the subject" : "added"}, and your plan is updated.</p>
-      <div class="lock" role="status">${d.saving ? `<span class="spin" aria-hidden="true"></span><span>Saving the text of each topic as notes…</span>` : d.saved ? `${ico("notes")}<span>Notes saved for ${d.saved} topic${d.saved === 1 ? "" : "s"}. Their summaries, flashcards and practice questions are ready.</span>` : `${ico("info")}<span>No text came with this list, so add notes to a topic when you want a summary, flashcards and questions.</span>`}</div>
+      <div class="lock" role="status">${d.saving ? impSaveHTML() : d.saved ? `${ico("notes")}<span>Notes saved for ${d.saved} topic${d.saved === 1 ? "" : "s"}. Their summaries, flashcards and practice questions are ready.</span>` : `${ico("info")}<span>No text came with this list, so add notes to a topic when you want a summary, flashcards and questions.</span>`}</div>
       <div class="row" style="flex-wrap:wrap;justify-content:center"><button class="btn btn-pen" data-go="subject:${IMP.sid}">Open ${esc(s ? s.name : "subject")}</button><button class="btn btn-line" data-action="imp-again">Import another file</button></div></section>`;
   }
   return `<div class="stack imp" style="gap:18px">${head}${stepper}${body}</div>`;
@@ -1069,6 +1081,7 @@ async function importAction(act, a) {
     case "imp-change": IMP.sid = null; qpPreview = null; importBusy = null; lastImport = null; render(false); return true;
     case "imp-typed": qpText = $("#qp-text")?.value || ""; IMP.typed = true; qpPreview = parseOutline(qpText); lastImport = null; importBusy = null; render(false); return true;
     case "imp-mode": IMP.mode = a.dataset.m; $$('[data-action="imp-mode"]').forEach(b => b.setAttribute("aria-checked", b === a)); return true;
+    case "imp-cancel": importBusy = null; lastImport = null; impEnd(); render(false); toast("Import cancelled."); return true;
     case "imp-reset": qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; render(false); return true;
     case "imp-again": IMP.done = null; qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; IMP.mode = "append"; render(false); return true;
     case "imp-apply": {
@@ -1078,7 +1091,7 @@ async function importAction(act, a) {
       const roots = qpPreview.roots, c = impCounts(roots), mode = raw.chapters.length && IMP.mode === "replace" ? "replace" : "append";
       if (mode === "replace") raw.chapters = roots; else raw.chapters.push(...roots);
       qpPreview = null; qpText = ""; afterContentChange(true);
-      IMP.done = { leaves: c.leaves, mode, saving: !!lastImport, saved: 0 }; render(false); window.scrollTo({ top: 0 });
+      IMP_SAVE = null; IMP.done = { leaves: c.leaves, mode, saving: !!lastImport, saved: 0 }; render(false); window.scrollTo({ top: 0 });
       if (lastImport) { const n = await storeImportText(roots, true); IMP.done.saving = false; IMP.done.saved = n; lastImport = null; if (stack[stack.length - 1].v === "import") rerender(); }
       return true;
     }
@@ -1225,14 +1238,75 @@ function editorAction(act, a) {
 
 /* ---------- import a contents list from a PDF or PowerPoint (read on this device, nothing is uploaded) ---------- */
 let importBusy = null, lastImport = null;
+/* ---------- import progress: what is happening, how far along, and how long it has taken ---------- */
+let IMPP = null, impRun = 0, impTimer = 0, impRaf = 0, IMP_SAVE = null;
+const IMP_STAGES = { pdf: "the pages", docx: "the document", pptx: "the slides" };
+function impStart(name, size, ext) {
+  IMPP = { name, size, ext, stage: 0, done: 0, total: 0, t0: Date.now(), run: ++impRun };
+  keepAwake(true); /* the phone stays awake while a big book is read */
+  clearInterval(impTimer); impTimer = setInterval(impDraw, 1000); return impRun;
+}
+const impLive = run => !!IMPP && IMPP.run === run && !!importBusy?.reading;
+function impEnd() { clearInterval(impTimer); IMPP = null; if (!F) keepAwake(false); }
+/* "about 3 min left", from how fast the pages are going so far */
+function impLeft(done, total, since) {
+  if (done < 25 || !total || done >= total) return "";
+  const secs = (Date.now() - since) / 1000 / done * (total - done);
+  return secs < 50 ? "less than a minute left" : secs < 90 ? "about a minute left" : secs < 3600 ? `about ${Math.round(secs / 60)} min left` : `about ${Math.floor(secs / 3600)} h ${Math.round(secs % 3600 / 60)} min left`;
+}
+function impProg(patch) { if (!IMPP) return; Object.assign(IMPP, patch); impDraw(); }
+function impTick() { if (!IMPP || IMPP.stage !== 1 || !IMPP.total || IMPP.sampling) return; IMPP.done = Math.min(IMPP.total, IMPP.done + 1); if (!impRaf) impRaf = requestAnimationFrame(() => { impRaf = 0; impDraw(); }); }
+function impPct() {
+  const p = IMPP; if (!p) return 0;
+  return p.stage >= 2 ? 96 : p.stage === 1 ? (p.total ? Math.round(8 + 84 * p.done / p.total) : null) : 4;
+}
+const impClock = ms => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
+function impInner() {
+  const p = IMPP; if (!p) return "";
+  const pct = impPct(), secs = (Date.now() - p.t0) / 1000, what = IMP_STAGES[p.ext] || "the file";
+  const steps = [
+    p.stage > 0 ? "Opened the file" : "Opening the file",
+    p.via === "bookmarks" ? "Used the PDF's bookmarks" : (p.stage > 1 ? "Read " : "Reading ") + what + (p.ext === "pdf" && p.total && p.stage === 1 ? ` · page ${Math.max(1, p.done).toLocaleString("en-GB")} of ${p.total.toLocaleString("en-GB")}` : p.ext === "pdf" && p.stage > 1 && p.pages ? ` · ${p.pages} page${p.pages === 1 ? "" : "s"}` : ""),
+    p.stage > 2 ? "Found the chapters and headings" : "Finding chapters and headings"
+  ];
+  const left = p.stage === 1 ? impLeft(p.done, p.total, p.t0p || p.t0) : "";
+  const hint = left ? `${left[0].toUpperCase() + left.slice(1)}. Keep this screen open; the phone stays awake.` : secs < 12 ? "Keep this screen open while it works." : secs < 60 ? "Still working. Big files can take a minute or two." : "Still going. Long textbooks can take a few minutes, and it hasn't stopped.";
+  return `<div class="impp-file"><span class="impp-ic">${ico("file")}</span><span class="grow"><b>${esc(p.name)}</b><span class="tiny muted">${typeof fmtSize === "function" && p.size ? fmtSize(p.size) : ""}</span></span><b class="impp-pct mono">${pct === null ? "" : pct + "%"}</b></div>
+    <div class="impp-bar ${pct === null ? "indet" : ""}" aria-hidden="true"><i style="width:${pct === null ? 35 : pct}%"></i></div>
+    <ol class="impp-steps">${steps.map((t, k) => `<li class="${k < p.stage ? "ok" : k === p.stage ? "now" : ""}"><span class="impp-dot">${k < p.stage ? ico("check") : ""}</span><span>${esc(t)}</span></li>`).join("")}</ol>
+    <p class="tiny muted impp-foot"><span>${hint}</span><span class="mono" aria-label="Time so far">${impClock(Date.now() - p.t0)}</span></p>`;
+}
+function impProgHTML() {
+  return `<div class="impp" id="impProg">${impInner()}</div><p class="sr" role="status" id="impSay">Reading ${esc(IMPP?.name || "your file")}</p>
+    <button class="btn btn-line btn-sm" data-action="imp-cancel">Cancel</button>`;
+}
+function impDraw() {
+  const el = $("#impProg"); if (!el || !IMPP) return;
+  el.innerHTML = impInner();
+  const say = $("#impSay"), msg = ["Opening the file", "Reading " + (IMP_STAGES[IMPP.ext] || "the file"), "Finding chapters and headings"][Math.min(IMPP.stage, 2)];
+  if (say && say.textContent !== msg) say.textContent = msg;
+}
+function impSaveHTML() {
+  const s = IMP_SAVE, pct = s && s.n ? Math.round(100 * (s.i - 1) / s.n) : 0;
+  return `<div class="grow impp-save" id="impSave"><span class="row" style="gap:8px"><span class="spin" aria-hidden="true"></span><span class="grow">Saving the text of each topic as notes${s && s.n ? ` · <b class="mono">${s.i.toLocaleString("en-GB")} of ${s.n.toLocaleString("en-GB")}</b>` : "…"}</span></span>${s && s.n && impLeft(s.i, s.n, s.t0) ? `<span class="tiny muted">${impLeft(s.i, s.n, s.t0)[0].toUpperCase() + impLeft(s.i, s.n, s.t0).slice(1)}. You can use the rest of the app meanwhile.</span>` : ""}<span class="impp-bar" aria-hidden="true"><i style="width:${pct}%"></i></span></div>`;
+}
+function impSaveStep(i, n) { if (!IMP_SAVE || i < IMP_SAVE.i) { IMP_SAVE = { i, n, t0: Date.now() }; keepAwake(true); } else Object.assign(IMP_SAVE, { i, n }); if (i >= n && !F) setTimeout(() => keepAwake(false), 2000); const el = $("#impSave"); if (el) el.outerHTML = impSaveHTML(); }
+
+/* huge books: let pdf.js drop each page once its text is read, and clear its caches every few hundred pages, so memory stays flat */
+let pdfReads = 0;
+function pdfRelease(doc, pg) { try { pg.cleanup(); } catch (e) { } if (++pdfReads % 300 === 0) { try { Promise.resolve(doc.cleanup()).catch(() => { }); } catch (e) { } } }
 async function pdfPageLines(doc, i) {
+  impTick();
   const pg = await doc.getPage(i), tc = await pg.getTextContent(), rows = [];
+  pdfRelease(doc, pg);
   tc.items.forEach(it => { if (!it.str || !it.str.trim()) return; const y = Math.round(it.transform[5]), x = it.transform[4]; let r = rows.find(r => Math.abs(r.y - y) <= 3); if (!r) rows.push(r = { y, parts: [] }); r.parts.push({ x, s: it.str }); });
   return rows.sort((a, b) => b.y - a.y).map(r => r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim());
 }
 /* Read a PDF page as lines with their font size and position, so headings, headers and footers can be told apart */
 async function pdfPageItems(doc, i) {
+  impTick();
   const pg = await doc.getPage(i), vp = pg.getViewport({ scale: 1 }), tc = await pg.getTextContent(), rows = [];
+  pdfRelease(doc, pg);
   tc.items.forEach(it => {
     if (!it.str || !it.str.trim()) return;
     const y = Math.round(it.transform[5]), x = it.transform[4], size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
@@ -1276,11 +1350,12 @@ async function storeImportText(roots, quiet) {
   let saved = 0, pagesRead = 0;
   const repeats = imp.kind === "pdf" ? await pdfRepeats(imp) : null;
   for (const n of leaves) {
+    impSaveStep(leaves.indexOf(n) + 1, leaves.length);
     let text = "";
     if (imp.kind === "pdf") {
       const idx = p => { if (imp.labels) { const k = imp.labels.indexOf(String(p)); if (k >= 0) return k + 1; } return p; };
       const pages = [];
-      for (let p = n.p1; p <= Math.min(n.p2, n.p1 + 39) && pagesRead < 800; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; pages.push(await pdfPageItems(imp.doc, i)); pagesRead++; }
+      for (let p = n.p1; p <= n.p2; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; const items = await pdfPageItems(imp.doc, i); pages.push(items); pagesRead++; if (typeof pdfFigures === "function") await pdfFigures(imp, i, items, n.id, p); }
       text = pagesToNotes(pages, repeats);
       /* topics that share a page: start at this topic's heading and stop at the next topic's heading */
       const lines = text.split("\n"), norm = t => stripNum(t.replace(/^#+\s*/, "")).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -1306,6 +1381,7 @@ async function loadPdfJs() {
 async function pdfToOutline(buf, name = "") {
   const lib = await loadPdfJs();
   const doc = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
+  impProg({ stage: 1, done: 0, total: doc.numPages, pages: doc.numPages });
   let labels = null; try { labels = await doc.getPageLabels(); } catch (e) { }
   lastImport = { kind: "pdf", doc, labels };
   const pageNo = i => { const l = labels && labels[i]; return l && /^\d+$/.test(l) ? +l : i + 1; };
@@ -1313,13 +1389,14 @@ async function pdfToOutline(buf, name = "") {
   if (outline && outline.length) {
     const lines = []; let count = 0;
     const resolve = async it => { try { let d = it.dest; if (typeof d === "string") d = await doc.getDestination(d); if (Array.isArray(d) && d[0]) { const idx = typeof d[0] === "number" ? d[0] : await doc.getPageIndex(d[0]); return pageNo(idx); } } catch (e) { } return null; };
-    const walk = async (items, prefix, depth) => { for (let i = 0; i < items.length && count < 400; i++) { const it = items[i], num = prefix ? prefix + "." + (i + 1) : String(i + 1), p = await resolve(it), t = stripNum(it.title || ""); if (!t) continue; count++; lines.push(`${num} ${t}${p != null ? " " + p : ""}`); if (depth < 3 && it.items && it.items.length) await walk(it.items, num, depth + 1); } };
+    const walk = async (items, prefix, depth) => { for (let i = 0; i < items.length && count < 6000; i++) { const it = items[i], num = prefix ? prefix + "." + (i + 1) : String(i + 1), p = await resolve(it), t = stripNum(it.title || ""); if (!t) continue; count++; lines.push(`${num} ${t}${p != null ? " " + p : ""}`); if (depth < 3 && it.items && it.items.length) await walk(it.items, num, depth + 1); } };
     await walk(outline, "", 0);
+    if (lines.length) { impProg({ stage: 2, via: "bookmarks" }); }
     if (lines.length) return { text: lines.join("\n"), note: `Read ${count} bookmarks from the PDF. Page numbers come from the PDF, so check they match your book.` };
   }
   /* no bookmarks: look for a contents page and read its lines */
   const pageLines = i => pdfPageLines(doc, i);
-  const max = Math.min(doc.numPages, 30), tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
+  const max = Math.min(doc.numPages, 60), tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
   let start = -1, collected = [];
   for (let i = 1; i <= max; i++) {
     const ls = await pageLines(i);
@@ -1327,15 +1404,33 @@ async function pdfToOutline(buf, name = "") {
     if (start > 0) { const good = ls.filter(tocLike); if (i > start && good.length < 3) break; collected.push(...good); }
   }
   if (!collected.length) for (let i = 1; i <= max; i++) { const good = (await pageLines(i)).filter(l => tocLike(l) && /^(\d+(\.\d+)*|chapter|unit)\b/i.test(l)); if (good.length >= 4) collected.push(...good); }
-  if (collected.length) return { text: collected.slice(0, 400).join("\n"), note: start > 0 ? `Read the contents page (page ${start} of the PDF). Check the levels and page numbers before adding.` : "This PDF has no bookmarks or contents page, so these lines were picked from numbered headings. Check them carefully." };
+  if (collected.length) return { text: collected.slice(0, 6000).join("\n"), note: start > 0 ? `Read the contents page (page ${start} of the PDF). Check the levels and page numbers before adding.` : "This PDF has no bookmarks or contents page, so these lines were picked from numbered headings. Check them carefully." };
   /* no contents page either: use the headings (lines in a bigger font) as topics */
-  const heads = [], sizes = [], pages = Math.min(doc.numPages, 300), perPage = [];
-  for (let i = 1; i <= pages; i++) { const ls = await pdfPageItems(doc, i); perPage.push(ls); ls.forEach(l => { for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); }); }
+  /* two passes so any size of book works: the body font size from a sample of pages, then every page once, keeping only the headings */
+  const heads = [], sizes = [], pages = doc.numPages, step = Math.max(1, Math.floor(pages / 240));
+  if (IMPP) IMPP.sampling = true;
+  for (let i = 1; i <= pages; i += step) (await pdfPageItems(doc, i)).forEach(l => { for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); });
   sizes.sort((a, b) => a - b); const body = sizes[Math.floor(sizes.length / 2)] || 10;
-  perPage.forEach((ls, k) => ls.forEach(l => { if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } }));
-  if (heads.length >= 2 && heads.length <= 300) {
+  if (IMPP) { IMPP.sampling = false; IMPP.done = 0; IMPP.t0p = Date.now(); }
+  for (let k = 0; k < pages; k++) (await pdfPageItems(doc, k + 1)).forEach(l => { if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last && Math.abs(prev.size - l.size) < .5) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } });
+  if (heads.length >= 2 && heads.length <= 40000) {
     const deck = stripNum(name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Imported PDF", last = pageNo(pages - 1);
-    const lines = [`1 ${deck} ${heads[0].p}-${last}`]; heads.forEach((h, k) => { const end = k + 1 < heads.length ? Math.max(h.p, heads[k + 1].p) : last; /* shares the next heading's page; the text is split at the heading */ lines.push(`1.${k + 1} ${stripNum(h.t) || h.t} ${h.p}-${end}`); });
+    const endOf = k => k + 1 < heads.length ? Math.max(heads[k].p, heads[k + 1].p) : last; /* shares the next heading's page; the text is split at the heading */
+    /* big books: the largest heading size is the chapter, smaller ones are its sections */
+    const top = Math.max(...heads.map(h => Math.round(h.size * 2) / 2)), isTop = h => Math.round(h.size * 2) / 2 >= top - .5;
+    const nTop = heads.filter(isTop).length, lines = [];
+    if (nTop >= 2 && nTop < heads.length && heads.length > 12) {
+      let c = 0, k2 = 0, chStart = -1;
+      const chEnd = from => { for (let m = from + 1; m < heads.length; m++) if (isTop(heads[m])) return Math.max(heads[from].p, heads[m].p - 1); return last; };
+      if (!isTop(heads[0])) { c = 1; lines.push(`1 ${deck} ${heads[0].p}-${Math.max(heads[0].p, (heads.find(isTop) || { p: last }).p - 1)}`); }
+      heads.forEach((h, k) => {
+        if (isTop(h)) { c++; k2 = 0; chStart = k; lines.push(`${c} ${stripNum(h.t) || h.t} ${h.p}-${chEnd(k)}`); }
+        else { k2++; lines.push(`${c}.${k2} ${stripNum(h.t) || h.t} ${h.p}-${endOf(k)}`); }
+      });
+      /* a chapter with no sections of its own stays one topic */
+      return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${c} chapters and ${heads.length - nTop} sections were picked from the headings in ${pages} pages. Check them before adding.` };
+    }
+    lines.push(`1 ${deck} ${heads[0].p}-${last}`); heads.forEach((h, k) => lines.push(`1.${k + 1} ${stripNum(h.t) || h.t} ${h.p}-${endOf(k)}`));
     return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${heads.length} headings were picked from the text. Check them before adding.` };
   }
   return { text: "", note: "Couldn't find bookmarks, a contents page or headings in this PDF. Type or paste the contents list instead." };
@@ -1403,20 +1498,27 @@ async function pptxToOutline(buf, name) {
 async function importFile(file, sid) {
   if (!file) return;
   const name = file.name || "file", ext = (name.match(/\.(\w+)$/) || [])[1]?.toLowerCase();
-  if (file.size > 80e6) { importBusy = { error: "That file is over 80 MB. Try a smaller PDF or just the contents pages." }; rerender(); return; }
+  if (file.size > 2e9) { importBusy = { error: "That file is over 2 GB, which is more than a browser can open. Try a smaller copy of the PDF, or split it into parts." }; rerender(); return; }
   if (ext === "ppt") { importBusy = { error: "Old .ppt files can't be read. Open it in PowerPoint and save it as .pptx first." }; rerender(); return; }
   if (ext === "doc") { importBusy = { error: "Old .doc files can't be read. Open it in Word and save it as .docx first." }; rerender(); return; }
   if (!["pdf", "pptx", "docx"].includes(ext)) { importBusy = { error: `${name} isn't a file Study Desk can read. Choose a PDF, a PowerPoint (.pptx) or a Word (.docx) file, or type the chapters below.` }; rerender(); return; }
+  const run = impStart(name, file.size, ext);
   importBusy = { reading: name }; rerender();
+  $("#dropzone")?.scrollIntoView({ block: "center", behavior: "instant" });
   try {
     const buf = await file.arrayBuffer();
+    if (ext !== "pdf") impProg({ stage: 1 });
     const r = ext === "pdf" ? await pdfToOutline(buf, name) : ext === "docx" ? await docxToOutline(buf, name) : await pptxToOutline(buf, name);
+    if (!impLive(run)) return;
+    impProg({ stage: 2 }); await new Promise(res => setTimeout(res, 350));
+    if (!impLive(run)) return;
     importBusy = r.text ? { note: r.note } : { error: r.note };
     if (r.text) { qpText = r.text; qpPreview = parseOutline(qpText); }
   } catch (e) {
-    console.error(e);
+    console.error(e); if (!impLive(run)) return;
     importBusy = { error: /password/i.test(String(e && e.message)) ? "That PDF is password-protected. Remove the password and try again." : `Couldn't read ${name}. It may be damaged or scanned as images only.` };
   }
+  impEnd();
   const top = stack[stack.length - 1];
   if ((top.v === "editsubj" && top.a === sid) || top.v === "import") rerender();
 }
@@ -1427,12 +1529,15 @@ async function importFile(file, sid) {
 
 /* ---------- on-device file store (IndexedDB): topic notes from imports, and audio recordings ---------- */
 const IDB = (() => {
-  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map(), books: new Map(), marks: new Map() }, ok = true;
+  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map(), books: new Map(), marks: new Map(), figs: new Map(), aq: new Map() }, ok = true;
   const open = () => dbp || (dbp = new Promise((res) => {
     try {
-      const r = indexedDB.open("studydesk", 4);
-      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec", "books", "marks"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
-      r.onsuccess = () => res(r.result); r.onerror = () => { ok = false; res(null); }; r.onblocked = () => { ok = false; res(null); };
+      const r = indexedDB.open("studydesk", 6);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec", "books", "marks", "figs", "aq"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
+      /* another open tab with an older version closes its copy (below), so the upgrade only waits a moment */
+      let waited = null;
+      r.onsuccess = () => { clearTimeout(waited); const d = r.result; d.onversionchange = () => { d.close(); dbp = null; }; res(d); }; r.onerror = () => { ok = false; res(null); };
+      r.onblocked = () => { waited = setTimeout(() => { ok = false; res(null); }, 6000); };
     } catch (e) { ok = false; res(null); }
   }));
   const tx = async (store, mode, fn) => { const d = await open(); if (!d) return fn(null); return new Promise((res, rej) => { const t = d.transaction(store, mode), s = t.objectStore(store); const out = fn(s); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); }); };
@@ -1453,10 +1558,10 @@ async function loadLocalFiles() {
   const v = stack[stack.length - 1].v; if (["topic", "summary", "listen", "progress"].includes(v)) rerender();
 }
 const notesOf = id => NOTES[id] || S.content.notes?.[id] || "";
-async function saveNotes(id, text) { text = String(text || "").slice(0, 80000); if (text.trim()) { NOTES[id] = text; await IDB.put("notes", { id, text }); } else { delete NOTES[id]; await IDB.del("notes", id); } }
+async function saveNotes(id, text) { text = String(text || "").slice(0, 3000000); if (text.trim()) { NOTES[id] = text; await IDB.put("notes", { id, text }); } else { delete NOTES[id]; await IDB.del("notes", id); } }
 
 /* ---------- activity log (feeds the weekly summary) ---------- */
-function logEvent(e) { S.log.push({ d: todayKey(), ...e }); if (S.log.length > 3000) S.log = S.log.slice(-3000); }
+function logEvent(e) { S.log.push({ d: todayKey(), ...e }); if (S.log.length > 20000) S.log = S.log.slice(-20000); }
 function seedLog() {
   const t = todayKey(), L = [];
   const leaves = leafIds.filter(id => st(id) >= 2);
@@ -1484,7 +1589,8 @@ const STOP = new Set("a an and are as at be been being but by can could did do d
 const words = s => (s.toLowerCase().match(/[a-z][a-z'’-]{2,}/g) || []).filter(w => !STOP.has(w));
 /* The summary engine lives in summary.js: it covers every section, keeps definitions, formulas, numbers and
    exam cues, checks every key term is in a bullet, and reports what it covered. It only uses sentences from the notes. */
-function summarize(text, title = "", max) { try { return window.SDSummary ? SDSummary.summarize(text, title, max ? { max } : {}) : null; } catch (e) { console.error(e); return null; } }
+let SUM_DETAIL = (() => { try { return localStorage.getItem("studydesk.sumMode") !== "short"; } catch (e) { return true; } })();
+function summarize(text, title = "", max, detail) { try { return window.SDSummary ? SDSummary.summarize(text, title, max ? { max } : { detail: detail === undefined ? false : detail }) : null; } catch (e) { console.error(e); return null; } }
 const asSections = bullets => [{ h: "", items: bullets.map(t => ({ t, kinds: [], def: null })) }];
 /* one renderer for every summary in the app (topic page, subject summary, recordings) */
 function sumHTML(sm, opts = {}) {
@@ -1507,15 +1613,18 @@ function sumHTML(sm, opts = {}) {
     const what = [secTxt, termTxt].filter(Boolean).join(" and ");
     cov = `<p class="cov tiny">${ico("check")}<span>${what ? `Covers ${what}` : "Covers your notes"} · ${c.vocab}% of the important words.${c.vocab < 85 && c.missed.length ? ` Not in the summary: ${c.missed.map(esc).join(", ")}. Check your notes for these.` : ""}</span></p>`;
   }
-  return body + terms + defs + (opts.noCov ? "" : cov);
+  const ex = sm.examples && sm.examples.length && !opts.noEx ? `<details class="defs exs" ${opts.openEx ? "open" : ""}><summary>Examples from your notes <span class="muted">(${sm.examples.length})</span></summary><ul class="bul">${sm.examples.map(x => `<li>${esc(x.t)}${x.h ? `<span class="tiny muted ex-from">${esc(x.h)}</span>` : ""}</li>`).join("")}</ul></details>` : "";
+  return body + terms + defs + ex + (opts.noCov ? "" : cov);
 }
 const sumCache = new Map();
+/* a summary only if it is already made: lets big lists skip the work of summarising thousands of topics */
+const summaryPeek = id => leafIds.length > 400 ? (sumCache.get(id + ":" + notesOf(id).length + (SUM_DETAIL ? ":d" : "")) || null) : summaryOf(id);
 function summaryOf(id) {
   const e = S.content.explain[id];
   if (e && e.summary) { const bullets = Array.isArray(e.summary) ? e.summary : String(e.summary).split(/\n+/).filter(Boolean); return { bullets, sections: asSections(bullets), terms: [], defs: [], source: "written" }; }
-  const n = notesOf(id), key = id + ":" + n.length;
+  const n = notesOf(id), key = id + ":" + n.length + (SUM_DETAIL ? ":d" : "");
   if (sumCache.has(key)) return sumCache.get(key);
-  let r = n ? summarize(n, nodes[id].title) : null;
+  let r = n ? summarize(n, nodes[id].title, undefined, SUM_DETAIL) : null;
   if (!r && e && (e.uni || e.simple)) { const bullets = [e.simple, e.uni, e.exam].filter(Boolean); r = { bullets, sections: asSections(bullets), terms: [], defs: [], source: "explain" }; }
   sumCache.set(key, r); return r;
 }
@@ -1670,7 +1779,7 @@ V.listen = () => {
     </section>
     <section class="section"><div class="sec-head"><h2>By chapter</h2></div>
       ${DSUBJ.length ? DSUBJ.map(s => `<details class="card subj-ep" ${s === DSUBJ[0] ? "open" : ""}><summary class="row"><span class="mark" style="--pc:${subjColor(s.id)}"></span><b class="grow">${esc(s.name)}</b>${ico("chev", 'class="caret"')}</summary>
-        <div class="stack" style="gap:8px;margin-top:10px">${s.chapterIds.map(cid => { const c = nodes[cid], n = leavesUnder(cid).length, withNotes = leavesUnder(cid).filter(l => summaryOf(l)).length; return epCard("topic:" + cid, `Ch ${c.num} · ${c.title}`, `${n} topics · ${withNotes ? withNotes + " with notes" : "no notes yet"}`, "topic", `data-id="${cid}"`); }).join("")}
+        <div class="stack" style="gap:8px;margin-top:10px">${s.chapterIds.map(cid => { const c = nodes[cid], n = leavesUnder(cid).length, withNotes = leavesUnder(cid).filter(hasSum).length; return epCard("topic:" + cid, `Ch ${c.num} · ${c.title}`, `${n} topics · ${withNotes ? withNotes + " with notes" : "no notes yet"}`, "topic", `data-id="${cid}"`); }).join("")}
         <button class="btn btn-line btn-sm" data-go="summary:${s.id}" style="align-self:flex-start">Read the ${esc(s.name)} summary</button></div></details>`).join("") : `<div class="card empty">Episodes appear here once you <button class="link" data-go="import">import a file</button> with your notes.</div>`}
     </section>
     <section class="section"><div class="sec-head"><h2>My recordings</h2></div>
@@ -1704,15 +1813,25 @@ V.episode = () => {
 };
 V.summary = sid => {
   const s = subjects[sid]; if (!s) return V.listen();
-  const leaves = leavesBySubject[sid], have = leaves.filter(l => summaryOf(l.id)).length;
+  const leaves = leavesBySubject[sid], have = leaves.filter(l => hasSum(l.id)).length;
   return `<div class="stack" style="gap:20px">
     <header class="subhead"><div class="eyebrow">${esc(s.name)} · summary</div><h1>Everything in ${esc(s.name)}</h1>
       <p class="muted">${have} of ${leaves.length} topics have notes to summarise.${have < leaves.length ? " Import the textbook PDF or add notes to fill in the rest." : ""}</p>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0] || ""}" ${s.chapterIds.length ? "" : "disabled"}>${ico("spark")}Listen from chapter 1</button></div></header>
-    ${s.chapterIds.map(cid => { const c = nodes[cid]; return `<section class="card stack sumch"><div class="sec-head"><h2 class="h3">Chapter ${c.num} · ${esc(c.title)}</h2><button class="link small" data-action="ep-play" data-kind="topic" data-id="${cid}">Listen</button></div>
-      ${leavesUnder(cid).map(l => { const n = nodes[l], sm = summaryOf(l); return `<div class="sumtopic"><button class="sumt" data-go="topic:${l}"><span class="onum">${n.num}</span>${esc(n.title)}<span class="pages">pp ${n.p1}–${n.p2}</span></button>${sm ? sumHTML(sm, { noCov: true }) : `<p class="tiny muted">No notes yet.</p>`}</div>`; }).join("")}</section>`; }).join("")}
+    ${leaves.length <= SUM_LAZY ? s.chapterIds.map(cid => { const c = nodes[cid]; return `<section class="card stack sumch"><div class="sec-head"><h2 class="h3">Chapter ${c.num} · ${esc(c.title)}</h2><button class="link small" data-action="ep-play" data-kind="topic" data-id="${cid}">Listen</button></div>
+      ${sumChHTML(cid)}</section>`; }).join("")
+    /* big books: one folded card per chapter, summarised only when opened, so the page opens at once */
+    : `<p class="small muted">${s.chapterIds.length} chapters. Open a chapter to read its summary.</p>` + s.chapterIds.map((cid, i) => { const c = nodes[cid], ls = leavesUnder(cid), w = ls.filter(hasSum).length; return `<details class="card sumch sumch-f" data-sumch="${cid}" ${i === 0 ? "open" : ""}><summary class="row"><span class="grow"><b class="h3">Chapter ${c.num} · ${esc(c.title)}</b><span class="tiny muted">${ls.length} topic${ls.length === 1 ? "" : "s"}${w < ls.length ? ` · ${w} with notes` : ""}</span></span>${ico("chev", 'class="caret"')}</summary><div class="sumch-in stack">${i === 0 ? `<p class="tiny muted">Summarising this chapter…</p>` : ""}</div></details>`; }).join("") + (setTimeout(sumFillOpen, 30), "")}
   </div>`;
 };
+const SUM_LAZY = 80, hasSum = id => !!(notesOf(id) || (S.content.explain[id] && (S.content.explain[id].summary || S.content.explain[id].uni || S.content.explain[id].simple)));
+function sumChHTML(cid, listen) {
+  return (listen ? `<button class="link small" data-action="ep-play" data-kind="topic" data-id="${cid}" style="align-self:flex-start">Listen to this chapter</button>` : "") +
+    leavesUnder(cid).map(l => { const n = nodes[l], sm = summaryOf(l); return `<div class="sumtopic"><button class="sumt" data-go="topic:${l}"><span class="onum">${n.num}</span>${esc(n.title)}<span class="pages">pp ${n.p1}–${n.p2}</span></button>${sm ? sumHTML(sm, { noCov: true }) : `<p class="tiny muted">No notes yet.</p>`}</div>`; }).join("");
+}
+function sumFill(d) { const box = d.querySelector(".sumch-in"); if (!box || box.dataset.done) return; box.dataset.done = "1"; box.innerHTML = sumChHTML(d.dataset.sumch, true); typeof mathify === "function" && mathify(box); }
+function sumFillOpen() { $$("details[data-sumch][open]").forEach(sumFill); }
+document.addEventListener("toggle", e => { const d = e.target; if (d.matches && d.matches("details[data-sumch]") && d.open) sumFill(d); }, true);
 function weekView() {
   const t = todayKey(), from = addDays(t, -6), w = weekStats(from, t), prev = weekStats(addDays(t, -13), addDays(t, -7)), sk = streak();
   const days = Array.from({ length: 14 }, (_, i) => addDays(t, i - 13)), perDay = days.map(d => S.log.filter(e => e.d === d && (e.t === "task" || e.t === "listen")).reduce((a, e) => a + (e.m || 0), 0)), mx = Math.max(30, ...perDay);
@@ -1768,7 +1887,7 @@ async function v3Action(act, a) {
     case "rec-play": if (RP.cur && RP.cur.id === id) RP.toggle(); else await RP.play(id); return true;
     case "rec-skip": RP.skip(+a.dataset.s); return true;
     case "rec-more": openRecSheet(id); return true;
-    case "rec-save": { const r = await IDB.get("audio", id); if (!r) return true; r.transcript = ($("#rec-tr")?.value || "").slice(0, 200000); await IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.transcript = r.transcript; openRecSheet(id); toast(r.transcript.trim() ? "Saved. Summary below." : "Saved."); return true; }
+    case "rec-save": { const r = await IDB.get("audio", id); if (!r) return true; r.transcript = ($("#rec-tr")?.value || "").slice(0, 2000000); await IDB.put("audio", r); const m = RECS.find(x => x.id === id); if (m) m.transcript = r.transcript; openRecSheet(id); toast(r.transcript.trim() ? "Saved. Summary below." : "Saved."); return true; }
     case "rec-del": if (!a.dataset.confirm) { a.dataset.confirm = "1"; a.textContent = TAP + " again to delete"; return true; } if (RP.cur && RP.cur.id === id) { RP.stop(); RP.cur = null; } await IDB.del("audio", id); RECS = RECS.filter(x => x.id !== id); closeSheet(); rerender(); toast("Recording deleted."); return true;
     case "notes": openNotesSheet(id); return true;
     case "notes-save": await saveNotes(id, $("#notes-text")?.value || ""); closeSheet(); rerender(); toast("Notes saved. Summary, flashcards and podcast are updated."); return true;
@@ -1990,7 +2109,7 @@ function placeIndicator(container) {
 let stack = [{ v: "today" }];
 const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Review", "cards"], ["progress", "Progress", "progress"]];
 const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
-const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice", import: "exams", exam: "practice", read: "exams" })[r.v] || r.v;
+const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", learn: "exams", review: "practice", import: "exams", exam: "practice", read: "exams" })[r.v] || r.v;
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
   if (FX.on && document.startViewTransition) {
@@ -2018,6 +2137,8 @@ function crumbs() {
   let trail = [];
   const id = r.a;
   if (r.v === "subject" && subjects[id]) trail = [["subject:" + id, subjects[id].name]];
+  else if (r.v === "learn" && nodes[id]) { const sid = nodes[id].subject; trail = [["subject:" + sid, subjects[sid].name], ["topic:" + id, crumbTitle(id)], ["learn:" + id, "Step by step"]]; }
+  else if (r.v === "map" && nodes[id]) { const sid = nodes[id].subject; trail = [["subject:" + sid, subjects[sid].name], ["map:" + sid, "Mind map"], ["map:" + id, crumbTitle(id)]]; }
   else if (nodes[id]) {
     let n = nodes[id]; const chain = []; while (n) { chain.unshift(n); n = n.parent ? nodes[n.parent] : null; }
     trail = [["subject:" + chain[0].subject, subjects[chain[0].subject].name], ...chain.map(c => [(c.depth === 0 ? "chapter:" : "topic:") + c.id, crumbTitle(c.id)])];
@@ -2094,7 +2215,7 @@ function applySettings(rebuild) {
   save();
 }
 function download(name, text) {
-  try { const url = URL.createObjectURL(new Blob([text], { type: "application/json" })); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000); return true; } catch (e) { return false; }
+  try { const url = URL.createObjectURL(new Blob(Array.isArray(text) ? text : [text], { type: "application/json" })); const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 2000); return true; } catch (e) { return false; }
 }
 function doImport(txt) {
   const r = importText(txt);
@@ -2119,6 +2240,7 @@ document.addEventListener("click", e => {
     if (typeof M_ACTS !== "undefined" && M_ACTS.has(act)) { mAction(act, a); return; }
     if (typeof R_ACTS !== "undefined" && R_ACTS.has(act)) { rAction(act, a); return; }
     if (typeof E_ACTS !== "undefined" && E_ACTS.has(act)) { eAction(act, a); return; }
+    if (typeof L_ACTS !== "undefined" && L_ACTS.has(act)) { lAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
@@ -2161,14 +2283,16 @@ document.addEventListener("click", e => {
       case "replan": snapshot(); generate(todayKey()); S.changes.unshift({ when: todayKey(), text: "Plan rebuilt from today using your latest progress and practice scores." }); save(); flipRerender(); toast("Plan rebuilt from today.", { label: "Undo", fn: undo }); return;
       case "day": { const d = +a.dataset.d, days = S.settings.days; if (days.includes(d)) { if (days.length === 1) { toast("Keep at least one study day."); return; } S.settings.days = days.filter(x => x !== d); } else S.settings.days = [...days, d].sort(); snapshot(); applySettings(true); rerender(); toast("Study days updated. Plan rebuilt.", { label: "Undo", fn: undo }); return; }
       case "perday": S.settings.maxPerDay = clamp(S.settings.maxPerDay + +a.dataset.d, 2, 10); applySettings(true); rerender(); return;
+      case "sum-mode": SUM_DETAIL = a.dataset.v === "detail"; try { localStorage.setItem("studydesk.sumMode", SUM_DETAIL ? "detail" : "short"); } catch (e) { } rerender(); return;
       case "setopt": S.settings[a.dataset.k] = a.dataset.v; applySettings(false); rerender(); return;
       case "install": if (deferredInstall) { deferredInstall.prompt(); deferredInstall.userChoice.finally(() => { deferredInstall = null; rerender(); }); } else go("settings"); return;
-      case "export": { markBackup(); const ok = download(`study-desk-backup-${todayKey()}.json`, exportText()); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); return; }
+      case "export": { markBackup(); const big = Object.keys(NOTES).length > 300; if (big) { toast("Making your backup. Big books take a few seconds."); a.disabled = true; }
+        exportParts().then(parts => { const ok = download(`study-desk-backup-${todayKey()}.json`, parts); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); }).finally(() => { a.disabled = false; }); return; }
       case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
       case "reset": if (a.dataset.confirm) {
-          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec", "books", "marks"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
-            NOTES = {}; RECS = []; if (typeof SKETCHES !== "undefined") SKETCHES = [];
+          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec", "books", "marks", "figs", "aq"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
+            NOTES = {}; RECS = []; if (typeof SKETCHES !== "undefined") SKETCHES = []; if (typeof FIGS !== "undefined") { FIGS = []; figsSave(); }
             ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Everything is erased. Study Desk is empty again."); })();
         } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to erase everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Erase everything on this device"; } }, 3500); } return;
     }

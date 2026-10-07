@@ -18,11 +18,37 @@ const shuffleWith = (arr, rnd) => { const a = arr.slice(); for (let i = a.length
    from the same subject. */
 let aqKey = "", aqTimer = null, AQ = [];
 function scheduleAutoQuestions() { clearTimeout(aqTimer); aqTimer = setTimeout(buildAutoQuestions, 400); }
+/* Built in small slices so the app stays responsive with thousands of topics; topics whose
+   notes have not changed keep their questions; nothing runs while an import is still saving. */
+const AQ_DONE = new Map(); let aqGen = 0;
+const aqIdle = () => new Promise(r => (window.requestIdleCallback ? requestIdleCallback(() => r(), { timeout: 120 }) : setTimeout(r, 0)));
 async function buildAutoQuestions() {
-  if (!notesReady) { scheduleAutoQuestions(); return; }
+  if (!notesReady || (typeof IMP_SAVE !== "undefined" && IMP_SAVE && IMP_SAVE.i < IMP_SAVE.n)) { clearTimeout(aqTimer); aqTimer = setTimeout(buildAutoQuestions, 1500); return; }
   const ids = leafIds.filter(id => notesOf(id));
   const key = ids.map(id => id + ":" + notesOf(id).length).join("|");
   if (key === aqKey) return; aqKey = key;
+  const gen = ++aqGen;
+  /* big books: first the topics on the plan for the next two weeks and the ones already studied, so they have questions soon */
+  if (ids.length > 400) {
+    const t = todayKey(), end = addDays(t, 14), soon = new Set(S.tasks.filter(x => x.date >= t && x.date <= end).map(x => x.node));
+    const pri = ids.filter(id => soon.has(id) || st(id) > 0).slice(0, 300);
+    if (pri.length) { const part = await aqBuild(pri, key, gen, false); if (!part) return; aqPublish(part); }
+  }
+  const all = await aqBuild(ids, key, gen, true); if (all) aqPublish(all);
+}
+function aqKeep(id, sg, qs, I) { const r = { id, sig: sg, qs, terms: [...I.terms].slice(0, 80), defs: I.defs.slice(0, 40), people: [...I.people].slice(0, 30) }; AQ_DONE.set(sg, r); IDB.put("aq", r).catch(() => { }); }
+function aqPublish(fresh) {
+  const before = QS.length; AQ = fresh;
+  QS = QS.filter(q => !q.auto).concat(fresh);
+  if (QS.length !== before) { const v = stack[stack.length - 1].v; if (["practice", "topic"].includes(v) && !$(".scrim")) rerender(); }
+}
+/* finished questions and each topic's word lists are kept on the device, so the next start needs no re-summarising */
+let aqLoaded = false;
+async function aqBuild(ids, key, gen, keep) {
+  const sig = id => id + ":" + notesOf(id).length;
+  if (!aqLoaded) { aqLoaded = true; try { (await IDB.all("aq") || []).forEach(r => { if (r && r.sig && Array.isArray(r.qs)) AQ_DONE.set(r.sig, r); }); } catch (e) { } }
+  let tY = performance.now();
+  const pause = async () => { if (performance.now() - tY < 24) return false; await aqIdle(); tY = performance.now(); return gen !== aqGen; };
   const fresh = [];
   if (ids.length) {
     try { await loadScript("vendor/x/compromise.js"); } catch (e) { }
@@ -30,17 +56,25 @@ async function buildAutoQuestions() {
     /* term pools at three distances: this topic, its chapter, the whole subject.
        Wrong answers come from the closest pool first, so they are plausible. */
     const esc_ = x => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const info = {};
-    ids.forEach(id => {
-      const sm = summaryOf(id); if (!sm) return;
+    const info = {}; let n = 0;
+    for (const id of ids) {
+      const c = AQ_DONE.get(sig(id));
+      if (c) { info[id] = { sm: null, cached: c, terms: new Set(c.terms || []), defs: c.defs || [], people: new Set(c.people || []) }; continue; }
+      if (await pause()) return null;
+      const sm = summaryOf(id); if (!sm) continue;
       const people = new Set();
       if (nlpOk) nlp(sm.bullets.join(" ")).people().out("array").forEach(x => { x = x.replace(/[.,;:'’]+$|'s$/g, "").trim(); if (x.split(" ").length <= 3 && x.length > 3 && /^[A-Z]/.test(x)) people.add(x); });
       info[id] = { sm, terms: new Set([...(sm.terms || []), ...(sm.defs || []).map(d => d.term)]), defs: (sm.defs || []).map(d => ({ ...d, id })), people };
-    });
+    }
+    /* pools per chapter and per subject, built once (capped samples keep big books fast) */
+    const pools = {}, poolOf = (k, key) => ((pools[k] = pools[k] || {})[key] = pools[k][key] || []);
+    Object.keys(info).forEach(o => ["terms", "defs", "people"].forEach(key => { const v = [...info[o][key]]; poolOf("c:" + chapterOf(o), key).push(...v.map(x => [o, x])); poolOf("s:" + nodes[o].subject, key).push(...v.map(x => [o, x])); }));
+    const cap = (L, m, rnd) => L.length <= m ? L : shuffleWith(L, rnd).slice(0, m);
+    Object.keys(pools).forEach(k => Object.keys(pools[k]).forEach(key => { pools[k][key] = cap(pools[k][key], 1500, seeded(k + key)); }));
     const near = (id, key) => {
-      const ch = chapterOf(id), sub = nodes[id].subject, lists = [[], [], []];
-      Object.keys(info).forEach(o => { const k = o === id ? 0 : chapterOf(o) === ch ? 1 : nodes[o].subject === sub ? 2 : -1; if (k >= 0) lists[k].push(...info[o][key]); });
-      return lists;
+      const ch = chapterOf(id), rnd = seeded(id + key), mine = [...info[id][key]];
+      const chap = (pools["c:" + ch] || {})[key] || [], sub = (pools["s:" + nodes[id].subject] || {})[key] || [];
+      return [mine, cap(chap.filter(x => x[0] !== id), 400, rnd).map(x => x[1]), cap(sub.filter(x => x[0] !== id && chapterOf(x[0]) !== ch), 300, rnd).map(x => x[1])];
     };
     const isPerson = (t, id) => info[id].people.has(t) || /^[A-Z][a-z]+(?: [A-Z]\.?)*(?: [A-Z][a-z'-]+)+$/.test(t);
     /* wrong answers: same kind as the answer, not already in the sentence, closest pool first, in the answer's letter case */
@@ -56,8 +90,12 @@ async function buildAutoQuestions() {
       }
       return out;
     };
-    ids.forEach(id => {
-      const I = info[id]; if (!I || I.sm.source !== "auto") return;
+    n = 0;
+    for (const id of ids) {
+      const I = info[id]; if (!I) continue;
+      if (I.cached) { fresh.push(...I.cached.qs); continue; }
+      if (await pause()) return null;
+      if (I.sm.source !== "auto") { if (keep) aqKeep(id, sig(id), [], I); continue; }
       const sm = I.sm, rnd = seeded(id + key.length), out = [];
       const add = (q, answer, wrong, e, kind) => {
         if (wrong.length < 2) return;
@@ -86,12 +124,10 @@ async function buildAutoQuestions() {
         if (q === t || out.some(x => x.e.startsWith(t))) continue;
         add(`Fill the gap: ${q}`, answer, wrong, `${t} (From your notes.)`, "gap");
       }
-      fresh.push(...out);
-    });
+      fresh.push(...out); if (keep) aqKeep(id, sig(id), out, I);
+    }
   }
-  const before = QS.length; AQ = fresh;
-  QS = QS.filter(q => !q.auto).concat(fresh);
-  if (QS.length !== before) { const v = stack[stack.length - 1].v; if (["practice", "topic"].includes(v) && !$(".scrim")) rerender(); }
+  return fresh;
 }
 
 /* ---------- 2. maths: $x^2$, $$…$$ and \( … \) in notes, cards and summaries (Temml, MIT) ---------- */

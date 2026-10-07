@@ -25,6 +25,7 @@
   const CUE_LIST = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+) (main |key |basic |major |different )?(types|kinds|stages|steps|phases|parts|factors|causes|effects|functions|features|principles|elements|components|categories|levels|ways|reasons|characteristics|properties|rules|laws)\b|\bthe following\b|\bas follows\b/i;
   const RE_FORMULA = /(\b[A-Za-z]{1,3}\s*=\s*[-\w(√π])|(\b[a-z]{3,}\s*=\s*[\w(]+[^=]*[\/×*+−-]\s*\w)|[×÷±√∑∫≈≠≤≥∝∆Δπ]|\b\w+\s*\^\s*\d|\b\d+\s*[x×*/]\s*\d+\s*=|\b(mol|kg|m\/s|km\/h|N|J|W|Pa|Hz|°C|K)\b\s*$/;
   const RE_NUM = /\b(1[0-9]{3}|20[0-9]{2})\b|\b\d+(\.\d+)?\s?(%|percent|per cent)|\b\d[\d,.]*\s?(million|billion|thousand|kg|km|cm|mm|µm|nm|mg|ml|g|m|s|ms|years?|days?|hours?|°C|°F|degrees)\b|R\s?\d|\$\s?\d|€\s?\d|£\s?\d/i;
+  const EXAMPLE = /\b(for example|for instance|e\.g\.|an example (of|is)|a good example|case study|case example|to illustrate|imagine (a|that|you)|consider (a|the case)|such as when|in practice,)|^example\b/i;
   const RE_PAGENUM = /^(page|p\.|slide)?\s*\d{1,4}(\s*(of|\/)\s*\d{1,4})?$/i;
 
   const norm = s => String(s || "").replace(/­/g, "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
@@ -69,8 +70,10 @@
     const sections = []; let cur = { h: "", paras: [] }, para = "";
     const flush = () => { if (para.trim()) cur.paras.push(para.trim()); para = ""; };
     const newSec = h => { flush(); if (cur.paras.length || cur.h) sections.push(cur); cur = { h, paras: [] }; };
+    /* next non-empty line for each line, found once (a long book has tens of thousands of lines) */
+    const nextOf = new Array(lines.length); for (let i = lines.length - 1, nx; i >= 0; i--) { nextOf[i] = nx; if (lines[i]) nx = lines[i]; }
     for (let i = 0; i < lines.length; i++) {
-      const l = lines[i], next = lines.slice(i + 1).find(x => x);
+      const l = lines[i], next = nextOf[i];
       if (!l) { flush(); continue; }
       if (RE_PAGENUM.test(l)) continue;
       if (/^(speaker )?notes?:\s*$/i.test(l)) { flush(); continue; }
@@ -191,10 +194,12 @@
       });
     }));
     const scored = [];
+    /* how often each phrase only appears inside a longer repeated phrase (one word longer: its first or last words) */
+    const insideOf = new Map();
+    cnt.forEach((c2, k2) => { if (c2 < 2) return; const w2 = k2.split(" "); if (w2.length < 2) return; const a = w2.slice(0, -1).join(" "), z = w2.slice(1).join(" "); insideOf.set(a, (insideOf.get(a) || 0) + c2); if (z !== a) insideOf.set(z, (insideOf.get(z) || 0) + c2); });
     cnt.forEach((c, key) => {
       const ws = key.split(" "), L = ws.length;
-      /* how often this phrase only appears inside a longer repeated phrase */
-      let inside = 0; cnt.forEach((c2, k2) => { if (c2 >= 2 && k2.split(" ").length === L + 1 && (" " + k2 + " ").includes(" " + key + " ")) inside += c2; });
+      let inside = insideOf.get(key) || 0;
       const eff = c - inside;
       const sv = [...surf.get(key).entries()].sort((a, b) => b[1] - a[1]);
       let disp = (lowerSeen.has(key) ? (sv.find(([d]) => /^[a-z]/.test(d)) || sv[0]) : sv[0])[0];
@@ -245,7 +250,8 @@
 
   /* ---------- 5. main ---------- */
   function summarize(text, title = "", opts = {}) {
-    text = String(text || "").slice(0, 120000);
+    text = String(text || "").slice(0, opts.detail ? 6000000 : 2000000);
+    const D = !!opts.detail;
     if (text.replace(/\s/g, "").length < 60) return null;
     const titleStems = new Set(content(title));
     let sections = structure(text, title);
@@ -259,7 +265,10 @@
     const used = new Set();
     const units = all.filter(u => { if (seenT.get(u.k) > 2 && u.t.length < 80) return false; if (used.has(u.k)) return false; used.add(u.k); return u.ws.length > 0 || RE_FORMULA.test(u.t); });
     if (!units.length) return null;
-    sections = sections.map(s => ({ ...s, units: s.units.filter(u => units.includes(u)) })).filter(s => s.units.length);
+    /* heading words by each unit's own section, taken before empty sections are dropped (u.si is the original index) */
+    const headStems = sections.map(s => new Set(content(s.h)));
+    const secHead = sections.map(s => s.h), keep = new Set(units);
+    sections = sections.map(s => ({ ...s, units: s.units.filter(u => keep.has(u)) })).filter(s => s.units.length);
     units.forEach((u, i) => {
       const prev = i > 0 && units[i - 1].si === u.si && units[i - 1].para === u.para ? units[i - 1] : null;
       u.prev = prev; u.kinds = classify(u.t).filter(k => k !== "def");
@@ -267,13 +276,15 @@
       /* "This is …", "It …" only makes sense with the sentence before it */
       u.needsPrev = !!prev && /^((at|in|on|for|by|with|from) (this|that|these|those)|this|these|that|it|they|such|he|she|its|their|here)\b/i.test(u.t) && prev.t.length + u.t.length < 380;
     });
-    textRank(units);
-    const headStems = sections.map(s => new Set(content(s.h)));
+    /* long notes: rank sentences within each section, so 1,000-page books stay fast (TextRank is quadratic) */
+    if (units.length > 700) { const bySec = new Map(); units.forEach(u => { if (!bySec.has(u.si)) bySec.set(u.si, []); bySec.get(u.si).push(u); }); bySec.forEach(us => { if (us.length > 900) for (let k = 0; k < us.length; k += 600) textRank(us.slice(k, k + 600)); else textRank(us); }); }
+    else textRank(units);
+    const EMPTY_SET = new Set();
     units.forEach(u => {
       const len = u.t.length;
       let sc = .55 * u.tr;
       sc += .12 * Math.min(1, u.ws.filter(w => titleStems.has(w)).length / 2);
-      sc += .12 * Math.min(1, u.ws.filter(w => headStems[u.si].has(w)).length / 2);
+      sc += .12 * Math.min(1, u.ws.filter(w => (headStems[u.si] || EMPTY_SET).has(w)).length / 2);
       if (u.first && u.para === 0) sc += .08;
       if (u.def) sc += .35;
       if (u.kinds.includes("formula")) sc += .25;
@@ -293,25 +304,34 @@
     const avgW = wordsN / units.length;
     let budget = Math.round(2 + wordsN / 110 + units.length * .05);
     if (avgW < 11) budget = Math.max(budget, Math.round(units.length * .8)); /* slides are already condensed */
-    budget = opts.max || Math.max(4, Math.min(60, budget));
+    budget = opts.max || Math.max(4, Math.min(D ? 6000 : 60, budget));
+    /* every detail: at least one line from every paragraph */
+    if (D && !opts.max) budget = Math.max(budget, Math.min(6000, sections.reduce((a, s) => a + new Set(s.units.map(u => u.para)).size, 0)));
     const nSec = sections.length;
     const secW = sections.map(s => s.units.reduce((a, u) => a + Math.max(.05, u.sc), 0));
     const totW = secW.reduce((a, b) => a + b, 0) || 1;
     /* each section's share of the budget follows how much it says; must-keep lines come on top */
-    const quota = sections.map((s, i) => Math.max(1, Math.min(s.units.length, Math.round(budget * secW[i] / totW))));
+    const quota = sections.map((s, i) => Math.max(D ? new Set(s.units.map(u => u.para)).size : 1, Math.min(s.units.length, Math.round(budget * secW[i] / totW))));
     const picked = new Set();
     const mmr = (cands, k, already) => {
-      const sel = [];
+      const sel = [], red = new Map();
+      cands.forEach(c => red.set(c, already.reduce((m, s) => Math.max(m, cos(c, s)), 0)));
       while (sel.length < k) {
         let best = null, bs = -1e9;
-        cands.forEach(c => { if (picked.has(c)) return; const red = Math.max(0, ...[...already, ...sel].map(s => cos(c, s))); const v = .72 * c.sc - .28 * red; if (red > .72) return; if (v > bs) { bs = v; best = c; } });
+        cands.forEach(c => { if (picked.has(c)) return; const rd = red.get(c); const v = .72 * c.sc - .28 * rd; if (rd > .72) return; if (v > bs) { bs = v; best = c; } });
         if (!best) break; sel.push(best); picked.add(best);
+        cands.forEach(c => { if (!picked.has(c)) { const x = cos(c, best); if (x > red.get(c)) red.set(c, x); } });
       }
       return sel;
     };
     sections.forEach((s, i) => {
       /* must-keep first: definitions, formulas, exam cues (capped so a section of definitions stays readable) */
-      const must = s.units.filter(u => u.def || u.kinds.includes("formula") || (u.kinds.includes("exam") && u.sc > .35)).sort((a, b) => b.sc - a.sc).slice(0, sections.length > 12 ? Math.max(quota[i], 1) + 1 : Math.max(quota[i], 3) + 2);
+      const must = D ? s.units.filter(u => !u.filler && (u.def || u.kinds.includes("formula") || u.kinds.includes("exam") || u.kinds.includes("num") || u.kinds.includes("list") || EXAMPLE.test(u.t)))
+        : s.units.filter(u => u.def || u.kinds.includes("formula") || (u.kinds.includes("exam") && u.sc > .35)).sort((a, b) => b.sc - a.sc).slice(0, sections.length > 12 ? Math.max(quota[i], 1) + 1 : Math.max(quota[i], 3) + 2);
+      if (D) { /* the best line of each paragraph, so nothing in the section is skipped */
+        const byPara = new Map(); s.units.forEach(u => { if (u.filler) return; const b = byPara.get(u.para); if (!b || u.sc > b.sc) byPara.set(u.para, u); });
+        byPara.forEach(u => picked.add(u));
+      }
       must.forEach(u => picked.add(u));
       const others = s.units.filter(u => !picked.has(u));
       const rest = must.length ? Math.min(others.length, Math.max(others.length >= 3 ? 1 : 0, quota[i] - Math.ceil(must.length / 2))) : quota[i];
@@ -332,15 +352,15 @@
     /* important vocabulary (TF-IDF mass across the notes, ignoring filler lines) */
     const N = units.length, vocab = new Map();
     units.forEach(u => { if (!u.filler) u.v.forEach((x, w) => vocab.set(w, (vocab.get(w) || 0) + x)); });
-    const topVocab = [...vocab.entries()].filter(([w]) => df.get(w) >= 2 || N < 6).sort((a, b) => b[1] - a[1]).slice(0, Math.max(12, Math.min(60, Math.round(N * 1.2))));
+    const topVocab = [...vocab.entries()].filter(([w]) => df.get(w) >= 2 || N < 6).sort((a, b) => b[1] - a[1]).slice(0, Math.max(12, Math.min(D ? 400 : 60, Math.round(N * 1.2))));
     /* fill gaps: if an important word is in no bullet yet, add the best line that carries it (within a small extra budget) */
-    const cover = () => new Set([...picked].flatMap(u => u.ws));
-    let extra = Math.max(3, Math.round(budget * .5));
-    for (const [w] of topVocab.slice(0, 24)) {
+    const covered = new Set([...picked].flatMap(u => u.ws));
+    let extra = D ? budget : Math.max(3, Math.round(budget * .5));
+    for (const [w] of topVocab.slice(0, D ? topVocab.length : 24)) {
       if (extra <= 0) break;
-      if (cover().has(w)) continue;
-      const c = units.filter(u => !picked.has(u) && !u.filler && u.ws.includes(w)).sort((a, b) => b.sc - a.sc)[0];
-      if (c) { picked.add(c); extra--; }
+      if (covered.has(w)) continue;
+      let c = null; for (const u of units) if (!picked.has(u) && !u.filler && u.ws.includes(w) && (!c || u.sc > c.sc)) c = u;
+      if (c) { picked.add(c); c.ws.forEach(x => covered.add(x)); extra--; }
     }
 
     /* coverage: sections, key terms, and the share of important vocabulary carried by the bullets */
@@ -356,9 +376,11 @@
     const tidy = s => s.replace(/\s+/g, " ").replace(/^[-•*–]\s*/, "").replace(/^((so|okay|ok|right|well|now|and|but|yeah|um+|uh+)\s*,\s*)+/i, "").replace(/^(um+|uh+|so|okay|yeah|and|but then)\s+(?=[a-z])/i, "").replace(/\s+([,.;:])/g, "$1").replace(/^[a-z]/, c => c.toUpperCase()).replace(/[:;,]$/, "").trim();
     const outSecs = sections.map((s, i) => ({ h: s.h, part: !!s.part, items: s.units.filter(u => picked.has(u)).map(u => ({ t: tidy(u.needsPrev && !picked.has(u.prev) ? u.prev.t + " " + u.t : u.t), kinds: u.kinds, def: u.def ? { term: u.def.term, def: u.def.def } : null })) })).filter(s => s.items.length);
     const bullets = outSecs.flatMap(s => s.items.map(x => x.t));
+    /* the notes' own examples, word for word, with the section they come from */
+    const examples = units.filter(u => EXAMPLE.test(u.t) && u.t.length > 30 && !u.filler).slice(0, D ? 200 : 12).map(u => ({ t: tidy(u.needsPrev && u.prev ? u.prev.t + " " + u.t : u.t), h: secHead[u.si] || "" }));
     const shownHeads = outSecs.filter(s => s.h).length;
     return {
-      bullets, terms, source: "auto",
+      bullets, terms, examples, detail: D, source: "auto",
       sections: shownHeads >= 2 ? outSecs : [{ h: "", items: outSecs.flatMap(s => s.items) }],
       defs: defs.slice(0, 40).map(d => ({ term: tidy(d.term), def: tidy(d.def) })),
       coverage: {

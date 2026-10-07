@@ -61,7 +61,7 @@ const ZOOMS = [.6, .8, 1, 1.25, 1.5, 2];
 async function addBook(file, sid) {
   if (!file || !subjects[sid]) return null;
   if (!/\.pdf$/i.test(file.name || "") && file.type !== "application/pdf") { toast("Choose a PDF file."); return null; }
-  if (file.size > 400e6) { toast("That PDF is over 400 MB, which is too big to keep on a phone. Try a smaller copy."); return null; }
+  if (file.size > 2e9) { toast("That PDF is over 2 GB, which is more than a browser can keep. Try a smaller copy."); return null; }
   RD.adding = file.name || "PDF"; drawBookShelf();
   try {
     const buf = await file.arrayBuffer(), blob = new Blob([buf], { type: "application/pdf" });
@@ -74,7 +74,7 @@ async function addBook(file, sid) {
     const pg = await doc.getPage(1), vp1 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: 132 / vp1.width });
     let thumb = "";
     try { const cv = document.createElement("canvas"); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height); const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height); await pg.render({ canvasContext: cx, viewport: vp }).promise; thumb = cv.toDataURL("image/jpeg", .72); } catch (e) { }
-    const rec = { id: newId("bk"), sid, name: file.name || "textbook.pdf", title: title.slice(0, 140), pages: doc.numPages, labels: labels ? labels.slice(0, 6000) : null, ratio: +(vp1.height / vp1.width).toFixed(4), size: file.size, added: Date.now(), thumb, data: blob };
+    const rec = { id: newId("bk"), sid, name: file.name || "textbook.pdf", title: title.slice(0, 140), pages: doc.numPages, labels: labels ? labels.slice(0, 30000) : null, ratio: +(vp1.height / vp1.width).toFixed(4), size: file.size, added: Date.now(), thumb, data: blob };
     doc.destroy();
     await IDB.put("books", rec);
     try { navigator.storage?.persist && navigator.storage.persist(); } catch (e) { }
@@ -674,3 +674,117 @@ document.addEventListener("change", async e => {
   if (rec) toast(`${rec.title} is ready to read.`, { label: "Open", fn: () => go("read:" + rec.id) });
 });
 (function rBoot() { loadBooks().then(() => { const v = stack[stack.length - 1].v; if (["subject", "topic", "read"].includes(v)) rerender(); }); })();
+
+/* =====================================================================
+   v4.10: diagrams and pictures from imported PDFs
+   Every picture in the book is kept as the real image from the real page, with its caption, its page and
+   the book's own sentences about it ("Figure 3.2 shows ..."). Nothing is made up. A diagram can become a
+   picture card (cover its labels and test yourself) or open its page in the textbook.
+   ===================================================================== */
+let FIGS = (() => { try { const a = JSON.parse(localStorage.getItem("studydesk.figs") || "[]"); return Array.isArray(a) ? a.filter(f => f && f.id && f.node) : []; } catch (e) { return []; } })();
+const figsSave = () => { try { localStorage.setItem("studydesk.figs", JSON.stringify(FIGS)); } catch (e) { } };
+const figsOf = id => FIGS.filter(f => f.node === id);
+const FIG_CAP = /^(figure|fig\.?|diagram|chart|graph|illustration|image|photo|plate|exhibit|picture|model|flowchart|map)\s*[\dIVX]+([.\-–][\dIVX]+)*\b[.:\-–]?/i;
+const FIG_MAX = 3000; /* per device; each is a compressed picture of about 60 KB */
+const mulM = (a, b) => [a[0] * b[0] + a[2] * b[1], a[1] * b[0] + a[3] * b[1], a[0] * b[2] + a[2] * b[3], a[1] * b[2] + a[3] * b[3], a[0] * b[4] + a[2] * b[5] + a[4], a[1] * b[4] + a[3] * b[5] + a[5]];
+async function pdfImageBoxes(pg) {
+  const O = window.pdfjsLib && pdfjsLib.OPS; if (!O) return [];
+  const ops = await pg.getOperatorList(); let m = [1, 0, 0, 1, 0, 0]; const st = [], out = [];
+  const paint = new Set([O.paintImageXObject, O.paintInlineImageXObject, O.paintImageXObjectRepeat, O.paintImageMaskXObject, O.paintJpegXObject].filter(x => x !== undefined));
+  for (let k = 0; k < ops.fnArray.length; k++) {
+    const f = ops.fnArray[k], a = ops.argsArray[k];
+    if (f === O.save) st.push(m); else if (f === O.restore) m = st.pop() || m;
+    else if (f === O.transform) m = mulM(m, a);
+    else if (f === O.paintFormXObjectBegin) { st.push(m); if (a && Array.isArray(a[0]) && a[0].length === 6) m = mulM(m, a[0]); }
+    else if (f === O.paintFormXObjectEnd) m = st.pop() || m;
+    else if (paint.has(f)) { const xs = [m[4], m[0] + m[4], m[2] + m[4], m[0] + m[2] + m[4]], ys = [m[5], m[1] + m[5], m[3] + m[5], m[1] + m[3] + m[5]]; out.push([Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]); }
+  }
+  return out;
+}
+/* join pictures that touch or overlap (one diagram is often several images) */
+function mergeBoxes(bs) {
+  const near = (a, b) => !(a[2] + 6 < b[0] || b[2] + 6 < a[0] || a[3] + 6 < b[1] || b[3] + 6 < a[1]);
+  let out = bs.map(b => b.slice()), moved = true;
+  while (moved) { moved = false; for (let i = 0; i < out.length && !moved; i++) for (let j = i + 1; j < out.length; j++) if (near(out[i], out[j])) { const a = out[i], b = out[j]; out[i] = [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]; out.splice(j, 1); moved = true; break; } }
+  return out;
+}
+async function pdfFigures(imp, i, items, node, label) {
+  if (FIGS.length >= FIG_MAX || imp.figOff) return;
+  try {
+    const pg = await imp.doc.getPage(i), vp = pg.getViewport({ scale: 1 }), W = vp.width, H = vp.height;
+    let boxes = (await pdfImageBoxes(pg)).filter(b => { const w = b[2] - b[0], h = b[3] - b[1]; return w > 48 && h > 40 && w * h > W * H * .03; });
+    /* a picture covering the whole page is a scanned page or a background, not a figure */
+    boxes = mergeBoxes(boxes).filter(b => (b[2] - b[0]) * (b[3] - b[1]) < W * H * .82).map(b => ({ rel: [Math.max(0, b[0] / W), Math.max(0, 1 - b[3] / H), Math.min(1, b[2] / W), Math.min(1, 1 - b[1] / H)] }));
+    /* drawn diagrams (lines and shapes, no picture): a caption with labels above it and no body text */
+    items.forEach((l, k) => {
+      if (!FIG_CAP.test(l.s) || boxes.some(b => l.rel >= b.rel[1] - .02 && l.rel <= b.rel[3] + .14)) return;
+      let top = k; while (top > 0 && items[top - 1].chars < 45 && l.rel - items[top - 1].rel < .6) top--;
+      const y0 = top > 0 ? items[top - 1].rel + .012 : .06, y1 = l.rel - .01;
+      if (y1 - y0 > .12 && k - top >= 1) boxes.push({ rel: [.06, y0, .94, y1], drawn: true });
+    });
+    if (!boxes.length) return;
+    const scale = Math.min(2.2, 1500 / W), view = pg.getViewport({ scale }), cv = document.createElement("canvas");
+    cv.width = Math.round(view.width); cv.height = Math.round(view.height);
+    const cx = cv.getContext("2d"); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+    await pg.render({ canvasContext: cx, viewport: view }).promise;
+    for (const b of boxes) {
+      if (FIGS.length >= FIG_MAX) break;
+      const [x0, y0, x1, y1] = b.rel, pad = .008;
+      const sx = Math.max(0, (x0 - pad) * cv.width), sy = Math.max(0, (y0 - pad) * cv.height), sw = Math.min(cv.width - sx, (x1 - x0 + pad * 2) * cv.width), sh = Math.min(cv.height - sy, (y1 - y0 + pad * 2) * cv.height);
+      if (sw < 60 || sh < 50) continue;
+      const k = Math.min(1, 1100 / Math.max(sw, sh)), out = document.createElement("canvas"); out.width = Math.round(sw * k); out.height = Math.round(sh * k);
+      out.getContext("2d").drawImage(cv, sx, sy, sw, sh, 0, 0, out.width, out.height);
+      /* the caption: the nearest "Figure 2.1 ..." line just below or above the picture */
+      const caps = items.map(l => ({ l, d: l.rel >= y1 ? l.rel - y1 : y0 - l.rel })).filter(c => FIG_CAP.test(c.l.s) && c.d >= -.02 && c.d < .12).sort((a, c) => a.d - c.d);
+      let cap = caps[0] ? caps[0].l.s : "";
+      if (cap) { const at = items.indexOf(caps[0].l); for (let m = at + 1; m < items.length && m < at + 3; m++) { const nx = items[m]; if (nx.rel - items[m - 1].rel < .03 && nx.chars < 120 && !FIG_CAP.test(nx.s) && !/[.:]$/.test(cap)) cap += " " + nx.s; else break; } }
+      /* pages shared by two topics: a figure belongs to the topic whose heading comes before it on the page */
+      const key = i + ":" + b.rel.map(v => Math.round(v * 50)).join(","), seen = (imp.figSeen || (imp.figSeen = new Map())).get(key);
+      if (seen) {
+        const norm = t => stripNum(String(t).replace(/^#+\s*/, "")).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim(), me = norm(nodes[node]?.title || "");
+        if (me && items.some(l => norm(l.s) === me && l.rel < y0)) { const f = FIGS.find(x => x.id === seen); if (f) { f.node = node; f.sid = nodes[node]?.subject; } }
+        continue;
+      }
+      const id = newId("fig"), data = out.toDataURL("image/jpeg", .8); imp.figSeen.set(key, id);
+      await IDB.put("figs", { id, data });
+      FIGS.push({ id, node, sid: nodes[node]?.subject, p: label, cap: cap.slice(0, 300), w: out.width, h: out.height, drawn: !!b.drawn });
+    }
+    cv.width = cv.height = 0; figsSave();
+  } catch (e) { console.warn("figure", i, e); }
+}
+/* what the book itself says about a figure: sentences in the topic's notes that mention it ("Figure 3.2 shows ...") */
+function figSays(f) {
+  const m = (f.cap || "").match(FIG_CAP); const notes = notesOf(f.node) || ""; if (!m) return [];
+  const key = m[0].replace(/[.:\-–]\s*$/, "").trim(), rx = new RegExp("\\b" + key.replace(/\./g, "\\.").replace(/\s+/g, "\\s*") + "\\b(?![.\\d])", "i");
+  const sents = (window.SDSummary ? notes.split(/\n+/).flatMap(p => p.split(/(?<=[.!?])\s+(?=[A-Z(])/)) : []).map(x => x.replace(/^#+\s*/, "").trim());
+  return [...new Set(sents.filter(x => rx.test(x) && x.length > 25 && x.toLowerCase() !== (f.cap || "").toLowerCase()))].slice(0, 6);
+}
+async function figData(id) { try { return (await IDB.get("figs", id))?.data || ""; } catch (e) { return ""; } }
+function figsHTML(id) {
+  const fs = figsOf(id); if (!fs.length) return "";
+  return `<section class="card stack figs-card" style="gap:12px"><div class="sec-head"><h2 style="font-size:18px">Diagrams and pictures</h2><span class="tiny muted">${fs.length} from the PDF</span></div>
+    <div class="fig-grid">${fs.slice(0, 60).map(f => `<button class="fig-th" data-action="fig-open" data-id="${f.id}" aria-label="${esc(f.cap || "Picture on page " + f.p)}"><span class="fig-img" style="aspect-ratio:${f.w}/${f.h}"><img alt="" data-fig="${f.id}"></span><span class="fig-cap">${esc(f.cap || "Page " + f.p)}</span></button>`).join("")}</div>
+    ${fs.length > 60 ? `<p class="tiny muted">${fs.length - 60} more in this topic. Open the textbook to see them all.</p>` : ""}</section>`;
+}
+async function fillFigs() { for (const img of $$("img[data-fig]:not([src])")) { const d = await figData(img.dataset.fig); if (d) img.src = d; } }
+async function openFig(id) {
+  const f = FIGS.find(x => x.id === id); if (!f) return; const n = nodes[f.node];
+  const data = await figData(id), says = figSays(f), b = typeof booksOf === "function" && n ? booksOf(n.subject)[0] : null;
+  openSheet("Diagram", `${sheetHead((n ? subjects[n.subject].name + " · " : "") + "Page " + f.p, f.cap ? f.cap.replace(FIG_CAP, m => m.trim() + " ").slice(0, 90) : "Picture from your PDF")}
+    <div class="stack" style="gap:14px"><div class="fig-big"><img src="${data}" alt="${esc(f.cap || "Diagram from page " + f.p)}"></div>
+    ${f.cap ? `<p class="small"><b>Caption:</b> ${esc(f.cap)}</p>` : ""}
+    ${says.length ? `<div class="fig-says"><h3 class="h3">What your book says about it</h3><ul class="bul">${says.map(x => `<li>${esc(x)}</li>`).join("")}</ul><p class="tiny muted">Word for word from page ${esc(String(f.p))} onwards of your PDF.</p></div>` : `<p class="small muted">The text doesn't mention this picture by name. Its topic summary has what the pages around it say.</p>`}
+    <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="fig-card" data-id="${f.id}">${ico("cards")}Make a picture card</button>${b ? `<button class="btn btn-line" data-sgo="read:${b.id}:${pageIndexOf(b, f.p)}">${ico("book")}Page ${esc(String(f.p))} in the textbook</button>` : ""}</div>
+    <p class="tiny muted">A picture card hides the labels you choose, so you can test yourself on the diagram.</p></div>`);
+}
+R_ACTS.add("fig-open"); R_ACTS.add("fig-card");
+const _rActionF = rAction;
+rAction = async function (act, a) {
+  if (act === "fig-open") { openFig(a.dataset.id); return; }
+  if (act === "fig-card") { const f = FIGS.find(x => x.id === a.dataset.id); if (!f || typeof openPicSheet !== "function") return; const data = await figData(f.id); closeSheet(true); openPicSheet(f.node); PE.pic = { data }; drawPicSheet(); return; }
+  return _rActionF(act, a);
+};
+const _vTopicF = V.topic;
+V.topic = id => { const h = _vTopicF(id); const fh = figsHTML(id); if (!fh) return h; const k = h.indexOf('<section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Summary'); if (k < 0) return h + fh; const e = h.indexOf("</section>", k); return e < 0 ? h + fh : h.slice(0, e + 10) + fh + h.slice(e + 10); };
+const _renderF = render;
+render = function (fresh) { _renderF(fresh); if ($("img[data-fig]")) fillFigs(); };

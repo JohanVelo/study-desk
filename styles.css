@@ -1552,3 +1552,111 @@ html.big .set-jump{top:calc((env(safe-area-inset-top,0px) + 56px) / 1.12)}
 .topbar.scrolled .qa-btn{width:40px;padding:0;justify-content:center}
 .topbar.scrolled .qa-btn span{display:none}
 @media (min-width:1000px){.topbar:has(.qa-btn) .tb-title{max-width:calc(100% - 300px)}.topbar.scrolled .qa-btn{width:auto;padding:0 14px 0 11px}.topbar.scrolled .qa-btn span{display:inline}}
+
+/* ===== v4.10: import progress you can see ===== */
+/* spinners and progress bars are information, not decoration: they keep moving (slower) with reduced motion or Calm on */
+.spin{animation:spin .8s linear infinite!important}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:1.4s!important}}
+html.calm .spin{animation-duration:1.4s!important}
+.drop-big.busy{align-items:stretch;text-align:left;gap:14px}
+.impp{display:grid;gap:14px;width:100%}
+.impp-file{display:flex;align-items:center;gap:12px;min-width:0}
+.impp-file .grow{display:flex;flex-direction:column;min-width:0}
+.impp-file b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.impp-ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:color-mix(in oklab,var(--pen) 14%,var(--surface));color:var(--pen);flex:none}
+.impp-ic svg{width:20px;height:20px}
+.impp-pct{font-size:20px;color:var(--ink)}
+.impp-bar{display:block;height:10px;border-radius:999px;background:var(--sunken);overflow:hidden;box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--line) 70%,transparent)}
+.impp-bar i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--pen),color-mix(in oklab,var(--pen) 70%,var(--hl)));transition:width .4s var(--ease-out)!important;position:relative;overflow:hidden}
+.impp-bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent,oklch(100% 0 0/.35),transparent);transform:translateX(-100%);animation:impShine 1.6s ease-in-out infinite!important}
+.impp-bar.indet i{animation:impSlide 1.4s ease-in-out infinite!important}
+@keyframes impShine{to{transform:translateX(100%)}}
+@keyframes impSlide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
+@media (prefers-reduced-motion:reduce){.impp-bar i::after{animation-duration:2.6s!important}.impp-bar.indet i{animation-duration:2.4s!important}}
+.impp-steps{list-style:none;margin:0;padding:0;display:grid;gap:10px;font-size:14.5px}
+.impp-steps li{display:flex;align-items:center;gap:10px;color:var(--muted)}
+.impp-steps li.ok{color:var(--ink-2)}
+.impp-steps li.now{color:var(--ink);font-weight:700}
+.impp-dot{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 2px var(--line)}
+.impp-steps li.ok .impp-dot{background:var(--ok);box-shadow:none;color:var(--paper)}
+.impp-steps li.ok .impp-dot svg{width:13px;height:13px}
+.impp-steps li.now .impp-dot{box-shadow:inset 0 0 0 2.5px var(--line);border:2.5px solid transparent;border-top-color:var(--pen);animation:spin .8s linear infinite!important}
+@media (prefers-reduced-motion:reduce){.impp-steps li.now .impp-dot{animation-duration:1.4s!important}}
+.impp-foot{display:flex;justify-content:space-between;gap:12px;margin:0}
+.drop-big.busy > .btn{align-self:flex-start}
+.impp-save{display:grid;gap:8px}
+.impp-save .impp-bar{height:6px}
+html.calm .spin,html.calm .impp-steps li.now .impp-dot{animation-iteration-count:infinite!important;animation-duration:1.4s!important}
+html.calm .impp-bar i::after{animation-iteration-count:infinite!important;animation-duration:2.6s!important}
+html.calm .impp-bar.indet i{animation-iteration-count:infinite!important;animation-duration:2.4s!important}
+.sm-mode button{padding:6px 12px;font-size:13px;min-height:36px}
+.exs .ex-from{display:block;margin-top:2px}
+.exs ul{margin:8px 0 0}
+/* diagrams and pictures from the PDF */
+.fig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+.fig-th{display:flex;flex-direction:column;gap:6px;text-align:left;padding:8px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.fig-th:hover{border-color:var(--pen)}
+.fig-img{display:block;width:100%;max-height:160px;border-radius:9px;overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.fig-img img{width:100%;height:100%;object-fit:contain;display:block}
+.fig-cap{font-size:12.5px;line-height:1.35;color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fig-big{border-radius:14px;overflow:auto;background:#fff;box-shadow:inset 0 0 0 1px var(--line);max-height:60vh;touch-action:pinch-zoom pan-x pan-y}
+.fig-big img{display:block;width:100%;height:auto}
+.fig-says{display:grid;gap:8px;padding:14px;border-radius:14px;background:var(--sunken)}
+.fig-says .bul{margin:0}
+/* v4.10 big-book summary: folded chapters */
+.sumch-f{gap:0}
+.sumch-f summary{list-style:none;cursor:pointer;gap:12px;min-height:48px;align-items:center}
+.sumch-f summary::-webkit-details-marker{display:none}
+.sumch-f summary .grow{display:flex;flex-direction:column;gap:2px;min-width:0}
+.sumch-f summary b{line-height:1.3}
+.sumch-f[open] .caret{transform:rotate(90deg)}
+.sumch-f .sumch-in{gap:14px}
+.sumch-f[open] .sumch-in{margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+/* v4.10 learn step by step */
+.st-learn{grid-column:1/-1;width:100%;margin-bottom:10px;min-height:76px;background:linear-gradient(135deg,color-mix(in oklab,var(--pen) 10%,var(--surface)),var(--surface) 70%);box-shadow:var(--shadow),inset 0 0 0 1.5px color-mix(in oklab,var(--pen) 28%,transparent)}
+.st-learn .st-ic{background:var(--pen);color:var(--surface)}
+.st-learn .st-t b{font-size:16px}
+.st-learn .caret{margin-left:auto;flex:none;color:var(--pen)}
+.ln{max-width:680px;margin-inline:auto;width:100%}
+.ln-top{display:flex;flex-direction:column;gap:10px;position:sticky;top:calc(env(safe-area-inset-top) + 52px);z-index:3;background:var(--paper);padding:6px 0 10px;margin-top:-6px}
+.ln-top .eyebrow{margin:0}
+.ln-seg{display:flex;gap:3px;height:6px}
+.ln-seg i{flex:1;border-radius:3px;background:var(--sunken);transition:background .3s var(--ease-out),transform .3s var(--ease-out)}
+.ln-seg i.q{flex:.55}
+.ln-seg i.on{background:var(--pen)}
+.ln-seg i.cur{background:color-mix(in oklab,var(--pen) 45%,var(--sunken));transform:scaleY(1.35)}
+.ln-bar{height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.ln-bar i{display:block;height:100%;background:var(--pen);transform-origin:left;transition:transform .4s var(--ease-out)}
+.ln-card{gap:16px;display:flex;flex-direction:column;padding:22px 20px;min-height:min(46vh,360px);animation:lnIn .34s var(--ease-out) both}
+.ln-card[data-dir="-1"]{animation-name:lnBack}
+@keyframes lnIn{from{opacity:0;transform:translateX(28px)}}
+@keyframes lnBack{from{opacity:0;transform:translateX(-28px)}}
+html.calm .ln-card,html.reduce .ln-card{animation:none}
+@media (prefers-reduced-motion:reduce){.ln-card{animation:none}}
+.ln-kind{display:inline-flex;align-items:center;gap:7px;align-self:flex-start;font-size:12.5px;font-weight:700;color:var(--pen);background:var(--pen-soft);padding:5px 10px 5px 8px;border-radius:999px}
+.ln-kind svg{width:15px;height:15px}
+.ln-kind.q{background:var(--hl);color:var(--hl-ink)}
+.ln-kind.ok{background:color-mix(in oklab,var(--ok) 16%,var(--surface));color:color-mix(in oklab,var(--ok) 70%,var(--ink))}
+.ln-h{margin:0;font-size:clamp(22px,5.4vw,28px);line-height:1.2;text-wrap:balance}
+h2.ln-h{font-size:clamp(20px,4.8vw,24px)}
+.ln-q{font-size:clamp(19px,4.6vw,23px);line-height:1.35}
+.ln-pts{font-size:16.5px;line-height:1.6}
+.ln-pts li+li{margin-top:10px}
+.ln-map{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:6px;color:var(--ink-2)}
+.ln-map li::marker{color:var(--pen);font-weight:700}
+.ln-ans{border-radius:var(--r-m);background:var(--sunken);padding:14px 16px;animation:lnAns .3s var(--ease-out) both}
+@keyframes lnAns{from{opacity:0;transform:translateY(6px)}}
+.ln-a{margin:0 0 6px;font-size:18px;font-weight:700;color:var(--ink)}
+.ln-ans .small{margin:0}
+.ln-fig{display:block;width:100%;border-radius:var(--r-m);overflow:hidden;background:#fff;box-shadow:inset 0 0 0 1px var(--line)}
+.ln-fig .fig-img{display:block;max-height:52vh;margin-inline:auto}
+.ln-fig img{width:100%;height:100%;object-fit:contain;display:block}
+.ln-nav{display:flex;gap:10px;position:sticky;bottom:calc(env(safe-area-inset-bottom) + 76px);z-index:3;padding:10px 0;background:linear-gradient(to top,var(--paper) 70%,transparent)}
+.ln-nav .btn{min-height:52px;font-size:16px}
+.ln-nav .grow{flex:1}
+.ln-end{flex-direction:column}
+.ln-score{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.ln-score div{display:flex;flex-direction:column;gap:2px;padding:14px 12px;border-radius:var(--r-m);background:var(--sunken)}
+.ln-score b{font-size:24px;line-height:1.1}
+.ln-score span{font-size:12.5px;color:var(--muted)}
+@media (min-width:700px){.ln-nav{bottom:12px}.ln-end{flex-direction:row;flex-wrap:wrap}.ln-card{padding:30px 32px}}

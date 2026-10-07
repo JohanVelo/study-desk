@@ -159,8 +159,8 @@ async function picSave() {
   });
   const n = PE.boxes.length; PE = null; save(); closeSheet(); rerender(); toast(`${n} picture card${n === 1 ? "" : "s"} saved. They show up in your next review.`);
 }
-const _exportText = exportText;
-exportText = function () { const o = JSON.parse(_exportText()); const used = new Set((S.cards || []).filter(c => c.kind === "pic").map(c => c.pic)); o.pics = Object.fromEntries(Object.entries(PICS).filter(([k]) => used.has(k))); return JSON.stringify(o, null, 1); };
+const _exportObj = exportObj;
+exportObj = function () { const o = _exportObj(); const used = new Set((S.cards || []).filter(c => c.kind === "pic").map(c => c.pic)); o.pics = Object.fromEntries(Object.entries(PICS).filter(([k]) => used.has(k))); return o; };
 const _doImport = doImport;
 doImport = function (txt) {
   try { const o = JSON.parse(txt); if (o && o.pics && typeof o.pics === "object") for (const [id, data] of Object.entries(o.pics)) if (typeof data === "string" && data.startsWith("data:image/") && data.length < 8e6) { PICS[id] = data; IDB.put("pics", { id, data, added: Date.now() }).catch(() => { }); } } catch (e) { }

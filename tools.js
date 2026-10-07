@@ -169,7 +169,7 @@ function blurtGrade(text, id) {
     const hit = ws.filter(w => said.has(w)).length;
     return { b, ok: ws.length ? hit / ws.length >= .34 : false };
   });
-  const terms = sm.terms.map(t => ({ t, ok: said.has(stem(t)) }));
+  const terms = sm.terms.map(t => { const ws = words(t).map(stem); return { t, ok: ws.length ? ws.every(w => said.has(w)) : said.has(stem(t)) }; });
   const total = ideas.length + terms.length, got = ideas.filter(x => x.ok).length + terms.filter(x => x.ok).length;
   return { ideas, terms, score: total ? got / total : 0 };
 }
@@ -233,52 +233,61 @@ async function snapToNotes(files) {
 // phones: a vertical branch (outline) that fits the screen, no sideways scrolling
 function mapTall(sid) {
   const s = subjects[sid], rows = [], rowH = 40, ind = 22, pad = 14;
-  const walk = (id, depth) => { rows.push({ id, depth }); (nodes[id].kids || []).forEach(k => walk(k, depth + 1)); };
-  s.chapterIds.forEach(c => walk(c, 1));
+  const walk = (id, depth) => { rows.push({ id, depth }); mapKids(id).forEach(k => walk(k, depth + 1)); };
+  MAP.roots.forEach(c => walk(c, 1));
   const W = Math.max(280, Math.min(innerWidth - 56, 640)), H = pad * 2 + (rows.length + 1) * rowH;
   const pos = { [sid]: { x: pad + 6, y: pad + rowH / 2 } };
   rows.forEach((r, i) => pos[r.id] = { x: pad + 6 + r.depth * ind, y: pad + rowH / 2 + (i + 1) * rowH });
-  const par = {}; rows.forEach(r => (nodes[r.id].kids || []).forEach(k => par[k] = r.id)); s.chapterIds.forEach(c => par[c] = sid);
+  const par = {}; rows.forEach(r => mapKids(r.id).forEach(k => par[k] = r.id)); MAP.roots.forEach(c => par[c] = sid);
   const col = id => { const n = nodes[id]; return n.leaf ? (st(id) ? STATUS_COL[st(id)] : "var(--line)") : subjColor(sid); };
   let links = "";
   rows.forEach((r, k) => { const a = pos[par[r.id]], b = pos[r.id]; links += `<path class="mm-l" style="--k:${k}" d="M${a.x} ${a.y + 8} V${b.y - 10} Q${a.x} ${b.y} ${a.x + 10} ${b.y} H${b.x - 7}"/>`; });
   const nodesSvg = rows.map(r => { const n = nodes[r.id], p = pos[r.id], max = Math.max(12, Math.floor((W - p.x - 18) / (r.depth === 1 ? 8.2 : 7.3))), raw = (r.depth === 1 ? n.num + " " : "") + n.title, t = raw.length > max ? raw.slice(0, max - 1) + "…" : raw;
-    return `<a class="mm-n d${r.depth}" href="#" data-go="${r.depth === 1 ? "chapter:" : "topic:"}${r.id}" style="--d:${Math.min(r.depth, 3)}"><title>${esc(n.num + " " + n.title)} (${n.leaf ? STATUS[st(r.id)] : pct(progress(r.id)) + "% done"})</title><rect class="mm-hit" x="${p.x - 10}" y="${p.y - rowH / 2}" width="${W - p.x + 8}" height="${rowH}"/><circle cx="${p.x}" cy="${p.y}" r="${r.depth === 1 ? 6 : 4.5}" style="fill:${col(r.id)}" stroke="var(--surface)" stroke-width="2"/><text x="${p.x + 12}" y="${p.y + 4.5}">${esc(t)}</text></a>`; }).join("");
+    return `<a class="mm-n d${r.depth}" href="#" data-go="${mapGo(r)}${r.id}" style="--d:${Math.min(r.depth, 3)}"><title>${esc(n.num + " " + n.title)} (${n.leaf ? STATUS[st(r.id)] : pct(progress(r.id)) + "% done"})</title><rect class="mm-hit" x="${p.x - 10}" y="${p.y - rowH / 2}" width="${W - p.x + 8}" height="${rowH}"/><circle cx="${p.x}" cy="${p.y}" r="${r.depth === 1 ? 6 : 4.5}" style="fill:${col(r.id)}" stroke="var(--surface)" stroke-width="2"/><text x="${p.x + 12}" y="${p.y + 4.5}">${esc(t)}</text></a>`; }).join("");
   return `<svg class="mm mm-tall" viewBox="0 0 ${W} ${H}" width="100%" role="group" aria-label="Mind map of ${esc(s.name)}">${links}<g class="mm-root"><rect x="${pos[sid].x - 10}" y="${pos[sid].y - 16}" rx="12" width="${Math.min(W - 8, 9 * s.name.length + 34)}" height="32" style="fill:${subjColor(sid)}"/><text x="${pos[sid].x + 6}" y="${pos[sid].y + 5}" fill="var(--surface)">${esc(s.name)}</text></g>${nodesSvg}</svg>`;
 }
+/* big books: the map shows chapters only; tapping a chapter opens that chapter's own map */
+const MAP_BIG = 150; let MAP = { roots: [], big: false };
+const mapKids = id => MAP.big ? [] : (nodes[id].kids || []);
+const mapGo = r => r.depth === 1 ? (MAP.big ? "map:" : "chapter:") : "topic:";
 V.map = sid => {
+  const ch = nodes[sid] && nodes[sid].depth === 0 ? nodes[sid] : null; if (ch) sid = ch.subject;
   const s = subjects[sid]; if (!s) return V.exams();
+  MAP = { roots: ch ? [ch.id] : s.chapterIds, big: !ch && leavesBySubject[sid].length > MAP_BIG };
+  const h1 = ch ? `Chapter ${esc(ch.num)} · ${esc(ch.title)}` : `Everything in ${esc(s.name)}`;
+  const intro = MAP.big ? `${s.chapterIds.length} chapters. ${TAP} a chapter to see its topics.` : `Dots show each topic's stage. ${TAP} any line to open it.`;
   const tall = matchMedia("(max-width: 699px)").matches;
   if (tall) return `<div class="stack" style="gap:16px">
-    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. ${TAP} any line to open it.</p></header>
+    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>${h1}</h1><p class="small muted">${intro}</p></header>
     <div class="card mm-wrap">${mapTall(sid)}</div>
     <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x}</span>`).join("")}</div></div>`;
   const rowH = 34, pad = 16, rows = [];
   /* columns are as wide as their longest label, so titles aren't cut short */
-  const lenAt = d => Math.max(10, ...Object.values(nodes).filter(n => n.subject === sid && n.depth === d - 1).map(n => Math.min(44, (d === 1 ? n.num.length + 1 : 0) + n.title.length)));
+  const inMap = new Set(); const mark = id => { inMap.add(id); mapKids(id).forEach(mark); }; MAP.roots.forEach(mark);
+  const lenAt = d => Math.max(10, ...[...inMap].map(i => nodes[i]).filter(n => n.depth === d - 1).map(n => Math.min(44, (d === 1 ? n.num.length + 1 : 0) + n.title.length)));
   const colW = [0, 190, Math.max(200, Math.round(7.6 * lenAt(1) + 60)), Math.max(220, Math.round(7.2 * lenAt(2) + 60))];
   let y = 0;
   const place = (id, depth) => {
-    const n = nodes[id], kids = n.kids || [];
+    const n = nodes[id], kids = mapKids(id);
     if (!kids.length) { const r = { id, depth, y: y++ }; rows.push(r); return r.y; }
     const ys = kids.map(k => place(k, depth + 1));
     const r = { id, depth, y: (ys[0] + ys[ys.length - 1]) / 2 }; rows.push(r); return r.y;
   };
-  const cy = s.chapterIds.map(c => place(c, 1));
+  const cy = MAP.roots.map(c => place(c, 1));
   const rootY = cy.length ? (cy[0] + cy[cy.length - 1]) / 2 : 0;
   const X = d => pad + colW.slice(0, d + 1).reduce((a, b) => a + b, 0), Y = v => pad + 14 + v * rowH;
   const H = Y(Math.max(y - 1, 0)) + 30, maxD = Math.max(1, ...rows.map(r => r.depth)), W = X(maxD) + 260;
   const pos = { [sid]: { x: X(0), y: Y(rootY) } }; rows.forEach(r => pos[r.id] = { x: X(r.depth), y: Y(r.y) });
-  const link = (a, b, k) => { const mx = (a.x + b.x) / 2 + 30; return `<path class="mm-l" style="--k:${k}" d="M${a.x + 8} ${a.y} C ${mx} ${a.y}, ${mx - 40} ${b.y}, ${b.x - 6} ${b.y}"/>`; };
+  const link = (a, b, k) => { const mx = (a.x + b.x) / 2 + 30; return `<path class="mm-l" style="--k:${Math.min(k, 60)}" d="M${a.x + 8} ${a.y} C ${mx} ${a.y}, ${mx - 40} ${b.y}, ${b.x - 6} ${b.y}"/>`; };
   let links = "", k = 0;
-  s.chapterIds.forEach(c => { links += link({ x: pos[sid].x + 120, y: pos[sid].y }, pos[c], k++); });
-  rows.forEach(r => (nodes[r.id].kids || []).forEach(kid => { links += link({ x: pos[r.id].x + Math.min(colW[r.depth + 1] - 40, 7.2 * nodes[r.id].title.length + 34), y: pos[r.id].y }, pos[kid], k++); }));
+  MAP.roots.forEach(c => { links += link({ x: pos[sid].x + 120, y: pos[sid].y }, pos[c], k++); });
+  rows.forEach(r => mapKids(r.id).forEach(kid => { links += link({ x: pos[r.id].x + Math.min(colW[r.depth + 1] - 40, 7.2 * nodes[r.id].title.length + 34), y: pos[r.id].y }, pos[kid], k++); }));
   const col = id => { const n = nodes[id]; return n.leaf ? (st(id) ? STATUS_COL[st(id)] : "var(--line)") : subjColor(sid); };
   const label = (t, max) => t.length > max ? t.slice(0, max - 1) + "…" : t;
   const nodesSvg = rows.map(r => { const n = nodes[r.id], p = pos[r.id], max = 44;
-    return `<a class="mm-n d${r.depth}" href="#" data-go="${r.depth === 1 ? "chapter:" : "topic:"}${r.id}" style="--d:${r.depth}"><title>${esc(n.num + " " + n.title)} (${n.leaf ? STATUS[st(r.id)] : pct(progress(r.id)) + "% done"})</title><rect class="mm-hit" x="${p.x - 8}" y="${p.y - 17}" width="${Math.min(colW[Math.min(r.depth + 1, 3)] || 250, 7.4 * label((r.depth === 1 ? n.num + " " : "") + n.title, max).length + 26)}" height="34"/><circle cx="${p.x}" cy="${p.y}" r="${r.depth === 1 ? 6 : 4.5}" style="fill:${col(r.id)}" stroke="var(--surface)" stroke-width="2"/><text x="${p.x + 10}" y="${p.y + 4}">${esc(label((r.depth === 1 ? n.num + " " : "") + n.title, max))}</text></a>`; }).join("");
+    return `<a class="mm-n d${r.depth}" href="#" data-go="${mapGo(r)}${r.id}" style="--d:${r.depth}"><title>${esc(n.num + " " + n.title)} (${n.leaf ? STATUS[st(r.id)] : pct(progress(r.id)) + "% done"})</title><rect class="mm-hit" x="${p.x - 8}" y="${p.y - 17}" width="${Math.min(colW[Math.min(r.depth + 1, 3)] || 250, 7.4 * label((r.depth === 1 ? n.num + " " : "") + n.title, max).length + 26)}" height="34"/><circle cx="${p.x}" cy="${p.y}" r="${r.depth === 1 ? 6 : 4.5}" style="fill:${col(r.id)}" stroke="var(--surface)" stroke-width="2"/><text x="${p.x + 10}" y="${p.y + 4}">${esc(label((r.depth === 1 ? n.num + " " : "") + n.title, max))}</text></a>`; }).join("");
   return `<div class="stack" style="gap:16px">
-    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>Everything in ${esc(s.name)}</h1><p class="small muted">Dots show each topic's stage. ${TAP} any branch to open it.</p></header>
+    <header class="subhead"><div class="eyebrow">${esc(s.name)} · mind map</div><h1>${h1}</h1><p class="small muted">${intro}</p></header>
     <div class="card mm-wrap"><svg class="mm" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="group" aria-label="Mind map of ${esc(s.name)}">
       ${links}<g class="mm-root"><rect x="${pos[sid].x - 6}" y="${pos[sid].y - 17}" rx="12" width="${Math.min(170, 9 * s.name.length + 30)}" height="34" style="fill:${subjColor(sid)}"/><text x="${pos[sid].x + 8}" y="${pos[sid].y + 5}" fill="var(--surface)">${esc(label(s.name, 16))}</text></g>${nodesSvg}</svg></div>
     <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x}</span>`).join("")}</div>
@@ -293,7 +302,7 @@ async function searchIndex() {
   await loadScript("vendor/minisearch.umd.js");
   MS = new MiniSearch({ fields: ["title", "notes", "subject", "terms"], storeFields: ["go", "title", "sub", "sid", "kind"], searchOptions: { boost: { title: 4, terms: 3, subject: 2 }, prefix: true, fuzzy: .2 } });
   const docs = DSUBJ.map(s => ({ id: "s:" + s.id, go: "subject:" + s.id, title: s.name, notes: "", subject: s.name, sub: "Subject", sid: s.id, kind: "s" }));
-  Object.values(nodes).forEach(n => docs.push({ id: "n:" + n.id, go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, notes: notesOf(n.id).slice(0, 20000), terms: (() => { const sm = n.leaf ? summaryOf(n.id) : null; return sm ? [...(sm.terms || []), ...(sm.defs || []).map(d => d.term)].join(" ") : ""; })(), subject: subjects[n.subject].name, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}`, sid: n.subject, kind: "n" }));
+  Object.values(nodes).forEach(n => docs.push({ id: "n:" + n.id, go: (n.depth === 0 ? "chapter:" : "topic:") + n.id, title: n.title, notes: notesOf(n.id).slice(0, 60000), terms: (() => { const sm = n.leaf ? summaryPeek(n.id) : null; return sm ? [...(sm.terms || []), ...(sm.defs || []).map(d => d.term)].join(" ") : ""; })(), subject: subjects[n.subject].name, sub: `${subjects[n.subject].name} · ${n.num}${n.p1 ? ` · pp ${n.p1}–${n.p2}` : ""}`, sid: n.subject, kind: "n" }));
   MS.addAll(docs); msKey = key; return MS;
 }
 async function fuzzySearch(q) {
@@ -325,7 +334,7 @@ function toolAction(act, a) {
     }
     case "fc-del": {
       const c = (S.cards || []).find(x => x.id === id); if (!c) return true;
-      S.cards = S.cards.filter(x => x.id !== id); if (c.k) { S.cardsGone = [...(S.cardsGone || []), c.k].slice(-3000); }
+      S.cards = S.cards.filter(x => x.id !== id); if (c.k) { S.cardsGone = [...(S.cardsGone || []), c.k].slice(-20000); }
       save(); closeSheet(); rerender(); toast("Card deleted."); return true;
     }
     case "blurt": openBlurt(id); return true;
