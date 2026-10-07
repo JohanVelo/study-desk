@@ -1,0 +1,7 @@
+{
+  "name": "study-desk-tests",
+  "private": true,
+  "description": "Playwright browser tests for Study Desk (the app itself has no build step)",
+  "scripts": { "test": "bash runall.sh" },
+  "devDependencies": { "playwright": "^1.55.0", "axe-core": "^4.14.0" }
+}

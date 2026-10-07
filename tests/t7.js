@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext();const p=await ctx.newPage();const errs=[];
+p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error'&&!/fonts|net::/.test(m.text()))errs.push(m.text())});
+p.on('response',r=>{if(r.status()>=400)errs.push(r.status()+' '+r.url())});
+await p.goto('http://localhost:8777/study-desk/');await p.waitForTimeout(2500);
+console.log('sw',await p.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return r&&r.scope}));
+const man=await p.evaluate(async()=>{const r=await fetch(document.querySelector('link[rel=manifest]').href);return r.ok});console.log('manifest',man);
+await p.reload();await p.waitForTimeout(1000);await ctx.setOffline(true);await p.reload();await p.waitForTimeout(1500);
+console.log('offline',await p.evaluate(()=>document.querySelector('#heroTitle')?.innerText));
+await p.evaluate(()=>go('editsubj:psy'));await p.waitForTimeout(500);
+console.log('errs',errs);await b.close();})();

@@ -1,0 +1,23 @@
+const { chromium } = require('playwright'); const fs = require('fs'); const AXE = fs.readFileSync(require.resolve('axe-core/axe.min.js'), 'utf8');
+const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,OPTIONS' };
+const T = "## In plain words\nThe brain has four lobes (p. 1).\n\n## Key ideas\n- **Frontal lobe** plans (p. 1).\n\n## Check yourself\nQ: Which lobe plans?\nA: The frontal lobe.";
+const ev = (t, d) => `event: ${t}\ndata: ${JSON.stringify(d)}\n\n`;
+const SSE = ev('message_start', { type: 'message_start', message: { id: 'm', type: 'message', role: 'assistant', model: 'claude-opus-5-5', content: [], stop_reason: null, stop_sequence: null, usage: { input_tokens: 10, output_tokens: 1 } } }) + ev('content_block_start', { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } }) + ev('content_block_delta', { type: 'content_block_delta', index: 0, delta: { type: 'text_delta', text: T } }) + ev('content_block_stop', { type: 'content_block_stop', index: 0 }) + ev('message_delta', { type: 'message_delta', delta: { stop_reason: 'end_turn', stop_sequence: null }, usage: { output_tokens: 50 } }) + ev('message_stop', { type: 'message_stop' });
+(async () => { const b = await chromium.launch(); const errs = []; let n = 0;
+ for (const scheme of ['light', 'dark']) { const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'en-GB', serviceWorkers: 'block', colorScheme: scheme, reducedMotion: 'reduce' });
+  const p = await ctx.newPage();
+  await p.route('https://api.anthropic.com/**', r => r.request().method() === 'OPTIONS' ? r.fulfill({ status: 204, headers: CORS }) : /models/.test(r.request().url()) ? r.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: '{"type":"model","id":"claude-opus-5-5"}' }) : r.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/event-stream' }, body: SSE }));
+  await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+  const check = async label => { await p.waitForTimeout(400); await p.addScriptTag({ content: AXE }); n++;
+   const r = await p.evaluate(async () => (await axe.run(document, { resultTypes: ['violations'] })).violations.filter(v => ['serious', 'critical'].includes(v.impact)).map(v => v.id + ' ' + v.nodes.slice(0, 3).map(n => n.target.join(' ') + ' ' + (n.any[0]?.message || '').slice(0, 90)).join(' | ')));
+   if (r.length) errs.push(scheme + ' ' + label + ': ' + r.join('; ')); };
+  await p.evaluate(() => { localStorage.setItem('studydesk.tour', '1'); go('settings'); }); await check('settings no key');
+  await p.evaluate(() => go('import')); await p.waitForTimeout(300); await p.fill('#imp-name', 'Psychology'); await p.click('[data-action=imp-new]'); await p.waitForTimeout(300);
+  await p.setInputFiles('#imp-file', __dirname + '/fixtures/figures-book.pdf'); await p.waitForSelector('[data-action=imp-apply]', { timeout: 30000 });
+  await p.click('[data-action=imp-apply]'); await p.waitForFunction(() => IMP.done && !IMP.done.saving, null, { timeout: 30000 });
+  await p.evaluate(() => go('settings')); await p.waitForTimeout(300); await p.fill('#ai-key', 'sk-ant-good-1234567890abcdefghijklmnop'); await p.click('[data-action=ai-keysave]'); await p.waitForSelector('[data-action=ai-forget]'); await check('settings with key');
+  const id = await p.evaluate(() => FIGS[0].node); await p.evaluate(id => go('topic:' + id), id); await check('topic');
+  await p.click('[data-action=ai-topic]'); await p.waitForSelector('.ai-meta'); await check('answer sheet');
+  await p.evaluate(() => closeSheet(true)); await p.evaluate(() => openFig(FIGS[0].id)); await p.waitForSelector('[data-action=ai-fig]'); await p.click('[data-action=ai-fig]'); await p.waitForSelector('.sheet .ai-meta'); await check('diagram sheet');
+  await ctx.close(); }
+ console.log(n + ' screens checked'); console.log(errs.length ? errs.join('\n') : 'no errors'); await b.close(); })();
