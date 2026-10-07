@@ -107,9 +107,9 @@ V.read = arg => {
   RD.bid = bid; RD.jump = pg !== undefined && pg !== "" ? Math.min(Math.max(+pg, 0), b.pages - 1) : m.last || 0;
   return `<div class="rd" data-bid="${bid}">
     <div class="rd-bar"><div class="grow rd-name"><b>${esc(b.title)}</b><span class="tiny muted">${esc(subjects[b.sid]?.name || "")}</span></div>
-      <button class="rd-pg" data-action="rd-goto" aria-label="Contents and go to a page">${ico("contents")}<span><span id="rdPg">${esc(pageLabel(b, RD.jump))}</span><span class="muted">/${b.pages}</span></span></button>
+      <button class="rd-pg" data-action="rd-goto">${ico("search")}<span><span id="rdPg">${esc(pageLabel(b, RD.jump))}</span><span class="muted">/${b.pages}</span></span><span class="sr"> pages. Find or go to a page</span></button>
       <span class="rd-zoom" role="group" aria-label="Text size"><button class="icon-btn sm" data-action="rd-zoom" data-d="-1" aria-label="Smaller">${ico("minus")}</button><button class="icon-btn sm" data-action="rd-zoom" data-d="1" aria-label="Bigger">${ico("plus")}</button></span>
-      <button class="rd-hls" data-action="rd-list" aria-label="${m.hl.length} highlights">${ico("marker")}<b id="rdHlN">${m.hl.length}</b></button></div>
+      <button class="rd-hls" data-action="rd-list">${ico("marker")}<b id="rdHlN">${m.hl.length}</b><span class="sr"> highlights</span></button></div>
     ${m.hl.length ? "" : `<p class="rd-tip small">${ico("info")}<span>Select a line to highlight it or turn it into a flashcard.</span></p>`}
     <div class="rd-scroll" id="rdScroll"><div class="rd-pages" id="rdPages">${Array.from({ length: b.pages }, (_, i) => `<div class="rd-page" data-i="${i}" style="aspect-ratio:1/${b.ratio}" role="img" aria-label="Page ${esc(pageLabel(b, i))}"><span class="rd-num" aria-hidden="true">${esc(pageLabel(b, i))}</span></div>`).join("")}</div></div>
   </div>`;
@@ -152,6 +152,7 @@ async function rdRender(el) {
     el.append(cv, hl, tl); el.classList.add("on");
     drawHl(el);
     try { await new pdfjsLib.TextLayer({ textContentSource: page.streamTextContent(), container: tl, viewport: vp }).render(); } catch (e) { }
+    if (RD.q) rdMarkHits(el);
   } catch (e) { if (el.dataset.r === String(gen)) delete el.dataset.r; }
 }
 function rdUnrender(el, keepFlag) {
@@ -182,19 +183,51 @@ addEventListener("scroll", () => {
   cancelAnimationFrame(rdScrollRaf);
   rdScrollRaf = requestAnimationFrame(() => {
     const b = rdBook(), i = rdCurrent(); if (!b || i === null) return; const out = $("#rdPg"); if (out) out.textContent = pageLabel(b, i);
-    const m = marksOf(b.id); if (m.last !== i) { m.last = i; clearTimeout(rdSaveT); rdSaveT = setTimeout(() => saveMarks(b.id), 600); }
+    if (RD.q) { const n = $("#rdFindBar .rf-n"), hp = RD.hitPages || [], k = hp.indexOf(i); if (n) n.textContent = k >= 0 ? `${k + 1} of ${hp.length}` : `${hp.length} page${hp.length === 1 ? "" : "s"}`; }
+    const m = marksOf(b.id); m.seen = Date.now(); if (m.last !== i) { m.last = i; clearTimeout(rdSaveT); rdSaveT = setTimeout(() => saveMarks(b.id), 600); }
   });
 }, { passive: true });
 let rdResizeT = 0;
 addEventListener("resize", () => { if (!$("#rdPages")) return; clearTimeout(rdResizeT); rdResizeT = setTimeout(() => { const i = rdCurrent() ?? (marksOf(RD.bid).last || 0); rdWidth(); RD.gen++; RD.vis.forEach(el => { delete el.dataset.r; rdRender(el); }); rdScrollTo(i, true); }, 250); });
 function rdZoom(d) {
+  const k = ZOOMS.findIndex(z => z >= RD.zoom - .01), cur = k < 0 ? ZOOMS.length - 1 : k;
+  const nk = d > 0 ? (ZOOMS[cur] > RD.zoom + .01 ? cur : cur + 1) : cur - 1;
+  if (nk < 0 || nk >= ZOOMS.length) { toast(d > 0 ? "That's the biggest size." : "That's the smallest size."); return; }
+  rdZoomTo(ZOOMS[nk]);
+}
+function rdZoomTo(z, anchor) {
   const b = rdBook(); if (!b) return;
-  const k = ZOOMS.indexOf(RD.zoom), nk = Math.max(0, Math.min(ZOOMS.length - 1, (k < 0 ? 2 : k) + d));
-  if (ZOOMS[nk] === RD.zoom) { toast(d > 0 ? "That's the biggest size." : "That's the smallest size."); return; }
-  const i = rdCurrent() ?? (marksOf(b.id).last || 0); RD.zoom = ZOOMS[nk]; marksOf(b.id).zoom = RD.zoom; saveMarks(b.id);
+  z = Math.round(Math.max(ZOOMS[0], Math.min(ZOOMS[ZOOMS.length - 1], z)) * 100) / 100; if (Math.abs(z - RD.zoom) < .02) return;
+  const i = anchor ?? rdCurrent() ?? (marksOf(b.id).last || 0); RD.zoom = z; marksOf(b.id).zoom = z; saveMarks(b.id);
   rdWidth(); RD.gen++; $$(".rd-page").forEach(el => rdUnrender(el)); rdScrollTo(i, true);
   requestAnimationFrame(() => RD.vis.forEach(rdRender));
 }
+/* pinch with two fingers to zoom the pages (not the whole app) */
+(function rdPinch() {
+  let d0 = 0, z0 = 1, mid = null;
+  const dist = t => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
+  document.addEventListener("touchstart", e => { if (e.touches.length !== 2 || !e.target.closest?.("#rdScroll")) return; d0 = dist(e.touches); z0 = RD.zoom; mid = rdCurrent(); }, { passive: true });
+  document.addEventListener("touchmove", e => {
+    if (!d0 || e.touches.length !== 2) return; e.preventDefault();
+    const k = Math.max(ZOOMS[0] / z0, Math.min(ZOOMS[ZOOMS.length - 1] / z0, dist(e.touches) / d0)), pg = $("#rdPages");
+    if (pg) { pg.style.transformOrigin = "50% " + (scrollY + innerHeight / 2 - pg.getBoundingClientRect().top - scrollY) + "px"; pg.style.transform = `scale(${k})`; }
+  }, { passive: false });
+  document.addEventListener("touchend", e => {
+    if (!d0 || e.touches.length) return; const pg = $("#rdPages"); const m = /scale\(([\d.]+)\)/.exec(pg?.style.transform || ""); if (pg) pg.style.transform = "";
+    const k = m ? +m[1] : 1; d0 = 0; if (Math.abs(k - 1) > .06) rdZoomTo(z0 * k, mid);
+  });
+  document.addEventListener("gesturestart", e => { if (e.target.closest?.("#rdScroll")) e.preventDefault(); });
+})();
+/* keys on a laptop: arrows and Page Up/Down move a page, + and - change the size */
+document.addEventListener("keydown", e => {
+  if (!$("#rdPages") || $(".scrim") || e.metaKey || e.ctrlKey || e.altKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+  const b = rdBook(); if (!b) return; const i = rdCurrent() ?? 0;
+  if (["ArrowRight", "PageDown"].includes(e.key) || (e.key === "ArrowDown" && e.shiftKey)) { e.preventDefault(); rdScrollTo(Math.min(b.pages - 1, i + 1)); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key) || (e.key === "ArrowUp" && e.shiftKey)) { e.preventDefault(); rdScrollTo(Math.max(0, i - 1)); }
+  else if (e.key === "+" || e.key === "=") { e.preventDefault(); rdZoom(1); }
+  else if (e.key === "-") { e.preventDefault(); rdZoom(-1); }
+  else if (e.key === "f" || e.key === "/") { e.preventDefault(); e.stopImmediatePropagation(); gotoSheet(); }
+}, true);
 
 /* ---------- selecting text: highlight or make a card ---------- */
 function mergeRects(rs) {
@@ -234,11 +267,19 @@ document.addEventListener("selectionchange", () => {
   }, 160);
 });
 document.addEventListener("pointerdown", e => { if (e.target.closest?.("#rdPop")) e.preventDefault(); }, true);
+/* a highlight that stops mid-sentence still makes a whole card: finish the sentence from the page text */
+function rdWholeSentence(i, text) {
+  if (/[.!?]["”')]?$/.test(text)) return undefined;
+  const el = rdPageEl(i), page = el ? [...el.querySelectorAll(".textLayer span")].filter(x => !x.children.length).map(x => x.textContent).join(" ").replace(/\s+/g, " ") : "";
+  const k = page.indexOf(text); if (k < 0) return undefined;
+  const rest = page.slice(k + text.length, k + text.length + 240), m = rest.match(/^[^.!?]*[.!?]/);
+  return m ? (text + (/^[\s,;:)]/.test(m[0]) ? "" : " ") + m[0].trim().replace(/^-\s*/, "")).replace(/\s+([,.;:!?])/g, "$1").replace(/\s+/g, " ") : undefined;
+}
 function rdAddHl(sel) {
   const b = rdBook(); if (!b || !sel) return null;
   const m = marksOf(b.id);
   const same = m.hl.find(h => h.i === sel.i && h.text === sel.text); if (same) return same;
-  const h = { id: newId("h"), i: sel.i, text: sel.text, rects: sel.rects, at: Date.now(), node: topicAt(b, sel.i, sel.rects[0][1]) };
+  const h = { id: newId("h"), i: sel.i, text: sel.text, full: rdWholeSentence(sel.i, sel.text), rects: sel.rects, at: Date.now(), node: topicAt(b, sel.i, sel.rects[0][1]) };
   m.hl.push(h); m.hl.sort((x, y) => x.i - y.i || x.rects[0][1] - y.rects[0][1]); saveMarks(b.id);
   const el = rdPageEl(sel.i); if (el) drawHl(el);
   const n = $("#rdHlN"); if (n) n.textContent = m.hl.length;
@@ -272,7 +313,7 @@ function hlSheet(hid) {
   const b = rdBook(), m = marksOf(RD.bid), h = m.hl.find(x => x.id === hid); if (!b || !h) return;
   const card = h.card && (S.cards || []).find(c => c.id === h.card);
   const ls = leavesBySubject[b.sid] || [], node = card ? card.node : h.node && nodes[h.node] ? h.node : topicAt(b, h.i, h.rects[0][1]);
-  const d = cardFromText(h.text);
+  const d = cardFromText(h.full || h.text);
   openSheet("Highlight", `${sheetHead(`${b.title} · page ${pageLabel(b, h.i)}`, card ? "Highlight and card" : "Turn it into a flashcard")}
     <div class="stack form">
       <blockquote class="rd-quote">${esc(h.text)}</blockquote>
@@ -294,7 +335,7 @@ function rdMakeCard(h, node, f, b) {
 function listSheet() {
   const b = rdBook(); if (!b) return;
   const m = marksOf(b.id), hs = m.hl, cards = new Set((S.cards || []).map(c => c.id)), left = hs.filter(h => !(h.card && cards.has(h.card)));
-  const canMake = left.filter(h => cardFromText(h.text).f).length, ls = leavesBySubject[b.sid] || [];
+  const canMake = left.filter(h => cardFromText(h.full || h.text).f).length, ls = leavesBySubject[b.sid] || [];
   openSheet("Highlights", `${sheetHead(b.title, hs.length ? `${hs.length} highlight${hs.length > 1 ? "s" : ""}` : "Highlights")}
     <div class="stack form">
       ${!hs.length ? `<p class="small muted">Nothing highlighted yet. Select a line on a page, then choose Highlight or Make a card.</p>`
@@ -305,17 +346,62 @@ function listSheet() {
         <button class="btn btn-line btn-sm" data-action="rd-rm" style="align-self:flex-start">Remove this PDF from this device</button></div></details>
     </div>`);
 }
-function gotoSheet() {
+/* one box for both: a page number goes to that page, words search the whole book */
+const fold = t => String(t).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+async function rdTexts(onProgress) {
+  const b = rdBook(); if (!b) return [];
+  RD.texts = RD.texts || {}; if (RD.texts[b.id]) return RD.texts[b.id];
+  const doc = await rdDoc(), out = [];
+  for (let i = 0; i < b.pages; i++) {
+    let t = ""; try { const tc = await (await doc.getPage(i + 1)).getTextContent(); t = tc.items.map(it => (it.str || "") + (it.hasEOL ? "\n" : "")).join(""); } catch (e) { }
+    out.push(t.replace(/-\n(\p{Ll})/gu, "$1").replace(/\s+/g, " ").trim());
+    if (onProgress && (i % 8 === 7 || i === b.pages - 1)) onProgress((i + 1) / b.pages);
+  }
+  if (RD.bid === b.id) RD.texts[b.id] = out; return out;
+}
+function gotoSheet(q) {
   const b = rdBook(); if (!b) return;
   const s = subjects[b.sid], rows = [];
   (s?.chapterIds || []).forEach(cid => { const c = nodes[cid]; rows.push([c, 0]); c.kids.forEach(k => rows.push([nodes[k], 1])); });
   const ok = rows.filter(([n]) => n.p1 && n.p1 <= pageNum(b, b.pages - 1) + 50);
-  openSheet("Go to a page", `${sheetHead(b.title, "Go to a page")}
+  openSheet("Find or go to a page", `${sheetHead(b.title, "Find or go to a page")}
     <div class="stack form">
-      <div class="row rd-gorow"><label class="fld grow"><span>Page number</span><input id="rd-n" inputmode="numeric" autocomplete="off" placeholder="${esc(pageLabel(b, 0))} to ${esc(pageLabel(b, b.pages - 1))}"></label><button class="btn btn-pen" data-action="rd-n">Go</button></div>
-      ${ok.length ? `<div class="stack" style="gap:6px"><span class="h3">Chapters</span><div class="rd-toc">${ok.map(([n, d]) => `<button class="${d ? "sub" : ""}" data-action="rd-jump" data-i="${pageIndexOf(b, n.p1)}"><span class="grow"><small class="mono">${esc(n.num)}</small> ${esc(n.title)}</span><span class="tiny muted mono">p. ${n.p1}</span></button>`).join("")}</div></div>` : ""}
+      <div class="row rd-gorow"><label class="fld grow"><span>Page number or words to find</span><input id="rd-n" type="search" enterkeyhint="search" autocomplete="off" placeholder="e.g. 42 or working memory" value="${esc(q || RD.q || "")}"></label><button class="btn btn-pen" data-action="rd-n">Go</button></div>
+      <div id="rdFind" role="status"></div>
+      ${ok.length ? `<div class="stack rd-tocwrap" style="gap:6px"><span class="h3">Chapters</span><div class="rd-toc">${ok.map(([n, d]) => `<button class="${d ? "sub" : ""}" data-action="rd-jump" data-i="${pageIndexOf(b, n.p1)}"><span class="grow"><small class="mono">${esc(n.num)}</small> ${esc(n.title)}</span><span class="tiny muted mono">p. ${n.p1}</span></button>`).join("")}</div></div>` : ""}
     </div>`);
   setTimeout(() => $("#rd-n")?.focus({ preventScroll: true }), 80);
+  if (q || RD.q) rdFind(q || RD.q);
+}
+let rdFindSeq = 0;
+async function rdFind(q) {
+  const out = $("#rdFind"), b = rdBook(); if (!out || !b) return;
+  q = String(q).replace(/\s+/g, " ").trim(); const fq = fold(q), seq = ++rdFindSeq;
+  if (fq.length < 2) { out.innerHTML = ""; return; }
+  $(".rd-tocwrap")?.setAttribute("hidden", "");
+  if (!RD.texts?.[b.id]) out.innerHTML = `<p class="small row" style="gap:8px"><span class="spin" aria-hidden="true"></span><span id="rdFindP">Reading the book…</span></p>`;
+  const texts = await rdTexts(p => { const e = $("#rdFindP"); if (e) e.textContent = `Reading the book… ${Math.round(p * 100)}%`; });
+  if (seq !== rdFindSeq || !$("#rdFind")) return;
+  const hits = []; let total = 0;
+  texts.forEach((t, i) => { const ft = fold(t); let k = ft.indexOf(fq), n = 0; while (k >= 0) { n++; total++; if (n === 1 && hits.length < 80) hits.push({ i, k, n: 0 }); k = ft.indexOf(fq, k + fq.length); } if (n && hits.length && hits[hits.length - 1].i === i) hits[hits.length - 1].n = n; });
+  RD.hitPages = [...new Set(hits.map(h => h.i))];
+  const snip = (t, k) => { const a = Math.max(0, k - 60), z = Math.min(t.length, k + fq.length + 80); return (a ? "…" : "") + esc(t.slice(a, k)) + "<mark>" + esc(t.slice(k, k + fq.length)) + "</mark>" + esc(t.slice(k + fq.length, z)) + (z < t.length ? "…" : ""); };
+  $("#rdFind").innerHTML = !hits.length ? `<p class="small muted">No matches for “${esc(q)}”.${texts.every(t => !t) ? " This PDF has no text to search. It may be scanned pages." : ""}</p>`
+    : `<p class="tiny muted">${total} match${total > 1 ? "es" : ""} on ${RD.hitPages.length} page${RD.hitPages.length > 1 ? "s" : ""}${hits.length >= 80 ? " (first 80 pages shown)" : ""}</p><ol class="hl-list rd-hits">${hits.map(h => `<li><button data-action="rd-hit" data-i="${h.i}" data-q="${esc(q)}"><span class="hl-p mono">p. ${esc(pageLabel(b, h.i))}</span><span class="hl-t">${snip(texts[h.i], h.k)}${h.n > 1 ? ` <span class="tiny muted">+${h.n - 1} more</span>` : ""}</span></button></li>`).join("")}</ol>`;
+}
+function rdMarkHits(el) {
+  el.querySelectorAll(".textLayer mark.hit").forEach(m => { const sp = m.parentElement; if (sp) sp.textContent = sp.textContent; });
+  if (!RD.q) return;
+  let fq = fold(RD.q); const spans = [...el.querySelectorAll(".textLayer span")].filter(x => !x.children.length);
+  let hit = spans.filter(x => fold(x.textContent).includes(fq));
+  if (!hit.length) { const w = fq.split(" ").sort((a, c) => c.length - a.length)[0]; if (w && w.length >= 4) { fq = w; hit = spans.filter(x => fold(x.textContent).includes(w)); } }
+  /* mark just the words: folding keeps one character per letter for the usual Latin text */
+  hit.forEach(sp => { const t = sp.textContent, ft = fold(t); if (ft.length !== t.length) { sp.innerHTML = `<mark class="hit">${esc(t)}</mark>`; return; } let out = "", at = 0, k = ft.indexOf(fq); while (k >= 0) { out += esc(t.slice(at, k)) + `<mark class="hit">${esc(t.slice(k, k + fq.length))}</mark>`; at = k + fq.length; k = ft.indexOf(fq, at); } sp.innerHTML = out + esc(t.slice(at)); });
+}
+function rdFindBar() {
+  $("#rdFindBar")?.remove(); const b = rdBook(); if (!RD.q || !b || !$("#rdPages")) return;
+  const i = rdCurrent() ?? 0, hp = RD.hitPages || [], k = hp.indexOf(i);
+  document.body.insertAdjacentHTML("beforeend", `<div class="rd-findbar" id="rdFindBar" role="region" aria-label="Find in the book"><button class="rf-q" data-action="rd-goto">${ico("search")}<span>“${esc(RD.q)}”</span></button><span class="tiny mono rf-n">${k >= 0 ? `${k + 1} of ${hp.length}` : `${hp.length} page${hp.length === 1 ? "" : "s"}`}</span><button class="icon-btn sm" data-action="rd-hitgo" data-d="-1" aria-label="Previous match">${ico("back")}</button><button class="icon-btn sm" data-action="rd-hitgo" data-d="1" aria-label="Next match">${ico("chev")}</button><button class="icon-btn sm" data-action="rd-findx" aria-label="Stop finding">${ico("x")}</button></div>`);
 }
 
 /* ---------- 2. teach it back ---------- */
@@ -467,6 +553,31 @@ V.import = () => {
   return h.replace(/<\/div>\s*$/, () => `<section class="card bk-offer" id="bkOffer">${kept ? `${ico("check")}<div class="grow"><b>The PDF is kept on this device</b><span class="small muted">Read it and highlight it from ${esc(subjects[IMP.sid].name)} › Textbook, or from the Read button on each topic.</span></div><button class="btn btn-line btn-sm" data-go="read:${RD.keptId}">Open it</button>`
     : `<span class="bk-ic">${ico("book")}</span><div class="grow"><b>Read this PDF in Study Desk too?</b><span class="small muted">Keep ${esc(RD.lastPdf.name)} here to read it, highlight lines and turn them into flashcards. It uses ${fmtSize(RD.lastPdf.size)} on this device.</span></div><button class="btn btn-soft btn-sm" data-action="rd-keep" ${RD.adding ? "disabled" : ""}>${RD.adding ? "Saving…" : "Keep the PDF"}</button>`}</section></div>`);
 };
+/* Today: pick up the textbook where you left off */
+const _vToday = V.today;
+V.today = () => {
+  const h = _vToday();
+  const recent = BOOKS.map(b => ({ b, m: MARKS[b.id] })).filter(x => x.m && x.m.last > 0 && x.m.seen && Date.now() - x.m.seen < 14 * 864e5 && subjects[x.b.sid]).sort((a, c) => c.m.seen - a.m.seen)[0];
+  if (!recent) return h;
+  const { b, m } = recent, p = Math.round((m.last + 1) / b.pages * 100);
+  const card = `<button class="card cont-read" data-go="read:${b.id}" style="--pc:${subjColor(b.sid)}"><span class="bk-cover">${b.thumb ? `<img src="${b.thumb}" alt="">` : ico("book")}</span><span class="grow"><span class="tiny muted">Continue reading · ${esc(subjects[b.sid].name)}</span><b>${esc(b.title)}</b><span class="cr-bar" aria-hidden="true"><i style="width:${p}%"></i></span><span class="tiny muted">Page ${esc(pageLabel(b, m.last))} of ${b.pages}${m.hl.length ? ` · ${m.hl.length} highlight${m.hl.length > 1 ? "s" : ""}` : ""}</span></span>${ico("chev", 'class="chev"')}</button>`;
+  const d = h.indexOf('<div class="dash">'), k = d < 0 ? -1 : h.indexOf('<section class="section"><div class="sec-head"><h2>', d);
+  return k < 0 ? h : h.slice(0, k) + card + h.slice(k);
+};
+/* a card made from a highlight says where it came from */
+function hlOfCard(cid) { for (const m of Object.values(MARKS)) { const h = m.hl.find(x => x.card === cid); if (h) { const b = BOOKS.find(x => x.id === m.id); if (b) return { b, h }; } } return null; }
+const _vReview = V.review;
+V.review = () => {
+  const h = _vReview(); if (typeof R === "undefined" || !R || R.i >= R.ids.length) return h;
+  const src = hlOfCard(R.ids[R.i]); if (!src) return h;
+  return h.replace(/(<div class="fc-face fc-back"[^>]*>[\s\S]*?)(<\/div>)/, (m0, a, z) => a + `<span class="fc-src">${ico("book")}${esc(src.b.title)}, page ${esc(pageLabel(src.b, src.h.i))}</span>` + z);
+};
+const _openCardSheet = openCardSheet;
+openCardSheet = function (node, cid) {
+  _openCardSheet(node, cid);
+  const src = cid && hlOfCard(cid), row = src && $('.sheet [data-action="fc-save"]')?.parentElement;
+  if (row) row.insertAdjacentHTML("beforeend", `<button class="btn btn-line btn-sm" data-sgo="read:${src.b.id}:${src.h.i}">${ico("book")}Page ${esc(pageLabel(src.b, src.h.i))} in the textbook</button>`);
+};
 const _importFile = importFile;
 importFile = async function (file, sid) { RD.lastPdf = file && /\.pdf$/i.test(file.name || "") ? file : null; return _importFile(file, sid); };
 const _render = render;
@@ -474,17 +585,26 @@ render = function (fresh) {
   rdPopHide();
   const top = stack[stack.length - 1];
   if (top.v !== "read" && RD.io) { RD.io.disconnect(); RD.io = null; RD.vis.clear(); }
+  $("#rdFindBar")?.remove(); if (top.v !== "read" || String(top.a || "").split(":")[0] !== RD.bid) { RD.q = ""; RD.hitPages = []; }
   _render(fresh);
-  if (top.v === "read") rdMount();
+  if (top.v === "read") { rdMount(); rdFindBar(); }
 };
 
-const R_ACTS = new Set(["rd-zoom", "rd-goto", "rd-n", "rd-jump", "rd-list", "rd-hl", "rd-card", "rd-open", "rd-show", "rd-mk", "rd-mkall", "rd-del", "rd-rm", "rd-keep", "tb-open", "tb-start", "tb-stop", "tb-cancel", "tb-again", "hw-read", "hw-add", "hw-copy", "hw-open"]);
+const R_ACTS = new Set(["rd-zoom", "rd-goto", "rd-n", "rd-hit", "rd-hitgo", "rd-findx", "rd-jump", "rd-list", "rd-hl", "rd-card", "rd-open", "rd-show", "rd-mk", "rd-mkall", "rd-del", "rd-rm", "rd-keep", "tb-open", "tb-start", "tb-stop", "tb-cancel", "tb-again", "hw-read", "hw-add", "hw-copy", "hw-open"]);
 async function rAction(act, a) {
   const b = rdBook(), m = b ? marksOf(b.id) : null, h = m && a.dataset.h ? m.hl.find(x => x.id === a.dataset.h) : null;
   switch (act) {
     case "rd-zoom": rdZoom(+a.dataset.d); return;
     case "rd-goto": gotoSheet(); return;
-    case "rd-n": { const v = ($("#rd-n")?.value || "").trim(); if (!v || !b) return; const i = b.labels && b.labels.indexOf(v) >= 0 ? b.labels.indexOf(v) : /^\d+$/.test(v) ? pageIndexOf(b, +v) : -1; if (i < 0) { toast(`There's no page ${v}.`); return; } closeSheet(true); rdScrollTo(i, true); return; }
+    case "rd-n": {
+      const v = ($("#rd-n")?.value || "").trim(); if (!v || !b) return;
+      const i = b.labels && b.labels.indexOf(v) >= 0 ? b.labels.indexOf(v) : /^\d+$/.test(v) ? pageIndexOf(b, +v) : -1;
+      if (i >= 0 && (/^\d+$/.test(v) || b.labels?.includes(v))) { if (/^\d+$/.test(v) && +v > pageNum(b, b.pages - 1)) { toast(`This PDF ends at page ${pageLabel(b, b.pages - 1)}.`); return; } closeSheet(true); rdScrollTo(i, true); return; }
+      rdFind(v); return;
+    }
+    case "rd-hit": { RD.q = a.dataset.q; closeSheet(true); const i = +a.dataset.i; rdScrollTo(i, true); $$(".rd-page.on").forEach(rdMarkHits); rdFindBar(); return; }
+    case "rd-hitgo": { const hp = RD.hitPages || [], i = rdCurrent() ?? 0; if (!hp.length) return; const d = +a.dataset.d; const t = d > 0 ? (hp.find(x => x > i) ?? hp[0]) : ([...hp].reverse().find(x => x < i) ?? hp[hp.length - 1]); rdScrollTo(t, true); setTimeout(rdFindBar, 120); return; }
+    case "rd-findx": RD.q = ""; RD.hitPages = []; $("#rdFindBar")?.remove(); $$(".rd-page.on").forEach(rdMarkHits); return;
     case "rd-jump": closeSheet(true); rdScrollTo(+a.dataset.i, true); return;
     case "rd-list": listSheet(); return;
     case "rd-hl": { const hh = rdAddHl(RD.sel); getSelection()?.removeAllRanges(); rdPopHide(); if (hh) { buzz(6); toast("Highlighted.", { label: "Make a card", fn: () => hlSheet(hh.id) }); } return; }
@@ -500,7 +620,7 @@ async function rAction(act, a) {
     }
     case "rd-mkall": {
       const cards = new Set((S.cards || []).map(c => c.id)); let n = 0;
-      for (const x of m.hl) { if (x.card && cards.has(x.card)) continue; const d = cardFromText(x.text), node = x.node && nodes[x.node] ? x.node : topicAt(b, x.i, x.rects[0][1]); if (!d.f || !node) continue; rdMakeCard(x, node, d.f, d.b); n++; }
+      for (const x of m.hl) { if (x.card && cards.has(x.card)) continue; const d = cardFromText(x.full || x.text), node = x.node && nodes[x.node] ? x.node : topicAt(b, x.i, x.rects[0][1]); if (!d.f || !node) continue; rdMakeCard(x, node, d.f, d.b); n++; }
       save(); saveMarks(b.id); $$(".rd-page.on").forEach(drawHl); closeSheet(); if (n) { FX.party && FX.party(); toast(`${n} card${n > 1 ? "s" : ""} added. Check them in your next review.`); } return;
     }
     case "rd-del": {
@@ -547,6 +667,7 @@ document.addEventListener("click", e => {
   const h = marksOf(RD.bid).hl.find(h => h.i === i && h.rects.some(q => x >= q[0] - .005 && x <= q[0] + q[2] + .005 && y >= q[1] - .005 && y <= q[1] + q[3] + .005));
   if (h) hlSheet(h.id);
 });
+document.addEventListener("keydown", e => { if (e.target.id === "rd-n" && e.key === "Enter") { e.preventDefault(); $('[data-action="rd-n"]')?.click(); } });
 document.addEventListener("change", async e => {
   const el = e.target; if (el.id !== "rd-file" || !el.files || !el.files[0]) return;
   const rec = await addBook(el.files[0], el.dataset.sid);

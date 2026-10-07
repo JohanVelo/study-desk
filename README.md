@@ -39,7 +39,7 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - **Search by meaning (optional, about 23 MB):** finds passages in your notes that mean the same thing, and only ever shows your own words.
 - **Focus sounds:** rain, brown noise or waves, generated on the device. **Study rhythm:** a streak heatmap on Progress.
 - **Pair by QR code** for sync, and a short guided tour (Settings → Help).
-- **Read the textbook in the app:** keep a PDF on the device, read it with zoom and a contents list, highlight lines, and turn highlights into flashcards for the topic on that page. Each topic has a Read button that opens its pages.
+- **Read the textbook in the app:** keep a PDF on the device, read it with zoom and a contents list, highlight lines, and turn highlights into flashcards for the topic on that page. Each topic has a Read button that opens its pages. Find words anywhere in the book, pinch or press + and − to zoom, use the arrow keys on a laptop, and pick up where you left off from Today. Cards made from highlights show their page.
 - **Teach it back:** explain a topic out loud. It's written out on the device and checked against your notes, like a spoken blurt check.
 - **Write by hand:** write with a finger or Apple Pencil and turn it into text for your notes (works best with clear print).
 - Search everything with the magnifier (or press `/` on a laptop).

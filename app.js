@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.5.0";
+const APP_VERSION = "4.6.0";
 
 /* =====================================================================
    1. UTILS
@@ -547,7 +547,7 @@ function taskRow(t, opts = {}) {
   const go = t.type === "mock" ? "subject:" + t.subject : "topic:" + t.node;
   return `<div class="task ${t.done ? "done" : ""} ${isNow ? "now" : ""}" data-flip-id="${t.id}" style="--pc:${PRC[lvl]}">
     <div class="time">${fmtT(t.start)}<small>${fmtT(t.start + t.dur)}</small>${opts.date ? `<small>${fmtD(t.date, { day: "numeric", month: "short" })}</small>` : ""}</div>
-    <div class="body" role="link" tabindex="0" data-go="${go}" aria-label="Open ${esc(title)}">
+    <div class="body" role="link" tabindex="0" data-go="${go}">
       <span class="kind"><span class="k">${ico(ty.icon)}<span>${ty.label} · ${t.dur} min</span></span><span class="grow"></span>${prPill(lvl)}</span>
       <span class="title">${esc(title)}</span>
       <span class="meta"><span style="color:${subjColor(t.subject)};font-weight:700">${s.name}</span>${opts.compact ? "" : `<span>${where}</span>`}${t.type !== "mock" ? pagesTag(n) : ""}${t.carried && !t.done ? `<span class="carried">Moved here</span>` : ""}${isNow ? `<span class="carried nowtag">Now</span>` : ""}</span>
@@ -638,7 +638,7 @@ V.today = () => {
       <div class="side stack" style="gap:18px">
         ${backupDue() ? `<div class="banner">${ico("shield")}<div class="grow">It's been a while since your last backup. Save one so your progress is safe if this device is lost.</div><button class="btn btn-soft btn-sm" data-action="export">Save backup</button><button class="icon-btn sm" data-action="bak-later" aria-label="Remind me later">${ico("x")}</button></div>` : ""}
         <section class="section"><div class="sec-head"><h2>This week</h2><button class="link" data-go="calendar">Calendar</button></div>
-          <div class="weekstrip">${week.map(d => { const n = tasksOn(d).length, dn = tasksOn(d).filter(x => x.done).length, ex = exams[d]; return `<button class="wd ${d === t ? "today" : ""} ${ex ? "ex" : ""}" style="${ex ? `--pc:${subjColor(ex.id)}` : ""}" data-action="cal-open" data-k="${d}" aria-label="${fmtD(d, { weekday: "long", day: "numeric" })}: ${ex ? ex.name + " exam" : n + " sessions"}"><span class="wd-d">${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span><b>${parseKey(d).getDate()}</b><span class="wd-n">${ex ? "Exam" : n ? (d === t ? dn + "/" + n : n) : "–"}</span></button>`; }).join("")}</div></section>
+          <div class="weekstrip">${week.map(d => { const n = tasksOn(d).length, dn = tasksOn(d).filter(x => x.done).length, ex = exams[d]; return `<button class="wd ${d === t ? "today" : ""} ${ex ? "ex" : ""}" style="${ex ? `--pc:${subjColor(ex.id)}` : ""}" data-action="cal-open" data-k="${d}"><span class="wd-d">${parseKey(d).toLocaleDateString("en-GB", { weekday: "narrow" })}</span><b>${parseKey(d).getDate()}</b><span class="wd-n">${ex ? "Exam" : n ? (d === t ? dn + "/" + n : n) : "–"}</span><span class="sr">, ${fmtD(d, { weekday: "long", day: "numeric" })}: ${ex ? ex.name + " exam" : n + " sessions"}</span></button>`; }).join("")}</div></section>
         <section class="section"><div class="sec-head"><h2>Exams</h2><button class="link" data-go="exams">All</button></div>
           <div class="minis">${upcoming.slice(0, 3).map(s => { const d = daysLeft(s.id), lvl = subjLevel(s.id); return `<button class="mini" data-go="subject:${s.id}" style="--pc:${PRC[lvl]}"><b data-count="${d}">${d}</b><span class="grow"><span class="t">${esc(s.name)}</span><span class="tiny muted">${d === 1 ? "day" : "days"} left · ${pct(progress(s.id))}% done</span></span></button>`; }).join("") || `<div class="card empty">No upcoming exams.</div>`}</div></section>
         <button class="card weekteaser" data-go="progress">${(() => { const w = weekStats(addDays(t, -6), t); return `<span class="grow"><b>Your week</b><span class="tiny muted">${w.sessions} sessions · ${fmtMins(w.mins)}${w.answered ? ` · ${pct(w.right / w.answered)}% right` : ""}</span></span>`; })()}${ico("chev", 'class="chev"')}</button>
