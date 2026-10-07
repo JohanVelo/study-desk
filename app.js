@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.6.0";
+const APP_VERSION = "4.7.0";
 
 /* =====================================================================
    1. UTILS
@@ -2111,6 +2111,7 @@ document.addEventListener("click", e => {
     if (typeof SP_ACTS !== "undefined" && SP_ACTS.has(act)) { spAction(act, a); return; }
     if (typeof M_ACTS !== "undefined" && M_ACTS.has(act)) { mAction(act, a); return; }
     if (typeof R_ACTS !== "undefined" && R_ACTS.has(act)) { rAction(act, a); return; }
+    if (typeof E_ACTS !== "undefined" && E_ACTS.has(act)) { eAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
