@@ -1,10 +1,10 @@
 /* Study Desk service worker: the app shell is cached so it opens offline.
    Bump VERSION on every release so phones pick up the new files. */
-const VERSION = "study-desk-4.11.0";
+const VERSION = "study-desk-4.12.0";
 /* caches that survive app updates: big libraries, the text reader, voices and speech models */
 const KEEP = ["study-desk-ocr-7", "study-desk-libs-1", "study-desk-models", "transformers-cache"];
 const SHELL = [
-  "./", "index.html", "styles.css", "data.js", "summary.js", "app.js", "tools.js", "extras.js", "speech.js", "more.js", "read.js", "ease.js", "learn.js", "profiles.js", "people.js", "voice-worker.js", "stt-worker.js", "embed-worker.js", "vendor/fsrs.umd.js", "vendor/minisearch.umd.js", "manifest.webmanifest",
+  "./", "index.html", "styles.css", "data.js", "summary.js", "app.js", "tools.js", "extras.js", "speech.js", "more.js", "read.js", "ease.js", "learn.js", "profiles.js", "people.js", "claude.js", "voice-worker.js", "stt-worker.js", "embed-worker.js", "vendor/fsrs.umd.js", "vendor/minisearch.umd.js", "manifest.webmanifest",
   "vendor/gsap.min.js", "vendor/Flip.min.js", "vendor/SplitText.min.js", "vendor/confetti.min.js", "vendor/jszip.min.js", "vendor/register.js",
   "fonts/bricolage.woff2", "fonts/atkinson-400.woff2", "fonts/atkinson-700.woff2", "fonts/jbmono-500.woff2", "fonts/jbmono-700.woff2",
   "icons/icon.svg", "icons/icon-192.png", "icons/icon-512.png", "icons/maskable-512.png", "icons/apple-touch-icon.png"

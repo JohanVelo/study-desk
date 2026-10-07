@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.11.0";
+const APP_VERSION = "4.12.0";
 
 /* =====================================================================
    1. UTILS
@@ -1529,11 +1529,11 @@ async function importFile(file, sid) {
 
 /* ---------- on-device file store (IndexedDB): topic notes from imports, and audio recordings ---------- */
 const IDB = (() => {
-  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map(), books: new Map(), marks: new Map(), figs: new Map(), aq: new Map() }, ok = true;
+  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map(), books: new Map(), marks: new Map(), figs: new Map(), aq: new Map(), ai: new Map() }, ok = true;
   const open = () => dbp || (dbp = new Promise((res) => {
     try {
-      const r = indexedDB.open("studydesk", 6);
-      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec", "books", "marks", "figs", "aq"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
+      const r = indexedDB.open("studydesk", 7);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec", "books", "marks", "figs", "aq", "ai"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
       /* another open tab with an older version closes its copy (below), so the upgrade only waits a moment */
       let waited = null;
       r.onsuccess = () => { clearTimeout(waited); const d = r.result; d.onversionchange = () => { d.close(); dbp = null; }; res(d); }; r.onerror = () => { ok = false; res(null); };
@@ -2242,6 +2242,7 @@ document.addEventListener("click", e => {
     if (typeof E_ACTS !== "undefined" && E_ACTS.has(act)) { eAction(act, a); return; }
     if (typeof L_ACTS !== "undefined" && L_ACTS.has(act)) { lAction(act, a); return; }
     if (typeof P_ACTS !== "undefined" && P_ACTS.has(act)) { pAction(act, a); return; }
+    if (typeof A_ACTS !== "undefined" && A_ACTS.has(act)) { aAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
@@ -2292,7 +2293,7 @@ document.addEventListener("click", e => {
       case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
       case "reset": if (a.dataset.confirm) {
-          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec", "books", "marks", "figs", "aq"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
+          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec", "books", "marks", "figs", "aq", "ai"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
             NOTES = {}; RECS = []; if (typeof SKETCHES !== "undefined") SKETCHES = []; if (typeof FIGS !== "undefined") { FIGS = []; figsSave(); }
             ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Everything is erased. Study Desk is empty again."); })();
         } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to erase everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Erase everything on this device"; } }, 3500); } return;
