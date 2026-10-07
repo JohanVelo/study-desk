@@ -15,7 +15,7 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 
 ## What it does
 - **Today:** the one session to do next, a focus timer, the rest of the day, the week ahead and exam countdowns.
-- **Subjects:** chapter → heading → subheading with page ranges, summaries, and an editor (add by hand, or import from a PDF or PowerPoint).
+- **Subjects:** chapter → heading → subheading with page ranges, summaries, and an editor (add by hand, or import from a PDF, PowerPoint or Word file).
 - **Summaries you can trust:** every bullet is a sentence from your own notes (nothing is made up). The summary covers every heading or slide, always keeps definitions, formulas, numbers, dates and "exam" lines, checks that every key term appears, and shows how much it covered. Definitions become flashcards, and the same summary feeds podcasts, search, the blurt check and the explain sheet.
 - **Practice questions from your notes:** multiple-choice questions are built from your own sentences and definitions (which term matches this description, and fill the gap). The wrong answers are other real terms, people or years from the same topic, so nothing is invented.
 - **Maths and formulas:** write `$E = mc^2$` in your notes and it is typeset properly, in notes, summaries, flashcards and questions (Temml, MathML).
@@ -37,7 +37,11 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - Search everything with the magnifier (or press `/` on a laptop).
 
 ## Put in real study data
-The easiest way is inside the app: Subjects → Edit my subjects. To ship content with the app instead, edit **data.js**. The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
+Study Desk starts empty. Everyone adds their own subjects in the app with **Import a file**, a three-step guide: pick or create the subject, choose a PDF, PowerPoint or Word file (or type the chapters), then check the list before anything is added. Subjects can also be added by hand under Subjects → Edit my subjects.
+
+Copies that still held the old sample subjects remove them once on update (v4.3). A sample subject is kept if anyone wrote notes, a sketch, a question or a flashcard in it, and anything added by hand is never touched. Settings → Start again erases everything on that device.
+
+To ship content with the app instead, edit **data.js** (empty by default). The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
 - `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `extras.js` questions from notes, maths, Word import, calendar, formatted notes, sketches, charts, Anki, sync, laptop AI · `speech.js` natural voices and recordings-to-text (with `voice-worker.js` and `stt-worker.js`) · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content

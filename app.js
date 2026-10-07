@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.2.0";
+const APP_VERSION = "4.3.0";
 
 /* =====================================================================
    1. UTILS
@@ -51,7 +51,7 @@ const newId = p => p + Date.now().toString(36).slice(-5) + Math.random().toStrin
 /* data.js uses compact arrays; convert to the editable object form once */
 function convertData(D, anchor) {
   const seeds = {}, titleToId = {}, legacy = {};
-  const out = { from: D.contentVersion || "sample-1", subjects: [], questions: [], explain: {}, notes: {} };
+  const out = { from: D.contentVersion || "data", subjects: [], questions: [], explain: {}, notes: {} };
   (D.subjects || []).forEach((s, si) => {
     if (!s || !s.id) return;
     const cs = { id: s.id, name: s.name || "Subject", code: s.code || "", course: s.course || "", hue: typeof s.hue === "number" ? s.hue : HUES[si % HUES.length],
@@ -187,7 +187,7 @@ function fresh() {
     S.recent = r.filter(x => byTitle[x[0]]).map(x => ({ id: byTitle[x[0]].id, text: x[1], when: addDays(t, x[2]) }));
   }
   generate(t);
-  seedLog();
+  if (leafIds.length) seedLog();
   save(true);
 }
 function mkTask(date, node, type, dur, extra = {}) { return { id: "t" + (S.seq++), date, node, subject: nodes[node].subject, type, dur, start: 0, done: false, ...extra }; }
@@ -291,7 +291,38 @@ function loadDataFile() {
   afterContentChange(true);
   S.contentEdited = false; save();
 }
+/* Everyone starts from a clean slate. Installs that still hold the old sample subjects lose them,
+   but a subject the person added, or a sample subject they changed, is kept with all its work. */
+const SAMPLE_SUBJ = { psy: "Psychology", ant: "Anthropology", swk: "Social Work" };
+const SAMPLE_TITLES = new Set("17ztlut orsoik 1ryj67r 1ovx05k 5ouqcn 6ot7wn 1v82enl cia5pu 1q0jeuw u8yekz 1ai3bs2 1yrtbbz 9ggipe id2buv 5wmc92 qr3wtb m95pi8 1yu88dd 1p4h2xq orqrik gsj3zp 1gpr0yg 1g73fjo 1ppjhpd xffuop 1d5dur4 kd1wpe 1mylvoo 8c7esl 1mt9a3l 4l1fm5 1vxdnln o0br7d 5ih6je 167u1ix pqvlp3 2ltls1 syq7an 1f0zpox s18k4z ibricp l9x1f1 jxhrc0 1pkcuxs 1pvos7l do1byg e8dp96 1expro2 60diqf 7s9ddc tgfox7 1pp2jsc 13t00zf 1jn18ul 1c0hfvc 1685d3s m39voo 1db01ww 1elg5wu rix82e 1lf97j4 7z9nlp eobksy yb1oxm c0zxz2 127q8pb 13n1afq r9mxfi y6s7yv ni4hd 2ggtvu ovxtil 18t7qmj oiujh9 1oq9tuq 1tcpw7f 1tzzt8e jx302h w0ehi3 tdkp89 nvpt9w yjue12 1ix6pne hrwakn hlng7f 1q4hp0y 3ut71j hbzyaz 1jl6pa3".split(" "));
+let cleanNotice = 0, cleanPending = false;
+/* runs once the on-device notes and sketches are loaded, so a sample topic someone wrote notes in is never removed */
+async function cleanSlate() {
+  cleanPending = false;
+  if (!(S.content.from || "").startsWith("sample")) return;
+  let sketched = new Set(); try { sketched = new Set((await IDB.all("sketch") || []).map(x => x.node)); } catch (e) { }
+  const own = id => NOTES[id] || sketched.has(id) || S.content.questions.some(q => q.own && q.node === id) || S.cards.some(c => c.kind === "own" && c.node === id);
+  const h = t => { let x = 5381; for (let i = 0; i < t.length; i++) x = ((x << 5) + x + t.charCodeAt(i)) | 0; return (x >>> 0).toString(36); };
+  const titles = l => l.flatMap(n => [n.title, ...titles(n.kids || [])]);
+  const ids = l => l.flatMap(n => [n.id, ...ids(n.kids || [])]);
+  const isSample = s => SAMPLE_SUBJ[s.id] === s.name && titles(s.chapters).every(t => SAMPLE_TITLES.has(h(t))) && !ids(s.chapters).some(own);
+  const before = S.content.subjects.length;
+  S.content.subjects = S.content.subjects.filter(s => !isSample(s));
+  cleanNotice = before - S.content.subjects.length;
+  S.content.from = "own";
+  buildModel();
+  S.content.questions = S.content.questions.filter(q => nodes[q.node]);
+  ["notes", "explain"].forEach(k => Object.keys(S.content[k]).forEach(id => { if (!nodes[id]) delete S.content[k][id]; }));
+  S.log = S.log.filter(e => !e.n || nodes[e.n]);
+  S.cards = S.cards.filter(c => nodes[c.node]);
+  if (!S.content.subjects.length) S.changes = [];
+  afterContentChange(true);
+  S.contentEdited = S.content.subjects.length > 0; save(true);
+  stack = [{ v: stack[0].v }]; render(true);
+  if (cleanNotice) toast(S.content.subjects.length ? "The sample subjects are gone. Everything you added is still here." : "Study Desk now starts empty, ready for your own subjects.");
+}
 function checkDataFile() {
+  if (DATA && Array.isArray(DATA.subjects) && !DATA.subjects.length) { cleanPending = (S.content.from || "").startsWith("sample"); return; }
   if (!DATA || !DATA.contentVersion || DATA.contentVersion === S.content.from) return;
   if (!S.contentEdited) { loadDataFile(); contentNotice = { auto: true }; }
   else contentNotice = { auto: false };
@@ -469,6 +500,8 @@ const P = {
   book: '<path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5"/>',
   bulb: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/>',
   pencil: '<path d="M14.5 4.5l5 5L9 20H4v-5z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  file: '<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',
   loop: '<path d="M20 11a8 8 0 00-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0014.3 4.9L20 16"/><path d="M20 21v-5h-5"/>',
   sigma: '<path d="M18 5H6l6 7-6 7h12"/>',
   clip: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/>',
@@ -570,7 +603,8 @@ V.today = () => {
   const dateLine = `<div class="date">${fmtD(t, { weekday: "long", day: "numeric", month: "long" })}${streak() > 1 ? ` · <span class="streak">${streak()}-day streak</span>` : ""}</div>`;
   if (!DSUBJ.length) return `<div class="stack" style="gap:24px"><header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
       <p class="lede">Add your subjects and exam dates, and Study Desk will plan every day for you.</p></header>
-      <div class="card stack"><h2 class="h3">Get started</h2><ol class="steps"><li>Add a subject and its exam date.</li><li>Import its contents from a PDF or PowerPoint, or type the chapters and page numbers.</li><li>Come back here each day to see what to study.</li></ol><button class="btn btn-pen" data-go="editsubj:new" style="align-self:flex-start">+ Add your first subject</button></div></div>`;
+      <div class="card stack"><h2 class="h3">Get started in three steps</h2><ol class="steps"><li>Name a subject and its exam date.</li><li>Import a textbook chapter, lecture slides or a Word document. Study Desk finds the chapters and turns the text into notes.</li><li>Come back here each day to see what to study.</li></ol>
+        <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-go="import">${ico("upload")}Import your first file</button><button class="btn btn-line" data-go="editsubj:new">Add a subject by hand</button></div></div></div>`;
   const nowM = new Date().getHours() * 60 + new Date().getMinutes();
   const next = left.find(x => x.start + x.dur > nowM) || left[0];
   const rest = ts.filter(x => x !== next);
@@ -613,8 +647,8 @@ V.today = () => {
   </div>`;
 };
 
-V.exams = () => `<div class="stack" style="gap:20px"><header class="subhead"><div class="eyebrow">${DSUBJ.length} subjects</div><h1>Exam countdown</h1><p class="muted">Counted from today's date. The closer the exam and the less prepared you are, the louder the card.</p><div class="row"><button class="btn btn-line btn-sm" data-go="edit">${ico("pencil")}Edit my subjects</button></div></header>
-  ${DSUBJ.length ? "" : `<div class="card empty stack" style="align-items:flex-start;gap:12px"><p style="margin:0">No subjects yet. Add one with its exam date and chapters to get a daily plan.</p><button class="btn btn-pen" data-go="editsubj:new">${ico("plus")}Add your first subject</button></div>`}
+V.exams = () => `<div class="stack" style="gap:20px"><header class="subhead"><div class="eyebrow">${DSUBJ.length} subjects</div><h1>Exam countdown</h1><p class="muted">Counted from today's date. The closer the exam and the less prepared you are, the louder the card.</p>${DSUBJ.length ? `<div class="row" style="flex-wrap:wrap"><button class="btn btn-line btn-sm" data-go="edit">${ico("pencil")}Edit my subjects</button><button class="btn btn-line btn-sm" data-go="import">${ico("upload")}Import a file</button></div>` : ""}</header>
+  ${DSUBJ.length ? "" : `<div class="card empty stack" style="align-items:flex-start;gap:12px;text-align:left"><p style="margin:0">No subjects yet. Import a file to add a subject with its chapters and notes, or add one by hand.</p><div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-go="import">${ico("upload")}Import a file</button><button class="btn btn-line" data-go="editsubj:new">Add by hand</button></div></div>`}
   <div class="exams grid">${DSUBJ.slice().sort((a, b) => daysLeft(a.id) - daysLeft(b.id)).map(s => examCard(s.id)).join("")}</div></div>`;
 
 V.subject = sid => {
@@ -624,7 +658,7 @@ V.subject = sid => {
     <header class="subhead"><div class="eyebrow">${esc(s.code || "")}${s.course ? " · " + esc(s.course) : ""}</div><h1>${esc(s.name)}</h1>
       <div class="chips"><span class="countchip" style="--pc:${PRC[lvl]}"><b>${Math.max(d, 0)}</b> day${d === 1 ? "" : "s"} left</span><span class="small muted">${fmtD(examKey(sid), { weekday: "long", day: "numeric", month: "long" })}${s.examTime ? " · " + esc(s.examTime) : ""}${s.venue ? " · " + esc(s.venue) : ""}</span><button class="btn btn-line btn-sm" data-go="editsubj:${sid}">${ico("pencil")}Edit</button></div>
       <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-go="summary:${sid}">${ico("notes")}Summary of everything</button>${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-go="map:${sid}">${ico("map")}Mind map</button>` : ""}${s.chapterIds.length ? `<button class="btn btn-line btn-sm" data-action="ep-play" data-kind="topic" data-id="${s.chapterIds[0]}">${ico("headphones")}Listen</button>` : ""}</div></header>
-    ${!s.chapterIds.length ? `<div class="card empty">No chapters yet. <button class="link" data-go="editsubj:${sid}">Add chapters or import a PDF</button></div>` : ""}
+    ${!s.chapterIds.length ? `<div class="card empty">No chapters yet. <button class="link" data-go="import:${sid}">Import a file for this subject</button> or <button class="link" data-go="editsubj:${sid}">add chapters by hand</button>.</div>` : ""}
     <div class="card stack">${progRow("Overall progress", progress(sid), subjColor(sid), "lg")}
       <div class="stat3">${progRow("Content completed", contentPct(sid), "var(--p-high)")}${progRow("Practice completed", practisedPct(sid), "var(--pen)")}${progRow("Revision completed", revisedPct(sid), "var(--p-done)")}</div></div>
     <section class="section"><div class="sec-head"><h2>Chapters</h2><span class="tiny muted">${leavesBySubject[sid].length} topics tracked</span></div>
@@ -743,7 +777,7 @@ V.practice = () => {
   const pool = qPool(), q = pool.length ? pool[Q.idx % pool.length] : null;
   const mist = Object.entries(S.mistakes).filter(([, m]) => m.n > 0).sort((a, b) => b[1].n - a[1].n);
   const chip = (k, v, lab) => `<button class="chip" aria-pressed="${Q[k] === v}" data-action="qf" data-k="${k}" data-v="${v}">${lab}</button>`;
-  let qh = `<div class="card empty">${Q.mode === "mistakes" ? "No questions left to review. Nice." : "No questions match these filters."}</div>`;
+  let qh = `<div class="card empty">${!QS.length ? `No practice questions yet. They are made from your notes once you <button class="link" data-go="import">import a file</button>.` : Q.mode === "mistakes" ? "No questions left to review. Nice." : "No questions match these filters."}</div>`;
   if (q) {
     const n = nodes[q.node], ans = Q.picked;
     qh = `<div class="qcard" id="qcard">
@@ -790,7 +824,7 @@ V.progress = () => {
       <div class="legend">${STATUS.map((x, i) => `<span><i style="--c:${i === 0 ? "var(--line)" : STATUS_COL[i]}"></i>${x} <b class="mono">${counts[i]}</b></span>`).join("")}</div>
       <p class="tiny muted">Progress comes from each subheading's stage, weighted by its number of pages, then rolls up to heading, chapter, subject and overall.</p></div>
     <section class="section"><div class="sec-head"><h2>By subject and chapter</h2></div>
-      <div class="tree-prog">${DSUBJ.length ? "" : `<p class="small muted card">No subjects yet. Add one under My subjects to see progress for each chapter.</p>`}${DSUBJ.map((s, si) => `<details class="subj card" ${si === 0 ? "open" : ""}><summary class="stack" style="gap:8px"><div class="row">${ico("chev", 'class="caret"')}<span class="grow" style="font-family:var(--f-display);font-weight:650;font-size:18px">${esc(s.name)}</span><b class="mono">${pct(progress(s.id))}%</b></div>${seg(progress(s.id), "lg", subjColor(s.id))}</summary>
+      <div class="tree-prog">${DSUBJ.length ? "" : `<p class="small muted card">No subjects yet. <button class="link" data-go="import">Import a file</button> to see progress for each chapter.</p>`}${DSUBJ.map((s, si) => `<details class="subj card" ${si === 0 ? "open" : ""}><summary class="stack" style="gap:8px"><div class="row">${ico("chev", 'class="caret"')}<span class="grow" style="font-family:var(--f-display);font-weight:650;font-size:18px">${esc(s.name)}</span><b class="mono">${pct(progress(s.id))}%</b></div>${seg(progress(s.id), "lg", subjColor(s.id))}</summary>
         <div class="lvl1" style="margin-top:14px">${s.chapterIds.map(cid => { const c = nodes[cid]; return `<div class="stack" style="gap:10px"><button data-go="chapter:${cid}" style="text-align:left">${progRow(`Chapter ${c.num}: ${esc(c.title)}`, progress(cid), subjColor(s.id))}</button>
           <div class="lvl2">${c.kids.map(h => `<button data-go="topic:${h}" style="text-align:left">${progRow(`<span class="small">${nodes[h].num} ${esc(nodes[h].title)}</span>`, progress(h), "var(--ink-2)")}</button>`).join("")}</div></div>`; }).join("")}</div></details>`).join("")}</div></section>
     <div class="dash">
@@ -819,7 +853,7 @@ V.settings = () => {
   }[plat];
   return `<div class="stack" style="gap:22px">
     <header class="subhead"><div class="eyebrow">Study Desk ${APP_VERSION}</div><h1>Settings</h1></header>
-    <section class="card stack"><h2 class="h3">My subjects</h2><p class="small muted">${DSUBJ.length} subject${DSUBJ.length === 1 ? "" : "s"}, ${leafIds.length} topics. Add subjects, chapters and page numbers, or import them from a PDF or PowerPoint.</p><button class="btn btn-soft" data-go="edit" style="align-self:flex-start">${ico("pencil")}Edit my subjects</button></section>
+    <section class="card stack"><h2 class="h3">My subjects</h2><p class="small muted">${DSUBJ.length} subject${DSUBJ.length === 1 ? "" : "s"}, ${leafIds.length} topics. Add subjects, chapters and page numbers, or import them from a PDF, PowerPoint or Word file.</p><div class="row" style="flex-wrap:wrap"><button class="btn btn-soft" data-go="edit">${ico("pencil")}Edit my subjects</button><button class="btn btn-line" data-go="import">${ico("upload")}Import a file</button></div></section>
     <section class="card stack"><h2 class="h3">Study days</h2>
       <div class="daypick">${order7.map(d => `<button class="chip" aria-pressed="${s.days.includes(d)}" data-action="day" data-d="${d}">${dn[d]}</button>`).join("")}</div>
       <h2 class="h3">Study times</h2>
@@ -843,10 +877,12 @@ V.settings = () => {
       <div class="row"><button class="btn btn-line btn-sm" data-action="importpaste">Restore pasted backup</button></div>
       ${importMsg ? `<div class="lock" role="status">${ico(importMsg.ok ? "check" : "info")}<span>${esc(importMsg.text)}</span></div>` : ""}</section>
     <section class="card stack"><h2 class="h3">Data check</h2>
-      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subjects, ${Object.keys(nodes).length} chapters, headings and topics, ${QS.length} questions.</span></div>`}
+      ${dataIssues.length ? `<div class="lock">${ico("info")}<span>${dataIssues.length} thing${dataIssues.length > 1 ? "s" : ""} to fix in the study data:</span></div><ul class="issues">${dataIssues.slice(0, 30).map(i => `<li><b>${esc(i.where)}</b>: ${esc(i.msg)}</li>`).join("")}</ul>` : `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("shield")}<span>All study data checks out: ${DSUBJ.length} subject${DSUBJ.length === 1 ? "" : "s"}, ${Object.keys(nodes).length} chapters, headings and topics, ${QS.length} question${QS.length === 1 ? "" : "s"}.</span></div>`}
       ${repairs ? `<p class="tiny muted">${repairs} saved item${repairs > 1 ? "s were" : " was"} out of shape and repaired on start-up.</p>` : ""}
       <p class="tiny muted mono">Saved data ${used} · format v${SCHEMA_NOW} · ${navigator.serviceWorker && navigator.serviceWorker.controller ? "offline ready" : "online only"}</p></section>
-    <button class="btn btn-line" data-action="reset">Reset demo data</button>
+    <section class="card stack"><h2 class="h3">Start again</h2>
+      <p class="small muted">Erase every subject, note, recording, sketch and all progress on this device. Save a backup first if you might want any of it back.</p>
+      <button class="btn btn-line btn-auto danger" data-action="reset">Erase everything on this device</button></section>
   </div>`;
 };
 
@@ -919,14 +955,12 @@ function previewRows(list, depth = 0, prefix = "", start = 0) {
 }
 
 V.edit = () => {
-  const sample = (S.content.from || "").startsWith("sample");
   return `<div class="stack" style="gap:20px">
     <header class="subhead"><div class="eyebrow">Your study content</div><h1>My subjects</h1><p class="muted">Add your subjects, exam dates, chapters and page numbers. The plan updates as you go.</p></header>
     ${contentNotice && !contentNotice.auto ? `<div class="banner">${ico("download")}<div>New study content has been prepared for you. Loading it replaces the subjects below but keeps progress on topics that still exist. <button data-action="content-load">Load new content</button></div></div>` : ""}
-    ${sample ? `<div class="banner">${ico("info")}<div>These are <b>sample subjects</b>. Edit them, or clear them and add your own. <button data-action="content-clear">Remove all sample subjects</button></div></div>` : ""}
-    <div class="list">${DSUBJ.length ? DSUBJ.map(s => `<button class="item" data-go="editsubj:${s.id}" style="--pc:${subjColor(s.id)}"><span class="mark"></span><span class="grow"><span class="t">${esc(s.name)}</span><br><span class="s">Exam ${fmtD(s.exam, { day: "numeric", month: "short", year: "numeric" })} · ${s.chapterIds.length} chapter${s.chapterIds.length === 1 ? "" : "s"} · ${leavesBySubject[s.id].length} topics</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">No subjects yet. Add your first one below.</div>`}</div>
-    <button class="btn btn-pen btn-auto" data-go="editsubj:new">${ico("plus")}Add a subject</button>
-    ${!sample && DSUBJ.length ? `<button class="btn btn-line btn-sm" data-action="content-clear" style="align-self:flex-start">Remove all subjects</button>` : ""}
+    <div class="list">${DSUBJ.length ? DSUBJ.map(s => `<button class="item" data-go="editsubj:${s.id}" style="--pc:${subjColor(s.id)}"><span class="mark"></span><span class="grow"><span class="t">${esc(s.name)}</span><br><span class="s">Exam ${fmtD(s.exam, { day: "numeric", month: "short", year: "numeric" })} · ${s.chapterIds.length} chapter${s.chapterIds.length === 1 ? "" : "s"} · ${leavesBySubject[s.id].length} topics</span></span>${ico("chev", 'class="chev"')}</button>`).join("") : `<div class="empty">No subjects yet. The quickest start is to import a textbook chapter, lecture slides or notes.</div>`}</div>
+    <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-go="import">${ico("upload")}Import from a file</button><button class="btn btn-line" data-go="editsubj:new">${ico("plus")}Add a subject by hand</button></div>
+    ${DSUBJ.length ? `<button class="btn btn-line btn-sm" data-action="content-clear" style="align-self:flex-start">Remove all subjects</button>` : ""}
   </div>`;
 };
 V.editsubj = sid => {
@@ -952,22 +986,102 @@ V.editsubj = sid => {
       <div class="card outline">${raw.chapters.length ? outlineRows(raw.chapters, sid) : `<div class="empty">No chapters yet. Add one, or paste the contents list below.</div>`}</div>
       <button class="btn btn-soft" data-action="node-add" data-sid="${sid}" data-parent="">+ Add a chapter</button>
       <p class="tiny muted">${TAP} a line to edit it. Use + to add a heading or subheading inside it.</p></section>
-    <section class="card stack"><h2 class="h3">Add chapters in bulk</h2>
-      <div class="dropzone" id="dropzone" data-sid="${sid}">
-        <label class="btn btn-soft" for="imp-file">${ico("upload")}Import from PDF, PowerPoint or Word</label><input type="file" id="imp-file" class="sr" accept=".pdf,.pptx,.docx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document" data-sid="${sid}">
-        <span class="tiny muted">or drop or paste the file here. It's read on this device and never uploaded.</span>
-        ${importBusy?.reading ? `<div class="lock" role="status"><span class="spin" aria-hidden="true"></span><span>Reading ${esc(importBusy.reading)}…</span></div>` : importBusy?.note ? `<div class="lock" role="status">${ico("check")}<span>${esc(importBusy.note)}</span></div>` : importBusy?.error ? `<div class="lock" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>` : ""}
-      </div>
-      <p class="small muted">Or type or paste one topic per line: number, title, pages, and optionally easy, medium or hard. Numbers like 3.2.1 set the level.</p>
-      <label class="sr" for="qp-text">Contents list</label>
-      <textarea id="qp-text" rows="7" placeholder="3 Research methods 75-102&#10;3.1 Research designs 75-82&#10;3.1.1 Experimental designs 76-78 easy&#10;3.1.2 Correlational designs 79-82 hard&#10;3.2 Variables 83-89 hard">${esc(qpText)}</textarea>
-      <div class="row"><button class="btn btn-line" data-action="qp-preview" data-id="${sid}">Preview</button></div>
-      ${qpPreview ? `<div class="stack" style="gap:8px">${qpPreview.count ? `<p class="small"><b>${qpPreview.count} lines understood.</b> Check them before adding:</p><div class="preview">${previewRows(qpPreview.roots, 0, "", (subjects[sid] && subjects[sid].chapterIds.length) || 0)}</div>` : `<p class="small">Nothing could be read from that text.</p>`}
-        ${qpPreview.warnings.length ? `<ul class="issues">${qpPreview.warnings.slice(0, 12).map(w => `<li>${esc(w)}</li>`).join("")}</ul>` : ""}
-        ${qpPreview.count ? `<div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="qp-apply" data-id="${sid}" data-mode="append">Add to ${esc(s.name)}</button>${raw.chapters.length ? `<button class="btn btn-line btn-sm" data-action="qp-apply" data-id="${sid}" data-mode="replace">Replace all chapters</button>` : ""}</div>` : ""}</div>` : ""}
-    </section>`}
+    <section class="card imp-cta"><span class="imp-ic">${ico("file")}</span><div class="grow"><h2 class="h3">Import chapters and notes</h2><p class="small muted">From a PDF, PowerPoint or Word file, or a list you type.</p></div><button class="btn btn-soft" data-go="import:${sid}">Import</button></section>
+`}
   </div>`;
 };
+
+/* ---------- import: subject → file → check → done ---------- */
+let IMP = { sid: null, done: null, mode: "append", typed: false };
+const IMP_ACCEPT = ".pdf,.pptx,.docx,application/pdf,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+function impCounts(roots) { let ch = roots.length, leaves = 0; const w = l => l.forEach(n => n.kids.length ? w(n.kids) : leaves++); w(roots); return { ch, leaves }; }
+V.import = () => {
+  const s = IMP.sid ? subjects[IMP.sid] : null; if (IMP.sid && !s) IMP.sid = null;
+  const step = IMP.done ? 4 : !s ? 1 : !qpPreview || !qpPreview.count ? 2 : 3;
+  const names = ["Subject", "File", "Check"];
+  const stepper = `<ol class="wiz" aria-label="Import steps">${names.map((n, i) => { const k = i + 1, state = step > k ? "done" : step === k ? "now" : ""; return `<li class="${state}" ${state === "now" ? 'aria-current="step"' : ""}><span class="wiz-n">${state === "done" ? ico("check") : k}</span><span>${n}</span></li>`; }).join("")}</ol>`;
+  const head = `<header class="subhead"><div class="eyebrow">${step > 3 ? "Done" : `Step ${step} of 3`}</div><h1>Add your study material</h1><p class="muted">Turn a textbook chapter, lecture slides or your notes into chapters, topics and notes. Files are read on this device and never uploaded.</p></header>`;
+  let body = "";
+  if (step === 1) {
+    body = `<section class="card stack form"><h2 class="h3">Which subject is this for?</h2>
+      ${DSUBJ.length ? `<div class="pick" role="radiogroup" aria-label="Subject">${DSUBJ.map(x => `<button class="pick-row" role="radio" aria-checked="false" data-action="imp-subj" data-id="${x.id}" style="--pc:${subjColor(x.id)}"><span class="mark"></span><span class="grow"><b>${esc(x.name)}</b><span class="tiny muted">${leavesBySubject[x.id].length ? `${leavesBySubject[x.id].length} topics so far` : "No chapters yet"} · exam ${fmtD(x.exam, { day: "numeric", month: "short" })}</span></span>${ico("chev", 'class="chev"')}</button>`).join("")}</div>
+      <div class="or"><span>or a new subject</span></div>` : `<p class="small muted">Start with the subject's name and exam date. You can add the code, time and venue later.</p>`}
+      <div class="frow"><label class="fld"><span>Subject name</span><input id="imp-name" placeholder="e.g. Psychology" maxlength="80" autocomplete="off"></label>
+        <label class="fld"><span>Exam date</span><input id="imp-exam" type="date" value="${addDays(todayKey(), 30)}"></label></div>
+      <p class="ferr" id="imp-err" role="alert"></p>
+      <button class="btn ${DSUBJ.length ? "btn-line" : "btn-pen"} btn-auto" data-action="imp-new">${ico("plus")}Create it and continue</button></section>`;
+  } else if (step === 2) {
+    const busy = importBusy?.reading;
+    body = `<div class="for-chip"><span class="mark" style="--pc:${subjColor(s.id)}"></span><span>For <b>${esc(s.name)}</b></span><button class="linkish" data-action="imp-change">Change</button></div>
+      <section class="card drop-big ${busy ? "busy" : ""}" id="dropzone" data-sid="${s.id}">
+        ${busy ? `<span class="spin big" aria-hidden="true"></span><h2 class="h3" role="status">Reading ${esc(busy)}…</h2><p class="small muted">Finding the chapters and headings. Big files can take a minute.</p>`
+        : `<span class="drop-ic">${ico("upload")}</span><h2 class="h3">Choose a file</h2><p class="small muted">A textbook chapter, lecture slides or your own notes.<br><span style="white-space:nowrap">PDF, PowerPoint (.pptx)</span> or <span style="white-space:nowrap">Word (.docx).</span></p>
+          <label class="btn btn-pen" for="imp-file">${ico("file")}Choose a file</label><input type="file" id="imp-file" class="sr" accept="${IMP_ACCEPT}" data-sid="${s.id}">
+          <p class="tiny muted drop-hint">or drag it onto this box</p>`}
+        ${importBusy?.error ? `<div class="lock bad" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>` : ""}
+      </section>
+      <section class="card stack" style="gap:10px"><h2 class="h3">What happens next</h2>
+        <ol class="steps small"><li>Study Desk finds the chapters, headings and page or slide numbers.</li><li>You check the list before anything is added.</li><li>The text under each heading becomes that topic's notes, with a summary, flashcards and practice questions.</li></ol></section>
+      <details class="card typed" ${IMP.typed || importBusy?.error ? "open" : ""}><summary><span class="h3">No file? Type the chapters instead</span></summary>
+        <div class="stack" style="gap:10px;padding:0 18px 18px">
+          <p class="small muted">One line each: number, title and pages. Add easy, medium or hard if you like. The number sets the level: 3 is a chapter, 3.1 a heading, 3.1.1 a topic.</p>
+          <label class="sr" for="qp-text">Chapters list</label>
+          <textarea id="qp-text" rows="6" placeholder="3 Research methods 75-102&#10;3.1 Research designs 75-82&#10;3.1.1 Experimental designs 76-78 easy&#10;3.1.2 Correlational designs 79-82 hard">${esc(qpText)}</textarea>
+          ${qpPreview && !qpPreview.count ? `<div class="lock bad" role="alert">${ico("info")}<span>Nothing could be read from that list. Start each line with a number, like 1 or 1.2.</span></div>` : ""}
+          <button class="btn btn-line btn-auto" data-action="imp-typed" data-id="${s.id}">Read my list</button></div></details>`;
+  } else if (step === 3) {
+    const c = impCounts(qpPreview.roots), has = s.chapterIds.length;
+    body = `<div class="for-chip"><span class="mark" style="--pc:${subjColor(s.id)}"></span><span>For <b>${esc(s.name)}</b></span><button class="linkish" data-action="imp-change">Change</button></div>
+      <section class="card stack">
+        <div class="found">${ico("check")}<div><b>Found ${c.ch} chapter${c.ch === 1 ? "" : "s"} and ${c.leaves} topic${c.leaves === 1 ? "" : "s"}</b>${importBusy?.note ? `<span class="tiny muted">${esc(importBusy.note)}</span>` : `<span class="tiny muted">From the list you typed.</span>`}</div></div>
+        <p class="small muted">Check the list. Edit names and pages later under My subjects.</p>
+        <div class="preview">${previewRows(qpPreview.roots, 0, "", has)}</div>
+        ${qpPreview.warnings.length ? `<details class="warn-list"><summary class="small">${qpPreview.warnings.length} line${qpPreview.warnings.length > 1 ? "s" : ""} skipped</summary><ul class="issues">${qpPreview.warnings.slice(0, 12).map(w => `<li>${esc(w)}</li>`).join("")}</ul></details>` : ""}
+        ${has ? `<div class="fld"><span>${esc(s.name)} already has ${has} chapter${has > 1 ? "s" : ""}</span><div class="segctl" role="radiogroup"><button role="radio" aria-checked="${IMP.mode !== "replace"}" data-action="imp-mode" data-m="append">Add after them</button><button role="radio" aria-checked="${IMP.mode === "replace"}" data-action="imp-mode" data-m="replace">Replace them</button></div></div>` : ""}
+        <div class="row" style="flex-wrap:wrap"><button class="btn btn-pen" data-action="imp-apply">${ico("check")}Add ${c.leaves} topic${c.leaves === 1 ? "" : "s"}</button><button class="btn btn-line" data-action="imp-reset">Use a different file</button></div>
+      </section>`;
+  } else {
+    const d = IMP.done;
+    body = `<section class="card done-card stack">
+      <span class="done-ic">${ico("check")}</span>
+      <h2>${esc(s ? s.name : "Your subject")} is ready</h2>
+      <p class="muted">${d.leaves} topic${d.leaves === 1 ? "" : "s"} ${d.mode === "replace" ? "now make up the subject" : "added"}, and your plan is updated.</p>
+      <div class="lock" role="status">${d.saving ? `<span class="spin" aria-hidden="true"></span><span>Saving the text of each topic as notes…</span>` : d.saved ? `${ico("notes")}<span>Notes saved for ${d.saved} topic${d.saved === 1 ? "" : "s"}. Their summaries, flashcards and practice questions are ready.</span>` : `${ico("info")}<span>No text came with this list, so add notes to a topic when you want a summary, flashcards and questions.</span>`}</div>
+      <div class="row" style="flex-wrap:wrap;justify-content:center"><button class="btn btn-pen" data-go="subject:${IMP.sid}">Open ${esc(s ? s.name : "subject")}</button><button class="btn btn-line" data-action="imp-again">Import another file</button></div></section>`;
+  }
+  return `<div class="stack imp" style="gap:18px">${head}${stepper}${body}</div>`;
+};
+async function importAction(act, a) {
+  switch (act) {
+    case "imp-subj": IMP.sid = a.dataset.id; importBusy = null; render(false); return true;
+    case "imp-new": {
+      const name = val("imp-name"), exam = val("imp-exam");
+      if (!name) { showErr("imp-err", "Give the subject a name."); $("#imp-name")?.focus(); return true; }
+      if (!DATE_RE.test(exam)) { showErr("imp-err", "Choose the exam date."); return true; }
+      if (DSUBJ.some(x => x.name.toLowerCase() === name.toLowerCase())) { showErr("imp-err", `You already have ${name}. Choose it above instead.`); return true; }
+      snapshot();
+      const sub = { id: newId("s"), hue: HUES[DSUBJ.length % HUES.length], chapters: [], name: name.slice(0, 80), code: "", course: "", exam, examTime: "", venue: "" };
+      S.content.subjects.push(sub); afterContentChange(true); IMP.sid = sub.id; render(false); toast(`${sub.name} added.`); return true;
+    }
+    case "imp-change": IMP.sid = null; qpPreview = null; importBusy = null; lastImport = null; render(false); return true;
+    case "imp-typed": qpText = $("#qp-text")?.value || ""; IMP.typed = true; qpPreview = parseOutline(qpText); lastImport = null; importBusy = null; render(false); return true;
+    case "imp-mode": IMP.mode = a.dataset.m; $$('[data-action="imp-mode"]').forEach(b => b.setAttribute("aria-checked", b === a)); return true;
+    case "imp-reset": qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; render(false); return true;
+    case "imp-again": IMP.done = null; qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; IMP.mode = "append"; render(false); return true;
+    case "imp-apply": {
+      if (!qpPreview || !qpPreview.count) return true;
+      const raw = S.content.subjects.find(x => x.id === IMP.sid); if (!raw) return true;
+      snapshot();
+      const roots = qpPreview.roots, c = impCounts(roots), mode = raw.chapters.length && IMP.mode === "replace" ? "replace" : "append";
+      if (mode === "replace") raw.chapters = roots; else raw.chapters.push(...roots);
+      qpPreview = null; qpText = ""; afterContentChange(true);
+      IMP.done = { leaves: c.leaves, mode, saving: !!lastImport, saved: 0 }; render(false); window.scrollTo({ top: 0 });
+      if (lastImport) { const n = await storeImportText(roots, true); IMP.done.saving = false; IMP.done.saved = n; lastImport = null; if (stack[stack.length - 1].v === "import") rerender(); }
+      return true;
+    }
+  }
+  return false;
+}
 
 /* ---------- generic bottom sheet ---------- */
 function openSheet(label, inner) {
@@ -1153,8 +1267,8 @@ function pagesToNotes(pages, repeats) {
   return out.map(x => x.h ? `\n## ${x.t.replace(/^#+\s*/, "")}` : x.t).join("\n").replace(/\n{3,}/g, "\n\n").trim();
 }
 /* After an import is added, keep each topic's own pages or slides as its notes, for summaries and podcasts */
-async function storeImportText(roots) {
-  const imp = lastImport; if (!imp) return;
+async function storeImportText(roots, quiet) {
+  const imp = lastImport; if (!imp) return 0;
   const leaves = []; const walk = l => l.forEach(n => n.kids.length ? walk(n.kids) : leaves.push(n)); walk(roots);
   let saved = 0, pagesRead = 0;
   const repeats = imp.kind === "pdf" ? await pdfRepeats(imp) : null;
@@ -1175,7 +1289,8 @@ async function storeImportText(roots) {
     if (text.trim().length > 60 && nodes[n.id]) { await saveNotes(n.id, text.trim()); saved++; }
   }
   sumCache.clear();
-  if (saved) { toast(`Saved the text of ${saved} topic${saved > 1 ? "s" : ""}. Summaries, flashcards and podcasts are ready.`); if (["editsubj", "topic", "summary", "listen"].includes(stack[stack.length - 1].v)) rerender(); }
+  if (saved && !quiet) { toast(`Saved the text of ${saved} topic${saved > 1 ? "s" : ""}. Summaries, flashcards and podcasts are ready.`); if (["editsubj", "topic", "summary", "listen"].includes(stack[stack.length - 1].v)) rerender(); }
+  return saved;
 }
 const stripNum = t => t.replace(/\s+/g, " ").trim().replace(/^(chapter|ch\.?|unit|part|module|section|lecture|week)\s*\d+(\.\d+)*\s*[.:)\-–—]?\s*/i, "").replace(/^\d+(\.\d+)*\s*[.:)\-–—]?\s+/, "").trim();
 async function loadPdfJs() {
@@ -1216,7 +1331,7 @@ async function pdfToOutline(buf, name = "") {
   sizes.sort((a, b) => a - b); const body = sizes[Math.floor(sizes.length / 2)] || 10;
   perPage.forEach((ls, k) => ls.forEach(l => { if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } }));
   if (heads.length >= 2 && heads.length <= 300) {
-    const deck = stripNum(name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")) || "Imported PDF", last = pageNo(pages - 1);
+    const deck = stripNum(name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Imported PDF", last = pageNo(pages - 1);
     const lines = [`1 ${deck} ${heads[0].p}-${last}`]; heads.forEach((h, k) => { const end = k + 1 < heads.length ? Math.max(h.p, heads[k + 1].p) : last; /* shares the next heading's page; the text is split at the heading */ lines.push(`1.${k + 1} ${stripNum(h.t) || h.t} ${h.p}-${end}`); });
     return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${heads.length} headings were picked from the text. Check them before adding.` };
   }
@@ -1276,7 +1391,7 @@ async function pptxToOutline(buf, name) {
   }
   if (!titles.length) return { text: "", note: "No slides found in that file." };
   lastImport = { kind: "pptx", slides: slideText };
-  const deck = stripNum(name.replace(/\.pptx$/i, "").replace(/[_-]+/g, " ")) || "Slides";
+  const deck = stripNum(name.replace(/\.pptx$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Slides";
   const lines = [`1 ${deck} 1-${titles.length}`]; let k = 0;
   for (let i = 0; i < titles.length; i++) { let j = i; while (j + 1 < titles.length && titles[j + 1].replace(/\s*\(cont.*\)$/i, "") === titles[i]) j++; k++; lines.push(`1.${k} ${titles[i]} ${i + 1}-${j + 1}`); i = j; }
   const withNotes = slideText.filter(x => x.includes("\nNotes:")).length;
@@ -1288,7 +1403,7 @@ async function importFile(file, sid) {
   if (file.size > 80e6) { importBusy = { error: "That file is over 80 MB. Try a smaller PDF or just the contents pages." }; rerender(); return; }
   if (ext === "ppt") { importBusy = { error: "Old .ppt files can't be read. Open it in PowerPoint and save it as .pptx first." }; rerender(); return; }
   if (ext === "doc") { importBusy = { error: "Old .doc files can't be read. Open it in Word and save it as .docx first." }; rerender(); return; }
-  if (!["pdf", "pptx", "docx"].includes(ext)) { importBusy = { error: "Choose a PDF, a PowerPoint (.pptx) or a Word (.docx) file." }; rerender(); return; }
+  if (!["pdf", "pptx", "docx"].includes(ext)) { importBusy = { error: `${name} isn't a file Study Desk can read. Choose a PDF, a PowerPoint (.pptx) or a Word (.docx) file, or type the chapters below.` }; rerender(); return; }
   importBusy = { reading: name }; rerender();
   try {
     const buf = await file.arrayBuffer();
@@ -1299,7 +1414,8 @@ async function importFile(file, sid) {
     console.error(e);
     importBusy = { error: /password/i.test(String(e && e.message)) ? "That PDF is password-protected. Remove the password and try again." : `Couldn't read ${name}. It may be damaged or scanned as images only.` };
   }
-  if (stack[stack.length - 1].v === "editsubj" && stack[stack.length - 1].a === sid) rerender();
+  const top = stack[stack.length - 1];
+  if ((top.v === "editsubj" && top.a === sid) || top.v === "import") rerender();
 }
 
 /* =====================================================================
@@ -1330,6 +1446,7 @@ async function loadLocalFiles() {
   try { (await IDB.all("notes") || []).forEach(n => { if (nodes[n.id]) NOTES[n.id] = n.text; }); } catch (e) { }
   try { RECS = (await IDB.all("audio") || []).map(r => ({ ...r, blob: undefined })).sort((a, b) => b.added - a.added); } catch (e) { }
   notesReady = true;
+  if (cleanPending) { await cleanSlate(); return; }
   const v = stack[stack.length - 1].v; if (["topic", "summary", "listen", "progress"].includes(v)) rerender();
 }
 const notesOf = id => NOTES[id] || S.content.notes?.[id] || "";
@@ -1551,7 +1668,7 @@ V.listen = () => {
     <section class="section"><div class="sec-head"><h2>By chapter</h2></div>
       ${DSUBJ.length ? DSUBJ.map(s => `<details class="card subj-ep" ${s === DSUBJ[0] ? "open" : ""}><summary class="row"><span class="mark" style="--pc:${subjColor(s.id)}"></span><b class="grow">${esc(s.name)}</b>${ico("chev", 'class="caret"')}</summary>
         <div class="stack" style="gap:8px;margin-top:10px">${s.chapterIds.map(cid => { const c = nodes[cid], n = leavesUnder(cid).length, withNotes = leavesUnder(cid).filter(l => summaryOf(l)).length; return epCard("topic:" + cid, `Ch ${c.num} · ${c.title}`, `${n} topics · ${withNotes ? withNotes + " with notes" : "no notes yet"}`, "topic", `data-id="${cid}"`); }).join("")}
-        <button class="btn btn-line btn-sm" data-go="summary:${s.id}" style="align-self:flex-start">Read the ${esc(s.name)} summary</button></div></details>`).join("") : `<div class="card empty">Add a subject to get episodes.</div>`}
+        <button class="btn btn-line btn-sm" data-go="summary:${s.id}" style="align-self:flex-start">Read the ${esc(s.name)} summary</button></div></details>`).join("") : `<div class="card empty">Episodes appear here once you <button class="link" data-go="import">import a file</button> with your notes.</div>`}
     </section>
     <section class="section"><div class="sec-head"><h2>My recordings</h2></div>
       <div class="card stack" style="gap:10px">
@@ -1870,7 +1987,7 @@ function placeIndicator(container) {
 let stack = [{ v: "today" }];
 const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Review", "cards"], ["progress", "Progress", "progress"]];
 const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
-const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice" })[r.v] || r.v;
+const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice", import: "exams" })[r.v] || r.v;
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
   if (FX.on && document.startViewTransition) {
@@ -1884,13 +2001,14 @@ function go(spec) {
   if (!V[v]) return;
   const cur = stack[stack.length - 1];
   if (v === "editsubj" && !(cur.v === "editsubj" && cur.a === a)) { qpPreview = null; qpText = ""; importBusy = null; editHue = null; }
+  if (v === "import") { qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP = { sid: a && subjects[a] ? a : null, done: null, mode: "append", typed: false }; }
   const isTab = RAIL.some(t => t[0] === v);
   navigate(() => { if (isTab) stack = [{ v }]; else stack.push({ v, a }); }, isTab ? "tab" : "forward");
 }
 function back() { if (stack.length > 1) navigate(() => stack.pop(), "back"); }
 function crumbs() {
   const r = stack[stack.length - 1];
-  if (stack.length === 1) return `<div class="brand"><i></i>Study Desk</div>${deferredInstall && !isStandalone() ? `<button class="proto" data-action="install">Install app</button>` : `<span class="proto">Sample data</span>`}<button class="icon-btn sm srch" data-action="search" aria-label="Search topics">${ico("search")}</button><button class="icon-btn sm gear" data-go="settings" aria-label="Settings">${ico("gear")}</button>`;
+  if (stack.length === 1) return `<div class="brand"><i></i>Study Desk</div>${deferredInstall && !isStandalone() ? `<button class="proto" data-action="install">Install app</button>` : ""}<button class="icon-btn sm srch" data-action="search" aria-label="Search topics">${ico("search")}</button><button class="icon-btn sm gear" data-go="settings" aria-label="Settings">${ico("gear")}</button>`;
   let trail = [];
   const id = r.a;
   if (r.v === "subject" && subjects[id]) trail = [["subject:" + id, subjects[id].name]];
@@ -1901,6 +2019,7 @@ function crumbs() {
   else if (r.v === "review") trail = [["review", "Flashcards"]];
   else if (r.v === "map" && subjects[id]) trail = [["subject:" + id, subjects[id].name], ["map:" + id, "Mind map"]];
   else if (r.v === "edit") trail = [["edit", "My subjects"]];
+  else if (r.v === "import") trail = [["import", "Import"]];
   else if (r.v === "episode") trail = [["episode", "Now playing"]];
   else if (r.v === "calendar") trail = [["calendar", "Calendar"]];
   else if (r.v === "summary" && subjects[id]) trail = [["subject:" + id, subjects[id].name], ["summary:" + id, "Summary"]];
@@ -1984,6 +2103,7 @@ document.addEventListener("click", e => {
     e.preventDefault(); e.stopPropagation();
     const act = a.dataset.action, id = a.dataset.id;
     if (editorAction(act, a)) return;
+    if (act.startsWith("imp-")) { importAction(act, a); return; }
     if (typeof TOOL_ACTS !== "undefined" && TOOL_ACTS.has(act)) { toolAction(act, a); return; }
     if (typeof X_ACTS !== "undefined" && X_ACTS.has(act)) { xAction(act, a); return; }
     if (typeof SP_ACTS !== "undefined" && SP_ACTS.has(act)) { spAction(act, a); return; }
@@ -2034,7 +2154,11 @@ document.addEventListener("click", e => {
       case "export": { markBackup(); const ok = download(`study-desk-backup-${todayKey()}.json`, exportText()); toast(ok ? "Backup file saved." : "Saving files isn't allowed here. Use Copy backup instead."); return; }
       case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
-      case "reset": if (a.dataset.confirm) { snapshot(); ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Demo data reset.", { label: "Undo", fn: undo }); } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to reset everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Reset demo data"; } }, 3000); } return;
+      case "reset": if (a.dataset.confirm) {
+          (async () => { for (const st of ["notes", "audio", "sketch"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
+            NOTES = {}; RECS = []; if (typeof SKETCHES !== "undefined") SKETCHES = [];
+            ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Everything is erased. Study Desk is empty again."); })();
+        } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to erase everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Erase everything on this device"; } }, 3500); } return;
     }
   }
   if (c) {
@@ -2195,9 +2319,9 @@ if (document.readyState === "complete") bootOnce(); else { document.addEventList
 
 /* paste or drop a PDF / PowerPoint onto the subject editor */
 document.addEventListener("paste", e => {
-  const r = stack[stack.length - 1]; if (r.v !== "editsubj" || r.a === "new") return;
-  const f = [...(e.clipboardData?.files || [])].find(f => /\.(pdf|pptx?)$/i.test(f.name)); if (!f) return;
-  e.preventDefault(); importFile(f, r.a);
+  const r = stack[stack.length - 1], sid = r.v === "import" ? IMP.sid : r.v === "editsubj" && r.a !== "new" ? r.a : null; if (!sid) return;
+  const f = [...(e.clipboardData?.files || [])].find(f => /\.(pdf|pptx?|docx?)$/i.test(f.name)); if (!f) return;
+  e.preventDefault(); importFile(f, sid);
 });
 document.addEventListener("dragover", e => { const z = e.target.closest?.("#dropzone"); if (z) { e.preventDefault(); z.classList.add("over"); } });
 document.addEventListener("dragleave", e => { const z = e.target.closest?.("#dropzone"); if (z) z.classList.remove("over"); });

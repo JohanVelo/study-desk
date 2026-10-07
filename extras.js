@@ -139,7 +139,7 @@ async function docxToOutline(buf, name) {
   /* Word files often use bold paragraphs instead of heading styles: treat short bold-only paragraphs as headings */
   if (!blocks.some(b => b.k === "h")) doc.body.querySelectorAll("p").forEach(p => { const s = p.querySelector("strong"); if (s && s.textContent.trim() === p.textContent.trim() && p.textContent.length < 90) { const b = blocks.find(x => x.t === p.textContent.replace(/\s+/g, " ").trim()); if (b) { b.k = "h"; b.lvl = 2; } } });
   const lv = [...new Set(blocks.filter(b => b.k === "h").map(b => b.lvl))].sort();
-  const deck = stripNum(name.replace(/\.docx$/i, "").replace(/[_-]+/g, " ")) || "Document";
+  const deck = stripNum(name.replace(/\.docx$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Document";
   const topics = []; let chapter = null, cur = null;
   const L1 = lv.length >= 2 ? lv[0] : null, L2 = lv.length >= 2 ? lv[1] : lv[0];
   blocks.forEach(b => {
