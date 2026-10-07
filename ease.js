@@ -114,3 +114,132 @@ eAction = function (act, a) {
   }
   return _eAction(act, a);
 };
+
+/* =====================================================================
+   Study Desk v4.9: quicker everyday use
+   5. swipe a session on the phone plan: right = done, left = move to later
+   6. a small buzz when something is ticked off (phones that allow it)
+   7. home-screen shortcuts (?do=next|cards|search|add)
+   8. a quick add button on Today
+   9. recent searches
+   ===================================================================== */
+const fireAct = (act, data = {}) => { const b = document.createElement("button"); b.hidden = true; b.dataset.action = act; Object.assign(b.dataset, data); document.body.appendChild(b); b.click(); b.remove(); };
+
+/* ---------- 5. swipe ---------- */
+const SW = { row: null, x0: 0, y0: 0, dx: 0, on: false, dead: false, eat: false };
+document.addEventListener("pointerdown", e => {
+  if (e.pointerType !== "touch" || e.button) return;
+  const row = e.target.closest?.(".plan .task"); if (!row || row.classList.contains("done") || e.target.closest(".check")) return;
+  Object.assign(SW, { row, x0: e.clientX, y0: e.clientY, dx: 0, on: false, dead: false });
+}, { passive: true });
+document.addEventListener("pointermove", e => {
+  const r = SW.row; if (!r || SW.dead) return;
+  const dx = e.clientX - SW.x0, dy = e.clientY - SW.y0;
+  if (!SW.on) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { SW.dead = true; return; }
+    if (Math.abs(dx) < 14) return;
+    SW.on = true; r.classList.add("swiping");
+    r.insertAdjacentHTML("afterbegin", `<span class="sw-bg" aria-hidden="true"><span class="sw-l">${ico("check")}Done</span><span class="sw-r">${ico("shift")}Later</span></span>`);
+  }
+  const w = r.offsetWidth, lim = w * .6;
+  SW.dx = Math.max(-lim, Math.min(lim, dx));
+  const far = Math.abs(SW.dx) > Math.min(110, w * .3);
+  r.style.setProperty("--sx", SW.dx + "px");
+  r.classList.toggle("sw-right", SW.dx > 0); r.classList.toggle("sw-left", SW.dx < 0);
+  if (far !== r.classList.contains("sw-far")) { r.classList.toggle("sw-far", far); if (far) buzz(8); }
+}, { passive: true });
+const swEnd = () => {
+  const r = SW.row; SW.row = null; if (!r || !SW.on) return;
+  const eat = () => { SW.eat = true; setTimeout(() => SW.eat = false, 350); };
+  const far = r.classList.contains("sw-far"), dx = SW.dx;
+  const reset = () => { r.classList.remove("swiping", "sw-right", "sw-left", "sw-far"); r.style.removeProperty("--sx"); r.querySelector(".sw-bg")?.remove(); };
+  if (!far) { eat(); r.classList.add("sw-back"); r.style.setProperty("--sx", "0px"); setTimeout(() => { r.classList.remove("sw-back"); reset(); }, 260); return; }
+  const id = r.querySelector(".check")?.dataset.id; if (!id) { reset(); return; }
+  if (dx > 0) r.querySelector(".check").click();
+  else { const t = S.tasks.find(x => x.id === id); if (!t) return reset(); snapshot(); const msg = missTask(t); save(); flipRerender(); toast(msg, { label: "Undo", fn: undo }); }
+  eat();
+};
+document.addEventListener("pointerup", swEnd); document.addEventListener("pointercancel", swEnd);
+/* a swipe never also opens the topic underneath it */
+document.addEventListener("click", e => { if (SW.eat && e.target.closest?.(".plan .task")) { e.preventDefault(); e.stopPropagation(); } }, true);
+
+/* ---------- 6. buzz on tick ---------- */
+document.addEventListener("click", e => {
+  const c = e.target.closest?.('[data-action="toggle"]'); if (!c) return;
+  const t = S.tasks.find(x => x.id === c.dataset.id); if (t && !t.done) buzz([12, 40, 18]);
+}, true);
+
+/* ---------- 7. home-screen shortcuts ---------- */
+function runShortcut(what) {
+  if (what === "search") { openSearch(); return; }
+  if (what === "add") { if (DSUBJ.length) openQuickAdd(); else go("import"); return; }
+  if (what === "cards") { if (typeof cardsDueCount === "function" && cardsDueCount()) fireAct("fc-start"); else { go("practice"); toast("No flashcards are due right now."); } return; }
+  if (what === "next") {
+    const nowM = new Date().getHours() * 60 + new Date().getMinutes(), left = tasksOn(todayKey()).filter(x => !x.done);
+    const next = left.find(x => x.start + x.dur > nowM) || left[0];
+    if (next) focusStart(next.id); else toast(DSUBJ.length ? "Nothing left on today's plan." : "Add a subject first, then your plan appears here.");
+  }
+}
+const _bootE = boot;
+boot = function () {
+  _bootE();
+  try {
+    const u = new URL(location.href), what = u.searchParams.get("do"); if (!what) return;
+    u.searchParams.delete("do"); history.replaceState(null, "", u.pathname + u.search + u.hash);
+    setTimeout(() => runShortcut(what), 120);
+  } catch (e) { }
+};
+
+/* ---------- 8. quick add ---------- */
+function qaDefault() {
+  const left = tasksOn(todayKey()).filter(x => !x.done && x.type !== "mock");
+  const id = left[0]?.node || S.recent.find(r => nodes[r.id]?.leaf)?.id || leafIds[0];
+  return nodes[id]?.leaf ? id : leafIds[0];
+}
+function openQuickAdd(pick) {
+  const cur = pick && nodes[pick]?.leaf ? pick : qaDefault();
+  const opts = DSUBJ.map(s => { const ids = leafIds.filter(id => nodes[id].subject === s.id); return ids.length ? `<optgroup label="${esc(s.name)}">${ids.map(id => `<option value="${id}" ${id === cur ? "selected" : ""}>${esc(nodes[id].num ? nodes[id].num + " " : "")}${esc(nodes[id].title)}</option>`).join("")}</optgroup>` : ""; }).join("");
+  const tile = (act, icon, label, hint) => `<button class="qa-tile" data-action="${act}"><span class="st-ic">${ico(icon)}</span><span class="st-t"><b>${label}</b><span>${hint}</span></span></button>`;
+  openSheet("Add something", `${sheetHead("Quick add", "Add something")}<div class="stack" style="gap:14px">
+    ${leafIds.length ? `<label class="fld"><span>For this topic</span><select id="qa-topic">${opts}</select></label>
+    <div class="qa-grid">${tile("qa-card", "cards", "Flashcard", "A question and its answer")}${tile("qa-notes", "notes", "Notes", "Paste, type or snap a page")}${typeof openSketch === "function" ? tile("qa-sketch", "pencil", "Sketch", "Draw a diagram") : ""}</div>` : ""}
+    <div class="qa-more"><span class="tiny muted">Or add more to study</span><div class="row" style="flex-wrap:wrap"><button class="btn btn-line btn-sm" data-action="qa-import">${ico("upload")}Import a file</button><button class="btn btn-line btn-sm" data-action="qa-subject">${ico("plus")}New subject</button></div></div></div>`);
+}
+const qaTopic = () => ($("#qa-topic") || {}).value || qaDefault();
+["qa-open", "qa-card", "qa-notes", "qa-sketch", "qa-import", "qa-subject", "rs-use", "rs-clear"].forEach(k => E_ACTS.add(k));
+const _eActionQ = eAction;
+eAction = function (act, a) {
+  switch (act) {
+    case "qa-open": openQuickAdd(); return;
+    case "qa-card": { const id = qaTopic(); closeSheet(true); openCardSheet(id); return; }
+    case "qa-notes": { const id = qaTopic(); closeSheet(true); openNotesSheet(id); return; }
+    case "qa-sketch": { const id = qaTopic(); closeSheet(true); openSketch(id); return; }
+    case "qa-import": closeSheet(true); go("import"); return;
+    case "qa-subject": closeSheet(true); go("editsubj:new"); return;
+    case "rs-use": { const i = $("#srch"); if (!i) return; i.value = a.dataset.q; i.dispatchEvent(new Event("input", { bubbles: true })); i.focus({ preventScroll: true }); return; }
+    case "rs-clear": rsSave([]); drawSearch(($("#srch") || {}).value || ""); return;
+  }
+  return _eActionQ(act, a);
+};
+/* on Today the top bar gets an Add button next to search, where it never covers a session */
+const _renderQ = render;
+render = function (fresh) {
+  _renderQ(fresh);
+  if (!(stack.length === 1 && stack[0].v === "today" && DSUBJ.length)) return;
+  $(".topbar .srch")?.insertAdjacentHTML("beforebegin", `<button class="qa-btn" data-action="qa-open" aria-label="Add a flashcard, notes or a subject">${ico("plus")}<span>Add</span></button>`);
+};
+
+/* ---------- 9. recent searches ---------- */
+const RS_KEY = "studydesk.recentq";
+const rsGet = () => { try { const a = JSON.parse(localStorage.getItem(RS_KEY) || "[]"); return Array.isArray(a) ? a.filter(x => typeof x === "string").slice(0, 6) : []; } catch (e) { return []; } };
+const rsSave = a => { try { localStorage.setItem(RS_KEY, JSON.stringify(a.slice(0, 6))); } catch (e) { } };
+const rsAdd = q => { q = q.trim(); if (q.length < 2) return; rsSave([q, ...rsGet().filter(x => x.toLowerCase() !== q.toLowerCase())]); };
+const _drawSearchR = drawSearch;
+drawSearch = function (raw) {
+  _drawSearchR(raw);
+  const el = $("#srchRes"); if (!el || raw.trim()) return;
+  const rs = rsGet(); if (!rs.length) return;
+  el.insertAdjacentHTML("afterbegin", `<div class="rs"><div class="rs-head"><span class="tiny muted">Recent searches</span><button class="link tiny" data-action="rs-clear">Clear</button></div><div class="rs-list">${rs.map(q => `<button class="chip" data-action="rs-use" data-q="${esc(q)}">${ico("search")}${esc(q)}</button>`).join("")}</div></div>`);
+};
+/* a search counts once something from it is opened */
+document.addEventListener("click", e => { if (e.target.closest?.("#srchRes [data-sgo], #srchMeaning [data-sgo]")) rsAdd(($("#srch") || {}).value || ""); }, true);

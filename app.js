@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.8.0";
+const APP_VERSION = "4.9.0";
 
 /* =====================================================================
    1. UTILS
@@ -152,7 +152,7 @@ function findRaw(id) {
    ===================================================================== */
 const SCHEMA_NOW = 3;
 const KEY = "studydesk.v2", BAK = "studydesk.v2.bak", LEGACY = "studydesk.proto.v1";
-const DEFAULT_SETTINGS = { days: [1, 2, 3, 4, 5, 6], blocks: [[540, 720], [840, 1020]], maxPerDay: 6, theme: "system", motion: "full" };
+const DEFAULT_SETTINGS = { days: [1, 2, 3, 4, 5, 6], blocks: [[540, 720], [840, 1020]], maxPerDay: 6, theme: "system", motion: "full", text: "normal" };
 let S, saveTimer = null, saveFailed = false, repairs = 0, restoredFrom = null, lastDay = null, contentNotice = null;
 const ls = {
   get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
@@ -250,7 +250,8 @@ function sanitize(o) {
     blocks: Array.isArray(st0.blocks) && st0.blocks.length && st0.blocks.every(b => Array.isArray(b) && isInt(b[0], 0, 1439) && isInt(b[1], 1, 1440) && b[1] - b[0] >= 30) ? st0.blocks.map(b => [b[0], b[1]]).sort((a, b) => a[0] - b[0]) : (fix(), d.blocks.map(b => b.slice())),
     maxPerDay: isInt(st0.maxPerDay, 2, 10) ? st0.maxPerDay : (fix(), d.maxPerDay),
     theme: ["system", "light", "dark"].includes(st0.theme) ? st0.theme : (fix(), "system"),
-    motion: ["full", "reduced"].includes(st0.motion) ? st0.motion : (fix(), "full")
+    motion: ["full", "reduced"].includes(st0.motion) ? st0.motion : (fix(), "full"),
+    text: st0.text === "large" ? "large" : "normal"
   };
   return { state: out, fixes };
 }
@@ -608,7 +609,7 @@ V.today = () => {
   const nowM = new Date().getHours() * 60 + new Date().getMinutes();
   const next = left.find(x => x.start + x.dur > nowM) || left[0];
   const rest = ts.filter(x => x !== next);
-  const changes = S.changes.filter(c => c.when === t).slice(0, 2);
+  const changes = S.changes.filter(c => c.when === t).slice(0, 5);
   const top = upcoming[0];
   const lede = !ts.length ? `Rest day. Nothing planned today.` : !left.length ? `<strong>All done for today.</strong> Nice work.` : `<strong>${left.length} session${left.length > 1 ? "s" : ""} · ${fmtMins(mins)}</strong> left${top ? `. ${esc(top.name)} exam in ${daysLeft(top.id)} day${daysLeft(top.id) === 1 ? "" : "s"}.` : "."}`;
   let hero = "";
@@ -629,11 +630,11 @@ V.today = () => {
     <header class="hero">${dateLine}<h1 id="heroTitle">What should I study <span class="hl">today?</span></h1>
       <div class="hero-row">${dayDial(ts, nowM)}<div class="hero-stats">${!ts.length ? `<p class="lede">Rest day. Nothing planned today.</p>` : !left.length ? `<p class="lede"><strong>All done for today.</strong> Nice work.</p>` : `<div class="hs"><b>${left.length}</b><span>session${left.length > 1 ? "s" : ""} left</span></div><div class="hs"><b>${mins >= 60 ? Math.floor(mins / 60) + "h" + (mins % 60 ? " " + (mins % 60) + "m" : "") : mins + "m"}</b><span>of study</span></div>`}${top ? `<div class="hs"><b>${daysLeft(top.id)}d</b><span>to ${esc(top.name)}</span></div>` : ""}</div></div></header>
     ${restoredFrom ? `<div class="banner">${ico("shield")}<div>${restoredFrom === "legacy" ? "Your progress from the first prototype was carried over." : "Your saved data couldn't be read, so Study Desk restored it from the automatic backup."}</div></div>` : ""}
-    ${changes.length ? `<div class="banner">${ico("shift")}<div>${changes.map(c => esc(c.text)).join("<br>")}</div></div>` : ""}
     <div class="dash">
       <div class="stack" style="gap:18px">${hero}
         ${(() => { const n = typeof cardsDueCount === "function" ? cardsDueCount() : 0; return n ? `<button class="card cards-due" data-action="fc-start"><span class="cd-ico" aria-hidden="true">${ico("cards")}</span><span class="grow"><b>${n} flashcard${n > 1 ? "s" : ""} due</b><span class="tiny muted">About ${Math.max(1, Math.round(n * 0.15))} min · keeps what you learned from fading</span></span>${ico("chev", 'class="chev"')}</button>` : ""; })()}
         ${rest.length ? `<section class="section"><div class="sec-head"><h2>${next ? "Rest of today" : "Today"}</h2><span class="tiny muted mono">${ts.filter(x => x.done).length}/${ts.length} done</span></div><div class="card plan-card">${planList(rest, { compact: true })}</div></section>` : ""}
+        ${changes.length ? `<details class="chg"><summary>${ico("shift")}<span class="grow">Your plan changed today</span><span class="chg-n">${changes.length === 1 ? "1 update" : changes.length + " updates"}</span>${ico("chev", 'class="caret"')}</summary><ul>${changes.map(c => `<li>${esc(c.text)}</li>`).join("")}</ul></details>` : ""}
       </div>
       <div class="side stack" style="gap:18px">
         ${backupDue() ? `<div class="banner">${ico("shield")}<div class="grow">It's been a while since your last backup. Save one so your progress is safe if this device is lost.</div><button class="btn btn-soft btn-sm" data-action="export">Save backup</button><button class="icon-btn sm" data-action="bak-later" aria-label="Remind me later">${ico("x")}</button></div>` : ""}
@@ -798,7 +799,7 @@ V.practice = () => {
     ${blurtable.length ? `<section class="section"><div class="sec-head"><h2>Blurt check</h2><span class="tiny muted">Explain it without notes</span></div><div class="list">${blurtable.map(id => `<button class="item" data-action="blurt" data-id="${id}" style="--pc:${subjColor(nodes[id].subject)}"><span class="mark"></span><span class="grow"><span class="t">${esc(nodes[id].title)}</span><br><span class="s">${esc(subjects[nodes[id].subject].name)} · write what you remember, see what you missed</span></span>${ico("chev", 'class="chev"')}</button>`).join("")}</div></section>` : ""}
     <h2 class="sec-title">Practice questions</h2>`;
   return `<div class="stack" style="gap:18px">
-    <header class="subhead"><div class="eyebrow">Review</div><h1>Test yourself</h1>${Q.done && DSUBJ.length ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
+    <header class="subhead"><div class="eyebrow">Test yourself</div><h1>Review</h1>${Q.done && DSUBJ.length ? `<p class="small muted">This session: <b class="mono" style="color:var(--ink)">${Q.right}/${Q.done}</b> correct. Every answer updates the topic's accuracy and weak areas.</p>` : `<p class="small muted">Answers feed straight into topic progress, weak areas and your mistakes list.</p>`}</header>
     ${reviewHero}
     ${Q.topic ? `<div class="banner">${ico("pencil")}<div>Showing questions for <b>${esc(nodes[Q.topic].title)}</b>. <button data-action="qf" data-k="topic" data-v="">Show all topics</button></div></div>` : ""}
     <div class="filters" role="group" aria-label="Question set">${chip("mode", "all", "All questions")}${chip("mode", "mistakes", "Mistakes to review")}</div>
@@ -863,6 +864,7 @@ V.settings = () => {
       <p class="tiny muted">Changes rebuild your plan from today. Finished sessions are kept.</p></section>
     <section class="card stack"><h2 class="h3">Appearance</h2>
       <div class="row" style="flex-wrap:wrap"><span class="small grow">Theme</span>${seg3("theme", [["system", "Auto"], ["light", "Light"], ["dark", "Dark"]])}</div>
+      <div class="row" style="flex-wrap:wrap"><span class="small grow">Text size</span>${seg3("text", [["normal", "Standard"], ["large", "Larger"]])}</div>
       <div class="row" style="flex-wrap:wrap"><span class="small grow">Animations</span>${seg3("motion", [["full", "Full"], ["reduced", "Calm"]])}</div></section>
     <section class="card stack" id="install"><h2 class="h3">Install on phone or laptop</h2>
       ${isStandalone() ? `<div class="lock" style="background:color-mix(in oklab,var(--ok) 12%,var(--surface))">${ico("check")}<span>Study Desk is installed and works offline.</span></div>` : `
@@ -2004,7 +2006,10 @@ function go(spec) {
   if (v === "editsubj" && !(cur.v === "editsubj" && cur.a === a)) { qpPreview = null; qpText = ""; importBusy = null; editHue = null; }
   if (v === "import") { qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP = { sid: a && subjects[a] ? a : null, done: null, mode: "append", typed: false }; }
   const isTab = RAIL.some(t => t[0] === v);
-  navigate(() => { if (isTab) stack = [{ v }]; else stack.push({ v, a }); }, isTab ? "tab" : "forward");
+  /* tabs slide in from the side they sit on, so moving between them feels spatial */
+  const ti = k => RAIL.findIndex(t => t[0] === k), from = ti(tabOf(stack[0])), to = ti(v);
+  const dir = !isTab ? "forward" : from < 0 || to < 0 || from === to ? "tab" : to > from ? "tab-r" : "tab-l";
+  navigate(() => { if (isTab) stack = [{ v }]; else stack.push({ v, a }); }, dir);
 }
 function back() { if (stack.length > 1) navigate(() => stack.pop(), "back"); }
 function crumbs() {
@@ -2084,6 +2089,7 @@ function applySettings(rebuild) {
   const th = S.settings.theme;
   if (th === "system") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = th;
   document.documentElement.classList.toggle("calm", S.settings.motion === "reduced");
+  document.documentElement.classList.toggle("big", S.settings.text === "large");
   if (rebuild) { generate(todayKey()); S.changes.unshift({ when: todayKey(), text: "Study settings changed, so the plan was rebuilt from today." }); }
   save();
 }

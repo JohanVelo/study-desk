@@ -1,6 +1,6 @@
 /* Study Desk service worker: the app shell is cached so it opens offline.
    Bump VERSION on every release so phones pick up the new files. */
-const VERSION = "study-desk-4.8.0";
+const VERSION = "study-desk-4.9.0";
 /* caches that survive app updates: big libraries, the text reader, voices and speech models */
 const KEEP = ["study-desk-ocr-7", "study-desk-libs-1", "study-desk-models", "transformers-cache"];
 const SHELL = [
