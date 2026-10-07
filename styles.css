@@ -1472,3 +1472,19 @@ html.calm .oc-m.t.open{animation:none}
 .ez-tip>svg{width:18px;height:18px;flex:none;color:var(--pen)}
 .ez-tip span{flex:1}
 .set-jump a[aria-current="true"]{background:var(--ink);color:var(--paper);box-shadow:none}
+/* v4.8 */
+.qfilt{border-radius:var(--r-m);background:var(--surface);box-shadow:var(--shadow)}
+.qfilt summary{display:flex;align-items:center;gap:12px;padding:10px 14px;min-height:52px;cursor:pointer;list-style:none}
+.qfilt summary::-webkit-details-marker{display:none}
+.qfilt summary .grow{display:flex;flex-direction:column;gap:1px}
+.qfilt summary b{font-size:14.5px}
+.qf-ic svg{width:18px;height:18px;color:var(--pen)}
+.qfilt .chev{width:18px;height:18px;color:var(--muted);transition:transform var(--t-fast)}
+.qfilt[open] .chev{transform:rotate(90deg)}
+.qf-body{display:flex;flex-direction:column;gap:6px;padding:0 14px 14px}
+.qf-body .filters{margin:0 -14px;padding:0 14px}
+.catchup{display:flex;flex-direction:column;gap:12px;padding:14px 16px;border-radius:var(--r-l);background:color-mix(in oklab,var(--p-high) 13%,var(--surface));box-shadow:inset 0 0 0 1.5px color-mix(in oklab,var(--p-high) 35%,transparent)}
+.cu-top{display:flex;gap:12px;align-items:center}
+.cu-top .grow{display:flex;flex-direction:column;gap:2px}
+.cu-top b{font-size:15.5px;line-height:1.3}
+.cu-n{width:40px;height:40px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--p-high);color:oklch(20% .04 60);font:800 17px/1 var(--f-display)}

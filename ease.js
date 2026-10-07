@@ -83,3 +83,34 @@ addEventListener("scroll", () => {
     $$("a[data-jump]", j).forEach(a => { if (a === cur) { if (a.getAttribute("aria-current") !== "true") { a.setAttribute("aria-current", "true"); a.scrollIntoView({ block: "nearest", inline: "nearest" }); } } else a.removeAttribute("aria-current"); });
   });
 }, { passive: true });
+
+/* ---------- 4. catch up: earlier sessions that weren't ticked, handled in one tap ---------- */
+function passedToday() {
+  const t = todayKey(), nowM = new Date().getHours() * 60 + new Date().getMinutes();
+  return tasksOn(t).filter(x => !x.done && x.start + x.dur <= nowM);
+}
+const _vTodayE = V.today;
+V.today = () => {
+  const h = _vTodayE(), ps = passedToday(); if (ps.length < 2) return h;
+  const mins = ps.reduce((a, x) => a + x.dur, 0);
+  const box = `<section class="catchup" aria-label="Earlier sessions"><div class="cu-top"><span class="cu-n">${ps.length}</span><div class="grow"><b>${ps.length} earlier sessions aren't ticked off</b><span class="tiny muted">${fmtMins(mins)} planned before now. Did you do them?</span></div></div>
+    <div class="row" style="flex-wrap:wrap"><button class="btn btn-soft btn-sm" data-action="cu-done">${ico("check")}I did them</button><button class="btn btn-line btn-sm" data-action="cu-move">${ico("shift")}Move them to later</button></div></section>`;
+  const d = h.indexOf('<div class="dash">'), k = d < 0 ? -1 : h.indexOf('<section class="section"><div class="sec-head"><h2>', d);
+  return k < 0 ? h : h.slice(0, k) + box + h.slice(k);
+};
+E_ACTS.add("cu-done"); E_ACTS.add("cu-move");
+const _eAction = eAction;
+eAction = function (act, a) {
+  if (act === "cu-done") {
+    const ps = passedToday(); if (!ps.length) return; snapshot();
+    ps.forEach(t => { t.done = true; t.prev = st(t.node); if (t.type !== "mock") { const ns = { learn: 1, recall: 2, practice: 3, calc: 3, revision: 4 }[t.type]; if (ns > st(t.node)) S.status[t.node] = ns; } S.recent.unshift({ id: t.node, text: TYPES[t.type].label, when: todayKey() }); logEvent({ t: "task", n: t.node, m: t.dur, tid: t.id }); });
+    S.recent = S.recent.slice(0, 20); save(); flipRerender(); buzz(10);
+    toast(`${ps.length} sessions ticked off.`, { label: "Undo", fn: undo }); return;
+  }
+  if (act === "cu-move") {
+    const ps = passedToday(); if (!ps.length) return; snapshot();
+    ps.forEach(t => missTask(t)); save(); flipRerender();
+    toast(`${ps.length} sessions moved to later in your plan.`, { label: "Undo", fn: undo }); return;
+  }
+  return _eAction(act, a);
+};

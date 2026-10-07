@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.7.0";
+const APP_VERSION = "4.8.0";
 
 /* =====================================================================
    1. UTILS
@@ -551,7 +551,7 @@ function taskRow(t, opts = {}) {
       <span class="kind"><span class="k">${ico(ty.icon)}<span>${ty.label} · ${t.dur} min</span></span><span class="grow"></span>${prPill(lvl)}</span>
       <span class="title">${esc(title)}</span>
       <span class="meta"><span style="color:${subjColor(t.subject)};font-weight:700">${s.name}</span>${opts.compact ? "" : `<span>${where}</span>`}${t.type !== "mock" ? pagesTag(n) : ""}${t.carried && !t.done ? `<span class="carried">Moved here</span>` : ""}${isNow ? `<span class="carried nowtag">Now</span>` : ""}</span>
-      ${!t.done && !opts.noMove ? `<span class="acts"><span class="miss" role="button" tabindex="0" data-action="miss" data-id="${t.id}">${ico("shift")}I didn't get to this</span></span>` : ""}
+      ${!t.done && !opts.noMove && (t.date < todayKey() || (t.date === todayKey() && nowM >= t.start)) ? `<span class="acts"><span class="miss" role="button" tabindex="0" data-action="miss" data-id="${t.id}">${ico("shift")}I didn't get to this</span></span>` : ""}
     </div>
     <button class="check" role="checkbox" aria-checked="${t.done}" aria-label="Mark ${esc(title)} done" data-action="toggle" data-id="${t.id}"><span>${ico("check")}</span></button>
   </div>`;
@@ -802,8 +802,9 @@ V.practice = () => {
     ${reviewHero}
     ${Q.topic ? `<div class="banner">${ico("pencil")}<div>Showing questions for <b>${esc(nodes[Q.topic].title)}</b>. <button data-action="qf" data-k="topic" data-v="">Show all topics</button></div></div>` : ""}
     <div class="filters" role="group" aria-label="Question set">${chip("mode", "all", "All questions")}${chip("mode", "mistakes", "Mistakes to review")}</div>
-    ${Q.mode === "all" && !Q.topic ? `<div class="filters" role="group" aria-label="Subject">${chip("subj", "all", "All subjects")}${DSUBJ.map(s => chip("subj", s.id, esc(s.name))).join("")}</div>
-    <div class="filters" role="group" aria-label="Difficulty">${chip("lvl", "all", "Any level")}${Object.entries(LEVELS).map(([k, v]) => chip("lvl", k, v)).join("")}</div>` : ""}
+    ${Q.mode === "all" && !Q.topic ? `<details class="qfilt" ${Q.subj !== "all" || Q.lvl !== "all" ? "open" : ""}><summary><span class="qf-ic">${ico("contents")}</span><span class="grow"><b>Filter</b><span class="tiny muted">${Q.subj === "all" ? "All subjects" : esc(subjects[Q.subj]?.name || "")} · ${Q.lvl === "all" ? "any level" : esc(LEVELS[Q.lvl] || "").toLowerCase()}</span></span>${ico("chev", 'class="chev"')}</summary>
+      <div class="qf-body"><span class="tiny muted">Subject</span><div class="filters" role="group" aria-label="Subject">${chip("subj", "all", "All subjects")}${DSUBJ.map(s => chip("subj", s.id, esc(s.name))).join("")}</div>
+      <span class="tiny muted">Level</span><div class="filters" role="group" aria-label="Difficulty">${chip("lvl", "all", "Any level")}${Object.entries(LEVELS).map(([k, v]) => chip("lvl", k, v)).join("")}</div></div></details>` : ""}
     ${qh}
     ${Q.mode === "mistakes" ? "" : `<section class="section"><div class="sec-head"><h2>Mistakes to review</h2></div>
       <div class="list">${mist.length ? mist.map(([id, m]) => topicItem(id, `${esc(subjects[nodes[id].subject].name)} · ${m.n} incorrect answer${m.n > 1 ? "s" : ""}`)).join("") : `<div class="empty">No mistakes to review. Wrong answers will show up here.</div>`}</div>
