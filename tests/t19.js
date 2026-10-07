@@ -5,7 +5,7 @@ const { chromium } = require('playwright'); const fs = require('fs');
  for (const [dev, vp, scheme] of [['phone', { width: 390, height: 844 }, 'light'], ['phone', { width: 390, height: 844 }, 'dark'], ['laptop', { width: 1440, height: 900 }, 'light'], ['laptop', { width: 1440, height: 900 }, 'dark']]) {
   const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: vp, deviceScaleFactor: dev === 'phone' ? 2 : 1, colorScheme: scheme, reducedMotion: 'reduce' });
   const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
-  await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+  await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
   await p.evaluate(() => go('import')); await p.waitForTimeout(300);
   await p.fill('#imp-name', 'Psychology'); await p.click('[data-action=imp-new]'); await p.waitForTimeout(400);
   // slow pdf.js page reads so the progress can be seen

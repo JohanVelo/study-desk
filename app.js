@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.12.0";
+const APP_VERSION = "4.13.0";
 
 /* =====================================================================
    1. UTILS
@@ -1033,13 +1033,13 @@ V.import = () => {
         : `<span class="drop-ic">${ico("upload")}</span><h2 class="h3">Choose a file</h2><p class="small muted">A textbook chapter, lecture slides or your own notes.<br><span style="white-space:nowrap">PDF, PowerPoint (.pptx)</span> or <span style="white-space:nowrap">Word (.docx).</span></p>
           <label class="btn btn-pen" for="imp-file">${ico("file")}Choose a file</label><input type="file" id="imp-file" class="sr" accept="${IMP_ACCEPT}" data-sid="${s.id}">
           <p class="tiny muted drop-hint">or drag it onto this box</p>`}
-        ${importBusy?.error ? `<div class="lock bad" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>` : ""}
+        ${importBusy?.error ? (importBusy.scanned ? `<div class="lock scan-note" role="status">${ico("camera")}<span>${esc(importBusy.error)}</span></div>${ocrOfferHTML()}` : `<div class="lock bad" role="alert">${ico("info")}<span>${esc(importBusy.error)}</span></div>`) : ""}
       </section>
       <section class="card stack" style="gap:10px"><h2 class="h3">What happens next</h2>
         <ol class="steps small"><li>Study Desk finds the chapters, headings and page or slide numbers.</li><li>You check the list before anything is added.</li><li>The text under each heading becomes that topic's notes, with a summary, flashcards and practice questions.</li></ol></section>
       <details class="card typed" ${IMP.typed || importBusy?.error ? "open" : ""}><summary><span class="h3">No file? Type the chapters instead</span></summary>
         <div class="stack" style="gap:10px;padding:0 18px 18px">
-          <p class="small muted">One line each: number, title and pages. Add easy, medium or hard if you like. The number sets the level: 3 is a chapter, 3.1 a heading, 3.1.1 a topic.</p>
+          <p class="small muted">One line each: number, title and pages. Add easy, medium or hard if you like. The number sets the level: 3 is a chapter, 3.1 a heading, 3.1.1 a topic.</p>${importBusy?.keep ? `<p class="small">${ico("file")} Your PDF stays attached: the pages you give each topic become its notes.</p>` : ""}
           <label class="sr" for="qp-text">Chapters list</label>
           <textarea id="qp-text" rows="6" placeholder="3 Research methods 75-102&#10;3.1 Research designs 75-82&#10;3.1.1 Experimental designs 76-78 easy&#10;3.1.2 Correlational designs 79-82 hard">${esc(qpText)}</textarea>
           ${qpPreview && !qpPreview.count ? `<div class="lock bad" role="alert">${ico("info")}<span>Nothing could be read from that list. Start each line with a number, like 1 or 1.2.</span></div>` : ""}
@@ -1078,11 +1078,13 @@ async function importAction(act, a) {
       const sub = { id: newId("s"), hue: HUES[DSUBJ.length % HUES.length], chapters: [], name: name.slice(0, 80), code: "", course: "", exam, examTime: "", venue: "" };
       S.content.subjects.push(sub); afterContentChange(true); IMP.sid = sub.id; render(false); toast(`${sub.name} added.`); return true;
     }
-    case "imp-change": IMP.sid = null; qpPreview = null; importBusy = null; lastImport = null; render(false); return true;
-    case "imp-typed": qpText = $("#qp-text")?.value || ""; IMP.typed = true; qpPreview = parseOutline(qpText); lastImport = null; importBusy = null; render(false); return true;
+    case "imp-change": if (IMP_OCR) IMP_OCR.stop = true; IMP.sid = null; qpPreview = null; importBusy = null; lastImport = null; render(false); return true;
+    case "imp-typed": { const keep = importBusy?.keep && lastImport && !IMP_OCR; qpText = $("#qp-text")?.value || ""; IMP.typed = true; qpPreview = parseOutline(qpText); if (!keep) lastImport = null; importBusy = keep ? { note: "From the list you typed. The pages of your PDF become each topic's notes." } : null; render(false); return true; }
+    case "imp-ocr": ocrContents(); return true;
+    case "imp-ocr-stop": if (IMP_OCR) IMP_OCR.stop = true; return true;
     case "imp-mode": IMP.mode = a.dataset.m; $$('[data-action="imp-mode"]').forEach(b => b.setAttribute("aria-checked", b === a)); return true;
-    case "imp-cancel": importBusy = null; lastImport = null; impEnd(); render(false); toast("Import cancelled."); return true;
-    case "imp-reset": qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; render(false); return true;
+    case "imp-cancel": if (IMP_OCR) IMP_OCR.stop = true; importBusy = null; lastImport = null; impEnd(); render(false); toast("Import cancelled."); return true;
+    case "imp-reset": if (IMP_OCR) IMP_OCR.stop = true; qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; render(false); return true;
     case "imp-again": IMP.done = null; qpPreview = null; qpText = ""; importBusy = null; lastImport = null; IMP.typed = false; IMP.mode = "append"; render(false); return true;
     case "imp-apply": {
       if (!qpPreview || !qpPreview.count) return true;
@@ -1310,10 +1312,12 @@ async function pdfPageItems(doc, i) {
   tc.items.forEach(it => {
     if (!it.str || !it.str.trim()) return;
     const y = Math.round(it.transform[5]), x = it.transform[4], size = Math.hypot(it.transform[2], it.transform[3]) || it.height || 10;
-    let r = rows.find(r => Math.abs(r.y - y) <= Math.max(2, size * .3)); if (!r) rows.push(r = { y, parts: [], size: 0, chars: 0 });
-    r.parts.push({ x, s: it.str }); r.size = Math.max(r.size, size); r.chars += it.str.length;
+    let r = rows.find(r => Math.abs(r.y - y) <= Math.max(2, size * .3)); if (!r) rows.push(r = { y, parts: [], size: 0, chars: 0, fonts: {} });
+    r.parts.push({ x, s: it.str }); r.size = Math.max(r.size, size); r.chars += it.str.length; r.fonts[it.fontName] = (r.fonts[it.fontName] || 0) + it.str.length;
   });
-  const lines = rows.sort((a, b) => b.y - a.y).map(r => ({ s: r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim(), size: r.size, chars: r.chars, rel: 1 - r.y / (vp.height || 842) })).filter(l => l.s);
+  /* font: the font nearly all of the line is in (a bold key term inside a sentence doesn't count) */
+  const mainFont = r => { const [f, c] = Object.entries(r.fonts).sort((a, b) => b[1] - a[1])[0] || []; return c >= r.chars * .9 ? f : ""; };
+  const lines = rows.sort((a, b) => b.y - a.y).map(r => ({ s: r.parts.sort((a, b) => a.x - b.x).map(p => p.s).join(" ").replace(/\s+/g, " ").trim(), size: r.size, chars: r.chars, font: mainFont(r), rel: 1 - r.y / (vp.height || 842) })).filter(l => l.s);
   return lines;
 }
 const PAGE_NUM = /^(page|p\.|pg\.?)?\s*[-–]?\s*\d{1,4}\s*[-–]?(\s*(of|\/)\s*\d{1,4})?$/i;
@@ -1348,14 +1352,14 @@ async function storeImportText(roots, quiet) {
   const imp = lastImport; if (!imp) return 0;
   const leaves = []; const walk = l => l.forEach(n => n.kids.length ? walk(n.kids) : leaves.push(n)); walk(roots);
   let saved = 0, pagesRead = 0;
-  const repeats = imp.kind === "pdf" ? await pdfRepeats(imp) : null;
+  const repeats = imp.kind === "pdf" ? (imp.scanned ? new Set() : await pdfRepeats(imp)) : null;
   for (const n of leaves) {
     impSaveStep(leaves.indexOf(n) + 1, leaves.length);
     let text = "";
     if (imp.kind === "pdf") {
       const idx = p => { if (imp.labels) { const k = imp.labels.indexOf(String(p)); if (k >= 0) return k + 1; } return p; };
       const pages = [];
-      for (let p = n.p1; p <= n.p2; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; const items = await pdfPageItems(imp.doc, i); pages.push(items); pagesRead++; if (typeof pdfFigures === "function") await pdfFigures(imp, i, items, n.id, p); }
+      for (let p = n.p1; p <= n.p2; p++) { const i = idx(p); if (i < 1 || i > imp.doc.numPages) continue; const items = imp.scanned ? await ocrPageItems(imp, i) : await pdfPageItems(imp.doc, i); pages.push(items); pagesRead++; if (!imp.scanned && typeof pdfFigures === "function") await pdfFigures(imp, i, items, n.id, p); }
       text = pagesToNotes(pages, repeats);
       /* topics that share a page: start at this topic's heading and stop at the next topic's heading */
       const lines = text.split("\n"), norm = t => stripNum(t.replace(/^#+\s*/, "")).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -1371,6 +1375,96 @@ async function storeImportText(roots, quiet) {
   return saved;
 }
 const stripNum = t => t.replace(/\s+/g, " ").trim().replace(/^(chapter|ch\.?|unit|part|module|section|lecture|week)\s*\d+(\.\d+)*\s*[.:)\-–—]?\s*/i, "").replace(/^\d+(\.\d+)*\s*[.:)\-–—]?\s+/, "").trim();
+/* contents lines: dot leaders ("Cells ........ 5", "Cells....5") become one space */
+const tocTidy = l => l.replace(/\s*(?:[.·…_\-–]\s*){4,}/g, " ").replace(/\s+/g, " ").trim();
+const tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
+const isContentsTitle = l => /^((table of|brief|detailed|full) )?contents( at a glance)?$/i.test(l) || /^(tableof)?contents$/i.test(l.replace(/\s/g, ""));
+/* one topic for every few pages, for books with no structure Study Desk can find */
+function splitByPages(name, pages, pageNo) {
+  const deck = stripNum(String(name || "").replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Imported PDF", per = pages <= 12 ? pages : pages <= 60 ? 5 : pages <= 400 ? 10 : 20, parts = [];
+  for (let a = 0; a < pages; a += per) { const p1 = pageNo(a), p2 = pageNo(Math.min(pages, a + per) - 1); parts.push(`1.${parts.length + 1} Pages ${p1} to ${p2} ${p1}-${p2}`); }
+  return { text: [`1 ${deck} ${pageNo(0)}-${pageNo(pages - 1)}`, ...parts].join("\n"), parts: parts.length, per };
+}
+/* ---------- scanned PDFs: read the pictures of the pages on this device (Tesseract, in tools.js) ---------- */
+let IMP_OCR = null;
+async function ocrPageText(imp, i, toc) {
+  imp.ocr = imp.ocr || new Map(); const key = (toc ? "c" : "p") + i;
+  if (imp.ocr.has(key)) return imp.ocr.get(key);
+  const doc = imp.doc, pg = await doc.getPage(i), v1 = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: Math.min(3, 1700 / v1.width) });
+  const cv = document.createElement("canvas"); cv.width = Math.round(vp.width); cv.height = Math.round(vp.height);
+  const cx = cv.getContext("2d", { willReadFrequently: !!toc }); cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+  await pg.render({ canvasContext: cx, viewport: vp }).promise; pdfRelease(doc, pg);
+  if (toc) dropSpecks(cx, cv.width, cv.height);
+  const blob = await new Promise(r => cv.toBlob(r, "image/png")); cv.width = cv.height = 0;
+  const text = blob ? await ocrImages([blob], null, toc ? "6" : null) : "";
+  if (imp.ocr.size > 60) imp.ocr.delete(imp.ocr.keys().next().value);
+  imp.ocr.set(key, text); return text;
+}
+/* text recognition can't read dot leaders ("Cells ........ 3"): it turns them into letters and loses the page number.
+   Wipe every speck much smaller than a letter (the letter size is the ink-weighted middle height), then read line by line. */
+function dropSpecks(cx, W, H) {
+  const im = cx.getImageData(0, 0, W, H), d = im.data, N = W * H, ink = new Uint8Array(N);
+  for (let i = 0; i < N; i++) ink[i] = d[4 * i] * 299 + d[4 * i + 1] * 587 + d[4 * i + 2] * 114 < 150000 ? 1 : 0;
+  const lab = new Int32Array(N), st = new Int32Array(N), comps = [null]; let L = 0;
+  for (let i = 0; i < N; i++) {
+    if (!ink[i] || lab[i]) continue;
+    lab[i] = ++L; let sp = 0, x0 = W, x1 = 0, y0 = H, y1 = 0, n = 0; st[sp++] = i;
+    while (sp) {
+      const j = st[--sp], x = j % W, y = (j - x) / W; n++;
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const xx = x + dx, yy = y + dy; if (xx < 0 || yy < 0 || xx >= W || yy >= H) continue; const k = yy * W + xx; if (ink[k] && !lab[k]) { lab[k] = L; st[sp++] = k; } }
+    }
+    comps.push({ w: x1 - x0 + 1, h: y1 - y0 + 1, n });
+  }
+  const real = comps.filter(c => c && c.n > 12).sort((a, b) => a.h - b.h), tot = real.reduce((t, c) => t + c.n, 0);
+  let acc = 0, letter = 20; for (const c of real) { acc += c.n; if (acc >= tot / 2) { letter = c.h; break; } }
+  const kill = new Uint8Array(L + 1); for (let l = 1; l <= L; l++) if (comps[l].h <= letter * .38 && comps[l].w <= letter * .38) kill[l] = 1;
+  for (let i = 0; i < N; i++) if (lab[i] && kill[lab[i]]) d[4 * i] = d[4 * i + 1] = d[4 * i + 2] = 255;
+  cx.putImageData(im, 0, 0);
+}
+/* the same shape as pdfPageItems, so a scanned page's text becomes notes the usual way */
+async function ocrPageItems(imp, i) { return (await ocrPageText(imp, i)).split("\n").map(t => t.trim()).filter(Boolean).map(t => ({ s: t, size: 10, chars: t.length, font: "", rel: .5 })); }
+function ocrOfferHTML() {
+  const o = IMP_OCR;
+  if (o) return `<div class="lock" role="status" id="impOcr"><span class="spin" aria-hidden="true"></span><span>${esc(o.say)}</span></div><button class="btn btn-line btn-sm" data-action="imp-ocr-stop">Stop</button>`;
+  return `<button class="btn btn-pen" data-action="imp-ocr">${ico("camera")}Read the pictures</button><p class="tiny muted ocr-offer">Finds the contents page first, which takes about a minute. When you add the topics, their pages are read too, a few seconds a page. Nothing leaves this device.</p>`;
+}
+async function ocrContents() {
+  const imp = lastImport; if (!imp || imp.kind !== "pdf" || IMP_OCR) return;
+  const doc = imp.doc, max = Math.min(doc.numPages, 30), pageNo = i => i + 1;
+  IMP_OCR = { say: "Getting the text reader ready…" }; keepAwake(true); rerender();
+  const say = t => { if (!IMP_OCR) return; IMP_OCR.say = t; const el = $("#impOcr span:last-child"); if (el) el.textContent = t; };
+  let start = -1; const collected = [];
+  try {
+    for (let i = 1; i <= max && !IMP_OCR.stop; i++) {
+      say(start > 0 ? `Reading the contents page ${i}…` : `Looking for the contents page: page ${i} of the first ${max}…`);
+      const ls = (await ocrPageText(imp, i, true)).split("\n").map(tocTidy).filter(Boolean);
+      if (start < 0 && ls.some(isContentsTitle)) start = i;
+      if (start > 0) { const good = ls.filter(tocLike); if (i > start && good.length < 3) break; collected.push(...good); }
+    }
+  } catch (e) {
+    console.error(e); IMP_OCR = null; keepAwake(false);
+    importBusy = { ...importBusy, scanned: false, error: "Couldn't read the pictures on this device. Type the contents list below instead: the PDF stays attached, so its pages still become notes." };
+    if (stack[stack.length - 1].v === "import") rerender(); return;
+  }
+  const stopped = IMP_OCR.stop; IMP_OCR = null; keepAwake(false);
+  if (stopped || lastImport !== imp) { if (stack[stack.length - 1].v === "import") rerender(); return; }
+  if (collected.length >= 3) {
+    qpText = collected.slice(0, 6000).join("\n");
+    importBusy = { note: `Read the contents page (page ${start} of the PDF) from the pictures. Reading pictures can get a letter or a number wrong, so check the list.` };
+  } else {
+    const sp = splitByPages(imp.name, doc.numPages, pageNo); qpText = sp.text;
+    importBusy = { note: `No contents page in the first ${max} pages, so the book was split into ${sp.parts} part${sp.parts === 1 ? "" : "s"}${sp.parts > 1 ? ` of about ${sp.per} pages` : ""}. Rename them later, or type the contents list instead.` };
+  }
+  qpPreview = parseOutline(qpText);
+  if (stack[stack.length - 1].v === "import") rerender();
+}
+/* does any of these pages paint a picture (scanned books are one picture per page) */
+async function pdfHasPictures(doc, idxs) {
+  const O = window.pdfjsLib.OPS, pic = new Set([O.paintImageXObject, O.paintInlineImageXObject, O.paintImageMaskXObject, O.paintImageXObjectRepeat].filter(x => x != null));
+  for (const i of idxs) { try { const pg = await doc.getPage(i), ops = await pg.getOperatorList(); pdfRelease(doc, pg); if (ops.fnArray.some(f => pic.has(f))) return true; } catch (e) { } }
+  return false;
+}
 async function loadPdfJs() {
   if (window.pdfjsLib) return window.pdfjsLib;
   const base = new URL("vendor/", document.baseURI).href;
@@ -1383,7 +1477,7 @@ async function pdfToOutline(buf, name = "") {
   const doc = await lib.getDocument({ data: buf, isEvalSupported: false }).promise;
   impProg({ stage: 1, done: 0, total: doc.numPages, pages: doc.numPages });
   let labels = null; try { labels = await doc.getPageLabels(); } catch (e) { }
-  lastImport = { kind: "pdf", doc, labels };
+  lastImport = { kind: "pdf", doc, labels, name };
   const pageNo = i => { const l = labels && labels[i]; return l && /^\d+$/.test(l) ? +l : i + 1; };
   const outline = await doc.getOutline().catch(() => null);
   if (outline && outline.length) {
@@ -1396,23 +1490,40 @@ async function pdfToOutline(buf, name = "") {
   }
   /* no bookmarks: look for a contents page and read its lines */
   const pageLines = i => pdfPageLines(doc, i);
-  const max = Math.min(doc.numPages, 60), tocLike = l => /\S.*\s(\d{1,4})$/.test(l) && /[a-z]{3}/i.test(l) && l.length < 160;
+  const max = Math.min(doc.numPages, 60);
   let start = -1, collected = [];
   for (let i = 1; i <= max; i++) {
-    const ls = await pageLines(i);
-    if (start < 0 && ls.some(l => /^(table of )?contents$/i.test(l.trim()))) start = i;
+    const ls = (await pageLines(i)).map(tocTidy);
+    if (start < 0 && ls.some(isContentsTitle)) start = i;
     if (start > 0) { const good = ls.filter(tocLike); if (i > start && good.length < 3) break; collected.push(...good); }
   }
-  if (!collected.length) for (let i = 1; i <= max; i++) { const good = (await pageLines(i)).filter(l => tocLike(l) && /^(\d+(\.\d+)*|chapter|unit)\b/i.test(l)); if (good.length >= 4) collected.push(...good); }
+  if (!collected.length) for (let i = 1; i <= max; i++) { const good = (await pageLines(i)).map(tocTidy).filter(l => tocLike(l) && /^(\d+(\.\d+)*|chapter|unit)\b/i.test(l)); if (good.length >= 4) collected.push(...good); }
   if (collected.length) return { text: collected.slice(0, 6000).join("\n"), note: start > 0 ? `Read the contents page (page ${start} of the PDF). Check the levels and page numbers before adding.` : "This PDF has no bookmarks or contents page, so these lines were picked from numbered headings. Check them carefully." };
   /* no contents page either: use the headings (lines in a bigger font) as topics */
   /* two passes so any size of book works: the body font size from a sample of pages, then every page once, keeping only the headings */
-  const heads = [], sizes = [], pages = doc.numPages, step = Math.max(1, Math.floor(pages / 240));
+  const heads = [], fheads = [], sizes = [], fonts = {}, pages = doc.numPages, step = Math.max(1, Math.floor(pages / 240));
+  let sampled = 0, sampledChars = 0;
   if (IMPP) IMPP.sampling = true;
-  for (let i = 1; i <= pages; i += step) (await pdfPageItems(doc, i)).forEach(l => { for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); });
+  const bare = [];
+  for (let i = 1; i <= pages; i += step) { sampled++; let c = 0; (await pdfPageItems(doc, i)).forEach(l => { c += l.chars; sampledChars += l.chars; fonts[l.font] = (fonts[l.font] || 0) + l.chars; for (let k = 0; k < Math.min(l.chars, 200); k += 10) sizes.push(l.size); }); if (c < 25) bare.push(i); }
+  /* a scan: pictures of the pages with (almost) no text in them */
+  if (sampledChars < sampled * 25 && await pdfHasPictures(doc, bare.slice(0, 3))) { if (IMPP) IMPP.sampling = false; lastImport.scanned = true; return { text: "", scanned: true, note: "This PDF is made of pictures of the pages (a scan), so there's no text in it to read yet. Study Desk can read the pictures for you, on this device." }; }
   sizes.sort((a, b) => a - b); const body = sizes[Math.floor(sizes.length / 2)] || 10;
+  const bodyFont = Object.entries(fonts).sort((a, b) => b[1] - a[1])[0][0];
+  const rareFont = f => f && f !== bodyFont && (fonts[f] || 0) < sampledChars * .12;
+  const notCaption = s => !/^(figure|fig\.|table|source|photo|image|note|see)\b/i.test(s);
   if (IMPP) { IMPP.sampling = false; IMPP.done = 0; IMPP.t0p = Date.now(); }
-  for (let k = 0; k < pages; k++) (await pdfPageItems(doc, k + 1)).forEach(l => { if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last && Math.abs(prev.size - l.size) < .5) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } });
+  for (let k = 0; k < pages; k++) (await pdfPageItems(doc, k + 1)).forEach(l => {
+    /* the same size as the text but in a font of its own (bold headings) */
+    if (rareFont(l.font) && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;:]$/.test(l.s) && !PAGE_NUM.test(l.s) && notCaption(l.s)) { const prev = fheads[fheads.length - 1]; if (prev && prev.y === k && prev.last && prev.font === l.font) prev.t += " " + l.s; else fheads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size, font: l.font }); } else { const prev = fheads[fheads.length - 1]; if (prev) prev.last = false; }
+    if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last && Math.abs(prev.size - l.size) < .5) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } });
+  let viaFont = false;
+  if (heads.length < 2) {
+    /* lines repeated on many pages are running headers, not headings */
+    const seen = {}; fheads.forEach(h => seen[h.t.toLowerCase()] = (seen[h.t.toLowerCase()] || 0) + 1);
+    const real = fheads.filter(h => seen[h.t.toLowerCase()] <= Math.max(2, pages * .1));
+    if (real.length >= 2) { heads.length = 0; heads.push(...real); viaFont = true; }
+  }
   if (heads.length >= 2 && heads.length <= 40000) {
     const deck = stripNum(name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ")).replace(/^\p{Ll}/u, c => c.toUpperCase()) || "Imported PDF", last = pageNo(pages - 1);
     const endOf = k => k + 1 < heads.length ? Math.max(heads[k].p, heads[k + 1].p) : last; /* shares the next heading's page; the text is split at the heading */
@@ -1431,9 +1542,11 @@ async function pdfToOutline(buf, name = "") {
       return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${c} chapters and ${heads.length - nTop} sections were picked from the headings in ${pages} pages. Check them before adding.` };
     }
     lines.push(`1 ${deck} ${heads[0].p}-${last}`); heads.forEach((h, k) => lines.push(`1.${k + 1} ${stripNum(h.t) || h.t} ${h.p}-${endOf(k)}`));
-    return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${heads.length} headings were picked from the text. Check them before adding.` };
+    return { text: lines.join("\n"), note: `This PDF has no bookmarks or contents page, so ${heads.length} ${viaFont ? "bold " : ""}headings were picked from the text. Check them before adding.` };
   }
-  return { text: "", note: "Couldn't find bookmarks, a contents page or headings in this PDF. Type or paste the contents list instead." };
+  /* text but no structure at all: split it into parts of a few pages, so it can still be studied */
+  const sp = splitByPages(name, pages, pageNo);
+  return { text: sp.text, note: sp.parts > 1 ? `This PDF has no bookmarks, contents page or headings, so it was split into ${sp.parts} parts of about ${sp.per} pages. Rename them later under My subjects, or type the contents list instead.` : "This PDF has no bookmarks, contents page or headings, so it was kept as one topic. Type the contents list instead if you want it split up." };
 }
 /* PowerPoint: slides in the order the deck shows them, with titles, bullet levels, tables and speaker notes */
 async function pptxToOutline(buf, name) {
@@ -1512,7 +1625,7 @@ async function importFile(file, sid) {
     if (!impLive(run)) return;
     impProg({ stage: 2 }); await new Promise(res => setTimeout(res, 350));
     if (!impLive(run)) return;
-    importBusy = r.text ? { note: r.note } : { error: r.note };
+    importBusy = r.text ? { note: r.note } : { error: r.note, scanned: !!r.scanned, keep: lastImport?.kind === "pdf" };
     if (r.text) { qpText = r.text; qpPreview = parseOutline(qpText); }
   } catch (e) {
     console.error(e); if (!impLive(run)) return;

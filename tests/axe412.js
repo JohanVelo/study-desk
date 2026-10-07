@@ -7,7 +7,7 @@ const SSE = ev('message_start', { type: 'message_start', message: { id: 'm', typ
  for (const scheme of ['light', 'dark']) { const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, locale: 'en-GB', serviceWorkers: 'block', colorScheme: scheme, reducedMotion: 'reduce' });
   const p = await ctx.newPage();
   await p.route('https://api.anthropic.com/**', r => r.request().method() === 'OPTIONS' ? r.fulfill({ status: 204, headers: CORS }) : /models/.test(r.request().url()) ? r.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: '{"type":"model","id":"claude-opus-5-5"}' }) : r.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/event-stream' }, body: SSE }));
-  await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+  await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
   const check = async label => { await p.waitForTimeout(400); await p.addScriptTag({ content: AXE }); n++;
    const r = await p.evaluate(async () => (await axe.run(document, { resultTypes: ['violations'] })).violations.filter(v => ['serious', 'critical'].includes(v.impact)).map(v => v.id + ' ' + v.nodes.slice(0, 3).map(n => n.target.join(' ') + ' ' + (n.any[0]?.message || '').slice(0, 90)).join(' | ')));
    if (r.length) errs.push(scheme + ' ' + label + ': ' + r.join('; ')); };

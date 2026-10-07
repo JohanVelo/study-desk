@@ -6,7 +6,7 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  await ctx.route('**/data.js', r => r.fulfill({ contentType: 'text/javascript', body: SAMPLE }));
  await ctx.addInitScript(() => { window.__vib = []; navigator.vibrate = p => { window.__vib.push(p); return true; }; });
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1500);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1500);
  await p.evaluate(() => { const t = todayKey(); tasksOn(t).forEach((x, i) => { x.start = 1300 + i; x.dur = 20; x.done = false; }); save(); go('today'); }); await p.waitForTimeout(400);
  const swipe = (sel, dx) => p.evaluate(([sel, dx]) => { const r = document.querySelector(sel), b = r.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
    const ev = (t, cx) => (t === 'pointerdown' ? r.querySelector('.title') : document).dispatchEvent(new PointerEvent(t, { pointerType: 'touch', clientX: cx, clientY: y, bubbles: true, isPrimary: true }));
@@ -61,7 +61,7 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  await p.evaluate(() => { S.settings.text = 'normal'; applySettings(false); });
  // shortcuts
  for (const [what, check, name] of [['search', '#srch', 'Search'], ['add', '#qa-topic', 'Add'], ['next', '.focus-scrim,.focus', 'Start next session']]) {
-  await p.goto('http://localhost:8765/?do=' + what); await p.waitForTimeout(1700);
+  await p.goto(`http://localhost:${process.env.SD_PORT||8765}/?do=` + what); await p.waitForTimeout(1700);
   ok(await p.locator(check).count() >= 1, name + ' shortcut opens it');
   ok(await p.evaluate(() => !location.search.includes('do=')), name + ' shortcut tidies the address');
  }

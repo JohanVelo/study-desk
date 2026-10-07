@@ -6,7 +6,7 @@ const MOCK_STT = `self.onmessage=e=>{const {id,op}=e.data||{};if(op==='load'){se
  const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true, permissions: ['microphone', 'clipboard-read', 'clipboard-write'] });
  await ctx.route('**/stt-worker.js', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_STT }));
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  const up = await p.evaluate(async () => { const d = await new Promise(r => { const q = indexedDB.open('studydesk'); q.onsuccess = () => r(q.result); }); const v = d.version, s = [...d.objectStoreNames]; d.close(); return { v, s }; });
  ok(up.v === 7 && ['books', 'marks', 'figs', 'aq', 'ai'].every(k => up.s.includes(k)), 'database is v7 with books, marks, figures, saved questions and AI answers');
  // 1. import the textbook, then keep it

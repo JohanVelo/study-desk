@@ -11,11 +11,11 @@ self.onmessage=e=>{const {id,op,texts}=e.data;if(op==='load'){let i=0;const t=se
  await ctx.route('**/embed-worker.js', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_EMBED }));
  await ctx.route('**/trystero.js', r => r.fulfill({ contentType: 'text/javascript', body: eval(FAKE) }));
  // 0. IndexedDB v2 → v3 upgrade keeps notes
- const p0 = await ctx.newPage(); await p0.goto('http://localhost:8765/manifest.webmanifest');
+ const p0 = await ctx.newPage(); await p0.goto(`http://localhost:${process.env.SD_PORT||8765}/manifest.webmanifest`);
  await p0.evaluate(() => new Promise(res => { const r = indexedDB.open('studydesk', 2); r.onupgradeneeded = () => { const d = r.result; ['notes', 'audio', 'sketch'].forEach(s => d.createObjectStore(s, { keyPath: 'id' })); }; r.onsuccess = () => { const t = r.result.transaction('notes', 'readwrite'); t.objectStore('notes').put({ id: 'psy/1/1/1', text: 'Old notes kept after the upgrade.' }); t.oncomplete = () => { r.result.close(); res(); }; }; }));
  await p0.close();
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1500);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1500);
  const leaf = await p.evaluate(() => leafIds.find(id => notesOf(id)) || null);
  const up = await p.evaluate(async () => { const d = await new Promise(r => { const q = indexedDB.open('studydesk'); q.onsuccess = () => r(q.result); }); const v = d.version, s = [...d.objectStoreNames]; d.close(); return { v, s }; });
  ok(up.v >= 3 && up.s.includes('pics') && up.s.includes('vec'), 'database upgraded to v3 ' + JSON.stringify(up));
@@ -65,7 +65,7 @@ self.onmessage=e=>{const {id,op,texts}=e.data;if(op==='load'){let i=0;const t=se
  // 4. picture cards
  const L = await p.evaluate(() => { const id = leafIds.find(i => st(i) >= 1) || leafIds[0]; go('topic:' + id); return id; }); await p.waitForTimeout(500);
  await p.click(`[data-action=pc-new][data-id="${L}"]`); await p.waitForTimeout(400);
- await p.setInputFiles('#oc-file', 'shots43/phone-light-today-empty.png'); await p.waitForSelector('#ocStage img'); await p.waitForTimeout(400);
+ await p.setInputFiles('#oc-file', 'sumtest/today.png'); await p.waitForSelector('#ocStage img'); await p.waitForTimeout(400);
  const bx = await p.locator('#ocStage').boundingBox();
  const drag = async (x0, y0, x1, y1) => { await p.mouse.move(bx.x + bx.width * x0, bx.y + bx.height * y0); await p.mouse.down(); await p.mouse.move(bx.x + bx.width * x1, bx.y + bx.height * y1, { steps: 6 }); await p.mouse.up(); await p.waitForTimeout(200); };
  await drag(.05, .1, .45, .16); await p.fill('#oc-label', 'Heading'); await drag(.1, .3, .7, .36); await drag(.5, .5, .52, .505);
@@ -103,7 +103,7 @@ self.onmessage=e=>{const {id,op,texts}=e.data;if(op==='load'){let i=0;const t=se
  const code = await p.evaluate(() => SY.code);
  const decoded = await p.evaluate(async () => { await loadScript('vendor/x/qr-scanner.umd.min.js'); const svg = document.querySelector('#syncQR svg').outerHTML; const img = new Image(); img.src = 'data:image/svg+xml;base64,' + btoa(svg); await img.decode(); const c = document.createElement('canvas'); c.width = c.height = 400; c.getContext('2d').drawImage(img, 0, 0, 400, 400); const r = await QrScanner.scanImage(c, { returnDetailedScanResult: true }); return r.data; });
  ok(decoded.endsWith('#pair=' + code), 'QR code decodes to the pairing link');
- const q = await ctx.newPage(); await q.goto('http://localhost:8765/#pair=' + code); await q.waitForTimeout(2500);
+ const q = await ctx.newPage(); await q.goto(`http://localhost:${process.env.SD_PORT||8765}/#pair=` + code); await q.waitForTimeout(2500);
  r = await q.evaluate(() => ({ st: SY.state, code: SY.code, view: stack[stack.length - 1].v, hash: location.hash }));
  ok(r.code === code && r.view === 'settings' && !r.hash, 'opening the link pairs and clears it ' + JSON.stringify(r));
  await p.waitForTimeout(800); ok(await p.evaluate(() => SY.state) === 'connected', 'first device connected');

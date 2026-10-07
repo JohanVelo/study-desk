@@ -7,7 +7,7 @@ const {chromium}=require('playwright');
    if(m==='corrupt'){ localStorage.setItem('studydesk.v2','{oops'); localStorage.setItem('studydesk.v2.bak',JSON.stringify({schema:2,app:'study-desk',anchor:'2026-10-04',status:{'psy/research-methods/variables/confounding-variables':4},attempts:{},mistakes:{},tasks:[],recent:[],changes:[],seq:0,settings:{}}));}
    if(m==='garbage') localStorage.setItem('studydesk.v2',JSON.stringify({schema:2,anchor:'nope',status:{'psy/research-methods/variables/confounding-variables':99,'bogus':2},attempts:{'x':{a:1,c:5}},tasks:[{id:'t9',date:'bad'},{id:'t3',date:'2026-10-06',node:'psy/research-methods/variables/confounding-variables',type:'learn',dur:30,start:540}],settings:{days:[],blocks:'x',maxPerDay:99,theme:'pink'}}));
  }, mode);
- await p.goto('http://localhost:8765/index.html'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/index.html`); await p.waitForTimeout(1200);
  console.log(mode, JSON.stringify(await p.evaluate(()=>({conf:S.status['psy/research-methods/variables/confounding-variables'],emp:S.status['psy/psychology-as-a-science/what-makes-psychology-scientific/empiricism'],dof:S.attempts['psy/statistics/inferential-statistics/degrees-of-freedom'],restoredFrom,repairs,legacy:localStorage.getItem('studydesk.proto.v1'),tasks:S.tasks.length,settings:S.settings,anchor:S.anchor}))), errs);
  await ctx.close();}
  await b.close();})();

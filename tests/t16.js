@@ -4,7 +4,7 @@ const { chromium } = require('playwright');
  const b = await chromium.launch(); const errs = []; let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log(c ? 'PASS' : 'FAIL', m); };
  const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true });
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  await p.evaluate(() => go('import')); await p.waitForTimeout(200);
  await p.fill('#imp-name', 'Psychology'); await p.click('[data-action=imp-new]'); await p.waitForTimeout(200);
  await p.setInputFiles('#imp-file', __dirname + '/fixtures/memory-textbook.pdf'); await p.waitForSelector('[data-action=imp-apply]', { timeout: 15000 });

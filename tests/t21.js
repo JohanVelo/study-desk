@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message.slice(0, 200))); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text().slice(0, 200)); });
  const cdp = await ctx.newCDPSession(p); await cdp.send('Performance.enable');
  const heap = async () => { const m = (await cdp.send('Performance.getMetrics')).metrics; return Math.round(m.find(x => x.name === 'JSHeapUsedSize').value / 1e6); };
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  await p.evaluate(() => { S.settings.motion = 'reduced'; applySettings(false); go('import'); }); await p.waitForTimeout(300);
  await p.fill('#imp-name', 'Mega Handbook'); await p.click('[data-action=imp-new]'); await p.waitForTimeout(400);
  const t0 = Date.now(); let peak = 0, lastTxt = '';

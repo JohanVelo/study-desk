@@ -5,7 +5,7 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true });
  await ctx.route('**/data.js', r => r.fulfill({ contentType: 'text/javascript', body: SAMPLE }));
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1500);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1500);
  const leaf = await p.evaluate(() => { const id = leafIds.find(i => st(i) >= 1 && (S.cards || []).some(c => c.node === i)) || leafIds.find(i => st(i) >= 1); return id; });
  await p.evaluate(id => go('topic:' + id), leaf); await p.waitForTimeout(400);
  ok(await p.locator('.st-tile').count() === 6, 'topic shows six ways to study it');

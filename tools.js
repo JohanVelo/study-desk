@@ -190,7 +190,7 @@ function openBlurt(id, result) {
 
 /* ---------- snap a page: photo → text, read on this device ---------- */
 let ocrWorker = null, ocrBusy = false;
-async function ocrImages(files, onProgress) {
+async function ocrImages(files, onProgress, psm) {
   await loadScript("vendor/ocr/tesseract.min.js");
   if (!ocrWorker) {
     onProgress && onProgress("Getting the text reader ready (first time only)…", 0);
@@ -203,12 +203,15 @@ async function ocrImages(files, onProgress) {
     });
   }
   let out = [], curLabel = "";
+  if (psm) await ocrWorker.setParameters({ tessedit_pageseg_mode: psm });
+  try {
   for (let i = 0; i < files.length; i++) {
     curLabel = files.length > 1 ? `Reading page ${i + 1} of ${files.length}…` : "Reading the page…";
     onProgress && onProgress(curLabel, 0);
     const { data } = await ocrWorker.recognize(files[i]);
     out.push(cleanOcr(data.text || ""));
   }
+  } finally { if (psm) await ocrWorker.setParameters({ tessedit_pageseg_mode: "3" }); }
   return out.filter(Boolean).join("\n\n");
 }
 function cleanOcr(t) {

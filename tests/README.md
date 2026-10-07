@@ -34,5 +34,8 @@ Every test prints PASS/FAIL lines and ends with `ALL PASS` or `N FAILED`. Screen
 - t16: find in book, pinch, continue reading · t17: study tiles, shortcut rows, tips · t18: swipe, shortcuts, text size, quick add, recent searches
 - t19: import progress screen · t20: 1,000-page book · t21: 20,000-page book (run `node mkhandbook20k.js` first; slow, not in runall)
 - t22: diagrams from PDFs · t23: learn step by step · t24: profiles · t25: online AI with a pretend Claude API
+- t26: hard PDFs: dot-leader contents, bold-only headings, no structure, scanned books read with text recognition (`node mkhard.js` makes them)
+- `mksumtest.js` makes `sumtest/` (memory.pptx, methods.pdf, biopsych.docx, lecture.wav, today.png) for t9, t10, t13, t14
+- Port: set `SD_PORT` (and `SD_PORT2` for t7) if 8765/8777 are taken
 - t2, t5, t7, t8 need the old sample subjects inside `data.js` (runall swaps `sample-data.js` in and restores it); t3, t6, t9–t12 run with `node -r ./with-sample.js`
 - axe412.js: accessibility of the online AI screens · comp412.js: puts light and dark screenshots side by side · mk*.js: make the PDF fixtures

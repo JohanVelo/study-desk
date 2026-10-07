@@ -4,7 +4,7 @@ const ok=(n,c,x='')=>console.log((c?'PASS ':'FAIL ')+n,x);
 (async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844}});const p=await ctx.newPage();const errs=[];
 p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error'&&!/fonts|net::/.test(m.text()))errs.push(m.text())});
 p.on('response',r=>{if(r.status()>=400)errs.push(r.status()+' '+r.url())});
-await p.goto('http://localhost:8765/index.html');await p.evaluate(()=>localStorage.clear());await p.reload();await p.waitForTimeout(1500);
+await p.goto(`http://localhost:${process.env.SD_PORT||8765}/index.html`);await p.evaluate(()=>localStorage.clear());await p.reload();await p.waitForTimeout(1500);
 // flashcards
 await p.evaluate(()=>go('practice'));await p.waitForTimeout(400);
 const due=await p.evaluate(()=>{ensureCards();return cardsDueCount()});ok('cards auto-made',due>0,due);

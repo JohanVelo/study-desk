@@ -9,7 +9,7 @@ const mockTTS=()=>{const spoken=[];window.__spoken=spoken;const fake={speaking:f
  await ctx.addInitScript(mockTTS);
  const p=await ctx.newPage(); const errs=[];
  p.on('pageerror',e=>errs.push('PAGEERR '+e.message)); p.on('console',m=>{if(m.type()==='error'&&!/fonts|ERR_CERT|ERR_TUNNEL|net::/.test(m.text()))errs.push(m.text())});
- await p.goto('http://localhost:8765/index.html'); await p.evaluate(()=>localStorage.clear()); await p.reload(); await p.waitForTimeout(1800);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/index.html`); await p.evaluate(()=>localStorage.clear()); await p.reload(); await p.waitForTimeout(1800);
  const tag=w+scheme;
  await p.screenshot({path:SH+tag+'-today.png',fullPage:true});
  console.log(tag,'scrollW',await p.evaluate(()=>document.documentElement.scrollWidth));

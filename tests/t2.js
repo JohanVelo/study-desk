@@ -6,7 +6,7 @@ const SH=__dirname + '/shots/';
  const p=await ctx.newPage(); const errs=[];
  p.on('pageerror',e=>errs.push('PAGEERR '+e.message)); p.on('console',m=>{if(m.type()==='error'&&!/fonts|ERR_CERT|ERR_TUNNEL|net::/.test(m.text()))errs.push(m.text())});
  // legacy migration seed
- await p.goto('http://localhost:8765/index.html');
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/index.html`);
  await p.evaluate(()=>{localStorage.clear();localStorage.setItem('studydesk.proto.v1',JSON.stringify({v:1,anchor:'2026-10-05',status:{'psy-3-2-3':3,'psy-1-1-1':5},attempts:{'psy-4-2-2':{a:10,c:4}},mistakes:{},tasks:[],recent:[],changes:[],seq:0}));});
  await p.reload(); await p.waitForTimeout(1500);
  const mig=await p.evaluate(()=>({conf:S.status['psy/research-methods/variables/confounding-variables'],emp:S.status['psy/psychology-as-a-science/what-makes-psychology-scientific/empiricism'],legacyGone:localStorage.getItem('studydesk.proto.v1')===null,tasks:S.tasks.length,issues:dataIssues}));
@@ -74,7 +74,7 @@ const SH=__dirname + '/shots/';
  for (const [w,h,cs,n] of [[390,844,'dark','m-dark'],[1440,900,'light','desk']]){
    const c2=await b.newContext({viewport:{width:w,height:h},colorScheme:cs}); const q=await c2.newPage();
    q.on('pageerror',e=>errs.push('PAGEERR2 '+e.message));
-   await q.goto('http://localhost:8765/index.html'); await q.waitForTimeout(2200); await q.screenshot({path:SH+n+'.png',fullPage:true});
+   await q.goto(`http://localhost:${process.env.SD_PORT||8765}/index.html`); await q.waitForTimeout(2200); await q.screenshot({path:SH+n+'.png',fullPage:true});
    console.log(n,'scrollW',await q.evaluate(()=>document.documentElement.scrollWidth)); await c2.close();
  }
  console.log('errors final',errs);

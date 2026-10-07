@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 (async () => { const b = await chromium.launch(); const errs = []; const p = await b.newPage({ viewport: { width: 390, height: 844 } });
  p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1000);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1000);
  const ok = (c, m) => console.log(c ? 'PASS' : 'FAIL', m);
  for (const [file, needle] of [['sumtest/memory.pptx', 'Phonological loop'], ['sumtest/methods.pdf', 'Confounding variables']]) {
   await p.evaluate(() => go('import:psy')); await p.waitForTimeout(500);

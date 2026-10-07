@@ -49,7 +49,7 @@ const sse = text => { const ev = (t, d) => `event: ${t}\ndata: ${JSON.stringify(
    if (delay) await new Promise(res => setTimeout(res, delay));
    return r.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/event-stream' }, body: sse(ANSWER) });
  });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  await p.evaluate(() => { localStorage.setItem('studydesk.tips', '{"topic":1,"practice":1,"settings":1}'); localStorage.setItem('studydesk.tour', '1'); go('import'); }); await p.waitForTimeout(300);
  await p.fill('#imp-name', 'Psychology'); await p.click('[data-action=imp-new]'); await p.waitForTimeout(300);
  await p.setInputFiles('#imp-file', __dirname + '/fixtures/figures-book.pdf'); await p.waitForSelector('[data-action=imp-apply]', { timeout: 30000 });
@@ -116,7 +116,7 @@ const sse = text => { const ev = (t, d) => `event: ${t}\ndata: ${JSON.stringify(
  await ctx.close(); }
  // the key belongs to one profile only
  { const ctx = await b.newContext({ serviceWorkers: 'block' }); const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message));
-   await p.goto('http://localhost:8765/'); await p.waitForTimeout(1000);
+   await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1000);
    await p.evaluate(() => { localStorage.setItem('studydesk.aikey', 'sk-ant-good-megan-000000000000000000000000'); const id = PROFILES.add('Shasti'); PROFILES.rename('p0', 'Megan'); localStorage.setItem('studydesk.profiles', JSON.stringify({ list: PROFILES.list, cur: id })); });
    await p.reload(); await p.waitForTimeout(1000);
    ok(await p.evaluate(() => !aiOn()), "Megan's key isn't used in Shasti's profile"); await ctx.close(); }

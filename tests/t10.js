@@ -13,7 +13,7 @@ const MOCK_STT = `let k=0;self.onmessage=e=>{const{id,op,audio}=e.data;if(op==="
  await ctx.route('**/stt-worker.js', r => r.fulfill({ contentType: 'text/javascript', body: MOCK_STT }));
  const p = await ctx.newPage();
  p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  const ok = (c, m) => console.log(c ? 'PASS' : 'FAIL', m);
  const leaf = await p.evaluate(() => leafIds[0]);
  const NOTES = `## Memory stores

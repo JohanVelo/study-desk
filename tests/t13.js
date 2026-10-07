@@ -5,7 +5,7 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: { width: 390, height: 844 } });
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
  // A. brand-new install starts empty
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200);
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200);
  let r = await p.evaluate(() => ({ subj: DSUBJ.length, qs: QS.length, log: S.log.length, pill: !!$('.proto'), cta: !!$('[data-go="import"]') }));
  ok(r.subj === 0 && r.qs === 0 && r.log === 0, 'new install has no subjects, questions or fake history ' + JSON.stringify(r));
  ok(!r.pill && r.cta, 'no "Sample data" label; import is the first thing offered');
@@ -31,10 +31,10 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  await p.reload(); await p.waitForTimeout(1500);
  ok(await p.evaluate(() => DSUBJ.length) === r.subj.length, 'nothing else removed on the next start');
  // C. old install that only had the sample: becomes empty
- await p.goto('about:blank'); const p0 = await ctx.newPage(); await p0.goto('http://localhost:8765/manifest.webmanifest');
+ await p.goto('about:blank'); const p0 = await ctx.newPage(); await p0.goto(`http://localhost:${process.env.SD_PORT||8765}/manifest.webmanifest`);
  await p0.evaluate(() => new Promise(r => { localStorage.clear(); const q = indexedDB.deleteDatabase('studydesk'); q.onsuccess = q.onerror = q.onblocked = r; })); await p0.close();
  await p.route('**/data.js', rt => rt.fulfill({ contentType: 'text/javascript', body: SAMPLE }));
- await p.goto('http://localhost:8765/'); await p.waitForTimeout(1200); await p.unroute('**/data.js');
+ await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1200); await p.unroute('**/data.js');
  await p.reload(); await p.waitForTimeout(2000);
  r = await p.evaluate(() => ({ subj: DSUBJ.map(s=>s.name), log: S.log.length, cards: S.cards.length, tasks: S.tasks.length }));
  ok(r.subj.length === 0 && r.log === 0 && r.cards === 0 && r.tasks === 0, 'sample-only install is now empty ' + JSON.stringify(r));

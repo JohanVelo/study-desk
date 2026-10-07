@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 (async () => { const ctx = await chromium.launchPersistentContext(__dirname + '/prof-20k', { locale: 'en-GB', serviceWorkers: 'block', viewport: { width: +(process.env.W || 390), height: 844 }, deviceScaleFactor: 1, isMobile: !process.env.W, hasTouch: !process.env.W });
  const p = await ctx.newPage(); const errs = []; p.on('pageerror', e => errs.push(e.message.slice(0, 200)));
- const t0 = Date.now(); await (await ctx.newCDPSession(p)).send('Network.setCacheDisabled', { cacheDisabled: true }); await p.goto('http://localhost:8765/'); await p.waitForFunction(() => typeof notesReady !== 'undefined' && notesReady, null, { timeout: 120000 }); console.log('boot to notes ready', Date.now() - t0, 'ms');
+ const t0 = Date.now(); await (await ctx.newCDPSession(p)).send('Network.setCacheDisabled', { cacheDisabled: true }); await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForFunction(() => typeof notesReady !== 'undefined' && notesReady, null, { timeout: 120000 }); console.log('boot to notes ready', Date.now() - t0, 'ms');
  await p.evaluate(() => { S.settings.motion = 'reduced'; applySettings(false); });
  const time = async (label, fn) => { const t = Date.now(); await p.evaluate(fn); const ms = Date.now() - t; console.log('  ' + label.padEnd(26), String(ms).padStart(6), 'ms'); return ms; };
  const sid = await p.evaluate(() => DSUBJ[0].id), cid = await p.evaluate(() => DSUBJ[0].chapterIds[250]); let worst = 0;
