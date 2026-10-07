@@ -1317,3 +1317,111 @@ html.calm .oc-m.t.open{animation:none}
 .driver-popover.sd-tour .driver-popover-arrow-side-right.driver-popover-arrow{border-right-color:var(--surface)}
 .driver-popover.sd-tour .driver-popover-arrow-side-top.driver-popover-arrow{border-top-color:var(--surface)}
 .driver-popover.sd-tour .driver-popover-arrow-side-bottom.driver-popover-arrow{border-bottom-color:var(--surface)}
+
+/* ===== v4.5: textbook reader, teach it back, handwriting ===== */
+.bk-list{display:flex;flex-direction:column;gap:8px}
+.bk-row{display:flex;align-items:center;gap:14px;text-align:left;padding:10px 14px 10px 10px;border-radius:var(--r-m);background:var(--surface);box-shadow:var(--shadow);transition:transform var(--t-fast),box-shadow var(--t-fast)}
+.bk-row:hover{transform:translateY(-1px);box-shadow:var(--shadow-lift)}
+.bk-row .grow{display:flex;flex-direction:column;gap:3px;min-width:0}
+.bk-row b{font-size:15.5px;line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.bk-row .chev{width:18px;height:18px;color:var(--muted);flex:none}
+.bk-cover{width:46px;height:62px;flex:none;border-radius:5px 7px 7px 5px;overflow:hidden;background:var(--sunken);display:grid;place-items:center;box-shadow:inset 3px 0 0 color-mix(in oklab,var(--ink) 18%,transparent),0 1px 2px oklch(30% .03 265 / .25),0 6px 14px -8px oklch(30% .05 265 / .5)}
+.bk-cover img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}
+.bk-cover svg,.bk-ic svg{width:22px;height:22px;color:var(--muted)}
+.bk-empty{display:flex;gap:14px;align-items:flex-start;padding:16px}
+.bk-ic{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;background:var(--pen-soft)}
+.bk-ic svg{color:var(--pen)}
+.bk-add{align-self:flex-start;margin-top:10px}
+.bk-offer{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.bk-offer .grow{display:flex;flex-direction:column;gap:3px;min-width:200px}
+.bk-offer>svg{width:22px;height:22px;color:var(--ok);flex:none}
+
+.rd{display:flex;flex-direction:column;gap:12px}
+.rd-bar{display:flex;align-items:center;gap:8px;position:sticky;top:calc(env(safe-area-inset-top,0px) + 56px);z-index:19;margin:-6px -16px 0;padding:8px 12px 8px 16px;background:color-mix(in oklab,var(--paper) 90%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 1px 0 var(--line)}
+@media (min-width:1000px){.rd-bar{margin-inline:-40px;padding-inline:40px}}
+.rd-name{display:flex;flex-direction:column;min-width:0}
+.rd-name b{font-size:14.5px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-name span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rd-pg{display:flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:999px;background:var(--sunken);font:700 13.5px/1 var(--f-mono,ui-monospace);font-variant-numeric:tabular-nums;white-space:nowrap}
+.rd-pg svg{width:16px;height:16px;color:var(--muted)}
+.rd-pg .muted{font-weight:500}
+.rd-zoom{display:flex;gap:2px;background:var(--sunken);border-radius:999px;padding:2px}
+.rd-zoom .icon-btn{width:36px;height:36px}
+.rd-hls{display:flex;align-items:center;gap:5px;height:40px;padding:0 12px;border-radius:999px;background:var(--hl);color:var(--hl-ink);font-weight:800;font-size:14px}
+.rd-hls svg{width:17px;height:17px}
+@media (max-width:420px){.rd-name span{display:none}.rd-zoom .icon-btn{width:34px;height:34px}.rd-pg,.rd-hls{padding:0 10px}.rd-pg svg{display:none}}
+.rd-tip{display:flex;gap:8px;align-items:center;margin:0;color:var(--ink-2)}
+.rd-tip svg{width:16px;height:16px;flex:none;color:var(--pen)}
+.rd-scroll{overflow-x:auto;margin-inline:-16px;padding:4px 16px 40px;overscroll-behavior-x:contain}
+.rd-pages{display:flex;flex-direction:column;gap:14px;margin-inline:auto;min-width:0}
+.rd-page{position:relative;width:100%;background:#fff;border-radius:3px;box-shadow:0 0 0 1px oklch(80% .01 260 / .5),0 2px 4px oklch(30% .03 265 / .08),0 14px 34px -18px oklch(30% .06 265 / .4);overflow:hidden;contain:layout paint}
+.rd-page:not(.on){background:linear-gradient(100deg,#fff 40%,oklch(96% .005 260) 50%,#fff 60%) 0 0/300% 100%;animation:rdShim 1.4s linear infinite}
+@keyframes rdShim{to{background-position:-150% 0}}
+@media (prefers-reduced-motion:reduce){.rd-page:not(.on){animation:none}}
+.rd-num{position:absolute;inset:auto 0 10px;text-align:center;font:600 12px/1 var(--f-mono,ui-monospace);color:oklch(60% .01 260)}
+.rd-page.on .rd-num{display:none}
+.rd-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+:root[data-theme="dark"] .rd-cv{filter:brightness(.9)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .rd-cv{filter:brightness(.9)}}
+.rd-hl{position:absolute;inset:0;pointer-events:none}
+.rd-hl i{position:absolute;background:oklch(90% .17 100 / .5);mix-blend-mode:multiply;border-radius:2px}
+.rd-hl i.c{background:oklch(88% .14 150 / .5)}
+.rd-hl i.flash{animation:rdFlash 1.2s var(--ease-out,ease-out)}
+@keyframes rdFlash{0%,40%{background:oklch(80% .19 70 / .8);box-shadow:0 0 0 4px oklch(80% .19 70 / .35)}}
+/* pdf.js text layer (from pdf_viewer.css, Apache-2.0): invisible text over the page so it can be selected */
+.textLayer{position:absolute;text-align:initial;inset:0;overflow:clip;opacity:1;line-height:1;-webkit-text-size-adjust:none;text-size-adjust:none;forced-color-adjust:none;transform-origin:0 0;caret-color:CanvasText;z-index:0}
+.textLayer :is(span,br){color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0% 0%}
+.textLayer>:not(.markedContent),.textLayer .markedContent span:not(.markedContent){z-index:1}
+.textLayer span.markedContent{top:0;height:0}
+.textLayer ::selection{background:oklch(55% .2 266 / .28)}
+.textLayer br::selection{background:transparent}
+.textLayer .endOfContent{display:block;position:absolute;inset:100% 0 0;z-index:0;cursor:default;user-select:none}
+.textLayer.selecting .endOfContent{top:0}
+.rd-pop{position:fixed;z-index:60;display:flex;gap:2px;padding:4px;border-radius:14px;background:var(--ink);box-shadow:0 12px 30px -10px oklch(10% .03 265 / .6);animation:rdPop .18s var(--ease-out,ease-out)}
+@keyframes rdPop{from{opacity:0;transform:translateY(-4px) scale(.97)}}
+.rd-pop button{display:flex;align-items:center;gap:7px;height:42px;padding:0 14px;border-radius:10px;color:var(--paper);font-weight:700;font-size:14.5px;white-space:nowrap}
+.rd-pop button:hover,.rd-pop button:focus-visible{background:color-mix(in oklab,var(--paper) 16%,transparent)}
+.rd-pop svg{width:17px;height:17px}
+.rd-pop button:first-child svg{color:var(--hl)}
+.rd-quote{margin:0;padding:12px 14px 12px 16px;border-radius:12px;background:color-mix(in oklab,var(--hl) 30%,var(--surface));box-shadow:inset 4px 0 0 var(--hl);font-size:15px;line-height:1.5;max-height:180px;overflow:auto}
+.hl-make{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-radius:12px;background:var(--pen-soft)}
+.hl-make .grow{display:flex;flex-direction:column;gap:3px;min-width:190px}
+.hl-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.hl-list button{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;padding:10px 12px;border-radius:12px;background:var(--sunken);min-height:44px}
+.hl-list button:hover{background:color-mix(in oklab,var(--hl) 22%,var(--sunken))}
+.hl-p{flex:none;font-size:11.5px;font-weight:700;padding:3px 7px;border-radius:6px;background:var(--hl);color:var(--hl-ink);margin-top:1px}
+.hl-t{flex:1;font-size:14px;line-height:1.45;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical}
+.hl-c svg{width:17px;height:17px;color:var(--ok);flex:none;margin-top:2px}
+.bk-about summary{cursor:pointer;color:var(--ink-2);padding:6px 0}
+.rd-gorow{align-items:flex-end;gap:10px}
+.rd-gorow .btn{height:48px}
+.rd-toc{display:flex;flex-direction:column;gap:2px;max-height:46vh;overflow:auto;margin-inline:-6px}
+.rd-toc button{display:flex;gap:10px;align-items:baseline;text-align:left;padding:10px;border-radius:10px;font-weight:700;font-size:14.5px;min-height:44px}
+.rd-toc button.sub{padding-left:28px;font-weight:500;font-size:14px}
+.rd-toc button:hover{background:var(--sunken)}
+.rd-toc small{color:var(--muted);font-weight:600;margin-right:4px}
+
+.tb-tips{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;color:var(--ink-2)}
+.tb-rec{display:flex;align-items:center;gap:16px;text-align:left;padding:14px 18px 14px 14px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow),inset 0 0 0 1.5px var(--line);align-self:flex-start;transition:transform var(--t-fast),box-shadow var(--t-fast)}
+.tb-rec:hover{transform:translateY(-1px);box-shadow:var(--shadow-lift),inset 0 0 0 1.5px var(--line)}
+.tb-rec:active{transform:scale(.98)}
+.tb-rec>span:last-child{display:flex;flex-direction:column;gap:2px}
+.tb-rec b{font-size:16px}
+.tb-rec .tiny{color:var(--muted)}
+.tb-dot{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:oklch(58% .2 25);color:#fff;box-shadow:0 6px 16px -6px oklch(58% .2 25 / .7)}
+.tb-dot svg{width:24px;height:24px}
+.tb-live{display:flex;flex-direction:column;align-items:center;gap:12px;padding:22px 16px;border-radius:var(--r-l);background:var(--sunken);text-align:center}
+.tb-time{font-size:40px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:10px}
+.tb-time::before{content:"";width:12px;height:12px;border-radius:50%;background:oklch(58% .2 25);animation:tbBlink 1.2s ease-in-out infinite}
+@keyframes tbBlink{50%{opacity:.25}}
+.tb-meter{display:flex;align-items:center;gap:4px;height:44px}
+.tb-meter i{width:6px;border-radius:3px;background:var(--pen);height:calc(6px + var(--v,0) * 38px);transition:height 90ms linear;opacity:calc(.45 + var(--v,0) * .55)}
+@media (prefers-reduced-motion:reduce){.tb-time::before{animation:none}.tb-meter i{transition:none}}
+.tb-stats{display:flex;flex-wrap:wrap;gap:6px}
+.tb-stats span{font-size:13px;color:var(--ink-2);padding:5px 10px;border-radius:999px;background:var(--sunken)}
+.tb-stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+.tb-said summary{cursor:pointer;color:var(--ink-2);padding:4px 0}
+.tb-said p{margin:8px 0 0;padding:12px 14px;border-radius:12px;background:var(--sunken);line-height:1.55}
+.sk-pad.lined{background-image:linear-gradient(transparent calc(100% - 1.5px),color-mix(in oklab,var(--pen) 22%,transparent) 0);background-size:100% 56px;background-position:0 18px}
+.hw textarea{font-size:15px}
+.rd-pages,.rd-page{transition:none!important}

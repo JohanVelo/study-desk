@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.4.0";
+const APP_VERSION = "4.5.0";
 
 /* =====================================================================
    1. UTILS
@@ -1424,11 +1424,11 @@ async function importFile(file, sid) {
 
 /* ---------- on-device file store (IndexedDB): topic notes from imports, and audio recordings ---------- */
 const IDB = (() => {
-  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map() }, ok = true;
+  let dbp = null, mem = { notes: new Map(), audio: new Map(), sketch: new Map(), pics: new Map(), vec: new Map(), books: new Map(), marks: new Map() }, ok = true;
   const open = () => dbp || (dbp = new Promise((res) => {
     try {
-      const r = indexedDB.open("studydesk", 3);
-      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
+      const r = indexedDB.open("studydesk", 4);
+      r.onupgradeneeded = () => { const d = r.result; if (!d.objectStoreNames.contains("notes")) d.createObjectStore("notes", { keyPath: "id" }); if (!d.objectStoreNames.contains("audio")) d.createObjectStore("audio", { keyPath: "id" }); if (!d.objectStoreNames.contains("sketch")) d.createObjectStore("sketch", { keyPath: "id" }); for (const k of ["pics", "vec", "books", "marks"]) if (!d.objectStoreNames.contains(k)) d.createObjectStore(k, { keyPath: "id" }); };
       r.onsuccess = () => res(r.result); r.onerror = () => { ok = false; res(null); }; r.onblocked = () => { ok = false; res(null); };
     } catch (e) { ok = false; res(null); }
   }));
@@ -1987,7 +1987,7 @@ function placeIndicator(container) {
 let stack = [{ v: "today" }];
 const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Review", "cards"], ["progress", "Progress", "progress"]];
 const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
-const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice", import: "exams", exam: "practice" })[r.v] || r.v;
+const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", review: "practice", import: "exams", exam: "practice", read: "exams" })[r.v] || r.v;
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
   if (FX.on && document.startViewTransition) {
@@ -2021,6 +2021,7 @@ function crumbs() {
   else if (r.v === "edit") trail = [["edit", "My subjects"]];
   else if (r.v === "import") trail = [["import", "Import"]];
   else if (r.v === "exam") trail = [["exam", "Practice exam"]];
+  else if (r.v === "read" && typeof BOOKS !== "undefined") { const b = BOOKS.find(x => x.id === String(id).split(":")[0]); trail = b && subjects[b.sid] ? [["subject:" + b.sid, subjects[b.sid].name], ["read:" + b.id, "Textbook"]] : [["read:" + id, "Textbook"]]; }
   else if (r.v === "episode") trail = [["episode", "Now playing"]];
   else if (r.v === "calendar") trail = [["calendar", "Calendar"]];
   else if (r.v === "summary" && subjects[id]) trail = [["subject:" + id, subjects[id].name], ["summary:" + id, "Summary"]];
@@ -2109,6 +2110,7 @@ document.addEventListener("click", e => {
     if (typeof X_ACTS !== "undefined" && X_ACTS.has(act)) { xAction(act, a); return; }
     if (typeof SP_ACTS !== "undefined" && SP_ACTS.has(act)) { spAction(act, a); return; }
     if (typeof M_ACTS !== "undefined" && M_ACTS.has(act)) { mAction(act, a); return; }
+    if (typeof R_ACTS !== "undefined" && R_ACTS.has(act)) { rAction(act, a); return; }
     if (V3_ACTS.has(act)) { v3Action(act, a); return; }
     switch (act) {
       case "back": back(); return;
@@ -2157,7 +2159,7 @@ document.addEventListener("click", e => {
       case "copybak": { markBackup(); const txt = exportText(); const fallback = () => { const ta = $("#importText"); if (ta) { ta.value = txt; ta.select(); } toast("Backup placed in the box below. Copy it from there."); }; try { navigator.clipboard.writeText(txt).then(() => toast("Backup copied. Paste it somewhere safe."), fallback); } catch (err) { fallback(); } return; }
       case "importpaste": { const v = ($("#importText") || {}).value || ""; if (!v.trim()) { importMsg = { ok: false, text: "Paste a backup into the box first." }; rerender(); return; } doImport(v); return; }
       case "reset": if (a.dataset.confirm) {
-          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
+          (async () => { for (const st of ["notes", "audio", "sketch", "pics", "vec", "books", "marks"]) { try { for (const r of (await IDB.all(st) || [])) await IDB.del(st, r.id); } catch (e) { } }
             NOTES = {}; RECS = []; if (typeof SKETCHES !== "undefined") SKETCHES = [];
             ls.del(KEY); ls.del(BAK); fresh(); rollOver(); applySettings(false); save(true); Q = { subj: "all", lvl: "all", topic: null, mode: "all", idx: 0, picked: null, right: 0, done: 0 }; stack = [{ v: "today" }]; FX.intro = true; render(true); toast("Everything is erased. Study Desk is empty again."); })();
         } else { a.dataset.confirm = "1"; a.textContent = TAP + " again to erase everything"; setTimeout(() => { if (a.isConnected) { delete a.dataset.confirm; a.textContent = "Erase everything on this device"; } }, 3500); } return;

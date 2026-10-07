@@ -39,6 +39,9 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - **Search by meaning (optional, about 23 MB):** finds passages in your notes that mean the same thing, and only ever shows your own words.
 - **Focus sounds:** rain, brown noise or waves, generated on the device. **Study rhythm:** a streak heatmap on Progress.
 - **Pair by QR code** for sync, and a short guided tour (Settings → Help).
+- **Read the textbook in the app:** keep a PDF on the device, read it with zoom and a contents list, highlight lines, and turn highlights into flashcards for the topic on that page. Each topic has a Read button that opens its pages.
+- **Teach it back:** explain a topic out loud. It's written out on the device and checked against your notes, like a spoken blurt check.
+- **Write by hand:** write with a finger or Apple Pencil and turn it into text for your notes (works best with clear print).
 - Search everything with the magnifier (or press `/` on a laptop).
 
 ## Put in real study data
@@ -49,7 +52,7 @@ Copies that still held the old sample subjects remove them once on update (v4.3)
 To ship content with the app instead, edit **data.js** (empty by default). The format is explained at the top of the file. After changing it, open Settings → Data check to see whether anything needs fixing. When you release a new version, bump `VERSION` in `sw.js` so installed copies update.
 
 ## Files
-- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `extras.js` questions from notes, maths, Word import, calendar, formatted notes, sketches, charts, Anki, sync, laptop AI · `speech.js` natural voices and recordings-to-text (with `voice-worker.js` and `stt-worker.js`) · `more.js` search by meaning (with `embed-worker.js`), picture cards, practice exams, focus sounds, study rhythm, QR pairing and the tour · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content
+- `index.html` app page · `styles.css` design · `app.js` logic · `tools.js` flashcards, blurt, photo-to-text, mind map · `extras.js` questions from notes, maths, Word import, calendar, formatted notes, sketches, charts, Anki, sync, laptop AI · `speech.js` natural voices and recordings-to-text (with `voice-worker.js` and `stt-worker.js`) · `more.js` search by meaning (with `embed-worker.js`), picture cards, practice exams, focus sounds, study rhythm, QR pairing and the tour · `read.js` the textbook reader with highlights, teach it back and handwriting to text · `summary.js` the summary engine (TextRank, MMR and RAKE, written for this app, no dependencies) · `data.js` study content
 - `sw.js` offline cache · `manifest.webmanifest` install details · `icons/` app icons
 - `vendor/` GSAP 3.13 with Flip and SplitText (free “no charge” licence), canvas-confetti (ISC), JSZip (MIT), pdf.js (Apache 2.0), ts-fsrs (MIT), MiniSearch (MIT) and Tesseract.js (Apache 2.0)
 - `vendor/x/` compromise (MIT), Temml (MIT), mammoth (BSD-2), marked (MIT), DOMPurify (Apache-2.0/MPL-2.0), perfect-freehand (MIT), µPlot (MIT), Trystero (MIT), anki-apkg-export (MIT), sql.js (MIT), driver.js (MIT), lean-qr (MIT) and qr-scanner (MIT), with licences in `vendor/x/licenses/`. One local change: µPlot's number formatter falls back to en-GB if the browser reports a locale tag `Intl` rejects.
