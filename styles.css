@@ -311,6 +311,7 @@ button.item:hover,.item.link:hover{background:color-mix(in oklab,var(--sunken) 6
 @media (min-width:1000px){.filters{margin-inline:0;padding-inline:0;flex-wrap:wrap}}
 .chip{flex:none;min-height:38px;padding:7px 14px;border-radius:999px;font-size:14px;font-weight:700;color:var(--ink-2);background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--line);transition:all var(--t-fast)}
 .chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);box-shadow:none}
+.chip[aria-pressed="true"] .muted{color:inherit;opacity:.8}  /* the count inside a pressed chip: grey-on-ink failed AA contrast */
 .qcard{background:var(--surface);border-radius:var(--r-l);box-shadow:var(--shadow);padding:18px;display:flex;flex-direction:column;gap:14px}
 .qmeta{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
 .qtext{font-family:var(--f-display);font-weight:650;font-size:20px;line-height:1.3}

@@ -760,8 +760,8 @@ V.calendar = () => {
   for (let i = 0; i < cellsN; i++) {
     const k = addDays(base, i - startOff), inM = k.slice(0, 7) === base.slice(0, 7), ts = tasksOn(k), ex = examDays[k];
     const types = [...new Set(ts.map(x => x.type === "recall" ? "learn" : x.type === "calc" ? "practice" : x.type))];
-    cells += `<button class="day ${inM ? "" : "out"} ${k === t ? "today" : ""} ${k === calSel ? "sel" : ""} ${ex ? "examday" : ""}" style="${ex ? `--pc:${subjColor(ex[0])}` : ""}" data-action="pickday" data-k="${k}" aria-label="${fmtD(k, { weekday: "long", day: "numeric", month: "long" })}${ex ? ", " + ex.map(x => subjects[x].name).join(" and ") + " exam" : ""}${ts.length ? ", " + ts.length + " sessions" : ""}">
-      <span>${parseKey(k).getDate()}</span>${ex ? `<span class="ex">${esc(subjects[ex[0]].name.slice(0, 4))}<span class="exw"> exam</span></span>` : `<span class="dots">${types.map(ty => `<i style="--c:${TYPE_COL[ty]}"></i>`).join("")}</span>`}</button>`;
+    cells += `<button class="day ${inM ? "" : "out"} ${k === t ? "today" : ""} ${k === calSel ? "sel" : ""} ${ex ? "examday" : ""}" style="${ex ? `--pc:${subjColor(ex[0])}` : ""}" data-action="pickday" data-k="${k}" aria-label="${ex ? parseKey(k).getDate() + " " + esc(subjects[ex[0]].name.slice(0, 4)) + " exam, " : ""}${fmtD(k, { weekday: "long", day: "numeric", month: "long" })}${ex ? ", " + ex.map(x => subjects[x].name).join(" and ") + " exam" : ""}${ts.length ? ", " + ts.length + " sessions" : ""}">
+      <span>${parseKey(k).getDate()}</span>${ex ? ` <span class="ex">${esc(subjects[ex[0]].name.slice(0, 4))}<span class="exw"> exam</span></span>` : `<span class="dots">${types.map(ty => `<i style="--c:${TYPE_COL[ty]}"></i>`).join("")}</span>`}</button>`;
   }
   const sel = tasksOn(calSel), exSel = examDays[calSel];
   const mins = sel.reduce((a, x) => a + x.dur, 0);
