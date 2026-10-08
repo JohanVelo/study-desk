@@ -297,6 +297,19 @@
    "target": null,
    "expect": [],
    "exit": 0
+  },
+  {
+   "id": "t18-old",
+   "cmd": "node t18.js",
+   "env": {
+    "PLANT": "old"
+   },
+   "target": "tabs",
+   "expect": [
+    "tabs"
+   ],
+   "exit": 1,
+   "note": "after S3 (on v4.14 code): the v4.13 view-transition body injected must turn t18 red again"
   }
  ]
 }

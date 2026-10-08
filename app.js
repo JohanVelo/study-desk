@@ -2223,13 +2223,17 @@ let stack = [{ v: "today" }];
 const TABS = [["today", "Today", "today"], ["exams", "Subjects", "exams"], ["listen", "Listen", "headphones"], ["practice", "Review", "cards"], ["progress", "Progress", "progress"]];
 const RAIL = [...TABS, ["calendar", "Calendar", "cal"], ["settings", "Settings", "gear"]];
 const tabOf = r => ({ subject: "exams", chapter: "exams", topic: "exams", map: "exams", learn: "exams", review: "practice", import: "exams", exam: "practice", read: "exams" })[r.v] || r.v;
+/* screens change at once and stay tappable; only the new content slides in (from the side its tab sits on).
+   v4.14: replaces a view transition, whose overlay ignored every tap for ~0.5 s and threw "Transition was skipped"
+   when two changes overlapped. Reduced motion (FX.on false) changes the screen with no movement at all. */
+const DX = { forward: 24, back: -24, "tab-r": 24, "tab-l": -24, tab: 0 };
 function navigate(fn, dir) {
   const run = () => { fn(); render(true); };
-  if (FX.on && document.startViewTransition) {
-    document.documentElement.dataset.nav = dir;
-    const vt = document.startViewTransition(run);
-    vt.finished.finally(() => delete document.documentElement.dataset.nav);
-  } else run();
+  run();
+  if (FX.on) {
+    const v = $("#main .view"); v.style.animation = "none";
+    gsap.fromTo(v, { x: DX[dir], y: dir === "tab" ? 8 : 0, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .28, ease: "power3.out", overwrite: true, id: "nav", clearProps: "transform,opacity" });
+  }
 }
 function go(spec) {
   const [v, ...rest] = spec.split(":"); const a = rest.join(":");
