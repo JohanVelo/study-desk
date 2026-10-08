@@ -1,0 +1,302 @@
+{
+ "_rule": "Each planted fault lists the full SET of FAIL check-names it must produce. A fire test passes only if the observed set of '^FAIL <check>' names equals 'expect' and the exit code equals 'exit'. The plant's target check is mandatory. If the first run shows a different extra name, the set may be corrected once, with the reason in 'corrected', never by dropping the target. Written 2026-10-08 before any tapprobe/audit/t7/t18/runall fire test ran. 'optional' (unplanted control runs only) lists names that may appear because of a known intermittent defect in the old code; they are never required and never cover a target.",
+ "_on": "e69f73b app code (v4.13); S3 and S2 bodies are injected by the test via page.evaluate, never by editing app files",
+ "plants": [
+  {
+   "id": "contrast-e69",
+   "cmd": "node -r ./with-sample.js contrast.js",
+   "env": {},
+   "target": "contrast",
+   "expect": [
+    "axe",
+    "contrast"
+   ],
+   "exit": 1,
+   "corrected": "Predicted {contrast}. First run also showed 'axe': label-content-name-mismatch on 3 calendar exam-day buttons x 4 themes (full axe had never been run before). JJ chose to fix it in S2 (decisions.jsonl 2026-10-08)."
+  },
+  {
+   "id": "contrast-s2",
+   "cmd": "node -r ./with-sample.js contrast.js",
+   "env": {
+    "PLANT": "s2fix"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "contrast-faint",
+   "cmd": "node -r ./with-sample.js contrast.js",
+   "env": {
+    "PLANT": "s2fix+faint"
+   },
+   "target": "contrast",
+   "expect": [
+    "contrast"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "tap-e69",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {},
+   "target": "p95",
+   "expect": [
+    "max",
+    "nav-count",
+    "p95",
+    "pageerror",
+    "view-opacity"
+   ],
+   "exit": 1,
+   "note": "negative control: p95 >= 400 ms; pageerror must name 'Transition was skipped' (R7 same-task double go)",
+   "corrected": "Predicted {max, nav-count, p95, pageerror, stale}. First run: no 'stale' (Chrome's view-transition overlay takes hit tests at the page root, so the finger never lands on the old screen's button) and 'view-opacity' 50/50 (v4.13 replays the .view enter fade when html[data-nav] is removed after the slide, styles.css:472, so opacity at 600 ms is 0-0.99). Target p95 present: 517 ms. Second correction (2026-10-08 ~16:10): 'edge' is allowed but not required on this unplanted v4.13 run only. In 1 of 2 runs v4.13 left the screen invisible (opacity 0, translateY 10px, 1 s after go) when a topic move re-render met a navigation mid view-transition: a real intermittent v4.13 defect that S3 removes. Planted faults still need their exact set.",
+   "optional": [
+    "edge"
+   ]
+  },
+  {
+   "id": "tap-s3",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "tap-overlay",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3+overlay"
+   },
+   "target": "p95",
+   "expect": [
+    "max",
+    "p95"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "tap-cover",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3+cover"
+   },
+   "target": "never-hit",
+   "expect": [
+    "max",
+    "never-hit",
+    "p95"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "tap-settled",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3-settled"
+   },
+   "target": "p95",
+   "expect": [
+    "max",
+    "p95"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "tap-settled-live",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3-settled",
+    "TAPPROBE_LIVE": "1"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0,
+   "note": "counter-control: the live-centre probe cannot see the settled-point defect, the gate probe must"
+  },
+  {
+   "id": "tap-invisible",
+   "cmd": "node -r ./with-sample.js tapprobe.js",
+   "env": {
+    "PLANT": "s3-invisible"
+   },
+   "target": "view-opacity",
+   "expect": [
+    "edge",
+    "view-opacity"
+   ],
+   "exit": 1,
+   "corrected": "Predicted {view-opacity}. First run also showed 'edge': the edge cases check that each screen ends fully shown, and this fault leaves it at opacity 0, so they fire too. Target view-opacity present."
+  },
+  {
+   "id": "tapr-e69",
+   "cmd": "node -r ./with-sample.js tapprobe.js --reduce",
+   "env": {},
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "tapr-s3",
+   "cmd": "node -r ./with-sample.js tapprobe.js --reduce",
+   "env": {
+    "PLANT": "s3"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "tapr-css",
+   "cmd": "node -r ./with-sample.js tapprobe.js --reduce",
+   "env": {
+    "PLANT": "reduce-css"
+   },
+   "target": "[os-reduce] animation",
+   "expect": [
+    "[app-reduced] animation",
+    "[os-reduce] animation"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "tapr-nofxon",
+   "cmd": "node -r ./with-sample.js tapprobe.js --reduce",
+   "env": {
+    "PLANT": "s3-nofxon"
+   },
+   "target": "[os-reduce] nav",
+   "expect": [
+    "[app-reduced] active",
+    "[app-reduced] nav",
+    "[os-reduce] active",
+    "[os-reduce] nav"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "audit-s3",
+   "cmd": "node -r ./with-sample.js audit.js",
+   "env": {
+    "PLANT": "s3"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0,
+   "corrected": "Before any audit fire test ran: baseline and fire tests inject the v4.14 navigate body (PLANT=s3). The first trial on plain v4.13 logged a random 'Transition was skipped' page error (the R7 bug S3 removes), which would make every audit fire test non-deterministic."
+  },
+  {
+   "id": "audit-throw",
+   "cmd": "node -r ./with-sample.js audit.js",
+   "env": {
+    "PLANT": "s3+throw"
+   },
+   "target": "pageerror",
+   "expect": [
+    "pageerror"
+   ],
+   "exit": 1,
+   "corrected": "Before any audit fire test ran: baseline and fire tests inject the v4.14 navigate body (PLANT=s3). The first trial on plain v4.13 logged a random 'Transition was skipped' page error (the R7 bug S3 removes), which would make every audit fire test non-deterministic."
+  },
+  {
+   "id": "audit-count",
+   "cmd": "node -r ./with-sample.js audit.js",
+   "env": {
+    "PLANT": "s3+count"
+   },
+   "target": "count",
+   "expect": [
+    "count"
+   ],
+   "exit": 1,
+   "corrected": "Before any audit fire test ran: baseline and fire tests inject the v4.14 navigate body (PLANT=s3). The first trial on plain v4.13 logged a random 'Transition was skipped' page error (the R7 bug S3 removes), which would make every audit fire test non-deterministic.",
+   "note": "Fault hides one more normally visible instance of the baselined key today|toggle|no-visible-match, so its count is max + 1. Changed from an overlay before the test ran: the baseline has no 'intercepts' key, so an overlay would create a new key, not raise a count."
+  },
+  {
+   "id": "t7",
+   "cmd": "bash runall.sh",
+   "env": {
+    "RUNALL_ONLY": "t7"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "t7-blocksw",
+   "cmd": "bash runall.sh",
+   "env": {
+    "RUNALL_ONLY": "t7",
+    "RUNALL_FIRE": "1",
+    "T7_PLANT": "block-sw"
+   },
+   "target": "t7-sw",
+   "expect": [
+    "t7-errs",
+    "t7-offline",
+    "t7-sw"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "t18-e69",
+   "cmd": "node t18.js",
+   "env": {},
+   "target": "tabs",
+   "expect": [
+    "tabs"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "t18-s3",
+   "cmd": "node t18.js",
+   "env": {
+    "PLANT": "s3"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  },
+  {
+   "id": "runall-worse",
+   "cmd": "bash runall.sh",
+   "env": {
+    "RUNALL_ONLY": "t18",
+    "RUNALL_FORCE_WORSE": "t18"
+   },
+   "target": "worse",
+   "expect": [
+    "worse"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "runall-killed",
+   "cmd": "bash runall.sh",
+   "env": {
+    "RUNALL_ONLY": "t15",
+    "RUNALL_KILL_EARLY": "t15"
+   },
+   "target": "worse",
+   "expect": [
+    "worse"
+   ],
+   "exit": 1
+  },
+  {
+   "id": "runall-t11-report-only",
+   "cmd": "bash runall.sh",
+   "env": {
+    "RUNALL_ONLY": "t11",
+    "RUNALL_FORCE_WORSE": "t11"
+   },
+   "target": null,
+   "expect": [],
+   "exit": 0
+  }
+ ]
+}

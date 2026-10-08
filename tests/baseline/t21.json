@@ -1,0 +1,61 @@
+{
+ "written": "2026-10-08T21:32:33.866Z",
+ "median": {
+  "open today": 50,
+  "open exams": 28,
+  "open subject": 126,
+  "open topic": 153,
+  "open practice": 20,
+  "open progress": 128,
+  "open listen": 154,
+  "open calendar": 63,
+  "open settings": 86,
+  "open summary": 68,
+  "open map": 187,
+  "search": 89
+ },
+ "runs": [
+  {
+   "open today": 55,
+   "open exams": 41,
+   "open subject": 126,
+   "open topic": 153,
+   "open practice": 24,
+   "open progress": 141,
+   "open listen": 173,
+   "open calendar": 224,
+   "open settings": 86,
+   "open summary": 55,
+   "open map": 295,
+   "search": 89
+  },
+  {
+   "open today": 50,
+   "open exams": 25,
+   "open subject": 127,
+   "open topic": 147,
+   "open practice": 20,
+   "open progress": 123,
+   "open listen": 134,
+   "open calendar": 63,
+   "open settings": 244,
+   "open summary": 68,
+   "open map": 162,
+   "search": 99
+  },
+  {
+   "open today": 38,
+   "open exams": 28,
+   "open subject": 118,
+   "open topic": 185,
+   "open practice": 17,
+   "open progress": 128,
+   "open listen": 154,
+   "open calendar": 53,
+   "open settings": 29,
+   "open summary": 108,
+   "open map": 187,
+   "search": 80
+  }
+ ]
+}

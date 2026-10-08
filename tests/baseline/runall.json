@@ -1,0 +1,205 @@
+{
+ "written": "2026-10-08T20:15:01.246Z",
+ "tests": {
+  "t13": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 22,
+   "fail": 0,
+   "summary": false,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t14": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 34,
+   "fail": 0,
+   "summary": false,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t15": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 33,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t16": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 18,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t17": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 17,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t18": {
+   "exit": 1,
+   "timeout": false,
+   "pass": 28,
+   "fail": 1,
+   "summary": true,
+   "errors": [
+    "Transition was skipped. New ViewTransition started"
+   ]
+  },
+  "t19": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 9,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t20": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 5,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t22": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 6,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t23": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 9,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t24": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 11,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t25": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 21,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t26": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 22,
+   "fail": 0,
+   "summary": true,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t3": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 0,
+   "fail": 0,
+   "summary": false,
+   "errors": []
+  },
+  "t6": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 0,
+   "fail": 0,
+   "summary": false,
+   "errors": []
+  },
+  "t9": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 12,
+   "fail": 0,
+   "summary": false,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t10": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 22,
+   "fail": 1,
+   "summary": false,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t11": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 3,
+   "fail": 0,
+   "summary": false,
+   "errors": []
+  },
+  "t12": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 2,
+   "fail": 0,
+   "summary": false,
+   "errors": [
+    "[]"
+   ]
+  },
+  "t2": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 0,
+   "fail": 0,
+   "summary": false,
+   "errors": []
+  },
+  "t5": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 0,
+   "fail": 0,
+   "summary": false,
+   "errors": []
+  },
+  "t7": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 4,
+   "fail": 0,
+   "summary": true,
+   "errors": []
+  },
+  "t8": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 13,
+   "fail": 1,
+   "summary": false,
+   "errors": [
+    "["
+   ]
+  }
+ }
+}

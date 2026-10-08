@@ -1,0 +1,131 @@
+{
+ "checks": 88,
+ "chipSeen": 4,
+ "plant": null,
+ "violations": [
+  {
+   "theme": "390light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-17\"]"
+  },
+  {
+   "theme": "390light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-22\"]"
+  },
+  {
+   "theme": "390light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-27\"]"
+  },
+  {
+   "theme": "390light",
+   "route": "exam:psy",
+   "rule": "color-contrast",
+   "impact": "serious",
+   "sel": "button[data-v=\"all\"] > .tiny.muted",
+   "ratio": 2.75,
+   "fg": "#5d646f",
+   "bg": "#171f30"
+  },
+  {
+   "theme": "390dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-17\"]"
+  },
+  {
+   "theme": "390dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-22\"]"
+  },
+  {
+   "theme": "390dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-27\"]"
+  },
+  {
+   "theme": "390dark",
+   "route": "exam:psy",
+   "rule": "color-contrast",
+   "impact": "serious",
+   "sel": "button[data-v=\"all\"] > .tiny.muted",
+   "ratio": 2.24,
+   "fg": "#979fab",
+   "bg": "#e7ecf2"
+  },
+  {
+   "theme": "1440light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-17\"]"
+  },
+  {
+   "theme": "1440light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-22\"]"
+  },
+  {
+   "theme": "1440light",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-27\"]"
+  },
+  {
+   "theme": "1440light",
+   "route": "exam:psy",
+   "rule": "color-contrast",
+   "impact": "serious",
+   "sel": "button[data-v=\"all\"] > .tiny.muted",
+   "ratio": 2.75,
+   "fg": "#5d646f",
+   "bg": "#171f30"
+  },
+  {
+   "theme": "1440dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-17\"]"
+  },
+  {
+   "theme": "1440dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-22\"]"
+  },
+  {
+   "theme": "1440dark",
+   "route": "calendar",
+   "rule": "label-content-name-mismatch",
+   "impact": "serious",
+   "sel": "button[data-k=\"2026-10-27\"]"
+  },
+  {
+   "theme": "1440dark",
+   "route": "exam:psy",
+   "rule": "color-contrast",
+   "impact": "serious",
+   "sel": "button[data-v=\"all\"] > .tiny.muted",
+   "ratio": 2.24,
+   "fg": "#979fab",
+   "bg": "#e7ecf2"
+  }
+ ]
+}

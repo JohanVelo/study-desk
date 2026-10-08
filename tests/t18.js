@@ -1,12 +1,17 @@
 // t18: v4.9 swipe, shortcuts, text size, tab slide direction, buzz, folded changes, quick add, recent searches
 const { chromium } = require('playwright'); const fs = require('fs');
 const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
+const PORT = require('./sdlib').port(), PLANT = process.env.PLANT || '';  // PLANT=s3 (v4.14 body on v4.13) | old (v4.13 body on v4.14): fire tests only
 (async () => { const b = await chromium.launch(); const errs = []; let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log(c ? 'PASS' : 'FAIL', m); };
  const ctx = await b.newContext({ locale: 'en-GB', serviceWorkers: 'block', viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
  await ctx.route('**/data.js', r => r.fulfill({ contentType: 'text/javascript', body: SAMPLE }));
  await ctx.addInitScript(() => { window.__vib = []; navigator.vibrate = p => { window.__vib.push(p); return true; }; });
  const p = await ctx.newPage(); p.on('pageerror', e => errs.push(e.message)); p.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errs.push(m.text()); });
- await p.goto(`http://localhost:${process.env.SD_PORT||8765}/`); await p.waitForTimeout(1500);
+ await p.goto(`http://localhost:${PORT}/`); await p.waitForTimeout(1500);
+ if (PLANT) { const on = await p.evaluate(pl => { const DX = { forward: 24, back: -24, 'tab-r': 24, 'tab-l': -24, tab: 0 };
+   window.navigate = pl === 's3' ? (fn, dir) => { const run = () => { fn(); render(true); }; run(); if (FX.on) { const v = $('#main .view'); v.style.animation = 'none'; gsap.fromTo(v, { x: DX[dir], y: dir === 'tab' ? 8 : 0, opacity: 0 }, { x: 0, y: 0, opacity: 1, duration: .28, ease: 'power3.out', overwrite: true, id: 'nav', clearProps: 'transform,opacity' }); } }
+     : (fn, dir) => { const run = () => { fn(); render(true); }; if (FX.on && document.startViewTransition) { document.documentElement.dataset.nav = dir; const vt = document.startViewTransition(run); vt.finished.finally(() => delete document.documentElement.dataset.nav); } else run(); };
+   return String(navigate).includes(pl === 's3' ? 'gsap.fromTo' : 'startViewTransition'); }, PLANT); console.log(on ? `PLANT ${PLANT} active` : `FAIL setup plant ${PLANT} not active`); if (!on) fails++; }
  await p.evaluate(() => { const t = todayKey(); tasksOn(t).forEach((x, i) => { x.start = 1300 + i; x.dur = 20; x.done = false; }); save(); go('today'); }); await p.waitForTimeout(400);
  const swipe = (sel, dx) => p.evaluate(([sel, dx]) => { const r = document.querySelector(sel), b = r.getBoundingClientRect(), x = b.left + b.width / 2, y = b.top + b.height / 2;
    const ev = (t, cx) => (t === 'pointerdown' ? r.querySelector('.title') : document).dispatchEvent(new PointerEvent(t, { pointerType: 'touch', clientX: cx, clientY: y, bubbles: true, isPrimary: true }));
@@ -37,10 +42,10 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  // review naming
  await p.evaluate(() => go('practice')); await p.waitForTimeout(400);
  ok((await p.textContent('.view h1')).trim() === 'Review', 'the Review tab page is called Review');
- // tab slide direction
- const dirs = await p.evaluate(async () => { const out = []; const real = document.startViewTransition?.bind(document); document.startViewTransition = fn => { out.push(document.documentElement.dataset.nav); fn(); return { finished: Promise.resolve() }; };
-   const was = S.settings.motion; go('today'); go('progress'); go('listen'); document.startViewTransition = real; return out; });
- ok(dirs.join() === 'tab-l,tab-r,tab-l' || dirs.length === 0, 'tabs slide from the side they sit on: ' + dirs.join());
+ // tab slide direction (v4.14: one GSAP 'nav' tween on the screen content per change; it starts on the side the tab sits on)
+ const dirs = await p.evaluate(() => { const out = [], real = gsap.fromTo; gsap.fromTo = (t, a, b) => { if (b && b.id === 'nav') out.push(Math.sign(a.x)); return real.call(gsap, t, a, b); };
+   const fx = FX.on; go('today'); go('progress'); go('listen'); gsap.fromTo = real; return { fx, out }; });
+ ok(dirs.fx && dirs.out.join() === '-1,1,-1', `tabs slide from the side they sit on (nav tween x signs ${dirs.out.join() || 'none'} for today, progress, listen; motion on: ${dirs.fx})`);
  // recent searches
  await p.evaluate(() => openSearch()); const W = await p.evaluate(() => nodes[leafIds[2]].title.split(' ')[0].toLowerCase()); await p.fill('#srch', W); await p.waitForTimeout(300);
  await p.click('#srchRes [data-sgo] >> nth=0'); await p.waitForTimeout(400);
@@ -61,9 +66,9 @@ const SAMPLE = fs.readFileSync(__dirname + '/sample-data.js', 'utf8');
  await p.evaluate(() => { S.settings.text = 'normal'; applySettings(false); });
  // shortcuts
  for (const [what, check, name] of [['search', '#srch', 'Search'], ['add', '#qa-topic', 'Add'], ['next', '.focus-scrim,.focus', 'Start next session']]) {
-  await p.goto(`http://localhost:${process.env.SD_PORT||8765}/?do=` + what); await p.waitForTimeout(1700);
+  await p.goto(`http://localhost:${PORT}/?do=` + what); await p.waitForTimeout(1700);
   ok(await p.locator(check).count() >= 1, name + ' shortcut opens it');
   ok(await p.evaluate(() => !location.search.includes('do=')), name + ' shortcut tidies the address');
  }
  const man = JSON.parse(fs.readFileSync(__dirname + '/../manifest.webmanifest', 'utf8')); ok(man.shortcuts.length === 4, 'manifest lists 4 shortcuts');
- console.log(errs.length ? 'ERRORS ' + errs.join(' | ') : 'no page errors'); console.log(fails ? fails + ' FAILED' : 'ALL PASS'); await b.close(); })();
+ console.log(errs.length ? 'ERRORS ' + errs.join(' | ') : 'no page errors'); console.log(fails ? fails + ' FAILED' : 'ALL PASS'); process.exitCode = fails ? 1 : 0; await b.close(); })();

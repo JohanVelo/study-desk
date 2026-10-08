@@ -1,0 +1,57 @@
+{
+ "runs": [
+  {
+   "at": "2026-10-08T10:02:57.351Z",
+   "keys": {
+    "today|ep-play|no-visible-match": 1,
+    "today|miss|no-visible-match": 1,
+    "today|toggle|no-visible-match": 1,
+    "calendar|toggle|no-visible-match": 6,
+    "practice|qf|no-visible-match": 2,
+    "listen|ep-play|no-visible-match": 8,
+    "editsubj|node-move|timeout": 14,
+    "summary|ep-play|no-visible-match": 8,
+    "episode|ep-play|no-visible-match": 8
+   }
+  },
+  {
+   "at": "2026-10-08T10:12:34.565Z",
+   "keys": {
+    "today|ep-play|no-visible-match": 1,
+    "today|miss|no-visible-match": 1,
+    "today|toggle|no-visible-match": 1,
+    "calendar|toggle|no-visible-match": 6,
+    "practice|qf|no-visible-match": 2,
+    "listen|ep-play|no-visible-match": 8,
+    "editsubj|node-move|timeout": 14,
+    "summary|ep-play|no-visible-match": 8,
+    "episode|ep-play|no-visible-match": 8
+   }
+  },
+  {
+   "at": "2026-10-08T11:38:14.432Z",
+   "keys": {
+    "today|ep-play|no-visible-match": 1,
+    "today|miss|no-visible-match": 1,
+    "today|toggle|no-visible-match": 1,
+    "calendar|toggle|no-visible-match": 6,
+    "practice|qf|no-visible-match": 2,
+    "listen|ep-play|no-visible-match": 8,
+    "editsubj|node-move|timeout": 14,
+    "summary|ep-play|no-visible-match": 8,
+    "episode|ep-play|no-visible-match": 8
+   }
+  }
+ ],
+ "max": {
+  "today|ep-play|no-visible-match": 1,
+  "today|miss|no-visible-match": 1,
+  "today|toggle|no-visible-match": 1,
+  "calendar|toggle|no-visible-match": 6,
+  "practice|qf|no-visible-match": 2,
+  "listen|ep-play|no-visible-match": 8,
+  "editsubj|node-move|timeout": 14,
+  "summary|ep-play|no-visible-match": 8,
+  "episode|ep-play|no-visible-match": 8
+ }
+}
