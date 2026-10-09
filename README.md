@@ -29,6 +29,7 @@ Each device keeps its own progress. Use Settings → Backup to move progress bet
 - **AI explanation (laptop only):** if the browser has built-in AI (Chrome), it can explain your notes in plain words. Always labelled as a draft to check.
 - **Word documents:** .docx files import like PDFs and PowerPoints.
 - **Any textbook PDF imports (v4.13):** contents pages with dot leaders ("Cells ........ 5"), headings that are only bold, and PDFs with no structure at all (split into parts of a few pages) all import now. **Scanned books** (pictures of pages) are recognised and read with on-device text recognition: the contents page first, then each topic's pages as its notes. If you type the contents list yourself, the PDF stays attached so its pages still become notes.
+- **Snappier screens (v4.14):** tapping a tab shows the new screen straight away and you can tap on it at once; only the content slides in. Easier to read for everyone: pressed filter counts and calendar exam days read correctly with screen readers.
 - **Imports:** PDFs are read with their headings, without running headers, footers or page numbers. PowerPoints are read in slide order with titles, bullet levels, tables and speaker notes. PDFs without bookmarks or a contents page are split by their headings.
 - **Listen:** study podcasts read aloud by the device, plus your own lecture recordings.
 - **Review:** flashcards made automatically from notes and summaries, scheduled with FSRS spaced repetition (the same method Anki uses), plus a "blurt check" that compares what you remember with your notes.

@@ -9,7 +9,7 @@ Study Desk is an installable study app (a PWA) that turns a student's own PDFs, 
 - **Owner:** JJ (GitHub `JohanVelo`, jjscholtz09@gmail.com), in South Africa. He is not a developer: explain things in plain language with step-by-step guides, be goal-based, and think for him.
 - **Users:** Megan (JJ's girlfriend, a university student) and her friend Shasti, on phones (iPhone Safari matters) and laptops.
 - **Live:** https://johanvelo.github.io/study-desk/ (GitHub Pages, deployed from `main` on every push). Repo: `JohanVelo/study-desk`.
-- **Version:** 4.13.0 (2026-10-07). `APP_VERSION` in `app.js`, `VERSION` in `sw.js`.
+- **Version:** 4.14.0 (2026-10-09). `APP_VERSION` in `app.js`, `VERSION` in `sw.js`.
 - **The ambition:** the best study app in South Africa. It should keep students hooked while giving them every important fact in their own material. Quality over speed, always.
 
 ## 2. Non-negotiable principles
@@ -71,15 +71,16 @@ The same is done for `render`, `crumbs`, `studyTiles`, `exportObj`, `eAction`, `
 ## 5. Running and testing
 
 ```bash
-# serve the app (from the repo root). Tests use port 8765 unless SD_PORT is set
-# (SD_PORT2 for t7's 8777), e.g. when 8765 is taken on the laptop: SD_PORT=8865 SD_PORT2=8877 bash runall.sh
-python3 -m http.server 8765
+# serve the app (from the repo root). Every test needs SD_PORT (and SD_PORT2 for t7);
+# they refuse to run without it, or on 8765 (the QGIS bridge on JJ's laptop)
+python3 -m http.server 8866
 # tests (Playwright + axe-core)
 cd tests && npm install && npx playwright install chromium   # first time only
-bash runall.sh            # full regression, ~25 min; results in tests/reg/
-node t25.js               # one test
+SD_PORT=8866 SD_PORT2=8867 bash runall.sh   # full regression, ~25 min; compared with baseline/runall.json; results in tests/reg/
+SD_PORT=8866 node t25.js                    # one test
 ```
-- t7 (offline from a subfolder) also needs a server on 8777 that serves the repo under `/study-desk/` (see `tests/README.md`).
+- t7 (offline from a subfolder) also needs a server on SD_PORT2 that serves the repo under `/study-desk/` (see `tests/README.md`).
+- v4.14 checks (run separately, not in runall): `contrast.js` (axe, motion off, every route × 4 themes), `tapprobe.js` (tap-ready p95 after navigation), `audit.js` (every screen, every safe button), `t21x3.js`, and `firetest.js` (planted faults must trip their checks). Details and baselines: `tests/README.md`.
 - t2, t5, t7, t8 temporarily copy `tests/sample-data.js` over `data.js` (runall restores it). t3, t6, t9–t12 run with `node -r ./with-sample.js`. Never commit `data.js` with sample content.
 - Fixtures: `node mksumtest.js` makes `tests/sumtest/` (used by t9, t10, t13, t14) and `node mkhard.js` makes the hard PDFs for t26 (dot leaders, bold headings, a scan). Both are committed; rerun only to change them.
 - Run tests one at a time: Python's simple server drops requests when several browsers load the app at once.
@@ -119,6 +120,7 @@ node t25.js               # one test
 - v4.11: profiles (several people per device, fully separate data).
 - v4.12: optional online AI (Claude) explaining topics from their textbook pages and explaining diagrams.
 - v4.13: PDF import never dead-ends: dot-leader contents pages, bold-only headings, no-structure PDFs (split by pages), scanned books read with on-device text recognition (Tesseract; contents pages have their leader dots wiped and are read line by line, PSM 6). Typed contents lists keep the PDF attached for notes. Missing test fixtures recreated (`mksumtest.js`).
+- v4.14: snappier screens: a tab change shows the new screen at once and it is tappable straight away (only the content slides in, GSAP, no view transition); tap p95 536 → 40 ms. Pressed-chip counts readable, calendar exam-day labels start with their visible text (0 serious axe issues, 88/88). New checks: contrast, tapprobe, audit, fire tests.
 
 ## 9. What's next
 

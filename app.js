@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.13.0";
+const APP_VERSION = "4.14.0";
 
 /* =====================================================================
    1. UTILS
