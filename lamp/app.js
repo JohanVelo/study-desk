@@ -215,5 +215,25 @@
   const mount = () => { document.body.appendChild(gate); start(); };
   if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount);
 
-  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  // Updates install on their own: check on open, when coming back to the app and every 30 minutes,
+  // then swap in the new version at a quiet moment (in the background, just after opening, or after 2 idle minutes).
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) addEventListener("load", async () => {
+    const reg = await navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => null);
+    if (!reg) return;
+    const t0 = Date.now(); let had = !!navigator.serviceWorker.controller, waiting = false, idle = Date.now();
+    const busy = () => document.activeElement?.matches?.("input,textarea,select,[contenteditable]") || document.querySelector(".live-on,[data-live-busy]");
+    const swap = () => { if (waiting) { waiting = false; sessionStorage.setItem("lamp-updated", "1"); location.reload(); } };
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!had) { had = true; return; }
+      waiting = true;
+      if (document.hidden || Date.now() - t0 < 20000) swap();
+    });
+    const check = () => reg.update().catch(() => {});
+    ["pointerdown", "keydown", "scroll", "touchstart"].forEach(e => addEventListener(e, () => { idle = Date.now(); }, { passive: true, capture: true }));
+    document.addEventListener("visibilitychange", () => { if (document.hidden) swap(); else check(); });
+    setInterval(() => { if (waiting && !busy() && Date.now() - idle > 120000) swap(); }, 15000);
+    setInterval(check, 30 * 60000);
+    check();
+  });
 })();
+if (sessionStorage.getItem("lamp-updated")) { sessionStorage.removeItem("lamp-updated"); addEventListener("load", () => setTimeout(() => window.toast?.("Lamp just updated itself to the newest version"), 2500)); }
