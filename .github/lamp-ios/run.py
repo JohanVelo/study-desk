@@ -134,6 +134,14 @@ def run():
         js(d, "setView('today')"); time.sleep(1)
         js(d, "openReader(curDay(),false)"); time.sleep(2.5); shot("20-reader")
         js(d, "closeReader()"); time.sleep(0.5)
+        # original Greek words
+        js(d, "openPassage(passFor('JHN',19),false,30)"); time.sleep(2.5)
+        js(d, "if(R.sel!==30)selectVerse(30)"); time.sleep(0.5); tap(d, "#vOrig")
+        note(wait(d, "document.querySelectorAll('#ogW .og-w').length>10", 15), "original Greek words show")
+        time.sleep(1); shot("20b-greek-words")
+        js(d, "ogPick([...document.querySelectorAll('#ogW .og-o')].findIndex(x=>x.textContent.startsWith('τετ')))"); time.sleep(1.2); shot("20c-greek-word-card")
+        note("Perfect" in js(d, "return document.querySelector('#ogC').textContent"), "word card explains the grammar")
+        js(d, "document.querySelector('#scrim')?.remove();closeReader()"); time.sleep(0.5)
 
         # dark mode
         appearance("dark"); time.sleep(1.5); shot("21-today-dark")

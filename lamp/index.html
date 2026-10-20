@@ -18,11 +18,11 @@
 <link rel="apple-touch-startup-image" href="splash/1125x2436.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1170x2532.png" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1179x2556.png" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1206x2622.png" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1242x2688.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1284x2778.png" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1290x2796.png" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/1320x2868.png" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/750x1334.png" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)"><link rel="apple-touch-startup-image" href="splash/828x1792.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020163234">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="app.css?v=20261020164233">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020163234"></script>
+<script src="app.js?v=20261020164233"></script>
 </head>
 <body>
 <style>
@@ -1347,6 +1347,37 @@ html.meeting{overflow:hidden}
 .rsvp-b button[data-rsvp="yes"][aria-pressed="true"]{background:var(--ok);color:#fff}
 .here-r{order:2}
 @media (max-width:520px){.rsvp-b{width:100%}.rsvp-b button{flex:1}}
+
+.orig .og-eng{font-family:var(--f-text);font-size:1.02rem;color:var(--muted);margin:0}
+.og-words{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0}
+.og-w{display:flex;flex-direction:column;align-items:center;gap:1px;min-width:52px;min-height:44px;padding:8px 10px 7px;border:1px solid var(--line);background:var(--bg);border-radius:14px;color:var(--ink);transition:border-color .2s,background .2s,transform .3s var(--spring,ease)}
+.og-w:hover{border-color:var(--accent)}
+.og-w:active{transform:scale(.96)}
+.og-w[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 12%,var(--surface));border-color:var(--accent)}
+.og-tip{box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 45%,transparent)}
+.og-o{font-family:"Gentium Book Plus","Noto Serif Hebrew","SBL Hebrew","Times New Roman",var(--f-text),serif;font-size:1.45rem;line-height:1.35}
+[lang="he"] .og-o,.og-lem[lang="he"]{font-family:"Noto Serif Hebrew","SBL Hebrew","Times New Roman",serif;font-size:1.6rem}
+.og-t{font-size:.74rem;font-style:italic;color:var(--muted)}
+.og-g{font-size:.78rem;font-weight:600;max-width:12ch;text-align:center;line-height:1.25}
+.og-help{font-size:.86rem;color:var(--muted)}
+.og-help[hidden]{display:none}
+.og-card:empty{display:none}
+.og-card{border-radius:18px;padding:18px;background:linear-gradient(160deg,color-mix(in srgb,var(--gold) 10%,var(--surface)),var(--surface));border:1px solid color-mix(in srgb,var(--gold) 30%,var(--line));display:flex;flex-direction:column;gap:12px}
+.og-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.og-lem{font-family:"Gentium Book Plus",var(--f-display),serif;font-size:2.1rem;line-height:1.1}
+.og-tr{font-style:italic;color:var(--muted);font-size:1rem}
+.og-mean{margin:0;display:flex;flex-direction:column;gap:4px}
+.og-mean b{font-size:1.12rem}
+.og-mean span{color:var(--muted);font-size:.92rem;line-height:1.5}
+.og-gram{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.og-gram li{position:relative;padding-left:16px;font-size:.92rem;line-height:1.45}
+.og-gram li::before{content:"";position:absolute;left:2px;top:.55em;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.og-use{display:flex;align-items:center;gap:10px;font-size:.88rem;color:var(--muted)}
+.og-n{font-family:var(--f-display);font-size:1.9rem;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.og-refs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.og-refs span{font-size:.8rem;font-weight:600;color:var(--muted);margin-right:4px}
+.og-refs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:36px;padding:0 13px;font-size:.86rem;font-weight:600;color:var(--accent)}
+@media (max-width:640px){.og-o{font-size:1.3rem}.og-w{min-width:46px;padding:7px 8px}}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2452,7 +2483,7 @@ function selectVerse(v){
   const key=`${p.book}.${p.ch}.${v}`;const isSaved=!!state.saved[key];
   const ref=`${refName(p)}:${v}`;
   $("#vbar")?.remove();
-  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vPic">Picture</button><button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
+  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vPic">Picture</button>${HAS_ORIG?`<button id="vOrig">${CANON.indexOf(p.book)<39?"Hebrew":"Greek"}</button>`:""}<button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
   $("#vSave").onclick=()=>{
     if(isSaved){state.saved[key]=null;queue({saved:{[key]:null}});toast("Removed from saved verses")}
     else{const it={ref,text:vt(),tr:R.tr,day:R.day,v,at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#vSave"),10);toast("Saved to your journal")}
@@ -2462,6 +2493,7 @@ function selectVerse(v){
   $("#vCopy").onclick=()=>{copy(`"${vt()}" (${ref}, ${R.tr})`);clearSel()};
   $("#vLinks").onclick=()=>{clearSel();openLinks(key,ref)};
   $("#vPic").onclick=()=>{const t=vt();clearSel();openPicture(t,`${ref} ${R.tr}`,p.book,p.ch)};
+  if($("#vOrig"))$("#vOrig").onclick=()=>{const t=vt();clearSel();openOrig(p.book,p.ch,v,t)};
   $("#vX").onclick=clearSel;
   document.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>{const c=b.dataset.hl;const on=state.hl[key]!==c;state.hl[key]=on?c:null;queue({hl:{[key]:state.hl[key]}});markSavedVerses();buzz(8);clearSel()});
 }
@@ -4067,6 +4099,73 @@ function pnPaint(anim){const st=$("#pnStage");if(!st)return;const L=PN.list,p=L[
   else{const nm=p.anon&&p.id!==myKey()?"Someone in your group":p.id===myKey()?"Your request":pname(p.id);const n=members().filter(id=>G.people[id].praying?.[p.id+":"+p.k]).length;
     st.innerHTML=`<div class="qs"><div class="pn-who">${p.anon&&p.id!==myKey()?`<span class="face anon">?</span>`:face(p.id)}<span>${esc(nm)}</span></div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">${n?`${n} ${n===1?"person is":"people are"} praying for this`:"Be the first to pray for this"} · shared ${ago(p.at)}</p></div>`}
   if(anim&&!reduced())st.firstElementChild?.animate([{opacity:0,transform:"translateX(30px)"},{opacity:1,transform:"none"}],{duration:500,easing:"cubic-bezier(.16,1,.3,1)"})}
+
+
+/* ================= Original words (Greek and Hebrew) ================= */
+const HAS_ORIG=!!document.querySelector('link[rel="manifest"]');
+const ORIG={bk:{},lex:{}};
+async function origLoad(url){const r=await fetch(url);if(!r.ok)throw new Error(r.status);return r.json()}
+function origBook(b){return ORIG.bk[b]||(ORIG.bk[b]=origLoad(`orig/${b}.json`).catch(e=>{delete ORIG.bk[b];throw e}))}
+function origLex(l){return ORIG.lex[l]||(ORIG.lex[l]=origLoad(`orig/lex-${l}.json`).catch(e=>{delete ORIG.lex[l];throw e}))}
+const GK_T={P:["present","happening now, or keeps on happening"],I:["imperfect","was happening, or kept happening"],F:["future","will happen"],A:["aorist","happened, seen as one whole event"],R:["perfect","done, and the result still stands"],L:["pluperfect","had been done"]};
+const GK_V={A:"active: the subject does it",M:"middle: done for or to oneself",P:"passive: it is done to the subject",D:"middle",O:"passive",N:"middle or passive",E:"middle or passive"};
+const GK_M={I:"a plain statement",S:"something that may or should happen",O:"a wish",M:"a command or request",N:"“to …”",P:"an “-ing” word describing someone"};
+const GK_PN={"1S":"I","1P":"we","2S":"you (one person)","2P":"you (more than one)","3S":"he, she or it","3P":"they"};
+const GK_C={N:"the subject",G:"“of”, belonging to",D:"“to” or “for”",A:"the object",V:"someone being spoken to"};
+const GK_K={N:"Noun",A:"Describing word",T:"“The”",P:"Personal word (pronoun)",D:"Pointing word (this, that)",R:"Relative word (who, which)",C:"Pronoun",F:"Reflexive word (himself)",I:"Question word",X:"Pronoun",Q:"Pronoun",K:"Pronoun",S:"Possessive word (my, your)"};
+function gkGram(g){if(!g)return[];g=g.replace(/^V-2/,"V-");const p=g.split("-");const k=p[0];
+  const simple={CONJ:"Joining word (and, but, for)",ADV:"Adverb: says how, when or where",PREP:"Preposition: in, to, from, with…",PRT:"Small word (particle)",INJ:"Exclamation",HEB:"A Hebrew word",ARAM:"An Aramaic word",COND:"“If” word"};
+  if(k==="V"){const t=p[1]||"",out=["Verb (action word)"];const T=GK_T[t[0]];if(T)out.push(`${T[0][0].toUpperCase()+T[0].slice(1)}: ${T[1]}`);
+    if(GK_V[t[1]])out.push(GK_V[t[1]][0].toUpperCase()+GK_V[t[1]].slice(1));if(GK_M[t[2]]&&t[2]!=="I")out.push(GK_M[t[2]][0].toUpperCase()+GK_M[t[2]].slice(1));
+    if(p[2]&&GK_PN[p[2]])out.push(`Who: ${GK_PN[p[2]]}`);return out}
+  if(simple[k])return[simple[k]+(p[1]==="N"?" (not)":"")];
+  if(GK_K[k]){const out=[GK_K[k]];const c=(p[1]||"").replace(/^\d/,"");if(GK_C[c[0]])out.push(`Role: ${GK_C[c[0]]}`);if(c[1]==="P")out.push("More than one");return out}
+  return[g]}
+const HB_STEM={q:"Qal: the plain, simple form",N:"Niphal: done to the subject, or to oneself",p:"Piel: strong or repeated action",P:"Pual: strong action done to the subject",h:"Hiphil: makes it happen",H:"Hophal: is made to happen",t:"Hithpael: does it to or for oneself",o:"Polel: strong action",r:"Hithpolel: to or for oneself",G:"Peal",a:"Aphel: makes it happen",Q:"Qal passive"};
+const HB_CONJ={p:"Completed action",q:"Completed action, joined with “and”",i:"Unfinished or future action",w:"“And then…”, the way stories move on",h:"“Let me” or “let us”",j:"“Let him” or “may it”",v:"A command",r:"An “-ing” word: someone doing it",s:"Something that was done",a:"“To …”",c:"“To …” or “when …”"};
+const HB_K={N:"Noun",A:"Describing word",P:"Pronoun",R:"Preposition",C:"Joining word (and)",D:"Adverb",T:"Small word"};
+const HB_T={d:"“The”",n:"“Not”",o:"Marks the object of the verb",i:"Question marker",e:"Look! (behold)",m:"Small word",r:"Relative word (who, which)",a:"Small word",j:"Small word"};
+function hbGram(g){if(!g)return[];const lang=g[0]==="A"?"Aramaic":"Hebrew";const segs=g.slice(1).split("/");
+  const main=segs.find(x=>/^[VNAPD]/.test(x))||segs.find(x=>!/^S/.test(x))||segs[0];const out=[];const k=main[0];
+  if(k==="V"){out.push("Verb (action word)");if(HB_STEM[main[1]])out.push(HB_STEM[main[1]]);if(HB_CONJ[main[2]])out.push(HB_CONJ[main[2]]);const pg=main.slice(3,6);
+    const per={"1":"I / we","2":"you","3":"he, she, they"}[pg[0]];if(per&&/[sp]/.test(pg[2]||""))out.push(`Who: ${{"1s":"I","1p":"we","2s":"you (one)","2p":"you (more than one)","3s":pg[1]==="f"?"she or it":"he or it","3p":"they"}[pg[0]+pg[2]]||per}`)}
+  else if(k==="N")out.push(main[1]==="p"?"Name of a person or place":"Noun");
+  else if(k==="T")out.push(HB_T[main[1]]||"Small word");
+  else out.push(HB_K[k]||main);
+  if(segs.some(x=>/^Sp/.test(x)))out.push("Has a “my / his / their” ending");
+  if(segs.length>1&&segs[0]!==main&&/^[RC]|^Td/.test(segs[0]))out.push(`Starts with ${segs[0][0]==="C"?"“and”":segs[0]==="Td"?"“the”":"a small word (in, to, from…)"}`);
+  if(lang==="Aramaic")out.push("This word is Aramaic");return out}
+const OG={};
+async function openOrig(book,ch,v,eng){const heb=CANON.indexOf(book)<39;const lang=heb?"Hebrew":"Greek";const ref=`${refName({book,ch})}:${v}`;
+  OG.book=book;OG.heb=heb;OG.sel=-1;OG.ref=`${book}.${ch}.${v}`;
+  openSheet(`<div class="pcard orig"><div class="kick">Original ${lang} · ${esc(ref)}</div>
+    <p class="og-eng">${esc(eng||"")}</p>
+    <div class="og-words" id="ogW" ${heb?'dir="rtl" lang="he"':'lang="grc"'}><span class="thinking"><i></i><i></i><i></i> Opening the ${lang}…</span></div>
+    <div class="og-help" id="ogHelp">${heb?"Hebrew reads from right to left. ":""}Tap a word to see what it means.</div>
+    <div class="og-card" id="ogC" aria-live="polite"></div>
+    <p class="src">Words, meanings and grammar from STEPBible.org by Tyndale House, Cambridge (CC BY 4.0).</p></div>`,`Original ${lang} words`);
+  let words,L;try{[words,L]=await Promise.all([origBook(book).then(d=>d[ch]?.[v-1]||[]),origLex(heb?"h":"g")])}
+  catch(e){const b=$("#ogW");if(b)b.innerHTML=`<p class="muted" dir="ltr">Couldn't open the ${lang} words. Check your connection and try again. Once opened, they work offline.</p>`;return}
+  const box=$("#ogW");if(!box)return;OG.words=words;OG.L=L;
+  if(!words.length){box.innerHTML=`<p class="muted" dir="ltr">This verse isn't in the main ${lang} text used here. Some later copies of the Bible added it, which is why your translation includes it.</p>`;$("#ogHelp").hidden=true;return}
+  box.innerHTML=words.map((w,i)=>`<button class="og-w" data-ow="${i}" aria-pressed="false"><span class="og-o">${esc(w[0])}</span><span class="og-t" lang="en" dir="ltr">${esc(w[1])}</span><span class="og-g" lang="en" dir="ltr">${esc(w[2].replace(/<([^>]*)>/g,"($1)"))}</span></button>`).join("");
+  box.querySelectorAll("[data-ow]").forEach(b=>b.onclick=()=>ogPick(+b.dataset.ow));
+  const best=words.reduce((a,w,i)=>{const n=L[w[3]]?.[4]??1e9;return /^[GH]\d/.test(w[3])&&n<a[1]&&!/^[TCR]|^CONJ|^PREP|^HTd|^HC|^HR/.test(w[4])?[i,n]:a},[-1,1e9])[0];
+  if(best>=0)box.querySelector(`[data-ow="${best}"]`).classList.add("og-tip")}
+function ogPick(i){const w=OG.words[i];const L=OG.L;if(!w)return;OG.sel=i;
+  document.querySelectorAll("#ogW [data-ow]").forEach(b=>{const on=+b.dataset.ow===i;b.setAttribute("aria-pressed",on);b.classList.remove("og-tip")});
+  const e=L[w[3]];const gram=OG.heb?hbGram(w[4]):gkGram(w[4]);
+  const refs=(e?.[5]||[]).filter(r=>r!==OG.ref);
+  $("#ogHelp").hidden=true;
+  $("#ogC").innerHTML=`<div class="og-head"><span class="og-lem" ${OG.heb?'lang="he" dir="rtl"':'lang="grc"'}>${esc(e?.[0]||w[0])}</span><span class="og-tr">${esc(e?.[1]||w[1])}</span></div>
+    <p class="og-mean"><b>${esc(e?.[2]||w[2])}</b>${e?.[3]&&e[3].toLowerCase()!==String(e[2]).toLowerCase()?`<span>${esc(e[3])}</span>`:""}</p>
+    ${gram.length?`<ul class="og-gram">${gram.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+    ${e?`<div class="og-use"><span class="og-n">${e[4].toLocaleString()}</span><span>${e[4]===1?"This is the only place this word is used in the Bible":`times this word is used in the ${OG.heb?"Old Testament":"New Testament"}`}</span></div>`:""}
+    ${refs.length?`<div class="og-refs"><span>Also used in</span>${refs.slice(0,5).map(r=>{const [b,c,v]=r.split(".");return `<button data-ogr="${r}">${esc(refName({book:b,ch:+c}))}:${v}</button>`}).join("")}</div>`:""}`;
+  if(!reduced())$("#ogC").animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.16,1,.3,1)"});
+  document.querySelectorAll("[data-ogr]").forEach(b=>b.onclick=()=>{const [cd,ch,vs]=b.dataset.ogr.split(".");$("#scrim")?.remove();
+    if(R)openPassage(passFor(cd,+ch),false,+vs,{push:true});else openPassage(passFor(cd,+ch),false,+vs)});
+  if(matchMedia("(max-width:640px)").matches)$("#ogC").scrollIntoView({block:"nearest",behavior:reduced()?"auto":"smooth"})}
 
 /* ---------- Today teaser ---------- */
 function groupTeaser(){

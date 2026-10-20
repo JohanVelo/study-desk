@@ -1,0 +1,1 @@
+Greek and Hebrew words, glosses, grammar and brief lexicons: STEPBible.org data by Tyndale House, Cambridge (TAGNT, TAHOT, TBESG, TBESH), licensed CC BY 4.0. https://github.com/STEPBible/STEPBible-Data
