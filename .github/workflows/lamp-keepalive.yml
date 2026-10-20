@@ -1,0 +1,15 @@
+# Keeps Lamp's free Supabase project awake: free projects pause after 7 days without use.
+name: Lamp keep-alive
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the Lamp database a tiny question
+        run: |
+          curl -sS -f -X POST "https://pplkhksununielfnatcq.supabase.co/rest/v1/rpc/lamp_is_member" \
+            -H "apikey: sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L" \
+            -H "Content-Type: application/json" -d '{}'
