@@ -1,0 +1,39 @@
+# Runs Lamp in real Mobile Safari on an iPhone simulator (macOS runner, free for public repos)
+# and saves screenshots plus a pass/fail log as a downloadable artifact.
+name: Lamp iPhone test
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["lamp/**", ".github/lamp-ios/**", ".github/workflows/lamp-iphone.yml"]
+concurrency: { group: lamp-iphone, cancel-in-progress: true }
+jobs:
+  iphone:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pick and boot an iPhone
+        run: |
+          xcrun simctl list devices available
+          UDID=$(xcrun simctl list devices available -j | python3 -c "import json,sys;d=json.load(sys.stdin)['devices'];c=[(k,x) for k,v in d.items() if 'iOS' in k for x in v if x['name'].startswith('iPhone') and 'Pro' not in x['name'] and 'Plus' not in x['name'] and 'SE' not in x['name']];c.sort(key=lambda t:t[0]);print(c[-1][1]['udid'])")
+          echo "UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl list devices | grep "$UDID"
+      - name: Serve a test copy (fake group server with sample members)
+        run: |
+          mkdir -p /tmp/site && cp -R lamp/. /tmp/site/ && cp .github/lamp-ios/fake-supabase.js /tmp/site/supabase.js
+          cd /tmp/site && nohup python3 -m http.server 8000 >/tmp/http.log 2>&1 &
+          sleep 2 && curl -sI http://localhost:8000/ | head -1
+      - name: Drive Mobile Safari
+        run: |
+          pip3 install --break-system-packages selenium==4.27.1 >/dev/null
+          sudo safaridriver --enable
+          python3 .github/lamp-ios/run.py
+      - name: Summary
+        if: always()
+        run: cat out/log.txt >> $GITHUB_STEP_SUMMARY || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: lamp-iphone-screens, path: out, retention-days: 14 }
