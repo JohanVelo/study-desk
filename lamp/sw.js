@@ -1,5 +1,5 @@
 /* Lamp offline support: the app opens without a connection, and Bible text you've read stays available. */
-const V = "lamp-20261020182739";
+const V = "lamp-20261020191718";
 const DATA = "lamp-data-v1"; // Bible text, art and word data never change, so they survive app updates
 const SHELL = ["./", "index.html", "app.js", "app.css", "supabase.js", "manifest.webmanifest", "bible.json", "tests.json", "geo.json", "icons/icon-192.png"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020182739">
+<link rel="stylesheet" href="app.css?v=20261020191718">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020182739"></script>
+<script src="app.js?v=20261020191718"></script>
 </head>
 <body>
 <style>
@@ -4031,7 +4031,9 @@ function lsSpeak(){const x=LSN.list[LSN.i];if(!x||!LSN.on){if(!x){LSN.on=false;l
   const u=new SpeechSynthesisUtterance(x.t);const v=lsVoice();if(v)u.voice=v;u.rate=LSN.rate;const my=LSN.t=Symbol();
   u.onend=()=>{if(LSN.t!==my||!LSN.on)return;LSN.i++;lsPaint();setTimeout(lsSpeak,280)};
   u.onerror=ev=>{if(LSN.t===my&&ev.error!=="interrupted"&&ev.error!=="canceled"){lsPause();toast("Listening stopped. Your device may not support it here.")}};
-  speechSynthesis.speak(u)}
+  let started=false;u.onstart=()=>{started=true};
+  speechSynthesis.speak(u);
+  setTimeout(()=>{if(LSN.t===my&&LSN.on&&!started&&!speechSynthesis.speaking){lsPause();toast("The reading voice didn't start. Turn off silent mode and turn the volume up, then tap play.")}},6000)}
 function lsPlay(){if(LSN.i>=LSN.list.length)LSN.i=0;LSN.on=true;try{speechSynthesis.cancel()}catch(e){}LSN.t=null;lsPaint();$("#lsPlay").innerHTML=LS_PAUSE;$("#lsPlay").setAttribute("aria-label","Pause");lsSpeak()}
 function lsPause(){LSN.on=false;LSN.t=null;try{speechSynthesis.cancel()}catch(e){}const b=$("#lsPlay");if(b){b.innerHTML=LS_PLAY;b.setAttribute("aria-label","Play")}}
 function lsJump(n){LSN.i=Math.max(0,Math.min(LSN.list.length-1,LSN.i+n));if(LSN.on)lsPlay();else lsPaint()}
