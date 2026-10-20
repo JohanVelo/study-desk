@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020164233">
+<link rel="stylesheet" href="app.css?v=20261020170213">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020164233"></script>
+<script src="app.js?v=20261020170213"></script>
 </head>
 <body>
 <style>
@@ -1378,6 +1378,37 @@ html.meeting{overflow:hidden}
 .og-refs span{font-size:.8rem;font-weight:600;color:var(--muted);margin-right:4px}
 .og-refs button{border:1px solid var(--line);background:var(--surface);border-radius:999px;min-height:36px;padding:0 13px;font-size:.86rem;font-weight:600;color:var(--accent)}
 @media (max-width:640px){.og-o{font-size:1.3rem}.og-w{min-width:46px;padding:7px 8px}}
+
+.gring{display:grid;grid-template-columns:auto minmax(0,1fr);gap:22px;align-items:center;margin-top:14px;background:radial-gradient(120% 140% at 0% 0%,color-mix(in srgb,var(--gold) 13%,var(--surface)),var(--surface) 60%)}
+.rg-ring{position:relative;width:170px;height:170px;flex:none}
+.rg-ring svg{width:100%;height:100%;overflow:visible}
+.rg-ring path{fill:none;stroke-width:13;stroke-linecap:round}
+.rg-bg{stroke:color-mix(in srgb,var(--ink) 9%,transparent)}
+.rg-bg.fut{stroke:color-mix(in srgb,var(--ink) 5%,transparent)}
+.rg-bg.now{stroke:color-mix(in srgb,var(--gold) 28%,transparent)}
+.rg-on{stroke:var(--gold);stroke-dasharray:1 1;animation:rgin .9s var(--expo,ease) both;animation-delay:var(--d)}
+.won .rg-on{stroke:var(--ok)}
+@keyframes rgin{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+.rg-ring text{font:600 10px var(--f-body);fill:var(--muted);text-anchor:middle}
+.rg-ring text.now{fill:var(--ink);font-weight:800}
+.rg-mid{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:0}
+.rg-mid b{font-family:var(--f-display);font-size:2.3rem;line-height:1;font-variant-numeric:tabular-nums}
+.rg-mid span{font-size:.78rem;color:var(--muted);font-weight:600}
+.rg-side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.rg-side h3{margin:0;font-family:var(--f-display);font-size:1.45rem;line-height:1.15}
+.rg-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:7px}
+.rg-list li{display:flex;align-items:center;gap:10px;min-height:28px}
+.rg-list .face{margin-left:0}
+.rg-nm{flex:1;min-width:0;font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rg-dots{display:inline-flex;gap:6px;margin-left:8px}
+.rg-dots i{width:12px;height:12px;border-radius:50%;background:color-mix(in srgb,var(--ink) 11%,transparent)}
+.rg-dots i.fut{background:transparent;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--ink) 12%,transparent)}
+.rg-dots i.on{background:var(--gold)}
+.won .rg-dots i.on{background:var(--ok)}
+.rg-dots i.now{outline:2px solid color-mix(in srgb,var(--gold) 55%,transparent);outline-offset:1.5px}
+.rg-off{font-size:.82rem;margin:0}
+@media (max-width:560px){.gring{grid-template-columns:1fr;justify-items:center;text-align:center}.rg-side{width:100%;align-items:stretch}.rg-side h3{text-align:center}.rg-list li{text-align:left}}
+@media (prefers-reduced-motion:reduce){.rg-on{animation:none}}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2053,7 +2084,7 @@ function markDone(day,btn){
   const before=earnedIds();
   const was=isDone(day);state.done[day]=was?null:new Date().toISOString();
   queue({done:{[day]:state.done[day]}});
-  if(!was){
+  if(!was){ringShare();
     const p=PLAN[day-1];const stageDone=PLAN.filter(x=>x.stage===p.stage).every(x=>isDone(x.day));
     burst(btn,stageDone?44:22);flareLogo();buzz(stageDone?[30,60,30]:18);
     toast(doneCount()===TOTAL?"You finished the whole path!":stageDone?`Stage ${p.stage+1} complete: ${STAGES[p.stage].title}!`:`${refName(p)} done · ${streak()} day streak`);
@@ -2682,6 +2713,7 @@ function openSettings(){
     <div class="field"><span>Opening animation</span><small>The lamp lights up each time you open Lamp. Tap it to skip.</small><div class="opts"><button data-intro="1" aria-pressed="${s.intro!==false}">On</button><button data-intro="0" aria-pressed="${s.intro===false}">Off</button><button id="replayIntro">Replay it now</button></div></div>
     ${window.LAMP_APP?.signedIn?`<div class="field"><span>Your account</span><small>Signed in as <b>${esc(LAMP_APP.name)}</b> (${esc(LAMP_APP.email)}).</small><div class="opts"><button id="acName">Change my name</button><button id="acOut">Sign out</button></div></div>`:`<div class="field"><span>Your account</span><small>You're looking around without an account. Sign in to save to the group.</small><div class="opts"><button id="acIn">Sign in or join</button></div></div>`}
     <div class="field"><span>Home screen</span><small>Open Lamp with one tap, like an app.</small><div class="opts"><button id="setInstall">Put Lamp on my phone</button></div></div>
+    <div class="field"><span>Group reading ring</span><small>Lets your group see which days you read this week, so you can cheer each other on. It never shows what you wrote.</small><div class="opts"><button data-shrd="1" aria-pressed="${s.shareRead!==false}">Share my reading days</button><button data-shrd="0" aria-pressed="${s.shareRead===false}">Keep them private</button></div></div>
     <div class="field"><span>Reminders</span><small>Put them in your phone's calendar, and it reminds you even when Lamp is closed.</small><div class="opts"><button id="remRead">Daily reading</button><button id="remMeet">Group meeting</button></div></div>
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
@@ -2692,6 +2724,8 @@ function openSettings(){
   const close=()=>$("#scrim")?.remove();
   $("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  document.querySelectorAll("[data-shrd]").forEach(b=>b.onclick=()=>{const on=b.dataset.shrd==="1";setSetting("shareRead",on);document.querySelectorAll("[data-shrd]").forEach(x=>x.setAttribute("aria-pressed",x===b));
+    if(G.on&&!G.ro){if(on)ringShare();else{const r=mine().rd||{};const patch={};for(const k of Object.keys(r))patch[k]=null;if(Object.keys(patch).length)gWrite({rd:patch},1)}}});
   document.querySelectorAll("[data-intro]").forEach(b=>b.onclick=()=>{setSetting("intro",b.dataset.intro==="1");document.querySelectorAll("[data-intro]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   $("#replayIntro").onclick=()=>{close();playIntro(true)};
   $("#setInstall").onclick=()=>{close();openInstall()};
@@ -3385,6 +3419,7 @@ function vGroup(){
     <div class="gweeks" role="group" aria-label="Weeks">${SERIES_ALL.length>1?`<select class="gser" id="gSer" aria-label="Series">${SERIES_ALL.map(x=>`<option value="${x.id}" ${x===sr?"selected":""}>${esc(x.sub)}</option>`).join("")}</select>`:""}${sr.weeks.map((x,i)=>`<button data-wk="${x.id}" aria-pressed="${x.id===w.id}" class="${x.id===curWk()?"cur":""}" title="${esc(x.title)}">${i+1}</button>`).join("")}</div>
   </div>
   <div id="gHereRow"></div>
+  <div id="gRing"></div>
   <div id="gLive"></div>
   ${G.ro&&G.on?`<div class="gnote">${I.spark}<span>You can read everything here, but saving to the group needs you to sign in. Your own reading still saves on this device.</span></div>`:""}
   ${!G.on?`<div class="gnote">${I.spark}<span>You're looking around without an account, so everything saves on this phone only.</span><button class="btn sm primary" onclick="LAMP_APP.signIn()">Sign in or join</button></div>`:""}
@@ -3398,7 +3433,7 @@ after.group=()=>{
   $("#gSer")?.addEventListener("change",e=>{const sr=SERIES_ALL.find(x=>x.id===e.target.value);const cw=WK(curWk());G.wk=cw.sr===sr?cw.id:sr.weeks[0].id;G.wkPick=G.wk!==curWk();G.game=null;render()});
   document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{G.wk=b.dataset.wk;G.wkPick=b.dataset.wk!==curWk();G.game=null;render()});
   document.querySelectorAll("[data-gt]").forEach(b=>b.onclick=()=>{G.sub=b.dataset.gt;G.game=null;G.test=null;document.querySelectorAll("[data-gt]").forEach(x=>x.setAttribute("aria-selected",x===b));gTabInd();gBody(true);b.scrollIntoView({inline:"center",block:"nearest",behavior:reduced()?"auto":"smooth"})});
-  requestAnimationFrame(gTabInd);gBody();gFaces();liveBanner();paintHere();gDots();
+  requestAnimationFrame(gTabInd);gBody();gFaces();liveBanner();paintHere();paintRing();gDots();
 };
 function gTabInd(){const b=$(`[data-gt="${G.sub}"]`),i=$("#gTabInd");if(b&&i){i.style.width=b.offsetWidth+"px";i.style.transform=`translateX(${b.offsetLeft}px)`}}
 addEventListener("resize",()=>requestAnimationFrame(gTabInd));
@@ -3416,7 +3451,7 @@ function gPaint(part){
   if(view==="today"&&$("#gTeaser"))$("#gTeaser").outerHTML=groupTeaser();
   gDots();if($("#meet"))meetPaint();
   if(view!=="group")return;
-  gFaces();liveBanner();paintHere();
+  gFaces();liveBanner();paintHere();paintRing();
   if(G.game||G.test)return;
   if(G.sub==="study")paintStudy();
   else if(G.sub==="prayer")paintPrayer();
@@ -3853,6 +3888,36 @@ function paintHere(){const el=$("#gHereRow");if(!el)return;if(!G.on){el.innerHTM
   $("#gMeet").onclick=openMeet;
   document.querySelectorAll("[data-rsvp]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on)return toast("Saving to the group isn't available for you yet");const v=b.dataset.rsvp,wk=curWk();const on=mine().rsvp?.[wk]!==v;gWrite({rsvp:{[wk]:on?v:null}},1);if(on&&v==="yes"){burst(b,10);buzz(10)}paintHere()})}
 
+
+/* ================= Group reading ring ================= */
+const RING_GOAL=5;
+function ringWeek(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return hereDay(x)})}
+function myReadKeys(){const s=new Set(Object.values(state.done||{}).filter(Boolean).map(t=>hereDay(new Date(t))));for(const [k,v] of Object.entries(state.qt||{}))if(v)s.add(k);return s}
+function ringShare(){if(!G.on||G.ro||state.settings.shareRead===false)return;const have=mine().rd||{},mineK=myReadKeys();const patch={};
+  for(const k of ringWeek())if(mineK.has(k)&&!have[k])patch[k]=true;if(Object.keys(patch).length)gWrite({rd:patch})}
+function paintRing(){const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}
+  ringShare();
+  const wk=ringWeek(),today=hereDay(),ti=wk.indexOf(today),ids=members(),n=Math.max(1,ids.length);
+  const read=id=>wk.filter(k=>G.people[id].rd?.[k]);
+  const perDay=wk.map(k=>ids.filter(id=>G.people[id].rd?.[k]).length);
+  const total=ids.reduce((a,id)=>a+Math.min(read(id).length,RING_GOAL),0),goal=n*RING_GOAL,pct=Math.min(1,total/goal);
+  const R0=54,step=360/7,gapD=9;const pt=d=>{const r=(d-90)*Math.PI/180;return `${(Math.cos(r)*R0).toFixed(2)} ${(Math.sin(r)*R0).toFixed(2)}`};
+  const arc=(d0,d1)=>`M${pt(d0)}A${R0} ${R0} 0 ${d1-d0>180?1:0} 1 ${pt(d1)}`;
+  const arcs=wk.map((k,i)=>{const f=perDay[i]/n;const fut=i>ti;const d0=i*step+gapD/2,d1=(i+1)*step-gapD/2;const e=d0+Math.max(f>0?1:0,(d1-d0)*f);
+    return `<path d="${arc(d0,d1)}" class="rg-bg${fut?" fut":""}${i===ti?" now":""}"/>${f>0?`<path d="${arc(d0,e)}" pathLength="1" class="rg-on" style="--d:${i*70}ms"/>`:""}`}).join("");
+  const DL=["M","T","W","T","F","S","S"];
+  const lbl=wk.map((k,i)=>{const a=(i+.5)/7*2*Math.PI-Math.PI/2,r=R0+19;return `<text x="${(Math.cos(a)*r).toFixed(1)}" y="${(Math.sin(a)*r+4).toFixed(1)}" class="${i===ti?"now":""}">${DL[i]}</text>`}).join("");
+  const done=total>=goal;const meOff=state.settings.shareRead===false;
+  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}"></i>`).join("")}</span></li>`}).join("");
+  el.innerHTML=`<section class="card gring${done?" won":""}" aria-label="This week's reading together">
+    <div class="rg-ring"><svg viewBox="-80 -80 160 160" role="img" aria-label="${total} of ${goal} readings this week">${arcs}${lbl}</svg>
+      <div class="rg-mid"><b>${Math.round(pct*100)}%</b><span>${total} of ${goal}</span></div></div>
+    <div class="rg-side"><div class="kicker">This week together</div>
+      <h3>${done?"You did it together!":ti>=5&&pct<.6?"A few days left. Let's finish strong":`Read ${RING_GOAL} days each and close the ring`}</h3>
+      <ul class="rg-list">${rows}</ul>
+      ${meOff?`<p class="muted rg-off">Your reading days are private, so they're not in the ring. You can change this in Settings.</p>`:""}</div></section>`;
+  if(done&&!reduced()){const key="lamp-ring-"+wk[0];try{if(!localStorage.getItem(key)){localStorage.setItem(key,"1");setTimeout(()=>{burst(el.querySelector(".rg-ring"),40);buzz([20,50,20]);toast("Your group closed this week's reading ring!")},400)}}catch(e){}}}
+
 /* ================= Meeting mode: the study on a big screen ================= */
 function qrSvg(text){try{const q=qrcode(0,"M");q.addData(text);q.make();const n=q.getModuleCount();let d="";for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c} ${r}h1v1h-1z`;
   return `<svg viewBox="-3 -3 ${n+6} ${n+6}" class="qr" role="img" aria-label="QR code that opens Lamp" shape-rendering="crispEdges"><rect x="-3" y="-3" width="${n+6}" height="${n+6}" rx="2" fill="#fff"/><path d="${d}" fill="#14110C"/></svg>`}catch(e){return ""}}
@@ -4044,7 +4109,7 @@ function closeQT(){qtClear();qtSound(false);const m=$("#qt");document.documentEl
   m.animate([{opacity:1},{opacity:0}],{duration:280}).onfinish=()=>{m.remove();if(view==="today")render()}}
 function qtGo(d){const k=qtSteps[QT.i];if(k==="reflect")QT.note=($("#qtNote")?.value||"").trim();
   if(QT.i+d>=qtSteps.length){qtSave(true);closeQT();toast("Go in peace");return}QT.i=Math.max(0,QT.i+d);if(qtSteps[QT.i]==="peace")qtSave(false);qtPaint(true)}
-function qtSave(){const k=qtDay();const it={ref:QT.q.ref,word:QT.word||null,note:QT.note||null,ask:QT.note?QT.ask:null,at:new Date().toISOString()};const first=!state.qt[k];state.qt[k]=it;queue({qt:{[k]:it}});if(first)burst($("#qtNext"),24)}
+function qtSave(){const k=qtDay();const it={ref:QT.q.ref,word:QT.word||null,note:QT.note||null,ask:QT.note?QT.ask:null,at:new Date().toISOString()};const first=!state.qt[k];state.qt[k]=it;queue({qt:{[k]:it}});ringShare();if(first)burst($("#qtNext"),24)}
 function qtPaint(anim){qtClear();const st=$("#qtStage");if(!st)return;const k=qtSteps[QT.i];const q=QT.q;
   document.querySelectorAll("#qtSteps i").forEach((e,j)=>e.className=j<QT.i?"done":j===QT.i?"on":"");
   const nx=$("#qtNext");nx.textContent=k==="peace"?"Amen":k==="still"?"I'm ready":"Continue";nx.hidden=false;
