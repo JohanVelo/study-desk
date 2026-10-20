@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020170213">
+<link rel="stylesheet" href="app.css?v=20261020170750">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020170213"></script>
+<script src="app.js?v=20261020170750"></script>
 </head>
 <body>
 <style>
@@ -1409,6 +1409,19 @@ html.meeting{overflow:hidden}
 .rg-off{font-size:.82rem;margin:0}
 @media (max-width:560px){.gring{grid-template-columns:1fr;justify-items:center;text-align:center}.rg-side{width:100%;align-items:stretch}.rg-side h3{text-align:center}.rg-list li{text-align:left}}
 @media (prefers-reduced-motion:reduce){.rg-on{animation:none}}
+
+.tside .wotd{order:1}
+.wotd{display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;background:radial-gradient(130% 120% at 100% 0%,color-mix(in srgb,var(--accent) 9%,var(--surface)),var(--surface) 65%)}
+.wotd[hidden]{display:none}
+.wd-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-top:2px}
+.wd-lem{font-family:"Gentium Book Plus","Noto Serif Hebrew",var(--f-display),serif;font-size:2.4rem;line-height:1.1}
+.wd-lem[lang="he"]{font-family:"Noto Serif Hebrew","SBL Hebrew","Times New Roman",serif}
+.wd-tr{font-style:italic;color:var(--muted);font-size:1.05rem}
+.wd-gl{margin:0;line-height:1.5;color:var(--muted)}.wd-gl b{color:var(--ink);font-size:1.05rem}
+.wd-v{margin:4px 0 0;padding-left:12px;border-left:3px solid var(--gold-soft);font-family:var(--f-text);font-size:.98rem;line-height:1.55}
+.wd-v cite{font-style:normal;font-weight:700;color:var(--gold);white-space:nowrap}
+.wd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px;font-size:.86rem}
+.wd-foot .btn svg{width:15px;height:15px}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2028,6 +2041,7 @@ function vToday(){
   ${arcHTML(actFor(p))}
   <div class="tgrid"><aside class="tside">
   <section class="card votd" id="votd" hidden></section>
+  <section class="card wotd" id="wotd" hidden></section>
   <details class="card book" ${firstOfBook?"open":""}>
     <summary><div><div class="kicker">Before you read</div><h2>About ${b.name}</h2></div><span class="chev">${I.chev}</span></summary>
     <dl class="facts">
@@ -2100,6 +2114,7 @@ const after={
     if(!GEO)loadGeo().then(()=>view==="today"&&refreshThumbs());
     if(!BIBLE) loadBible().then(()=>{if(view!=="today")return;const m=minsFor(p),el=$("#mins");if(m&&el){el.textContent=`About ${m} min`;el.hidden=false}fillVotd()});
     fillVotd();
+    if(HAS_ORIG)(window.requestIdleCallback||setTimeout)(()=>fillWotd(),{timeout:2500});
     $("#gotIt")?.addEventListener("click",()=>{setSetting("welcomed",true);render()});
     document.querySelectorAll(".reflect textarea").forEach(t=>t.addEventListener("input",()=>{
       const n=state.notes[day]||{};n[t.dataset.k]=t.value;n.at=new Date().toISOString();state.notes[day]=n;
@@ -3889,6 +3904,26 @@ function paintHere(){const el=$("#gHereRow");if(!el)return;if(!G.on){el.innerHTM
   document.querySelectorAll("[data-rsvp]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on)return toast("Saving to the group isn't available for you yet");const v=b.dataset.rsvp,wk=curWk();const on=mine().rsvp?.[wk]!==v;gWrite({rsvp:{[wk]:on?v:null}},1);if(on&&v==="yes"){burst(b,10);buzz(10)}paintHere()})}
 
 
+
+/* ================= A word from today's reading ================= */
+async function fillWotd(){const el=$("#wotd");if(!el||!HAS_ORIG)return;const day=curDay(),p=PLAN[day-1];const heb=CANON.indexOf(p.book)<39;
+  let bk,L,en;try{[bk,L,en]=await Promise.all([origBook(p.book),origLex(heb?"h":"g"),loadBook("BSB",p.book)])}catch(e){return}
+  if(view!=="today"||!$("#wotd"))return;const vs=bk[p.ch]||[];const seen=new Set(),cand=[];
+  vs.forEach((ws,vi)=>ws.forEach(w=>{const e=L[w[3]];if(!e||seen.has(w[3]))return;seen.add(w[3]);
+    const g=w[4]||"";const ok=heb?/(^|\/)(V|Nc|Aa)/.test(g.slice(1)):/^(V-|N-[^-]+$|A-)/.test(g);
+    const rich=/\b(lov|grace|gracious|faith|hope|peace|joy|rejoic|merc|righteous|glor|sav|salvation|covenant|kind|holy|spirit|truth|life|light|believ|forgiv|redeem|bless|shepherd|kingdom|heart|trust|wisdom|wise|prais|gospel|repent|pray|comfort|strength|refuge|rest|faithful|steadfast|compassion|heal|create|good news)/i.test(e[2]);
+    if(ok&&e[2]&&e[2].length<26&&e[4]>=6&&(e[4]<=600||rich&&e[4]<=3000))cand.push([w[3],vi+1,e,rich])}));
+  if(!cand.length){el.hidden=true;return}
+  cand.sort((a,b)=>a[2][4]-b[2][4]);const R1=cand.filter(c=>c[3]);const pool=R1.length?R1:cand.slice(0,Math.max(3,Math.ceil(cand.length/3)));
+  const [key,v,e]=pool[(day*7+p.ch)%pool.length];const t=en?.[p.ch-1]?.[v-1]||"";const lang=heb?"Hebrew":"Greek";
+  el.innerHTML=`<div class="kicker">A word from today's reading · ${lang}</div>
+    <div class="wd-head"><span class="wd-lem" ${heb?'lang="he" dir="rtl"':'lang="grc"'}>${esc(e[0])}</span><span class="wd-tr">${esc(e[1])}</span></div>
+    <p class="wd-gl"><b>${esc(e[2])}</b>${e[3]&&e[3].toLowerCase()!==e[2].toLowerCase()?` · ${esc(e[3].split(";").slice(0,2).join(";"))}`:""}</p>
+    ${t?`<blockquote class="wd-v">${esc(t.length>200?t.slice(0,197)+"…":t)} <cite>${esc(refName(p))}:${v}</cite></blockquote>`:""}
+    <div class="wd-foot"><span class="muted">Used ${e[4].toLocaleString()} times in the ${heb?"Old":"New"} Testament</span><button class="btn sm ghost" id="wdGo">See the verse in ${lang}${I.right}</button></div>`;
+  el.hidden=false;if(!reduced())el.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.16,1,.3,1)"});
+  $("#wdGo").onclick=()=>openOrigAt(p.book,p.ch,v,t,key)}
+
 /* ================= Group reading ring ================= */
 const RING_GOAL=5;
 function ringWeek(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return hereDay(x)})}
@@ -4217,6 +4252,7 @@ async function openOrig(book,ch,v,eng){const heb=CANON.indexOf(book)<39;const la
   box.querySelectorAll("[data-ow]").forEach(b=>b.onclick=()=>ogPick(+b.dataset.ow));
   const best=words.reduce((a,w,i)=>{const n=L[w[3]]?.[4]??1e9;return /^[GH]\d/.test(w[3])&&n<a[1]&&!/^[TCR]|^CONJ|^PREP|^HTd|^HC|^HR/.test(w[4])?[i,n]:a},[-1,1e9])[0];
   if(best>=0)box.querySelector(`[data-ow="${best}"]`).classList.add("og-tip")}
+function openOrigAt(book,ch,v,eng,key){openOrig(book,ch,v,eng).then(()=>{const i=(OG.words||[]).findIndex(w=>w[3]===key);if(i>=0)ogPick(i)})}
 function ogPick(i){const w=OG.words[i];const L=OG.L;if(!w)return;OG.sel=i;
   document.querySelectorAll("#ogW [data-ow]").forEach(b=>{const on=+b.dataset.ow===i;b.setAttribute("aria-pressed",on);b.classList.remove("og-tip")});
   const e=L[w[3]];const gram=OG.heb?hbGram(w[4]):gkGram(w[4]);
