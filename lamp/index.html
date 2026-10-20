@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020124215">
+<link rel="stylesheet" href="app.css?v=20261020143105">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020124215"></script>
+<script src="app.js?v=20261020143105"></script>
 </head>
 <body>
 <style>
@@ -1220,6 +1220,37 @@ html.meeting{overflow:hidden}
 .meet-dots button.on::after{width:22px;margin-left:-11px;background:var(--mg)}
 .meet :focus-visible{outline-color:var(--mg)}
 @media (max-width:700px){.ms-wel{grid-template-columns:1fr}.ms-qr{align-items:flex-start;text-align:left}.ms-qrbox{width:132px}.meet-id span{max-width:44vw}.meet-dots button{width:14px}.mt-nav{flex:none}.meet-dots button.on::after{width:14px;margin-left:-7px}}
+
+.votd .pager{grid-column:1/-1;justify-content:flex-start;flex-wrap:wrap;margin-top:2px}.votd cite{white-space:nowrap}
+/* replies */
+.myrps:empty{display:none}
+.rps{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.rp{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:12px;background:var(--sunk)}
+.face.xs{width:22px;height:22px;font-size:.6rem;border-width:1.5px;margin-top:1px}
+.rp-b{min-width:0;display:flex;flex-direction:column;gap:2px}
+.rp-b p{font-size:.92rem;line-height:1.45;margin:0;overflow-wrap:anywhere}
+.rp-b span{font-size:.75rem;color:var(--muted)}
+.rp-b .linkbtn{font-size:.75rem;padding:0}
+.rpo{align-self:flex-start;min-height:36px}
+.rpf{display:flex;gap:6px;align-items:center}
+.rpin{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px}
+.rpin:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 18%,transparent)}
+.rpsend{flex:none;width:44px;height:44px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);display:grid;place-items:center}
+.rpsend svg{width:18px;height:18px}
+.prb .rps{margin-top:10px}
+/* verse pictures */
+.picsheet h2{margin-bottom:12px}
+.picst{margin-bottom:14px}
+.picwrap{position:relative;width:min(100%,360px);aspect-ratio:4/5;margin:0 auto;border-radius:16px;overflow:hidden;background:var(--sunk);box-shadow:var(--shadow-lg)}
+.picwrap img{display:block;width:100%;height:100%;object-fit:cover;-webkit-touch-callout:default;user-select:auto;-webkit-user-select:auto}
+.picwrap img:not([src]){visibility:hidden}
+.picload{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-weight:600}
+.pichint{text-align:center;font-size:.85rem;margin-top:10px}
+/* reminders */
+.kick svg{width:15px;height:15px;vertical-align:-2px;margin-right:6px}
+.remopts{display:flex;flex-direction:column;gap:8px;margin-top:16px}
+.remopts .btn{justify-content:center}
+.remnote{font-size:.85rem;margin-top:12px}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2311,7 +2342,7 @@ function selectVerse(v){
   const key=`${p.book}.${p.ch}.${v}`;const isSaved=!!state.saved[key];
   const ref=`${refName(p)}:${v}`;
   $("#vbar")?.remove();
-  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
+  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vPic">Picture</button><button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
   $("#vSave").onclick=()=>{
     if(isSaved){state.saved[key]=null;queue({saved:{[key]:null}});toast("Removed from saved verses")}
     else{const it={ref,text:vt(),tr:R.tr,day:R.day,v,at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#vSave"),10);toast("Saved to your journal")}
@@ -2320,6 +2351,7 @@ function selectVerse(v){
   $("#vAsk").onclick=()=>{askPrefill=`Can you explain ${ref}: "${vt()}"?`;askCtx=true;closeReader();setView("ask")};
   $("#vCopy").onclick=()=>{copy(`"${vt()}" (${ref}, ${R.tr})`);clearSel()};
   $("#vLinks").onclick=()=>{clearSel();openLinks(key,ref)};
+  $("#vPic").onclick=()=>{const t=vt();clearSel();openPicture(t,`${ref} ${R.tr}`,p.book,p.ch)};
   $("#vX").onclick=clearSel;
   document.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>{const c=b.dataset.hl;const on=state.hl[key]!==c;state.hl[key]=on?c:null;queue({hl:{[key]:state.hl[key]}});markSavedVerses();buzz(8);clearSel()});
 }
@@ -2376,9 +2408,10 @@ function fillVotd(){
   const [b,c,v]=VOTD[n%VOTD.length].split(".");const day=dayOf(b,+c);const key=`${b}.${c}.${v}`;
   let text=day?verseText(PLAN[day-1],+v):null;const ref=`${refName({book:b,ch:+c})}:${v}`;
   if(!text){if(el.dataset.k!==key){el.dataset.k=key;loadBook("BSB",b).then(a=>{const t=a?.[c-1]?.[v-1];if(t&&view==="today"){el.dataset.t=t;fillVotd()}})}text=el.dataset.k===key?el.dataset.t:null;if(!text)return}
-  el.innerHTML=`<div class="kicker">Verse for today</div><blockquote>${esc(text)}</blockquote><cite>${esc(ref)}</cite><div class="pager"><button class="btn sm ghost" id="votdSave">${I.bookmark}${state.saved[key]?"Saved":"Save"}</button><button class="btn sm ghost" id="votdRead">${I.open}Read</button></div>`;
+  el.innerHTML=`<div class="kicker">Verse for today</div><blockquote>${esc(text)}</blockquote><cite>${esc(ref)}</cite><div class="pager"><button class="btn sm ghost" id="votdSave">${I.bookmark}${state.saved[key]?"Saved":"Save"}</button><button class="btn sm ghost" id="votdRead">${I.open}Read</button><button class="btn sm ghost" id="votdPic">${I.image}Picture</button></div>`;
   el.hidden=false;
   $("#votdRead").onclick=()=>day?openReader(day,false,+v):openRef(key);
+  $("#votdPic").onclick=()=>openPicture(text,ref,b,+c);
   $("#votdSave").onclick=e=>{if(state.saved[key])return;const it={ref,text,day:day||0,v:+v,at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});e.currentTarget.innerHTML=I.bookmark+"Saved";burst(e.currentTarget,10);toast("Saved to your journal")};
 }
 
@@ -2507,6 +2540,7 @@ function openSettings(){
     <div class="field"><span>Opening animation</span><small>The lamp lights up each time you open Lamp. Tap it to skip.</small><div class="opts"><button data-intro="1" aria-pressed="${s.intro!==false}">On</button><button data-intro="0" aria-pressed="${s.intro===false}">Off</button><button id="replayIntro">Replay it now</button></div></div>
     ${window.LAMP_APP?.signedIn?`<div class="field"><span>Your account</span><small>Signed in as <b>${esc(LAMP_APP.name)}</b> (${esc(LAMP_APP.email)}).</small><div class="opts"><button id="acName">Change my name</button><button id="acOut">Sign out</button></div></div>`:`<div class="field"><span>Your account</span><small>You're looking around without an account. Sign in to save to the group.</small><div class="opts"><button id="acIn">Sign in or join</button></div></div>`}
     <div class="field"><span>Home screen</span><small>Open Lamp with one tap, like an app.</small><div class="opts"><button id="setInstall">Put Lamp on my phone</button></div></div>
+    <div class="field"><span>Reminders</span><small>Put them in your phone's calendar, and it reminds you even when Lamp is closed.</small><div class="opts"><button id="remRead">Daily reading</button><button id="remMeet">Group meeting</button></div></div>
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
     <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Lamp account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small></div>
@@ -2522,6 +2556,7 @@ function openSettings(){
   $("#acOut")?.addEventListener("click",()=>{$("#acOut").parentNode.innerHTML=`<button id="acOut2" class="danger">Yes, sign me out</button><button id="acKeep">Stay signed in</button>`;$("#acOut2").onclick=()=>LAMP_APP.signOut();$("#acKeep").onclick=()=>openSettings()});
   $("#acIn")?.addEventListener("click",()=>LAMP_APP.signIn());
   $("#acName")?.addEventListener("click",()=>{const z=$("#acName").parentNode;z.innerHTML=`<input id="acNm" class="search" maxlength="40" value="${esc(LAMP_APP.name)}" style="flex:1;min-width:0"><button id="acSave">Save</button>`;$("#acNm").focus();$("#acSave").onclick=async()=>{if(await LAMP_APP.rename($("#acNm").value)){toast("Name updated");ME.first=LAMP_APP.name.split(" ")[0];openSettings();render()}else toast("Couldn't save that. Try again.")}});
+  $("#remRead").onclick=()=>openRemind("read");$("#remMeet").onclick=()=>openRemind("meet");
   document.querySelectorAll("[data-trans]").forEach(b=>b.onclick=()=>{setSetting("trans",b.dataset.trans);document.querySelectorAll("[data-trans]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   $("#reset1").onclick=()=>{$("#resetZone").innerHTML=`<p style="margin-bottom:8px">This marks all ${doneCount()} chapters as unread. Are you sure?</p><div class="pager"><button class="btn sm danger" id="reset2">Yes, reset</button><button class="btn sm ghost" id="reset0">Keep my progress</button></div>`;
     $("#reset0").onclick=()=>openSettings();
@@ -3251,12 +3286,12 @@ function gStudy(){
     <details class="gbg"><summary>${I.spark}Background that helps</summary><p>${esc(w.bg)}</p></details>
     <div class="gcheck"><button class="tick ${ck.read?"on":""}" data-ck="read">${I.check}<span>I've read it</span></button><span class="whos" id="gw-read"></span></div>
   </section>
-  <section class="card gkv"><div class="kicker">Key verse · ${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}</div><blockquote id="gKv">…</blockquote><div class="gkv-btns"><button class="btn sm ghost" id="gKvSave">${I.bookmark}Save to my journal</button><button class="btn sm ghost" id="gKvGame">${I.spark}Practise it as a game</button></div></section>
+  <section class="card gkv"><div class="kicker">Key verse · ${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}</div><blockquote id="gKv">…</blockquote><div class="gkv-btns"><button class="btn sm ghost" id="gKvSave">${I.bookmark}Save to my journal</button><button class="btn sm ghost" id="gKvGame">${I.spark}Practise it as a game</button><button class="btn sm ghost" id="gKvPic">${I.image}Make a picture</button></div></section>
   <section class="gqs"><div class="ghead2"><h2>Discussion</h2><p class="muted">Three kinds of questions: what it shows about God, about us, and how to live it. Your answers are shared with the group.</p></div>
   ${w.qs.map(([k,q],i)=>`<article class="card gq" data-qi="${i}"><div class="gq-k k-${k.toLowerCase()}">${k==="God"?"About God":k==="Us"?"About us":"Live it"}</div><h3>${esc(q)}</h3>
     <textarea class="ganswer" data-qa="${i}" rows="2" placeholder="Your thoughts…" ${G.ro?"disabled":""}>${esc(a["q"+i]||"")}</textarea>
     <div class="gq-foot"><span class="gqf-l"><span class="saved" id="gs-${i}"></span><span class="myre" id="gr-${i}"></span></span><button class="linkbtn" data-others="${i}" aria-expanded="false"></button></div>
-    <div class="others" id="go-${i}" hidden></div></article>`).join("")}</section>
+    <div class="myrps" id="gm-${i}"></div><div class="others" id="go-${i}" hidden></div></article>`).join("")}</section>
   <section class="grid2">
     <article class="card gtry"><div class="kicker">Try this week</div><p>${esc(w.tryit)}</p><div class="gcheck"><button class="tick ${ck.tried?"on":""}" data-ck="tried">${I.check}<span>I did it</span></button><span class="whos" id="gw-tried"></span></div></article>
     <article class="card gpray"><div class="kicker">Pray together</div><p>${esc(w.pray)}</p><button class="btn sm ghost" data-gt-go="prayer">Open the prayer wall</button></article>
@@ -3266,6 +3301,7 @@ function wStudy(){
   const w=WK();
   kvText(w).then(t=>{const el=$("#gKv");if(el)el.textContent=t||w.ref});
   $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`MAT.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorize")};
+  $("#gKvPic").onclick=async()=>{const t=await kvText(w);openPicture(t,`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,w.sr?.book||"MAT",w.kv[0])};
   $("#gKvGame").onclick=()=>{G.sub="games";document.querySelectorAll("[data-gt]").forEach(x=>x.setAttribute("aria-selected",x.dataset.gt==="games"));gTabInd();startGame("verse")};
   document.querySelectorAll("[data-gt-go]").forEach(b=>b.onclick=()=>$(`[data-gt="${b.dataset.gtGo}"]`).click());
   document.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on){toast("Saving to the group isn't available for you yet");return}const k=b.dataset.ck;const on=!b.classList.contains("on");b.classList.toggle("on",on);if(on){burst(b,10);buzz(10)}gWrite({ck:{[w.id]:{[k]:on}}},1);paintStudy()});
@@ -3279,8 +3315,9 @@ function paintStudy(){
   ["read","tried"].forEach(k=>{const el=$("#gw-"+k);if(!el)return;const who=ids.filter(id=>G.people[id].ck?.[w.id]?.[k]);el.innerHTML=who.length?`${who.slice(0,7).map(id=>face(id,"sm")).join("")}<small>${who.length===1&&who[0]===myKey()?"Just you so far":who.length+" in the group"}</small>`:""});
   w.qs.forEach((_,i)=>{const others=ids.filter(id=>id!==myKey()&&G.people[id].ans?.[w.id]?.["q"+i]);const b=$(`[data-others="${i}"]`);if(!b)return;
     b.textContent=others.length?`${others.length} ${others.length===1?"answer":"answers"} from the group`:(G.on?"No one else has answered yet":"");b.disabled=!others.length;
-    const o=$("#go-"+i);if(o&&!o.hidden)o.innerHTML=others.map(id=>`<div class="oans">${face(id,"sm")}<div><b>${esc(pname(id))}</b><p>${esc(G.people[id].ans[w.id]["q"+i])}</p>${reacts(id+":"+w.id+":q"+i)}</div></div>`).join("");
-    const mr=$("#gr-"+i);if(mr)mr.innerHTML=reactSum(myKey()+":"+w.id+":q"+i)});
+    const o=$("#go-"+i);if(o&&!o.hidden&&!typingIn(o))o.innerHTML=others.map(id=>{const key=id+":"+w.id+":q"+i;return `<div class="oans">${face(id,"sm")}<div><b>${esc(pname(id))}</b><p>${esc(G.people[id].ans[w.id]["q"+i])}</p>${reacts(key)}${replyBlock(key,id)}</div></div>`}).join("");
+    const mr=$("#gr-"+i);if(mr)mr.innerHTML=reactSum(myKey()+":"+w.id+":q"+i);
+    const mk=myKey()+":"+w.id+":q"+i,mb=$("#gm-"+i);if(mb&&!typingIn(mb))mb.innerHTML=replyList(mk).length?replyBlock(mk,myKey()):""});
 }
 
 /* ---------- Icebreakers ---------- */
@@ -3546,13 +3583,13 @@ function wPrayer(){
   paintPrayer();
 }
 function paintPrayer(){
-  const el=$("#prList");if(!el)return;const all=[];
+  const el=$("#prList");if(!el||typingIn(el))return;const all=[];
   for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t)all.push({id,k,...p});
   all.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
   const prayCount=key=>members().filter(id=>G.people[id].praying?.[key]).length;
   const card=p=>{const key=p.id+":"+p.k;const mineP=p.id===myKey();const n=prayCount(key);const me=!!mine().praying?.[key];
     return `<article class="prcard ${p.ans?"ans":""}">${p.anon&&!mineP?`<span class="face sm anon">?</span>`:face(p.id,"sm")}<div class="prb"><div class="prmeta"><b>${p.anon&&!mineP?"Someone in the group":esc(pname(p.id))}${p.anon&&mineP?" (name hidden)":""}</b><span>${ago(p.at)}</span>${p.ans?`<span class="chip ok">Answered</span>`:""}</div><p>${esc(p.t)}</p>
-      <div class="pract"><button class="praybtn ${me?"on":""}" data-pray="${esc(key)}" aria-pressed="${me}">🙏 ${me?"Praying":"I'll pray"}${n?` · ${n}`:""}</button>${mineP?`<button class="linkbtn" data-pans="${p.k}">${p.ans?"Mark as still praying":"Mark answered"}</button><button class="linkbtn danger" data-pdel="${p.k}">Remove</button>`:""}</div></div></article>`};
+      <div class="pract"><button class="praybtn ${me?"on":""}" data-pray="${esc(key)}" aria-pressed="${me}">🙏 ${me?"Praying":"I'll pray"}${n?` · ${n}`:""}</button>${mineP?`<button class="linkbtn" data-pans="${p.k}">${p.ans?"Mark as still praying":"Mark answered"}</button><button class="linkbtn danger" data-pdel="${p.k}">Remove</button>`:""}</div>${replyBlock("pr:"+key,p.id,p.anon&&!mineP)}</div></article>`};
   const open=all.filter(p=>!p.ans),done=all.filter(p=>p.ans);
   el.innerHTML=(open.length?open.map(card).join(""):`<p class="muted empty">No requests yet. Be the first to share one.</p>`)+(done.length?`<h3 class="prh">Answered prayers</h3>`+done.map(card).join(""):"");
   el.querySelectorAll("[data-pray]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on)return toast("Saving to the group isn't available for you yet");const k=b.dataset.pray;const on=!mine().praying?.[k];gWrite({praying:{[k]:on||null}},1);if(on){burst(b,10);buzz(10)}paintPrayer()});
@@ -3637,7 +3674,9 @@ function seenAt(){if(!SEEN){try{SEEN=JSON.parse(localStorage.getItem(SEEN_K)||"n
 function newCounts(){const s=seenAt(),w=WK(curWk()),me=myKey();let study=0,prayer=0;
   for(const id of members()){if(id===me)continue;const p=G.people[id];
     for(const t of Object.values(p.aat?.[w.id]||{}))if(t&&t>s.study)study++;
-    for(const r of Object.values(p.pr||{}))if(r&&r.t&&!r.ans&&String(r.at)>s.prayer)prayer++}
+    for(const r of Object.values(p.pr||{}))if(r&&r.t&&!r.ans&&String(r.at)>s.prayer)prayer++;
+    for(const [k,m] of Object.entries(p.rp||{})){if(!m)continue;const mineK=k.startsWith(me+":")||k.startsWith("pr:"+me+":");if(!mineK)continue;
+      for(const r of Object.values(m))if(r&&r.t&&String(r.at)>(k.startsWith("pr:")?s.prayer:s.study))k.startsWith("pr:")?prayer++:study++}}
   return {study,prayer}}
 let seenT=null;
 function gDots(){if(!G.on)return;const c=newCounts();
@@ -3717,6 +3756,100 @@ function meetPaint(anim,dir){const st=$("#mStage");if(!st)return;const S=meetSli
   if(k==="kv")kvText(w).then(t=>{const el=$("#mKv");if(el)el.textContent=t||w.ref});
   if(anim&&!reduced()){const x=(dir||0)*36;st.firstElementChild?.animate([{opacity:0,transform:`translateX(${x}px)`},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.16,1,.3,1)"})}
 }
+
+
+/* ================= Replies ================= */
+I.image='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><circle cx="9" cy="9.5" r="1.8"/><path d="m20.5 15.5-4.8-4.8L6 20"/></svg>';
+I.bell='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 1 1 12 0c0 6 2.5 7.5 2.5 7.5h-17S6 15 6 9Z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/></svg>';
+const typingIn=el=>{const a=document.activeElement;return !!a&&el.contains(a)&&a.matches("input,textarea")};
+let rpOpen=null;
+function replyList(key){const L=[];for(const id of members())for(const [rid,r] of Object.entries(G.people[id].rp?.[key]||{}))if(r&&r.t)L.push({id,rid,...r});return L.sort((a,b)=>String(a.at).localeCompare(String(b.at)))}
+function replyBlock(key,owner,anon){const L=replyList(key);const who=owner===myKey()?"":anon?"them":pfirst(owner);
+  return `<div class="rps">${L.map(r=>`<div class="rp">${face(r.id,"xs")}<div class="rp-b"><p><b>${esc(r.id===myKey()?"You":pfirst(r.id))}</b> ${esc(r.t)}</p><span>${ago(r.at)}${r.id===myKey()?` · <button class="linkbtn danger" data-rpdel="${esc(key)}|${r.rid}">Remove</button>`:""}</span></div></div>`).join("")}
+    ${rpOpen===key?`<form class="rpf" data-rpf="${esc(key)}"><input class="rpin" maxlength="300" enterkeyhint="send" placeholder="${who?`Reply to ${esc(who)}…`:"Write a reply…"}" aria-label="Your reply"><button class="rpsend" aria-label="Send reply">${I.send}</button></form>`
+      :`<button class="linkbtn rpo" data-rpo="${esc(key)}">${L.length?"Reply":who?"Encourage "+esc(who):"Reply"}</button>`}</div>`}
+function rpRepaint(){if(view!=="group")return;if(G.sub==="study")paintStudy();else if(G.sub==="prayer")paintPrayer()}
+document.addEventListener("click",e=>{
+  const o=e.target.closest("[data-rpo]");
+  if(o){if(G.ro&&G.on)return toast("Saving to the group isn't available for you yet");rpOpen=o.dataset.rpo;document.activeElement?.blur?.();rpRepaint();const f=document.querySelector(`[data-rpf="${CSS.escape(rpOpen)}"] input`);f?.focus();return}
+  const d=e.target.closest("[data-rpdel]");
+  if(d){const [k,rid]=d.dataset.rpdel.split("|");if(!d.dataset.sure){d.dataset.sure=1;d.textContent="Tap again to remove";return}gWrite({rp:{[k]:{[rid]:null}}},1);rpRepaint()}});
+document.addEventListener("submit",e=>{const f=e.target.closest("[data-rpf]");if(!f)return;e.preventDefault();
+  const t=f.querySelector("input").value.trim();const k=f.dataset.rpf;
+  if(t){gWrite({rp:{[k]:{["r"+Date.now().toString(36)]:{t,at:new Date().toISOString()}}}},1);buzz(10);toast("Reply sent")}
+  rpOpen=null;f.querySelector("input").blur();rpRepaint()});
+document.addEventListener("focusout",e=>{const f=e.target.closest?.("[data-rpf]");if(!f)return;setTimeout(()=>{if(rpOpen===f.dataset.rpf&&!f.contains(document.activeElement)&&!f.querySelector("input").value.trim()){rpOpen=null;rpRepaint()}},200)});
+
+/* ================= Verse pictures ================= */
+const PIC={style:"night",text:"",ref:"",book:"",ch:1,url:null};
+function openPicture(text,ref,book,ch){Object.assign(PIC,{text:String(text||"").trim(),ref,book,ch});
+  openSheet(`<div class="pcard picsheet"><div class="kick">Share a verse</div><h2>Make it a picture</h2>
+    <div class="opts picst" role="group" aria-label="Style">${[["night","Lamplight"],["dawn","Parchment"],["art","Engraving"]].map(([k,l])=>`<button data-pst="${k}" aria-pressed="${PIC.style===k}">${l}</button>`).join("")}</div>
+    <div class="picwrap"><img id="picImg" alt="${esc(ref)}: ${esc(PIC.text)}"><div class="picload" id="picLoad">Drawing…</div></div>
+    <p class="muted pichint">Press and hold the picture to save it, or use the buttons.</p>
+    <div class="row-end"><button class="btn ghost" id="picSave">Save picture</button><button class="btn primary" id="picShare">Share</button></div></div>`,"Make a picture");
+  document.querySelectorAll("[data-pst]").forEach(b=>b.onclick=()=>{PIC.style=b.dataset.pst;document.querySelectorAll("[data-pst]").forEach(x=>x.setAttribute("aria-pressed",x===b));drawPicture()});
+  $("#picShare").onclick=sharePicture;$("#picSave").onclick=savePicture;
+  drawPicture()}
+const imgLoad=src=>new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src});
+function wrapText(c,t,maxW){const words=t.split(/\s+/),L=[];let line="";for(const w of words){const tr=line?line+" "+w:w;if(c.measureText(tr).width>maxW&&line){L.push(line);line=w}else line=tr}if(line)L.push(line);return L}
+let picBlob=null;
+async function drawPicture(){const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");picBlob=null;
+  try{await Promise.all(["600 60px 'Cormorant Garamond'","italic 500 60px 'Cormorant Garamond'","700 30px Figtree"].map(f=>document.fonts.load(f)))}catch(e){}
+  const st=PIC.style,dark=st!=="dawn";const gold=dark?"#E2B758":"#8A6212",ink=dark?"#F4EDDD":"#2A241A";
+  if(st==="dawn"){x.fillStyle="#F3EDE0";x.fillRect(0,0,W,H);const g=x.createRadialGradient(W*.85,H*.05,10,W*.85,H*.05,W);g.addColorStop(0,"rgba(226,183,88,.35)");g.addColorStop(1,"rgba(226,183,88,0)");x.fillStyle=g;x.fillRect(0,0,W,H);
+    x.strokeStyle="rgba(138,98,18,.35)";x.lineWidth=2;x.strokeRect(44,44,W-88,H-88)}
+  else{x.fillStyle="#100E0A";x.fillRect(0,0,W,H);
+    if(st==="art"){let i=ART.findIndex(a=>a[2]===PIC.book&&a[3]===PIC.ch);if(i<0)i=ART.findIndex(a=>a[2]===PIC.book);if(i<0)i=[...PIC.ref].reduce((a,ch)=>a+ch.charCodeAt(0),0)%ART.length;
+      const im=await imgLoad(artSrc(i));if(im){const sc=Math.max(W/im.width,H/im.height);x.globalAlpha=.8;x.drawImage(im,(W-im.width*sc)/2,(H-im.height*sc)/2,im.width*sc,im.height*sc);x.globalAlpha=1}
+      const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"rgba(16,14,10,.25)");g.addColorStop(.3,"rgba(16,14,10,.62)");g.addColorStop(.7,"rgba(16,14,10,.62)");g.addColorStop(1,"rgba(16,14,10,.9)");x.fillStyle=g;x.fillRect(0,0,W,H)}
+    else{const g=x.createRadialGradient(W*.5,H*.32,20,W*.5,H*.32,W*.9);g.addColorStop(0,"rgba(226,183,88,.26)");g.addColorStop(1,"rgba(226,183,88,0)");x.fillStyle=g;x.fillRect(0,0,W,H)}}
+  // the verse, as large as fits
+  const txt=`“${PIC.text.replace(/^[“"‘']+|[”"’']+$/g,"")}”`;const maxW=W-200;let fs=84,L;
+  for(;fs>=34;fs-=2){x.font=`600 ${fs}px 'Cormorant Garamond', Georgia, serif`;L=wrapText(x,txt,maxW);if(L.length*fs*1.28<H-520)break}
+  const lh=fs*1.28,top=(H-L.length*lh)/2-40;x.fillStyle=ink;x.textAlign="center";x.textBaseline="alphabetic";
+  L.forEach((l,i)=>x.fillText(l,W/2,top+lh*(i+.8)));
+  const ry=top+L.length*lh+70;x.fillStyle=gold;x.fillRect(W/2-36,ry-34,72,3);
+  x.font="700 34px Figtree, system-ui, sans-serif";x.letterSpacing="4px";x.fillText(PIC.ref.toUpperCase(),W/2,ry+16);x.letterSpacing="0px";
+  // little lamp mark
+  x.save();x.translate(W/2-62,H-118);x.strokeStyle=gold;x.fillStyle=gold;x.lineWidth=3;x.lineCap="round";x.lineJoin="round";
+  x.beginPath();x.moveTo(12,26);x.quadraticCurveTo(14,8,22,0);x.quadraticCurveTo(30,8,32,26);x.closePath();x.globalAlpha=.85;x.fill();x.globalAlpha=1;
+  x.beginPath();x.moveTo(0,34);x.lineTo(44,34);x.quadraticCurveTo(40,48,22,48);x.quadraticCurveTo(4,48,0,34);x.stroke();x.restore();
+  x.font="600 40px 'Cormorant Garamond', Georgia, serif";x.textAlign="left";x.fillStyle=dark?"rgba(244,237,221,.8)":"rgba(42,36,26,.75)";x.fillText("Lamp",W/2-6,H-72);
+  const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.92));picBlob=blob;if(PIC.url)URL.revokeObjectURL(PIC.url);PIC.url=URL.createObjectURL(blob);
+  const im=$("#picImg");if(im){im.src=PIC.url;$("#picLoad")?.remove()}}
+const picName=()=>"lamp-"+PIC.ref.replace(/[^\w]+/g,"-").replace(/^-|-$/g,"").toLowerCase()+".jpg";
+async function sharePicture(){if(!picBlob)return;const f=new File([picBlob],picName(),{type:"image/jpeg"});
+  if(navigator.canShare?.({files:[f]})){try{await navigator.share({files:[f],text:`${PIC.ref}`});return}catch(e){if(e?.name==="AbortError")return}}
+  savePicture()}
+async function savePicture(){if(!picBlob)return;
+  const dl=window.claude?.use?await claude.use("downloads").catch(()=>null):null;
+  if(dl){try{await dl.save({filename:picName(),data:picBlob});toast("Picture saved");return}catch(e){if(e?.code==="declined")return}}
+  const a=document.createElement("a");a.href=PIC.url;a.download=picName();document.body.appendChild(a);a.click();a.remove();toast("Picture saved")}
+
+/* ================= Calendar reminders ================= */
+function meetWhen(){const t=String(G.meta.when||"").toLowerCase();const dm=t.match(/\b(sun|mon|tue|wed|thu|fri|sat)/);const tm=t.match(/(\d{1,2})(?:[:h.](\d{2}))?\s*(am|pm)?/);
+  let h=tm?+tm[1]:19,m=tm&&tm[2]?+tm[2]:0;if(tm?.[3]==="pm"&&h<12)h+=12;else if(tm?.[3]==="am"&&h===12)h=0;else if(!tm?.[3]&&h<8)h+=12;
+  return dm?{day:["sun","mon","tue","wed","thu","fri","sat"].indexOf(dm[1]),h,m}:null}
+const p2=n=>String(n).padStart(2,"0");
+const icsTime=d=>`${d.getFullYear()}${p2(d.getMonth()+1)}${p2(d.getDate())}T${p2(d.getHours())}${p2(d.getMinutes())}00`;
+function remEvent(kind,time){const now=new Date();let st=new Date(now);
+  if(kind==="read"){const [h,m]=time.split(":").map(Number);st.setHours(h,m,0,0);if(st<now)st.setDate(st.getDate()+1);
+    return {title:"Lamp: today's reading",desc:`Open Lamp and read today's chapter. ${LAMP_URL}`,st,mins:15,rule:"FREQ=DAILY",alarm:0}}
+  const mw=meetWhen()||{day:(now.getDay()+1)%7,h:19,m:0};st.setHours(mw.h,mw.m,0,0);st.setDate(st.getDate()+((mw.day-now.getDay()+7)%7));if(st<now)st.setDate(st.getDate()+7);
+  return {title:(G.meta.name||"Bible study")+" (Lamp)",desc:`This week: ${WK(curWk()).ref}. Open Lamp for the questions: ${LAMP_URL}`,st,mins:90,rule:"FREQ=WEEKLY",alarm:60}}
+function ics(ev){const en=new Date(ev.st.getTime()+ev.mins*6e4);const e=s=>String(s).replace(/([,;\\])/g,"\\$1").replace(/\n/g,"\\n");
+  return ["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Lamp//Bible study//EN","BEGIN:VEVENT",`UID:lamp-${ev.rule}-${Date.now()}@lamp`,`DTSTAMP:${new Date().toISOString().replace(/[-:]/g,"").slice(0,15)}Z`,`DTSTART:${icsTime(ev.st)}`,`DTEND:${icsTime(en)}`,`RRULE:${ev.rule}`,`SUMMARY:${e(ev.title)}`,`DESCRIPTION:${e(ev.desc)}`,`URL:${LAMP_URL}`,"BEGIN:VALARM","ACTION:DISPLAY",`DESCRIPTION:${e(ev.title)}`,`TRIGGER:-PT${ev.alarm}M`,"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")}
+const gcal=ev=>"https://calendar.google.com/calendar/render?"+new URLSearchParams({action:"TEMPLATE",text:ev.title,details:ev.desc,dates:icsTime(ev.st)+"/"+icsTime(new Date(ev.st.getTime()+ev.mins*6e4)),recur:"RRULE:"+ev.rule});
+function openRemind(kind){const s=state.settings;const mw=meetWhen();const ios=phoneOS()==="ios";const canIcs=!!window.LAMP_APP?.standalone;
+  const pretty=kind==="meet"?(mw?`Every ${["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"][mw.day]} at ${p2(mw.h)}:${p2(mw.m)}, with a reminder an hour before.`:`Your leader hasn't set a meeting day yet, so this starts tomorrow at 19:00. You can change it in your calendar.`):"";
+  openSheet(`<div class="pcard"><div class="kick">${I.bell}Reminder</div><h2>${kind==="read"?"A nudge to read each day":"Never miss group night"}</h2>
+    ${kind==="read"?`<div class="field"><span>What time suits you?</span><input type="time" id="remT" class="search" value="${esc(s.remT||"07:00")}" style="max-width:180px"></div>`:`<p class="muted">${esc(pretty)}</p>`}
+    <div class="remopts">${canIcs?`<button class="btn ${ios?"primary":"ghost"}" id="remIcs">${ios?"Add to iPhone calendar":"Add to my phone's calendar"}</button>`:""}<button class="btn ${canIcs&&ios?"ghost":"primary"}" id="remG">Add to Google Calendar</button></div>
+    <p class="muted remnote">Your calendar then reminds you at the right time, even when Lamp is closed. You can remove it there any time.</p></div>`,"Reminder");
+  const ev=()=>{const t=$("#remT")?.value||"07:00";if(kind==="read"&&t!==s.remT)setSetting("remT",t);return remEvent(kind,t)};
+  $("#remG").onclick=()=>{window.open(gcal(ev()),"_blank","noopener");toast("Opening Google Calendar")};
+  $("#remIcs")?.addEventListener("click",()=>{const a=document.createElement("a");a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics(ev()));a.download=kind==="read"?"lamp-reading.ics":"lamp-group.ics";if(ios)a.removeAttribute("download");document.body.appendChild(a);a.click();a.remove()})}
 
 /* ---------- Today teaser ---------- */
 function groupTeaser(){
