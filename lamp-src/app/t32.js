@@ -8,6 +8,7 @@ await ctx.route('**/supabase.js',r=>r.fulfill({body:FAKE,contentType:'applicatio
 await ctx.addInitScript(d=>{localStorage.setItem('lamp-local','1');const done={};for(let i=1;i<d;i++)done[i]=new Date().toISOString();localStorage.setItem('lamp-state-v1',JSON.stringify({done,notes:{},saved:{},settings:{onboarded:true,welcomed:true,intro:false}}))},day);
 const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
 await p.goto('http://localhost:8767/');await p.waitForTimeout(4000);
+await p.evaluate(()=>stepOpenAt(0));await p.waitForTimeout(200);
 const vis=await p.evaluate(()=>{const e=document.querySelector('#wotd');return e&&!e.hidden});ok(vis,`${tag} day ${day} word card shows`);
 if(vis){const t=await p.textContent('#wotd');console.log('   ',t.replace(/\s+/g,' ').slice(0,200));
  await p.$eval('#wotd',e=>e.scrollIntoView({block:'center'}));await p.waitForTimeout(600);

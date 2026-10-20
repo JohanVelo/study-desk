@@ -4,7 +4,7 @@ const sizes=[[390,844,'light'],[390,844,'dark'],[1440,900,'light'],[1440,900,'da
 const log=[];let fails=0;const ok=(c,m)=>{log.push((c?'PASS ':'FAIL ')+m);if(!c)fails++};
 for(const [w,h,cs] of sizes){
 const ctx=await b.newContext({viewport:{width:w,height:h},colorScheme:cs,hasTouch:w<800});
-await ctx.addInitScript(()=>{localStorage.setItem('lamp-state-v1',JSON.stringify({done:{1:new Date().toISOString()},notes:{},saved:{"JHN.3.16":{ref:"John 3:16",text:"For God so loved the world that He gave His one and only Son, that everyone who believes in Him shall not perish but have eternal life.",tr:"BSB",v:16,at:new Date().toISOString()}},settings:{onboarded:true,welcomed:true,intro:false}}))});
+await ctx.addInitScript(()=>{localStorage.setItem('lamp-state-v1',JSON.stringify({done:{1:new Date().toISOString()},notes:{},saved:{"JHN.3.16":{ref:"John 3:16",text:"For God so loved the world that He gave His one and only Son, that everyone who believes in Him shall not perish but have eternal life.",tr:"BSB",v:16,at:new Date().toISOString()}},settings:{onboarded:true,welcomed:true,intro:false,allOpen:true}}))});
 await ctx.route('**/lamp.html',async r=>{const res=await r.fetch();let t=await res.text();t='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'+t;r.fulfill({response:res,body:t,headers:{...res.headers(),'content-type':'text/html; charset=utf-8'}})});
 const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push('console '+m.text())});
 const tag=`${w}-${cs}`;const shot=n=>p.screenshot({path:`${__dirname}/s17/${n}-${tag}.png`});
@@ -17,7 +17,7 @@ await p.click('#fdNext');await p.waitForTimeout(700);await shot('feel2');ok(awai
 await p.keyboard.press('Escape');await p.waitForTimeout(300);ok(!await p.$('#fd'),tag+' feel closes');
 // listen
 await p.evaluate(()=>openPassage(passFor('PSA',23),false));await p.waitForTimeout(1500);
-await p.click('#rSpeak');await p.waitForTimeout(1200);ok(!!await p.$('#ls .ls-verse'),tag+' listen opens');await shot('listen');
+await p.click(+w<800?'#dListen':'#rSpeak');await p.waitForTimeout(1200);ok(!!await p.$('#ls .ls-verse'),tag+' listen opens');await shot('listen');
 await p.click('#lsNext');await p.waitForTimeout(700);ok(await p.evaluate(()=>LSN.i===1),tag+' listen next');
 await p.click('#lsRate');ok(await p.textContent('#lsRate')==='1.25×',tag+' speed');
 {const a=await p.evaluate(()=>LSN.on);await p.click('#lsPlay');await p.waitForTimeout(100)}

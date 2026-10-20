@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020191718">
+<link rel="stylesheet" href="app.css?v=20261020204230">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020191718"></script>
+<script src="app.js?v=20261020204230"></script>
 </head>
 <body>
 <style>
@@ -1477,7 +1477,114 @@ html.meeting{overflow:hidden}
 .hlcard footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .hlcard cite{font-style:normal;font-weight:700;color:var(--gold)}
 #offBible,#offOrig{display:inline-flex;align-items:center;gap:6px}#offBible svg,#offOrig svg{width:16px;height:16px;flex:none}
-#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
+
+.syncnote{display:block;margin-top:4px;font-weight:600;color:var(--accent)}.syncnote.wait{color:var(--gold)}.syncnote:empty{display:none}
+
+/* Today's step */
+.tmain .tstep{order:-1}
+.dayhead,.hstip,.gteaser{order:-2}
+.sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.tstep .ts-new .btn{flex:none;white-space:nowrap}
+.tstep .ts-new{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:-4px 0 16px;padding:10px 12px 10px 14px;border-radius:14px;background:var(--gold-soft);font-weight:600;font-size:.92rem}
+.tstep .hero-top{margin-bottom:8px}
+.ts-count{font-weight:700;font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.ts-prog{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:16px 0 6px}
+.ts-prog i{height:6px;border-radius:99px;background:var(--line);transition:background .4s ease}
+.ts-prog i.on{background:var(--accent)}
+.ts-done{display:flex;flex-direction:column;gap:2px;margin:14px 0 4px;padding:14px 16px;border-radius:16px;background:color-mix(in srgb,var(--accent) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--accent) 30%,transparent)}
+.ts-done[hidden]{display:none}
+.ts-done b{display:flex;align-items:center;gap:8px;font:600 1.15rem var(--f-display);color:var(--accent)}
+.ts-done b svg{width:20px;height:20px}
+.ts-done span{color:var(--muted);font-size:.92rem}
+.ts-done #tsAhead{align-self:flex-start;margin:6px 0 0 -10px}
+.ts-list{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.ts{border:1px solid var(--line);border-radius:18px;background:var(--surface);transition:border-color .3s ease,background .3s ease}
+.ts.open{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));background:color-mix(in srgb,var(--accent) 4%,var(--surface))}
+.ts-h{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:10px 14px;border:0;background:none;color:inherit;text-align:left;cursor:pointer;border-radius:18px}
+.ts-n{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);font-weight:700;font-size:.95rem;color:var(--muted);transition:all .3s ease}
+.ts-n svg{width:17px;height:17px}
+.ts.done .ts-n{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.ts.open:not(.done) .ts-n{border-color:var(--accent);color:var(--accent)}
+.ts-t{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.ts-t b{font-size:1.02rem}
+.ts-t small{color:var(--muted);font-size:.86rem;line-height:1.35}
+.ts.done .ts-t b{color:var(--muted)}
+.ts-h .chev{flex:none;transition:transform .3s ease;color:var(--muted)}
+.ts.open .ts-h .chev{transform:rotate(180deg)}
+.ts-b{padding:0 16px 16px 62px}
+.ts-b[hidden]{display:none}
+.ts-b .summary{margin-top:0}
+.ts-b .actions{margin-top:12px}
+.ts-mark{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.ts-p{margin:0 0 4px;line-height:1.55}
+.q-more{margin-top:10px}
+.q-more>summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:44px;display:flex;align-items:center;list-style:none}
+.q-more>summary::-webkit-details-marker{display:none}
+.q-more>summary::before{content:"+";display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border-radius:50%;border:1.5px solid currentColor;font-size:.9rem;line-height:1}
+.q-more[open]>summary::before{content:"–"}
+.ts-pr{margin:10px 0 0;padding:10px 14px;border-left:3px solid var(--gold);background:var(--sunk);border-radius:0 12px 12px 0;line-height:1.5;display:flex;flex-direction:column;gap:2px}
+.tstep .finish{margin-top:14px;justify-content:flex-end}
+.rv-card{display:flex;flex-direction:column;gap:6px}
+.rv-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rv-ref{font:600 1.5rem var(--f-display);color:var(--gold)}
+.rv-text{margin:4px 0 0;font-family:var(--f-text);font-size:1.08rem;line-height:1.6}
+.rv-hint{margin:0;color:var(--muted)}
+.rv-fl{font-family:var(--f-text);font-size:1.08rem;color:var(--ink);letter-spacing:.04em;line-height:1.7}
+.rv-ask{margin:6px 0 0}
+.rv-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.rv-grade .btn{justify-content:center;padding-inline:8px}
+.rv-ok{display:flex;gap:10px;align-items:flex-start;margin:0;line-height:1.5}
+.rv-ok svg{flex:none;width:20px;height:20px;color:var(--accent);margin-top:2px}
+.mdue{display:block;font-size:.72rem;font-weight:600;color:var(--accent);margin-top:2px}
+.side-k{margin:2px 4px -10px}
+.more>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;list-style:none}
+.more>summary::-webkit-details-marker{display:none}
+.more[open]>summary .chev{transform:rotate(180deg)}
+.more-in{display:flex;flex-direction:column;gap:18px;margin-top:16px}
+.more-in h3{margin:0 0 8px;font:600 1.05rem var(--f-display)}
+.more-in .votd,.ts-b .wotd{padding:16px;border-radius:16px;border:1px solid var(--line)}
+.ts-b .wotd{margin-top:14px}
+.more-in .book .facts{margin-bottom:12px}
+.more-in .figstrip{flex-direction:row;overflow-x:auto}
+@media (max-width:560px){.ts-b{padding:0 14px 16px}.ts-h{gap:12px;padding:10px 12px}}
+@media (min-width:1240px){.tmain .tstep{order:0}.tside .more-in .figstrip{flex-direction:column;overflow:visible}}
+
+.gplay{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px}
+.gplay button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:.92rem}
+.gplay button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.soon{border-style:dashed;background:transparent;box-shadow:none}.soon p{margin:6px 0 0;color:var(--muted);line-height:1.5}
+.onb-mode{display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:18px}
+.onb-mode span{flex-basis:100%;text-align:center;font-weight:600;opacity:.85}
+.onb-mode button{min-height:44px;min-width:92px;padding:0 18px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer;opacity:.75}
+.onb-mode button[aria-pressed="true"]{opacity:1;background:var(--gold);border-color:var(--gold);color:#1b1407}
+
+.rdock{display:none}
+@media (max-width:820px){
+  .reader .rdock{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;position:absolute;left:0;right:0;bottom:0;z-index:5;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+  .rdock button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:52px;border:0;background:none;color:var(--ink);font:600 .72rem var(--f-body);border-radius:12px;cursor:pointer}
+  .rdock button svg{width:21px;height:21px}
+  .rdock button:disabled{opacity:.35}
+  .rdock button.on{color:var(--accent)}
+  .rdock button:active{background:var(--sunk)}
+  .reader #rSpeak,.reader #rFont{display:none}
+  .reader .fontpop{top:auto;bottom:calc(74px + env(safe-area-inset-bottom,0px))}
+  .reader .rscroll{padding-bottom:calc(76px + env(safe-area-inset-bottom,0px))}
+}
+
+.fbcard h2{margin:2px 0 12px;font:600 1.25rem var(--f-display)}
+.fb-opts{display:flex;flex-direction:column;gap:8px}
+.fb-opts button{min-height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;text-align:left;cursor:pointer}
+.fb-opts button:hover{border-color:var(--accent)}
+.fb-note{margin:10px 0 0;font-size:.84rem}
+.fbcard textarea{width:100%;margin-bottom:4px}
+
+.chip.gold{color:color-mix(in srgb,var(--gold) 72%,#000)}
+:root[data-theme="dark"] .chip.gold{color:var(--gold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.gold{color:var(--gold)}}
+:root[data-theme="dark"] .danger{color:#FF8A75}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .danger{color:#FF8A75}}
+#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
 </style>
@@ -1498,9 +1605,9 @@ html.meeting{overflow:hidden}
   </div>
   <div class="onb" id="onb" hidden>
     <div class="slides" id="slides">
-      <section class="slide"><div class="ico" id="oi1"></div><div class="k" id="onbHi">Welcome</div><h2>One chapter a day</h2><p>Lamp walks you through the Bible's big story in 190 short daily readings, starting with the life of Jesus. About five minutes a day.</p></section>
+      <section class="slide"><div class="ico" id="oi1"></div><div class="k" id="onbHi">Welcome</div><h2>One chapter a day</h2><p>Lamp walks you through the Bible's big story in 190 short daily readings, starting with the life of Jesus. About five minutes a day.</p><div class="onb-mode" role="group" aria-label="Read or listen"><span>Do you prefer to</span><button data-mode="read" aria-pressed="true">Read</button><button data-mode="listen" aria-pressed="false">Listen</button></div></section>
       <section class="slide"><div class="ico" id="oi2"></div><div class="k">Never feel lost</div><h2>Understand what you read</h2><p>Every chapter comes with a plain-English summary, background, a map and a guide you can ask anything. Tap any verse to save it or ask about it.</p></section>
-      <section class="slide"><div class="ico" id="oi3"></div><div class="k">Make it yours</div><h2>Keep your lamp burning</h2><p>Reflect with three quick questions, test yourself and earn badges. The little flame at the top glows brighter the longer your streak.</p></section>
+      <section class="slide"><div class="ico" id="oi3"></div><div class="k">Make it yours</div><h2>Keep your lamp burning</h2><p>Each day has four short steps: read, reflect, remember a verse, and see your group. The little flame at the top glows brighter the longer your streak.</p></section>
       <section class="slide"><div class="ico" id="oi4"></div><div class="k">Your Bible study group</div><h2>Study together</h2><p>The <b>Group</b> tab has this week's passage, questions, icebreakers, games and the prayer wall. Lamp keeps you signed in, so it remembers everything you do.</p></section>
     </div>
     <div class="onb-ctl"><div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i></div><div><button class="ghostbtn" id="onbSkip">Skip</button><button class="go" id="onbNext">Next</button></div></div>
@@ -1908,17 +2015,22 @@ const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Le
 /* ================= State & storage ================= */
 const LS="lamp-state-v1";
 const DEFAULTS={theme:"system",trans:"NLT",rt:"WEB",size:"m",nums:true,rate:1,welcomed:false,onboarded:false,intro:true};
-let state={done:{},notes:{},saved:{},hl:{},qt:{},settings:{...DEFAULTS},selected:null};
-let docRef=null,saveTimer=null,pending={};
+let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},settings:{...DEFAULTS},selected:null};
+let docRef=null,saveTimer=null,pending={},retryT=null,retryN=0;
+const OUTBOX="lamp-outbox-v1";
+try{const o=JSON.parse(localStorage.getItem(OUTBOX)||"null");if(o&&typeof o==="object")pending=o}catch(e){}
+function outboxSave(){try{Object.keys(pending).length?localStorage.setItem(OUTBOX,JSON.stringify(pending)):localStorage.removeItem(OUTBOX)}catch(e){}}
+const outboxCount=()=>Object.values(pending).reduce((n,v)=>n+(v&&typeof v==="object"&&!Array.isArray(v)?Object.keys(v).length:1),0);
 function lsRead(){try{return JSON.parse(localStorage.getItem(LS)||"null")}catch(e){return null}}
 function lsWrite(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
-const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
+const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
 
 function merge(remote){
   if(!remote) return;
   for(const [k,v] of Object.entries(remote.done||{})){ if(v) state.done[k]=v; else if(v===null) state.done[k]=null; }
   for(const [k,v] of Object.entries(remote.notes||{})){ const mine=state.notes[k]; if(!mine||(v&&(v.at||"")>(mine.at||""))) state.notes[k]=v; }
-  for(const [k,v] of Object.entries(remote.saved||{})){ if(!(k in state.saved)||v===null||(v&&state.saved[k]&&(v.m||0)>(state.saved[k].m||0))) state.saved[k]=v; }
+  for(const [k,v] of Object.entries(remote.saved||{})){ const mine=state.saved[k]; if(!(k in state.saved)||v===null||(v&&mine&&((v.m||0)>(mine.m||0)||(v.lr||"")>(mine.lr||"")))) state.saved[k]=v; }
+  for(const [k,v] of Object.entries(remote.step||{})){ if(v&&typeof v==="object") state.step[k]={...(state.step[k]||{}),...v}; }
   for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)) state.hl[k]=v; }
   for(const [k,v] of Object.entries(remote.qt||{})){ if(v&&(!state.qt[k]||(v.at||"")>(state.qt[k].at||""))) state.qt[k]=v; }
   if(remote.settings) state.settings={...DEFAULTS,...state.settings,...remote.settings};
@@ -1926,25 +2038,33 @@ function merge(remote){
 function deepMerge(a,b){const o={...a};for(const [k,v] of Object.entries(b)){o[k]=(v&&typeof v==="object"&&!Array.isArray(v)&&o[k]&&typeof o[k]==="object")?deepMerge(o[k],v):v}return o}
 function queue(patch){
   pending=deepMerge(pending,patch);
-  lsWrite();
+  lsWrite();outboxSave();syncNote();
   clearTimeout(saveTimer); saveTimer=setTimeout(flush,700);
 }
 async function flush(){
   if(!docRef||!Object.keys(pending).length) return;
   const body=pending; pending={};
-  try{ await docRef.update(body); }
-  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,settings:state.settings}); } else throw e; }catch(e2){ pending=deepMerge(body,pending); } }
+  try{ await docRef.update(body); retryN=0; }
+  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
+    clearTimeout(retryT); retryT=setTimeout(flush,Math.min(300000,5000*2**Math.min(retryN++,6))); } }
+  outboxSave(); syncNote();
 }
+function syncNote(){const n=outboxCount();document.querySelectorAll("[data-syncnote]").forEach(e=>{e.textContent=!docRef?"":n?`${n} change${n>1?"s":""} waiting for signal. They'll send by themselves.`:"All changes saved.";e.classList.toggle("wait",!!n)})}
+const resync=()=>docRef?flush():connect();
+addEventListener("online",resync);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resync()});
+/* anything that must not be cut off by a silent update */
+window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody");
 async function connect(){
   if(!window.claude?.use) return;
   try{
     const db=await claude.use("db"); const user=await claude.use("user");
-    if(!db||!user) return;
-    groupConnect(db,user);
+    if(!db||!user){pending={};outboxSave();return}  /* no account: everything lives on this device already */
+    if(!connect.g){connect.g=1;groupConnect(db,user)}
     const id=await user.id(); if(!id) return;
     docRef=db.collection("data/users/"+id).doc("progress");
     const snap=await docRef.get();
-    if(snap.exists){ const local=JSON.parse(JSON.stringify(pending)); merge(snap.data()); state=deepMerge(state,local); lsWrite(); }
+    if(snap.exists){ const local=JSON.parse(JSON.stringify(pending)); merge(snap.data()); state=deepMerge(state,local); lsWrite(); if(Object.keys(pending).length)setTimeout(flush,300); }
     else await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,settings:state.settings,startedAt:new Date().toISOString()});
     setSync(true); applyTheme(); render();
   }catch(e){ docRef=null; }
@@ -1986,16 +2106,24 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const isDone=d=>!!state.done[d];
 const doneCount=()=>PLAN.filter(p=>isDone(p.day)).length;
 const nextDay=()=>(PLAN.find(p=>!isDone(p.day))||PLAN[TOTAL-1]).day;
-const curDay=()=>state.selected||nextDay();
+/* the chapter finished today stays on Today until tomorrow, so its steps can be completed */
+function todayDone(){const t=dayKey(new Date());let best=0;for(const [d,v] of Object.entries(state.done))if(v&&dayKey(v)===t&&+d>best&&PLAN[+d-1])best=+d;return best||null}
+const curDay=()=>state.selected||todayDone()||nextDay();
 const dayKey=d=>{d=new Date(d);return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`};
 function readDays(){return new Set(Object.values(state.done).filter(Boolean).map(dayKey))}
 /* a quiet time keeps the flame lit too, and one rest day in any week doesn't break it */
-function streak(){ const days=readDays(); for(const k of Object.keys(state.qt||{})){const [y,m,dd]=k.split("-").map(Number);if(state.qt[k])days.add(dayKey(new Date(y,m-1,dd)))}
-  let n=0,d=new Date(),rest=-99; if(!days.has(dayKey(d))) d.setDate(d.getDate()-1);
+function streakDays(){ const days=readDays(); for(const k of Object.keys(state.qt||{})){const [y,m,dd]=k.split("-").map(Number);if(state.qt[k])days.add(dayKey(new Date(y,m-1,dd)))} return days; }
+/* the run of days ending on `end` (or the day before, if `end` itself is empty), allowing one rest day in any 7 */
+function runTo(days,end){ let n=0,d=new Date(end),rest=-99; if(!days.has(dayKey(d))) d.setDate(d.getDate()-1);
   for(let i=0;i<5000;i++){ if(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1);continue}
     const p=new Date(d);p.setDate(p.getDate()-1); if(n-rest>=6&&days.has(dayKey(p))){rest=n;d=p;continue} break }
   return n; }
-function bestStreak(){ const ds=[...readDays()].map(k=>{const [y,m,d]=k.split("-").map(Number);return new Date(y,m-1,d).getTime()}).sort((a,b)=>a-b); let best=0,run=0,prev=null; for(const t of ds){ run=(prev!==null&&Math.round((t-prev)/864e5)===1)?run+1:1; best=Math.max(best,run); prev=t; } return best; }
+function streak(){ return runTo(streakDays(),new Date()); }
+function bestStreak(){ const days=streakDays(); let best=0;
+  for(const k of days){ const [y,m,d]=k.split("-").map(Number); const t=new Date(y,m-1,d); const nx=new Date(t); nx.setDate(nx.getDate()+1);
+    if(days.has(dayKey(nx))) continue; /* only measure from the last day of each run */
+    best=Math.max(best,runTo(days,t)); }
+  return Math.max(best,streak()); }
 function md(t){
   const lines=esc(t).split(/\n/);let out="",inList=false;
   const inline=s=>s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>");
@@ -2077,78 +2205,182 @@ function greeting(){const h=new Date().getHours();const n=ME.first?", "+ME.first
 const minsFor=p=>{const w=chapterWords(p);return w?Math.max(2,Math.round(w/190)):null};
 
 function vToday(){
-  const day=curDay();const p=PLAN[day-1];const s=STAGES[p.stage];const b=BOOKS[p.book];
-  const n=state.notes[day]||{};const done=isDone(day);const pct=Math.round(doneCount()/TOTAL*100);
-  const firstOfBook=p.ch===1;const mins=minsFor(p);
+  const day=curDay();const p=PLAN[day-1];const b=BOOKS[p.book];
+  const done=isDone(day);const pct=Math.round(doneCount()/TOTAL*100);const firstOfBook=p.ch===1;
+  const L=G.live&&G.live.ph!=="end"&&Date.now()-(G.live.at||0)<3*36e5;
   return `
   <div class="dayhead">
-    <div><div class="kicker">Day ${day} of ${TOTAL}${day!==nextDay()?" · revisiting":""}</div><h1>${done?"Read. Well done.":greeting()}</h1></div>
+    <div><div class="kicker">Day ${day} of ${TOTAL}${day!==nextDay()&&day!==todayDone()?" · revisiting":""}</div><h1>${stepState(day).every(Boolean)?"Done for today":done?"Read. Well done.":greeting()}</h1></div>
     <div class="chips"><span class="chip gold">${I.flame}${streak()} day streak</span><span class="chip">${doneCount()} / ${TOTAL} · ${pct}%</span></div>
   </div>
-  ${!state.settings.welcomed?`<section class="card welcome">
-    <div><div class="kicker">Welcome to Lamp</div><h2>Your daily rhythm, in three steps</h2></div>
-    <ol class="steps3"><li><b>Get the context</b>Read the summary below. On day one of a book, watch its short overview video.</li><li><b>Read or listen</b>Tap Read to open the chapter right here. Tap any verse to save it or ask about it.</li><li><b>Reflect and tick it off</b>Answer the three quick questions and mark the chapter as read.</li></ol>
-    <div><button class="btn primary sm" id="gotIt">${I.check}Got it</button></div>
-  </section>`:""}
   ${installTip()}
-  ${qtCard()}
-  ${feelRow()}
-  ${groupTeaser()}
-  ${arcHTML(actFor(p))}
-  <div class="tgrid"><aside class="tside">
-  <section class="card votd" id="votd" hidden></section>
-  <section class="card wotd" id="wotd" hidden></section>
-  <details class="card book" ${firstOfBook?"open":""}>
-    <summary><div><div class="kicker">Before you read</div><h2>About ${b.name}</h2></div><span class="chev">${I.chev}</span></summary>
-    <dl class="facts">
-      <div class="fact wide"><dt>The big idea</dt><dd class="bigidea">${esc(b.big)}</dd></div>
-      <div class="fact"><dt>Who wrote it</dt><dd>${esc(b.author)}</dd></div>
-      <div class="fact"><dt>When</dt><dd>${esc(b.when)}</dd></div>
-      <div class="fact"><dt>Written for</dt><dd>${esc(b.audience)}</dd></div>
-      <div class="fact"><dt>Where it happens</dt><dd>${esc(b.setting)}</dd></div>
-      <div class="fact wide"><dt>Watch for</dt><dd>${esc(b.watch)}</dd></div>
-    </dl>
+  ${L?groupTeaser():""}
+  <div class="tgrid"><div class="tmain">
+  ${stepCard(day)}
+  </div><aside class="tside">
+  ${fbCard()}
+  ${(()=>{const n=doneCount(),all=state.settings.allOpen||n>=4;const q=all||n>=2,f=all;
+    return q||f?`<div class="kicker side-k">Not today's reading?</div>${q?qtCard():""}${f?feelRow():""}`:`<div class="card soon"><div class="kicker">Coming up</div><p>After a couple of readings, a 5-minute quiet time and verses for how you're feeling will appear here.</p></div>`})()}
+  <details class="card more" id="tMore" ${firstOfBook?"open":""}>
+    <summary><div><div class="kicker">More about this chapter</div><h2>${esc(b.name)}, the big story and pictures</h2></div><span class="chev">${I.chev}</span></summary>
+    <div class="more-in">
+    ${arcHTML(actFor(p))}
+    <section class="votd" id="votd" hidden></section>
+    <div class="book">
+      <h3>About ${esc(b.name)}</h3>
+      <dl class="facts">
+        <div class="fact wide"><dt>The big idea</dt><dd class="bigidea">${esc(b.big)}</dd></div>
+        <div class="fact"><dt>Who wrote it</dt><dd>${esc(b.author)}</dd></div>
+        <div class="fact"><dt>When</dt><dd>${esc(b.when)}</dd></div>
+        <div class="fact"><dt>Written for</dt><dd>${esc(b.audience)}</dd></div>
+        <div class="fact"><dt>Where it happens</dt><dd>${esc(b.setting)}</dd></div>
+        <div class="fact wide"><dt>Watch for</dt><dd>${esc(b.watch)}</dd></div>
+      </dl>
+      <a class="btn sm" href="${videoUrl(p)}" target="_blank" rel="noopener">${I.play}${b.name} overview video</a>
+    </div>
+    <div class="seeit"><h3>Maps and diagrams</h3><div class="figstrip">${figsFor(p).map(id=>figCard(id,1)).join("")}</div></div>
+    </div>
   </details>
-  <section class="card seeit"><div class="kicker">See it</div><h2>Maps and diagrams for ${refName(p)}</h2><div class="figstrip">${figsFor(p).map(id=>figCard(id,1)).join("")}</div></section>
-  </aside><div class="tmain">
-  <article class="card hero">
-    ${heroArt(p)}
-    <div class="hero-top"><div class="stage-tag kicker"><span class="dot"></span>Stage ${p.stage+1} · ${esc(s.title)}</div><span class="chip" id="mins" ${mins?"":"hidden"}>About ${mins||""} min</span></div>
-    <div class="ref">${p.book==="PSA"?"Psalm":b.name} <em>${p.ch}</em></div>
-    <div class="ctitle">${esc(p.title)}</div>
-    <p class="summary"><strong>What's happening:</strong> ${esc(p.sum)}</p>
-    <div class="actions">
-      <button class="btn primary" id="openReader">${I.open}Read ${refName(p)}</button>
-      <button class="btn" id="openListen">${I.speak}Listen</button>
-      <a class="btn" href="${videoUrl(p)}" target="_blank" rel="noopener">${I.play}${firstOfBook?"Watch first: ":""}${b.name} overview</a>
-    </div>
-  </article>
-
-  <section class="card reflect">
-    <div class="kicker">After you read</div>
-    <h2>Three quick questions</h2>
-    <p class="muted">A sentence each is plenty. Your answers save automatically into your journal.</p>
-    <div class="q"><label for="q1">What happened?<small>Tell the story in your own words.</small></label><textarea id="q1" data-k="what" placeholder="Jesus calmed a storm and the disciples were terrified…">${esc(n.what)}</textarea></div>
-    <div class="q"><label for="q2">What does it show about God or people?</label><textarea id="q2" data-k="shows">${esc(n.shows)}</textarea></div>
-    <div class="q"><label for="q3">What stood out, or what confused you?</label><textarea id="q3" data-k="stands">${esc(n.stands)}</textarea></div>
-    <div class="saved" id="saved" aria-live="polite"></div>
-    <div class="actions" style="margin-top:12px">
-      <button class="btn" id="explain">${I.spark}Explain this chapter simply</button>
-      <button class="btn" id="quizBtn">${I.medal}Test yourself${n.quiz!=null?` · best ${n.quiz}/3`:""}</button>
-      <button class="btn" id="askAbout">${I.ask}Ask a question about it</button>
-    </div>
-    <div id="explainOut" hidden class="explain-out prose" aria-live="polite"></div>
-    <div id="quizOut" hidden class="explain-out quiz" aria-live="polite"></div>
-  </section>
-  <div class="finish">
-    <div class="pager">
-      <button class="icon-btn" id="prev" aria-label="Previous day" ${day<=1?"disabled":""}>${I.left}</button>
-      <button class="icon-btn" id="next" aria-label="Next day" ${day>=TOTAL?"disabled":""}>${I.right}</button>
-    </div>
-    <button class="btn ${done?"done":"primary"}" id="markDone" style="min-width:210px">${I.check}${done?"Marked as read":"Mark as read"}</button>
-  </div></div></div>`;
+  </aside></div>`;
 }
 
+/* ================= How's Lamp? (once a month, totals only) ================= */
+const fbMonth=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`};
+const FB=[["more","Helps me read more"],["same","About the same"],["less","I read less"]];
+function fbCard(){if(doneCount()<7||state.settings.fbDone===fbMonth())return"";
+  return `<section class="card fbcard" id="fbCard"><div class="kicker">Once a month · 3 seconds</div><h2>How's Lamp going for you?</h2>
+    <div class="fb-opts" role="group" aria-label="How's Lamp going">${FB.map(([k,l])=>`<button data-fb="${k}">${l}</button>`).join("")}</div>
+    <p class="muted fb-note">Your leader sees only the group's totals, never who said what.</p></section>`}
+function fbWire(){document.querySelectorAll("[data-fb]").forEach(b=>b.onclick=()=>{const k=b.dataset.fb,m=fbMonth();setSetting("fbDone",m);if(G.on)gWrite({fb:{[m]:k}});
+  const c=$("#fbCard");if(!c)return;c.innerHTML=`<div class="kicker">Thank you</div><h2>Anything you'd change?</h2><textarea id="fbT" class="search" rows="3" placeholder="Optional. For example: the questions are too long."></textarea>
+    <div class="actions"><button class="btn primary" id="fbSend">${I.send}Send to ${G.on?"my leader":"the person who shared Lamp"}</button><button class="btn ghost" id="fbX">No thanks</button></div>
+    <p class="muted fb-note">This opens your messages so you choose who sees it. Nothing is sent by itself.</p>`;
+  $("#fbX").onclick=()=>c.animate([{opacity:1},{opacity:0}],{duration:200}).finished.then(()=>c.remove());
+  $("#fbSend").onclick=async()=>{const t=`About Lamp: ${FB.find(x=>x[0]===k)[1].toLowerCase()}.${$("#fbT").value.trim()?" "+$("#fbT").value.trim():""}`;
+    if(navigator.share){try{await navigator.share({text:t})}catch(e){if(e?.name==="AbortError")return}}else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank","noopener");
+    c.remove();toast("Thanks for helping make Lamp better")}})}
+function fbTotals(){const m=fbMonth(),n={more:0,same:0,less:0};for(const id of members()){const v=G.people[id].fb?.[m];if(v in n)n[v]++}return n}
+
+/* ================= Today's step ================= */
+let stepOpen=null,stepDay=null;
+function stepState(day){const n=state.notes[day]||{},st=state.step?.[day]||{};
+  return [isDone(day),!!(n.what||n.shows||n.stands),!!st.m||!["due","learn"].includes(rvPlan().kind),!!st.g||(!G.on&&!!state.qt?.[qtDay()])]}
+function stepLabels(day){const p=PLAN[day-1],r=rvPlan(),w=G.on?WK(curWk()):null,mins=minsFor(p);
+  const ans=w?members().filter(id=>id!==myKey()&&Object.keys(G.people[id].ans?.[w.id]||{}).length).length:0;
+  return [["Read or listen",`${refName(p)}${mins?` · about ${mins} min`:""}`],
+    ["Reflect","One question. A sentence is plenty."],
+    ["Remember",r.kind==="due"?`${r.list.length} verse${r.list.length>1?"s":""} to review`:r.kind==="learn"?`Keep learning ${r.v.ref}`:r.kind==="start"?"Optional: learn a verse by heart":r.kind==="none-empty"?"Optional: save a verse that speaks to you":"Nothing to review today"],
+    w?["Your group",`${w.title} · ${ans?`${ans} ${ans>1?"people have":"person has"} answered`:"be the first to answer"}`]:["Pray","A minute with God about what you read"]]}
+function stepCard(day){const p=PLAN[day-1],s=PLAN[day-1]&&STAGES[p.stage],b=BOOKS[p.book],n=state.notes[day]||{},done=isDone(day);
+  if(stepDay!==day){stepDay=day;stepOpen=null}
+  const st=stepState(day),k=st.filter(Boolean).length,act=stepOpen??st.findIndex(x=>!x),lab=stepLabels(day);const nx=PLAN[day]||null;
+  const body=[
+    `<p class="summary"><strong>What's happening:</strong> ${esc(p.sum)}</p>
+     <div class="actions">${state.settings.mode==="listen"?`<button class="btn primary" id="openListen">${I.speak}Listen to ${refName(p)}</button><button class="btn" id="openReader">${I.open}Read</button>`:`<button class="btn primary" id="openReader">${I.open}Read ${refName(p)}</button><button class="btn" id="openListen">${I.speak}Listen</button>`}</div>
+     <section class="wotd" id="wotd" hidden></section>
+     <div class="ts-mark"><button class="btn ${done?"done":""}" id="markDone">${I.check}${done?"Marked as read":"I've read it"}</button></div>`,
+    `<div class="q"><label for="q1">What happened?<small>Tell the story in your own words.</small></label><textarea id="q1" data-k="what" placeholder="Jesus calmed a storm and the disciples were terrified…">${esc(n.what)}</textarea></div>
+     <details class="q-more" ${n.shows||n.stands?"open":""}><summary>Two more questions, if you have time</summary>
+       <div class="q"><label for="q2">What does it show about God or people?</label><textarea id="q2" data-k="shows">${esc(n.shows)}</textarea></div>
+       <div class="q"><label for="q3">What stood out, or what confused you?</label><textarea id="q3" data-k="stands">${esc(n.stands)}</textarea></div>
+     </details>
+     <div class="saved" id="saved" aria-live="polite"></div>
+     <div class="actions deeper">
+       <button class="btn sm" id="explain">${I.spark}Explain it simply</button>
+       <button class="btn sm" id="quizBtn">${I.medal}Test yourself${n.quiz!=null?` · best ${n.quiz}/3`:""}</button>
+       <button class="btn sm" id="askAbout">${I.ask}Ask a question</button>
+     </div>
+     <div id="explainOut" hidden class="explain-out prose" aria-live="polite"></div>
+     <div id="quizOut" hidden class="explain-out quiz" aria-live="polite"></div>`,
+    `<div id="rvBox" class="rv"></div>`,
+    `<div id="tsGrp">${stepGroupHTML()}</div>`];
+  return `<article class="card hero tstep${k===4?" all":""}" id="tstep" aria-label="Today's step">
+    ${heroArt(p)}
+    ${!state.settings.welcomed?`<div class="ts-new"><span>New here? Do these four steps each day. That's all Lamp asks.</span><button class="btn sm" id="gotIt">Got it</button></div>`:""}
+    <div class="hero-top"><div class="stage-tag kicker"><span class="dot"></span>Today's step · Stage ${p.stage+1}</div><span class="ts-count" id="tsCount">${k} of 4</span></div>
+    <div class="ref">${p.book==="PSA"?"Psalm":b.name} <em>${p.ch}</em></div>
+    <div class="ctitle">${esc(p.title)}</div>
+    <div class="ts-prog" aria-hidden="true">${[0,1,2,3].map(i=>`<i class="${st[i]?"on":""}"></i>`).join("")}</div>
+    <div class="ts-done" id="tsDone" ${k===4?"":"hidden"}><b>${I.check}Done for today</b><span>${nx?`Tomorrow: ${esc(refName(nx))}, ${esc(nx.title)}`:"You've reached the end of the path."}</span>${nx&&!isDone(nx.day)?`<button class="btn sm ghost" id="tsAhead">Read ahead${I.right}</button>`:""}</div>
+    <ol class="ts-list">${lab.map((t,i)=>`<li class="ts${st[i]?" done":""}${act===i?" open":""}" data-tsi="${i}">
+      <button class="ts-h" data-ts="${i}" aria-expanded="${act===i}" aria-controls="tsb${i}"><span class="ts-n" aria-hidden="true">${st[i]?I.check:i+1}</span><span class="ts-t"><b>${t[0]}<span class="sr-only">${st[i]?", done":""}</span></b><small>${esc(t[1])}</small></span><span class="chev">${I.chev}</span></button>
+      <div class="ts-b" id="tsb${i}" ${act===i?"":"hidden"}>${body[i]}</div></li>`).join("")}</ol>
+    <div class="finish">
+      <div class="pager">
+        <button class="icon-btn" id="prev" aria-label="Previous day" ${day<=1?"disabled":""}>${I.left}</button>
+        <button class="icon-btn" id="next" aria-label="Next day" ${day>=TOTAL?"disabled":""}>${I.right}</button>
+      </div>
+    </div>
+  </article>`}
+function stepGroupHTML(){
+  if(!G.on)return `<p class="ts-p">Talk to God about what you read. Thank him for one thing, and ask for help with one thing.</p>
+    <div class="actions"><button class="btn primary" id="tsPrayed">${I.check}I've prayed</button><button class="btn" data-qt>Guided quiet time</button></div>`;
+  const w=WK(curWk());let pr=null;
+  for(const id of members())if(id!==myKey())for(const [k,x] of Object.entries(G.people[id].pr||{}))if(x&&x.t&&!x.ans&&(!pr||String(x.at)>String(pr.at)))pr={id,...x};
+  return `<p class="ts-p">This week: <b>${esc(w.title)}</b>, ${esc(w.ref)}.</p>
+    ${pr?`<blockquote class="ts-pr"><span class="kicker">${pr.anon?"Someone":esc(pname(pr.id))} asked for prayer</span>${esc(String(pr.t).length>160?String(pr.t).slice(0,157)+"…":pr.t)}</blockquote>`:""}
+    <div class="actions"><button class="btn primary" id="tsGroup">${I.group}See what they said</button>${pr?`<button class="btn" id="tsPray">${I.hand}Pray for this</button>`:""}</div>`}
+function stepMark(day,k,quiet){state.step=state.step||{};if(state.step[day]?.[k])return stepSync(day);const st={...(state.step[day]||{}),[k]:1};state.step[day]=st;queue({step:{[day]:st}});if(!quiet)stepSync(day);else stepSync(day)}
+function stepSync(day){const el=$("#tstep");if(!el||view!=="today"||curDay()!==day)return;const st=stepState(day),k=st.filter(Boolean).length,lab=stepLabels(day);
+  el.querySelectorAll(".ts").forEach((li,i)=>{li.classList.toggle("done",st[i]);li.querySelector(".ts-n").innerHTML=st[i]?I.check:i+1;li.querySelector(".ts-t small").textContent=lab[i][1];li.querySelector(".ts-t b").firstChild.textContent=lab[i][0];li.querySelector(".sr-only").textContent=st[i]?", done":""});
+  el.querySelectorAll(".ts-prog i").forEach((d,i)=>d.classList.toggle("on",st[i]));$("#tsCount").textContent=`${k} of 4`;
+  const was=el.classList.contains("all");el.classList.toggle("all",k===4);$("#tsDone").hidden=k!==4;
+  if(k===4&&!was){const key="lamp-stepdone-"+day;let seen=false;try{seen=!!localStorage.getItem(key);localStorage.setItem(key,"1")}catch(e){}
+    if(!seen){if(!reduced()){burst($("#tsDone"),40);$("#tsDone").animate([{opacity:0,transform:"translateY(6px) scale(.98)"},{opacity:1,transform:"none"}],{duration:520,easing:"cubic-bezier(.16,1,.3,1)"})}buzz([20,40,20]);toast("Done for today. See you tomorrow.")}
+    const h=$(".dayhead h1");if(h)h.textContent="Done for today"}}
+function stepOpenAt(i){stepOpen=i;document.querySelectorAll("#tstep .ts").forEach((li,j)=>{const on=j===i&&!li.classList.contains("open");li.classList.toggle("open",on);li.querySelector(".ts-h").setAttribute("aria-expanded",on);li.querySelector(".ts-b").hidden=!on});if(i===2)rvPaint()}
+
+/* ================= Remember it: verse reviews on the FSRS-4.5 schedule ================= */
+const FW=[0.4872,1.4003,3.7145,13.8206,5.1618,1.2298,0.8975,0.031,1.6474,0.1367,1.0461,2.1072,0.0793,0.3246,1.587,0.2272,2.8755];
+const ymd=d=>{d=new Date(d);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`};
+const plusDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const clampD=d=>Math.min(10,Math.max(1,d));
+function srStart(){return {s:7,d:5,r:0,l:0,lr:ymd(new Date()),due:ymd(plusDays(new Date(),7))}}
+/* g: 1 forgot, 2 hard, 3 remembered */
+function srGrade(v,g){const now=new Date(),today=ymd(now);const t=v.lr?Math.max(0,Math.round((new Date(today+"T12:00")-new Date(v.lr+"T12:00"))/864e5)):0;
+  let S=v.s,Dd=v.d;
+  if(!S){S=FW[g-1];Dd=clampD(FW[4]-(g-3)*FW[5])}
+  else{const R=Math.pow(1+19/81*t/S,-0.5);Dd=clampD(FW[7]*FW[4]+(1-FW[7])*(Dd-FW[6]*(g-3)));
+    S=g===1?Math.min(S,FW[11]*Math.pow(Dd,-FW[12])*(Math.pow(S+1,FW[13])-1)*Math.exp(FW[14]*(1-R)))
+      :S*(Math.exp(FW[8])*(11-Dd)*Math.pow(S,-FW[9])*(Math.exp(FW[10]*(1-R))-1)*(g===2?FW[15]:1)+1)}
+  const iv=g===1?1:Math.min(365,Math.max(1,Math.round(S)));
+  return {...v,s:+S.toFixed(3),d:+Dd.toFixed(3),r:(v.r||0)+1,l:(v.l||0)+(g===1?1:0),lr:today,due:ymd(plusDays(now,iv))}}
+function srMigrate(){const ch={};for(const [k,v] of Object.entries(state.saved||{}))if(v&&(v.m||0)>=3&&!v.due){const from=v.md&&!isNaN(new Date(v.md))?new Date(v.md):new Date();
+  Object.assign(v,{s:7,d:5,r:0,l:0,lr:ymd(from),due:ymd(plusDays(from,7))});ch[k]={...v}}
+  if(Object.keys(ch).length)queue({saved:ch})}
+const RV={list:null,i:0,shown:false,n:0};
+function rvPlan(){const today=ymd(new Date()),td=new Date().toDateString();const all=Object.entries(state.saved||{}).filter(([,v])=>v&&v.text);
+  const due=all.filter(([,v])=>(v.m||0)>=3&&v.due&&v.due<=today).sort((a,b)=>a[1].due.localeCompare(b[1].due)).slice(0,5);
+  if(due.length)return {kind:"due",list:due};
+  const learn=all.find(([,v])=>(v.m||0)>=1&&(v.m||0)<3&&v.md!==td);if(learn)return {kind:"learn",k:learn[0],v:learn[1]};
+  if(!all.some(([,v])=>(v.m||0)>=1))return {kind:all.length?"start":"none-empty",k:all[0]?.[0],v:all[0]?.[1]};
+  return {kind:"none"}}
+function srTag(v){if(!v||(v.m||0)<3||!v.due)return"";const t=ymd(new Date());const d=Math.round((new Date(v.due+"T12:00")-new Date(t+"T12:00"))/864e5);
+  return `<span class="mdue">${d<=0?"Review today":d===1?"Review tomorrow":`Review in ${d} days`}</span>`}
+const firstLetters=t=>esc(t).split(/\s+/).map(w=>{const m=w.match(/^([“"‘(]*)(\w)(.*?)([.,;:!?”"’)]*)$/);return m?m[1]+m[2]+m[4]:w}).join(" ");
+function rvPaint(){const box=$("#rvBox");if(!box)return;const day=curDay();
+  if(RV.list===null||RV.day!==ymd(new Date())){const pl=rvPlan();RV.list=pl.kind==="due"?pl.list.map(x=>x[0]):[];RV.i=0;RV.shown=false;RV.n=0;RV.day=ymd(new Date())}
+  const known=Object.values(state.saved||{}).filter(v=>v&&(v.m||0)>=3).length;
+  if(RV.i<RV.list.length){const k=RV.list[RV.i],v=state.saved[k];if(!v){RV.i++;return rvPaint()}
+    box.innerHTML=`<div class="rv-card"><div class="rv-top"><span class="kicker">Review ${RV.i+1} of ${RV.list.length}</span><button class="btn sm ghost" id="rvPuz">Puzzle instead</button></div>
+      <div class="rv-ref">${esc(v.ref)}</div>
+      ${RV.shown?`<p class="rv-text">${esc(v.text)}</p><p class="muted rv-ask">How did you do?</p>
+        <div class="rv-grade"><button class="btn" data-g="1">Forgot</button><button class="btn" data-g="2">Hard</button><button class="btn primary" data-g="3">Remembered</button></div>`
+      :`<p class="rv-hint" id="rvHint">Say it from memory first.</p><div class="actions"><button class="btn" id="rvFl">First letters</button><button class="btn primary" id="rvShow">Show the verse</button></div>`}</div>`;
+    $("#rvShow")&&($("#rvShow").onclick=()=>{RV.shown=true;rvPaint()});
+    $("#rvFl")&&($("#rvFl").onclick=()=>{$("#rvHint").innerHTML=`<span class="rv-fl">${firstLetters(v.text)}</span>`;$("#rvFl").remove()});
+    $("#rvPuz").onclick=()=>openPuzzle(k);
+    box.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const g=+b.dataset.g;const nv=srGrade(state.saved[k],g);state.saved[k]=nv;queue({saved:{[k]:{...nv}}});
+      RV.n++;RV.i++;RV.shown=false;buzz(g===3?20:10);if(g===1)toast(`${v.ref} will come back tomorrow`);
+      if(RV.i>=RV.list.length)stepMark(day,"m");rvPaint()});
+    return}
+  if(RV.n){box.innerHTML=`<p class="rv-ok">${I.check}<span><b>Reviews done.</b> You know ${known} verse${known===1?"":"s"} by heart. Each comes back just before you'd forget it.</span></p>`;return}
+  const pl=rvPlan();
+  if(pl.kind==="learn")box.innerHTML=`<p class="ts-p">You're learning <b>${esc(pl.v.ref)}</b>: day ${(pl.v.m||0)+1} of 3.</p><div class="actions"><button class="btn primary" id="rvLearn">Practise now</button></div>`;
+  else if(pl.kind==="start")box.innerHTML=`<p class="ts-p">Pick one of your saved verses and learn it by heart over three days. After that, Lamp brings it back for a quick review just before you'd forget it.</p><div class="actions"><button class="btn primary" id="rvLearn">Start with ${esc(pl.v.ref)}</button></div>`;
+  else if(pl.kind==="none-empty")box.innerHTML=`<p class="ts-p">While you read, tap a verse that speaks to you and choose <b>Save</b>. Then you can learn it by heart here, a few minutes a day.</p>`;
+  else box.innerHTML=`<p class="rv-ok">${I.check}<span><b>Nothing due today.</b> ${known?`You know ${known} verse${known===1?"":"s"} by heart.`:""}</span></p>`;
+  $("#rvLearn")&&($("#rvLearn").onclick=()=>{memoKey=pl.k;memoLv=0;jTab="memo";setView("journal")})}
 let explainCtl=null;
 function markDone(day,btn){
   const before=earnedIds();
@@ -2166,6 +2398,7 @@ function markDone(day,btn){
 }
 const after={
   today(){
+    srMigrate();
     const day=curDay();const p=PLAN[day-1];
     if(!GEO)loadGeo().then(()=>view==="today"&&refreshThumbs());
     if(!BIBLE) loadBible().then(()=>{if(view!=="today")return;const m=minsFor(p),el=$("#mins");if(m&&el){el.textContent=`About ${m} min`;el.hidden=false}fillVotd()});
@@ -2173,11 +2406,17 @@ const after={
     document.querySelectorAll("[data-feel]").forEach(b=>b.onclick=()=>openFeel(b.dataset.feel));
     if(HAS_ORIG)(window.requestIdleCallback||setTimeout)(()=>fillWotd(),{timeout:2500});
     $("#gotIt")?.addEventListener("click",()=>{setSetting("welcomed",true);render()});
-    document.querySelectorAll(".reflect textarea").forEach(t=>t.addEventListener("input",()=>{
+    document.querySelectorAll("#tstep textarea").forEach(t=>t.addEventListener("input",()=>{
       const n=state.notes[day]||{};n[t.dataset.k]=t.value;n.at=new Date().toISOString();state.notes[day]=n;
-      queue({notes:{[day]:n}});$("#saved").textContent="Saved to your journal";
+      queue({notes:{[day]:n}});$("#saved").textContent="Saved to your journal";stepSync(day);
     }));
-    $("#markDone").onclick=e=>{markDone(day,e.currentTarget);render()};
+    $("#markDone").onclick=e=>{if(isDone(day)){stepOpenAt(1);return}markDone(day,e.currentTarget);stepOpen=null;render()};
+    document.querySelectorAll("[data-ts]").forEach(b=>b.onclick=()=>stepOpenAt(+b.dataset.ts));fbWire();
+    $("#tsAhead")?.addEventListener("click",()=>{state.selected=day+1;lsWrite();render();scrollTo({top:0,behavior:reduced()?"auto":"smooth"})});
+    rvPaint();
+    $("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});
+    $("#tsPray")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow()});
+    $("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});
     $("#prev").onclick=()=>{state.selected=Math.max(1,day-1);lsWrite();render()};
     $("#next").onclick=()=>{state.selected=Math.min(TOTAL,day+1);lsWrite();render()};
     $("#openReader").onclick=()=>openReader(day,false);
@@ -2223,7 +2462,7 @@ const after={
     if($("#mBack"))$("#mBack").onclick=()=>{memoLv--;reb()};
     if($("#mShow"))$("#mShow").onclick=()=>{const v=state.saved[memoKey];$("#memoBody").innerHTML=`<p class="memo-text">${esc(v.text)}</p>`};
     if($("#mGot"))$("#mGot").onclick=()=>{const v=state.saved[memoKey];const today=new Date().toDateString();
-      if(v.md!==today){v.m=Math.min(3,(v.m||0)+1);v.md=today;queue({saved:{[memoKey]:{...v}}})}
+      if(v.md!==today){v.m=Math.min(3,(v.m||0)+1);v.md=today;if(v.m>=3&&!v.due)Object.assign(v,srStart());queue({saved:{[memoKey]:{...v}}});stepMark(curDay(),"m",true)}
       burst($("#mGot"),v.m>=3?36:16);buzz(20);toast(v.m>=3?`You know ${v.ref} by heart`:`Nice. ${v.m} of 3 days done for ${v.ref}`);
       const next=Object.entries(state.saved).find(([k,x])=>x&&k!==memoKey&&(x.m||0)<3);memoLv=0;if(next)memoKey=next[0];setTimeout(reb,700)};
     document.querySelectorAll("[data-unsave]").forEach(b=>b.onclick=()=>{const k=b.dataset.unsave;state.saved[k]=null;queue({saved:{[k]:null}});render();toast("Removed from saved verses")});
@@ -2394,7 +2633,7 @@ function vJournal(){
     if(!saved.length) return head+`<div class="card empty">${I.bookmark}<h2>Hide a verse in your heart</h2><p>Save a verse while you read, then practise it here in four quick steps until you know it by heart.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
     if(!memoKey||!state.saved[memoKey])memoKey=(saved.find(([,v])=>(v.m||0)<3)||saved[0])[0];
     const v=state.saved[memoKey];
-    return head+`<div class="memo-pick" role="group" aria-label="Choose a verse">${saved.map(([k,x])=>`<button data-mk="${esc(k)}" aria-pressed="${k===memoKey}">${esc(x.ref)}<span class="mdots" aria-label="${x.m||0} of 3">${[0,1,2].map(i=>`<i class="${i<(x.m||0)?"on":""}"></i>`).join("")}</span></button>`).join("")}</div>
+    return head+`<div class="memo-pick" role="group" aria-label="Choose a verse">${saved.map(([k,x])=>`<button data-mk="${esc(k)}" aria-pressed="${k===memoKey}">${esc(x.ref)}${srTag(x)}<span class="mdots" aria-label="${x.m||0} of 3">${[0,1,2].map(i=>`<i class="${i<(x.m||0)?"on":""}"></i>`).join("")}</span></button>`).join("")}</div>
     <article class="card memo" id="memo"><div class="steps">${[0,1,2,3].map(i=>`<span class="${i<=memoLv?"on":""}"></span>`).join("")}</div>
       <div class="memo-lv">Step ${memoLv+1} of 4 · ${["Read it slowly, twice","Fill the gaps","First letters only","From memory"][memoLv]}</div>
       <div class="memo-ref">${esc(v.ref)}</div>
@@ -2402,7 +2641,7 @@ function vJournal(){
       <button class="btn sm gold mpz-go" id="mPuz">${I.spark}Play the verse puzzle${v.bt?` · best ${fmtSec(v.bt)}`:""}</button>
       <div class="memo-act">${memoLv>0?`<button class="btn ghost" id="mBack">Back</button>`:"<span></span>"}${memoLv<3?`<button class="btn primary" id="mNext">${memoLv===0?"I've read it":"Next step"}</button>`:`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="mShow">Show me</button><button class="btn primary" id="mGot">I said it right</button></div>`}</div>
     </article>
-    <p class="muted" style="font-size:.9rem">Say the verse out loud at each step. Tap any hidden word to peek. Getting it right on three different days fills all three dots.</p>`;
+    <p class="muted" style="font-size:.9rem">Say the verse out loud at each step. Tap any hidden word to peek. Getting it right on three different days fills all three dots. After that, Lamp brings the verse back for a quick review just before you'd forget it.</p>`;
   }
   if(jTab==="verses"){
     if(!saved.length) return head+`<div class="card empty">${I.bookmark}<h2>Verses worth keeping</h2><p>While reading, tap any verse and choose Save. It will be kept here so you can come back to it.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
@@ -2484,6 +2723,7 @@ function openPassage(p,listen,jumpV,opt){
         <div class="rend" id="rEnd"></div>
       </div>
     </div>
+    <nav class="rdock" id="rDock" aria-label="Chapter controls"></nav>
   </div>`;
   const rd=$(".reader");
   if(was){if(!reduced()&&rd.animate)rd.querySelector(".rinner").animate([{opacity:0,transform:"translateY(14px)"},{opacity:1,transform:"none"}],{duration:380,easing:"cubic-bezier(.16,1,.3,1)"})}
@@ -2527,16 +2767,27 @@ function renderScripture(blocks){
   return html;
 }
 function nbrChap(p,dir){let i=BCODES.indexOf(p.book),c=p.ch+dir;if(c<1){i--;if(i<0)return null;c=chCount(BCODES[i])}else if(c>chCount(p.book)){i++;if(i>=BCODES.length)return null;c=1}return passFor(BCODES[i],c)}
+function renderDock(){const d=$("#rDock");if(!d||!R)return;const p=R.p,pr=nbrChap(p,-1),nx=nbrChap(p,1),done=R.day&&isDone(R.day);
+  d.innerHTML=`<button id="dPrev" ${pr?"":"disabled"} aria-label="${pr?"Previous chapter: "+esc(refName(pr)):"No previous chapter"}">${I.left}<span>Back</span></button>
+    ${"speechSynthesis" in window?`<button id="dListen">${I.speak}<span>Listen</span></button>`:""}
+    <button id="dText">${I.aa}<span>Text</span></button>
+    ${R.day?`<button id="dDone" class="${done?"on":""}" aria-pressed="${!!done}">${I.check}<span>${done?"Read":"Mark read"}</span></button>`:""}
+    <button id="dNext" ${nx?"":"disabled"} aria-label="${nx?"Next chapter: "+esc(refName(nx)):"No next chapter"}">${I.right}<span>Next</span></button>`;
+  $("#dPrev").onclick=()=>pr&&(openPassage(pr,false,0,{stack:R.stack}),$("#rScroll").scrollTop=0);
+  $("#dNext").onclick=()=>nx&&(openPassage(nx,false,0,{stack:R.stack}),$("#rScroll").scrollTop=0);
+  $("#dListen")?.addEventListener("click",openListen);
+  $("#dText").onclick=e=>{e.stopPropagation();toggleFontPop()};
+  $("#dDone")?.addEventListener("click",e=>{if(isDone(R.day))return toast("Already marked as read");markDone(R.day,e.currentTarget);renderEnd()})}
 function renderEnd(){
-  const p=R.p;const done=R.day&&isDone(R.day);const pr=nbrChap(p,-1),nx=nbrChap(p,1);
+  const p=R.p;const done=R.day&&isDone(R.day);const pr=nbrChap(p,-1),nx=nbrChap(p,1);renderDock();
   $("#rEnd").innerHTML=`<p>End of ${esc(refName(p))}</p>
     ${R.day?`<button class="btn ${done?"done":"primary"}" id="rDone">${I.check}${done?"Marked as read":"Mark as read"}</button>
-    <button class="btn ghost" id="rReflect">Answer the three questions</button>`:""}
+    <button class="btn ghost" id="rReflect">Reflect on it</button>`:""}
     <div class="rnav">${pr?`<button id="rPrev"><small>Previous</small><b>${esc(refName(pr))}</b></button>`:"<span></span>"}${nx?`<button id="rNext"><small>Next</small><b>${esc(refName(nx))}</b></button>`:"<span></span>"}</div>
     <div class="who" id="rWho" hidden></div>`;
   if(R.day){
     $("#rDone").onclick=e=>{markDone(R.day,e.currentTarget);renderEnd()};
-    $("#rReflect").onclick=()=>{const d=R.day;closeReader();state.selected=d===nextDay()?null:d;setView("today");requestAnimationFrame(()=>{$(".reflect")?.scrollIntoView({block:"start"});$("#q1")?.focus({preventScroll:true,focusVisible:false})})};
+    $("#rReflect").onclick=()=>{const d=R.day;closeReader();state.selected=d===nextDay()||d===todayDone()?null:d;stepDay=d;stepOpen=1;setView("today");requestAnimationFrame(()=>{$('[data-tsi="1"]')?.scrollIntoView({block:"center"});$("#q1")?.focus({preventScroll:true,focusVisible:false})})};
   }
   $("#rPrev")?.addEventListener("click",()=>{openPassage(pr,false,0,{stack:R.stack});$("#rScroll").scrollTop=0});
   $("#rNext")?.addEventListener("click",()=>{openPassage(nx,false,0,{stack:R.stack});$("#rScroll").scrollTop=0});
@@ -2796,12 +3047,14 @@ function openSettings(){
     ${HAS_ORIG&&"caches" in window?`<div class="field"><span>Read without internet</span><small>Save the Bible on this device so it opens with no signal and uses no data later. Use Wi-Fi if you can.</small><div class="opts"><button id="offBible">Save the whole Bible · 4 MB</button><button id="offOrig">Add Greek and Hebrew · 7 MB</button></div><small id="offMsg" aria-live="polite"></small></div>`:""}
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
-    <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Lamp account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small></div>
+    <div class="field"><span>Read or listen</span><small>Which button comes first on Today. You can always use both.</small><div class="opts">${[["read","Read"],["listen","Listen"]].map(([k,l])=>`<button data-mode-opt="${k}" aria-pressed="${(s.mode||"read")===k}">${l}</button>`).join("")}</div></div>
+    <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Lamp account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small><small class="syncnote" data-syncnote></small></div>
     <div class="field"><span>Start over</span><small>Clears your reading progress. Your journal and saved verses stay.</small><div id="resetZone"><button class="btn sm ghost danger" id="reset1">Reset reading progress</button></div></div>
     <div class="row-end"><button class="btn primary" id="setDone">Done</button></div>
   </div></div>`);
   const close=()=>$("#scrim")?.remove();
-  $("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
+  document.querySelectorAll("[data-mode-opt]").forEach(b=>b.onclick=()=>{setSetting("mode",b.dataset.modeOpt);document.querySelectorAll("[data-mode-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
+  syncNote();$("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   if($("#offBible")){offCheck();$("#offBible").onclick=()=>offSave("bible");$("#offOrig").onclick=()=>offSave("orig")}
   document.querySelectorAll("[data-shrd]").forEach(b=>b.onclick=()=>{const on=b.dataset.shrd==="1";setSetting("shareRead",on);document.querySelectorAll("[data-shrd]").forEach(x=>x.setAttribute("aria-pressed",x===b));
@@ -3167,7 +3420,7 @@ function figsFor(p){const b=p.book,c=p.ch,o=[];
   if(["MRK","LUK","JHN","PSA"].includes(b))o.push("timeline");
   o.push("library");return [...new Set(o)].slice(0,3)}
 const THUMBZ={abraham:[1.45,"42%","48%"],family:[1.9,"50%","22%"],exodus:[1.5,"52%","58%"],tabernacle:[1.7,"38%","50%"],paul:[1.55,"58%","42%"],timeline:[2.3,"40%","30%"],library:[1.9,"22%","30%"],holyweek:[1.5,"55%","52%"]};
-function figCard(id,small){const f=FIGS[id];const z=THUMBZ[id]||[1,"50%","50%"];return `<button class="figcard ${small?"sm":""}" data-fig="${id}"><div class="figthumb" data-figthumb="${id}" style="--z:${z[0]};--fx:${z[1]};--fy:${z[2]}">${figSVG(id)}<span class="fexp">${I.open}Explore</span></div><div class="figmeta"><span class="kicker">${f.k}</span><b>${f.t}</b></div></button>`}
+function figCard(id,small){const f=FIGS[id];const z=THUMBZ[id]||[1,"50%","50%"];return `<button class="figcard ${small?"sm":""}" data-fig="${id}"><div class="figthumb" inert aria-hidden="true" data-figthumb="${id}" style="--z:${z[0]};--fx:${z[1]};--fy:${z[2]}">${figSVG(id)}<span class="fexp">${I.open}Explore</span></div><div class="figmeta"><span class="kicker">${f.k}</span><b>${f.t}</b></div></button>`}
 function refreshThumbs(){document.querySelectorAll("[data-figthumb]").forEach(el=>{const id=el.dataset.figthumb;if(FIGS[id].map)el.innerHTML=figSVG(id)})}
 
 /* ---- Viewer with pan and pinch zoom ---- */
@@ -3485,7 +3738,12 @@ const wkPass=w=>({book:w.sr?.book||"MAT",ch:w.c,day:0,title:""});
 function openWeekPassage(w){openPassage(passFor(w.sr?.book||"MAT",w.c),false,w.vs,{range:[w.vs,w.ve]})}
 
 /* ================= Group: view ================= */
-const GTABS=[["study","Study"],["ice","Icebreakers"],["games","Games"],["test","Test"],["prayer","Prayer"],["topics","Topics"]];
+const GTABS=[["study","This week"],["prayer","Prayer"],["games","Play"],["topics","Topics"]];
+const PLAY=[["games","Games"],["test","Test sets"],["ice","Icebreakers"]];
+const gIsTab=(k,sub=G.sub)=>k===sub||(k==="games"&&PLAY.some(([p])=>p===sub));
+function gSel(){document.querySelectorAll(".gtabs [data-gt]").forEach(x=>x.setAttribute("aria-selected",gIsTab(x.dataset.gt)));document.querySelectorAll(".gplay [data-gt]").forEach(x=>x.setAttribute("aria-pressed",x.dataset.gt===G.sub))}
+function gGo(k,b){G.sub=k;G.game=null;G.test=null;gSel();gTabInd();gBody(true);
+  if(b?.closest(".gtabs"))b.scrollIntoView({inline:"center",block:"nearest",behavior:reduced()?"auto":"smooth"})}
 function vGroup(){
   if(!G.wk)G.wk=curWk();
   const w=WK();const n=w.n;const sr=w.sr;const isCur=w.id===curWk();
@@ -3503,7 +3761,7 @@ function vGroup(){
   <div id="gLive"></div>
   ${G.ro&&G.on?`<div class="gnote">${I.spark}<span>You can read everything here, but saving to the group needs you to sign in. Your own reading still saves on this device.</span></div>`:""}
   ${!G.on?`<div class="gnote">${I.spark}<span>You're looking around without an account, so everything saves on this phone only.</span><button class="btn sm primary" onclick="LAMP_APP.signIn()">Sign in or join</button></div>`:""}
-  <nav class="gtabs" role="tablist" aria-label="Group sections">${GTABS.map(([k,l])=>`<button role="tab" data-gt="${k}" aria-selected="${G.sub===k}">${l}</button>`).join("")}<span class="gtab-ind" id="gTabInd"></span></nav>
+  <nav class="gtabs" role="tablist" aria-label="Group sections">${GTABS.map(([k,l])=>`<button role="tab" data-gt="${k}" aria-selected="${gIsTab(k)}">${l}</button>`).join("")}<span class="gtab-ind" id="gTabInd"></span></nav>
   <div id="gBody" class="gbody"></div>`;
 }
 after.group=()=>{
@@ -3512,16 +3770,18 @@ after.group=()=>{
   $("#gPeople").onclick=openPeople;
   $("#gSer")?.addEventListener("change",e=>{const sr=SERIES_ALL.find(x=>x.id===e.target.value);const cw=WK(curWk());G.wk=cw.sr===sr?cw.id:sr.weeks[0].id;G.wkPick=G.wk!==curWk();G.game=null;render()});
   document.querySelectorAll("[data-wk]").forEach(b=>b.onclick=()=>{G.wk=b.dataset.wk;G.wkPick=b.dataset.wk!==curWk();G.game=null;render()});
-  document.querySelectorAll("[data-gt]").forEach(b=>b.onclick=()=>{G.sub=b.dataset.gt;G.game=null;G.test=null;document.querySelectorAll("[data-gt]").forEach(x=>x.setAttribute("aria-selected",x===b));gTabInd();gBody(true);b.scrollIntoView({inline:"center",block:"nearest",behavior:reduced()?"auto":"smooth"})});
+  document.querySelectorAll(".gtabs [data-gt]").forEach(b=>b.onclick=()=>gGo(b.dataset.gt,b));
   requestAnimationFrame(gTabInd);gBody();gFaces();liveBanner();paintHere();paintRing();gDots();
 };
-function gTabInd(){const b=$(`[data-gt="${G.sub}"]`),i=$("#gTabInd");if(b&&i){i.style.width=b.offsetWidth+"px";i.style.transform=`translateX(${b.offsetLeft}px)`}}
+function gTabInd(){const b=[...document.querySelectorAll(".gtabs [data-gt]")].find(x=>gIsTab(x.dataset.gt)),i=$("#gTabInd");if(b&&i){i.style.width=b.offsetWidth+"px";i.style.transform=`translateX(${b.offsetLeft}px)`}}
 addEventListener("resize",()=>requestAnimationFrame(gTabInd));
 function gFaces(){const el=$("#gFaces");if(!el)return;const ids=members();const sh=ids.slice(-6).reverse();
   el.innerHTML=ids.length?`${sh.map(id=>face(id)).join("")}<span>${ids.length} ${ids.length===1?"member":"members"}</span>`:""}
 function gBody(anim){
   const el=$("#gBody");if(!el)return;
-  el.innerHTML=({study:gStudy,ice:gIce,games:gGames,test:gTest,prayer:gPrayer,topics:gTopics})[G.sub]();
+  const isPlay=PLAY.some(([p])=>p===G.sub);
+  el.innerHTML=(isPlay?`<div class="gplay" role="group" aria-label="Kinds of play">${PLAY.map(([k,l])=>`<button data-gt="${k}" aria-pressed="${G.sub===k}">${l}</button>`).join("")}</div>`:"")+({study:gStudy,ice:gIce,games:gGames,test:gTest,prayer:gPrayer,topics:gTopics})[G.sub]();
+  el.querySelectorAll(".gplay [data-gt]").forEach(b=>b.onclick=()=>gGo(b.dataset.gt,b));
   ({study:wStudy,ice:wIce,games:wGames,test:wTest,prayer:wPrayer,topics:wTopics})[G.sub]();
   gDots();
   if(anim&&!reduced())el.animate([{opacity:0,transform:"translateY(10px)"},{opacity:1,transform:"none"}],{duration:320,easing:"cubic-bezier(.16,1,.3,1)"});
@@ -3529,6 +3789,7 @@ function gBody(anim){
 /* repaint only the live slots, never the inputs someone may be typing in */
 function gPaint(part){
   if(view==="today"&&$("#gTeaser"))$("#gTeaser").outerHTML=groupTeaser();
+  if(view==="today")stepGroupRefresh();
   gDots();if($("#meet"))meetPaint();
   if(view!=="group")return;
   gFaces();liveBanner();paintHere();paintRing();
@@ -3565,8 +3826,8 @@ function wStudy(){
   kvText(w).then(t=>{const el=$("#gKv");if(el)el.textContent=t||w.ref});
   $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`MAT.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorize")};
   $("#gKvPic").onclick=async()=>{const t=await kvText(w);openPicture(t,`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,w.sr?.book||"MAT",w.kv[0])};
-  $("#gKvGame").onclick=()=>{G.sub="games";document.querySelectorAll("[data-gt]").forEach(x=>x.setAttribute("aria-selected",x.dataset.gt==="games"));gTabInd();startGame("verse")};
-  document.querySelectorAll("[data-gt-go]").forEach(b=>b.onclick=()=>$(`[data-gt="${b.dataset.gtGo}"]`).click());
+  $("#gKvGame").onclick=()=>{G.sub="games";gSel();gTabInd();startGame("verse")};
+  document.querySelectorAll("[data-gt-go]").forEach(b=>b.onclick=()=>gGo(b.dataset.gtGo,$(`.gtabs [data-gt="${b.dataset.gtGo}"]`)));
   document.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on){toast("Saving to the group isn't available for you yet");return}const k=b.dataset.ck;const on=!b.classList.contains("on");b.classList.toggle("on",on);if(on){burst(b,10);buzz(10)}gWrite({ck:{[w.id]:{[k]:on}}},1);paintStudy()});
   document.querySelectorAll("[data-qa]").forEach(t=>{const i=t.dataset.qa;const fit=()=>{t.style.height="auto";t.style.height=Math.min(320,t.scrollHeight+2)+"px"};fit();
     t.oninput=()=>{fit();$("#gs-"+i).textContent="Saving…";clearTimeout(t._t);t._t=setTimeout(()=>{gWrite({ans:{[w.id]:{["q"+i]:t.value.trim()?t.value:null}},aat:{[w.id]:{["q"+i]:t.value.trim()?new Date().toISOString():null}}});$("#gs-"+i).textContent=G.ref?"Saved":"Saved on this device";setTimeout(()=>{const s=$("#gs-"+i);if(s)s.textContent=""},1800)},500)}});
@@ -3898,6 +4159,7 @@ function openLeader(){
   const m=G.meta;
   openSheet(`<div class="pcard"><div class="kick">Leader tools</div><h2>Run the group</h2>
     <div class="field"><span>This week's study</span><select id="ldWk" class="search">${SERIES_ALL.map(sr=>`<optgroup label="${esc(sr.title)}">${sr.weeks.map((w,i)=>`<option value="${w.id}" ${w.id===curWk()?"selected":""}>Week ${i+1} · ${esc(w.ref)} · ${esc(w.title)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+    ${(()=>{const t=fbTotals(),a=t.more+t.same+t.less;return `<div class="field"><span>How's Lamp going? (this month)</span><small>${a?`${a} answer${a>1?"s":""}: ${t.more} reading more, ${t.same} about the same, ${t.less} reading less. Lamp only shows totals.`:"No answers yet this month. People are asked once a month on Today, after their first week."}</small></div>`})()}
     <div class="field"><span>Group name</span><input id="ldName" class="search" maxlength="40" value="${esc(m.name||"")}" placeholder="Our Bible study"></div>
     <div class="field"><span>When you meet</span><input id="ldWhen" class="search" maxlength="40" value="${esc(m.when||"")}" placeholder="Thursdays at 7 pm"></div>
     <label class="ldauto"><input type="checkbox" id="ldAuto" ${m.auto===false?"":"checked"}><span><b>Move on automatically</b><br>Everyone's app goes to the next passage 7 days after you save, so you only need to come here if the group takes longer on one.</span></label>
@@ -4143,7 +4405,7 @@ function paintRing(){const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="
   const DL=["M","T","W","T","F","S","S"];
   const lbl=wk.map((k,i)=>{const a=(i+.5)/7*2*Math.PI-Math.PI/2,r=R0+19;return `<text x="${(Math.cos(a)*r).toFixed(1)}" y="${(Math.sin(a)*r+4).toFixed(1)}" class="${i===ti?"now":""}">${DL[i]}</text>`}).join("");
   const done=total>=goal;const meOff=state.settings.shareRead===false;
-  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}"></i>`).join("")}</span></li>`}).join("");
+  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" role="img" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}"></i>`).join("")}</span></li>`}).join("");
   el.innerHTML=`<section class="card gring${done?" won":""}" aria-label="This week's reading together">
     <div class="rg-ring"><svg viewBox="-80 -80 160 160" role="img" aria-label="${total} of ${goal} readings this week">${arcs}${lbl}</svg>
       <div class="rg-mid"><b>${Math.round(pct*100)}%</b><span>${total} of ${goal}</span></div></div>
@@ -4469,6 +4731,8 @@ function ogPick(i){const w=OG.words[i];const L=OG.L;if(!w)return;OG.sel=i;
   if(matchMedia("(max-width:640px)").matches)$("#ogC").scrollIntoView({block:"nearest",behavior:reduced()?"auto":"smooth"})}
 
 /* ---------- Today teaser ---------- */
+function stepGroupRefresh(){const el=$("#tsGrp");if(!el||view!=="today")return;const open=document.activeElement&&el.contains(document.activeElement);if(open)return;
+  el.innerHTML=stepGroupHTML();const day=curDay();$("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});$("#tsPray")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow()});$("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});stepSync(day)}
 function groupTeaser(){
   const w=WK(curWk());const L=G.live&&G.live.ph!=="end"&&Date.now()-(G.live.at||0)<3*36e5;const n=members().length;
   return `<button class="card gteaser" id="gTeaser" data-v="group"><div class="gt-l"><div class="kicker">${L?"Live quiz on now":"This week in your group"}</div><b>${esc(w.title)}</b><span>${esc(w.ref)}${n>1?` · ${n} members`:""}</span></div><span class="gt-r">${L?`<span class="pulse"></span>Join`:"Open"}${I.right}</span></button>`;
@@ -4560,6 +4824,7 @@ function runOnboarding(){
     const finish=()=>{setSetting("onboarded",true);setSetting("welcomed",true);if(idx()>=3)view="group";render();onb.animate([{opacity:1},{opacity:0}],{duration:250,fill:"forwards"}).finished.then(()=>{onb.hidden=true;$("#introHello").style.display="";st.getAnimations().forEach(a=>a.cancel());res()})};
     next.onclick=e=>{e.stopPropagation();const i=idx();if(i>=3)finish();else sl.scrollTo({left:(i+1)*sl.clientWidth,behavior:rm?"auto":"smooth"})};
     $("#onbSkip").onclick=e=>{e.stopPropagation();finish()};
+    onb.querySelectorAll("[data-mode]").forEach(b=>b.onclick=e=>{e.stopPropagation();setSetting("mode",b.dataset.mode);onb.querySelectorAll("[data-mode]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
     sync();setTimeout(()=>next.focus(),400);
   });
 }

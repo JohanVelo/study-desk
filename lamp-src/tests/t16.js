@@ -16,7 +16,7 @@ const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.messag
 const log=[];const shot=n=>p.screenshot({path:`s10/${n}-${w}.png`});
 await p.goto(base);await p.waitForTimeout(1800);
 await shot('today');
-await p.click('#gTeaser');await p.waitForTimeout(1200);await shot('group');
+await p.evaluate(()=>setView('group'));await p.waitForTimeout(1200);await shot('group');
 // study
 await p.fill('[data-qa="1"]','Because he loves us and wants us to talk with him.');await p.waitForTimeout(1600);
 log.push('ans saved: '+await p.evaluate(()=>JSON.stringify(__mock.store.get('gm/u_me')?.ans)));
@@ -24,7 +24,7 @@ await p.click('[data-others="0"]');await p.waitForTimeout(400);
 await p.click('[data-ck="read"]');await p.waitForTimeout(500);
 await p.evaluate(()=>document.querySelector('.gqs').scrollIntoView());await p.waitForTimeout(300);await shot('study-qs');
 // icebreakers
-await p.click('[data-gt="ice"]');await p.waitForTimeout(600);await shot('ice');
+await p.click('.gtabs [data-gt="games"]');await p.waitForTimeout(300);await p.click('[data-gt="ice"]');await p.waitForTimeout(600);await shot('ice');
 await p.click('#iceNext');await p.waitForTimeout(600);
 await p.evaluate(()=>document.querySelector('.wheelcard').scrollIntoView());await p.click('#spin');await p.waitForTimeout(4600);await shot('wheel');
 log.push('wheel: '+await p.textContent('#wRes'));

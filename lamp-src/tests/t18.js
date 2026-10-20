@@ -14,7 +14,7 @@ for(const [mode,pre] of Object.entries(modes)){for(const cs of ['light','dark'])
  await p.evaluate(()=>setView('group'));await p.waitForTimeout(1200);
  const info=await p.evaluate(()=>({lead:!!document.querySelector('#gLead'),note:document.querySelector('.gnote')?.textContent||'',ro:G.ro,on:G.on,dis:document.querySelectorAll('.ganswer[disabled]').length,sw:document.documentElement.scrollWidth}));
  await p.screenshot({path:`s11/${mode}-${cs}-study.png`});
- for(const t of ['ice','games','test','prayer','topics']){await p.click(`[data-gt="${t}"]`);await p.waitForTimeout(700);await p.screenshot({path:`s11/${mode}-${cs}-${t}.png`,fullPage:true})}
+ for(const t of ['games','ice','test','prayer','topics']){await p.click(`[data-gt="${t}"]`);await p.waitForTimeout(700);await p.screenshot({path:`s11/${mode}-${cs}-${t}.png`,fullPage:true})}
  await p.click('[data-gt="games"]');await p.waitForTimeout(400);await p.click('[data-game="live"]');await p.waitForTimeout(600);const live=await p.evaluate(()=>document.querySelector('#toast,.toast')?.textContent||document.querySelector('#gGame')?.textContent.slice(0,80));
  console.log(mode,cs,JSON.stringify(info),'live:',live,'ERR',errs.join('|')||'none');await ctx.close()}}
 await b.close()})();

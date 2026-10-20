@@ -221,16 +221,18 @@
     const reg = await navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).catch(() => null);
     if (!reg) return;
     const t0 = Date.now(); let had = !!navigator.serviceWorker.controller, waiting = false, idle = Date.now();
-    const busy = () => document.activeElement?.matches?.("input,textarea,select,[contenteditable]") || document.querySelector(".live-on,[data-live-busy]");
+    const busy = () => document.activeElement?.matches?.("input,textarea,select,[contenteditable]") || document.querySelector(".live-on,[data-live-busy]") || window.LAMP_BUSY?.();
     const swap = () => { if (waiting) { waiting = false; sessionStorage.setItem("lamp-updated", "1"); location.reload(); } };
     navigator.serviceWorker.addEventListener("controllerchange", () => {
       if (!had) { had = true; return; }
       waiting = true;
-      if (document.hidden || Date.now() - t0 < 20000) swap();
+      if ((document.hidden && !busy()) || Date.now() - t0 < 20000) swap();
     });
     const check = () => reg.update().catch(() => {});
     ["pointerdown", "keydown", "scroll", "touchstart"].forEach(e => addEventListener(e, () => { idle = Date.now(); }, { passive: true, capture: true }));
-    document.addEventListener("visibilitychange", () => { if (document.hidden) swap(); else check(); });
+    document.addEventListener("visibilitychange", () => { if (document.hidden) { if (!busy()) swap(); } else check(); });
+    // ask the phone to keep Lamp's saved data (iPhone can clear website data after 7 days without a visit)
+    navigator.storage?.persist?.().catch(() => {});
     setInterval(() => { if (waiting && !busy() && Date.now() - idle > 120000) swap(); }, 15000);
     setInterval(check, 30 * 60000);
     check();

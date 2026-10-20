@@ -35,7 +35,7 @@ const g=await p.evaluate(()=>gcal(remEvent('read','07:30')));ok(g.includes('RRUL
 const ic=await p.evaluate(()=>ics(remEvent('meet')));ok(/RRULE:FREQ=WEEKLY/.test(ic)&&/T190000/.test(ic),tag+' weekly ics at 19:00');
 await p.click('#shX');await p.waitForTimeout(200);
 // group: replies
-await p.click('#gTeaser');await p.waitForTimeout(1300);
+await p.evaluate(()=>setView('group'));await p.waitForTimeout(1300);
 ok((await p.textContent('#gm-1')).includes('Love this'),tag+' reply to my answer shown');
 ok(await p.evaluate(()=>document.querySelector('[data-gt="study"] .gdot')?.textContent==='4'),tag+' study new count includes reply: '+await p.evaluate(()=>document.querySelector('[data-gt="study"] .gdot')?.textContent));
 await p.click('[data-others="0"]');await p.waitForTimeout(400);

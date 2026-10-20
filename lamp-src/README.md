@@ -7,7 +7,7 @@ The deployed app is in `../lamp/` (GitHub Pages). This folder is what it's built
 - `app/config.json` — Supabase URL and **publishable** key only. Never put the secret/service_role key anywhere.
 - `app/src/schema.sql` — the Supabase tables and rules.
 - `app/mkorig.py` — rebuilds `orig/` from STEPBible data (CC BY 4.0).
-- `tests/` — Playwright checks (t22–t35). `t2x` tests that use port 8765 serve `lamp/`; ones on 8767 serve `app/dist/`. Port 8765 is used by QGIS on JJ's laptop, so only run those in a sandbox.
+- `tests/` — Playwright checks for `lamp.html` on port 8765 (t16–t39) and `runall.sh` to run everything. `app/t22–t35` test the installed app on port 8767 (`app/dist/`). Port 8765 is used by QGIS on JJ's laptop, so only run those in a sandbox.
 - `tools/` — scripts and data that were used to build the group studies (`gdata.js`, `gjames.js`), test sets and diagrams.
 
 Build and deploy:

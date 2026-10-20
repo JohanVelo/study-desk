@@ -51,7 +51,7 @@ rep('const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn
     'const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Learn"],["journal","Journal"]];')
 rep('const n={"1":"today","2":"group","3":"path","4":"learn","5":"journal","6":"ask"}[e.key]', 'const n={"1":"today","2":"group","3":"path","4":"learn","5":"journal"}[e.key]')
 rep('.tabbar{display:grid;grid-template-columns:repeat(6,1fr);', '.tabbar{display:grid;grid-template-columns:repeat(5,1fr);')
-rep('</style>', '#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}\n.gnote .btn{margin-left:auto;flex:none}\n</style>')
+rep('</style>', '#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}\n.gnote .btn{margin-left:auto;flex:none}\n</style>')
 # account in Settings
 rep('''    <div class="field"><span>Home screen</span>''', '''    ${window.LAMP_APP?.signedIn?`<div class="field"><span>Your account</span><small>Signed in as <b>${esc(LAMP_APP.name)}</b> (${esc(LAMP_APP.email)}).</small><div class="opts"><button id="acName">Change my name</button><button id="acOut">Sign out</button></div></div>`:`<div class="field"><span>Your account</span><small>You're looking around without an account. Sign in to save to the group.</small><div class="opts"><button id="acIn">Sign in or join</button></div></div>`}
     <div class="field"><span>Home screen</span>''')

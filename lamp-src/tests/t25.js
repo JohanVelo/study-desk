@@ -21,7 +21,7 @@ const tag=`${w}-${cs}`;const shot=n=>p.screenshot({path:`${__dirname}/s12/${n}-$
 await p.goto(base);await p.waitForTimeout(1800);
 ok(await p.evaluate(()=>!!document.querySelector('#tabBtns [data-v="group"].hasnew,#navBtns [data-v="group"].hasnew')),tag+' group tab shows a new dot');
 await shot('today');
-await p.click('#gTeaser');await p.waitForTimeout(1300);
+await p.evaluate(()=>setView('group'));await p.waitForTimeout(1300);
 ok(await p.evaluate(()=>document.querySelector('[data-gt="study"] .gdot')?.textContent==='3'),tag+' study tab shows 3 new');
 ok(await p.evaluate(()=>document.querySelector('[data-gt="prayer"] .gdot')?.textContent==='2'),tag+' prayer tab shows 2 new');
 await shot('group');

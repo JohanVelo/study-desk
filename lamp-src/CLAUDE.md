@@ -45,9 +45,13 @@ A Bible reading and study-group app. It has a 190-day reading path, a reader wit
 
 **Installed-app-only features** are gated on `HAS_ORIG` (a manifest link is present): Greek/Hebrew, the extra 116 engravings, offline Bible download, word of the day, calendar files.
 
-**Data:** each person's progress is one document `data/users/<id>/progress` `{done, notes, saved, hl, qt, settings}`, copied to localStorage key `lamp-state-v1` on every change and merged field by field on connect. Group: `group/meta` (week, auto-advance), one `gm/<uid>` document per member (answers, prayers, replies, reactions, reading days `rd`), `live/game` + `lv/<uid>` for live quizzes.
+**Data:** each person's progress is one document `data/users/<id>/progress` `{done, notes, saved, hl, qt, step, settings}`, copied to localStorage key `lamp-state-v1` on every change and merged field by field on connect. Group: `group/meta` (week, auto-advance), one `gm/<uid>` document per member (answers, prayers, replies, reactions, reading days `rd`), `live/game` + `lv/<uid>` for live quizzes.
 
-**Known weak spot:** unsent changes are held in memory only (`pending` in `queue()`/`flush()`); a failed send is not retried on reconnect. Fixing this (an outbox in IndexedDB) is planned.
+- `step[day] = {m, g}`: Today's step flags (steps 1 and 2 come from `done` and `notes`).
+- `saved[k]`: `m` 0–3 is the 3-day learning phase; after that FSRS-4.5 review fields `s, d, r, l, lr, due` (`srGrade`, `srStart`, `srMigrate`). Merge keeps the record with the higher `m` or later `lr`.
+- `gm/<uid>.fb[YYYY-MM]` = the monthly "How's Lamp?" choice; the leader sees totals only. Written comments never go to the database: the person sends them through their own share sheet.
+- Unsent changes live in localStorage `lamp-outbox-v1` and are retried on `online`, on return to the app and with back-off (`flush`, `resync`). `window.LAMP_BUSY()` stops silent updates during quiet time, Listen, puzzles, meeting mode, the reader and memorising.
+- Today shows the chapter finished today (`todayDone()`) until midnight, so its four steps can be completed.
 
 ## Run, test, deploy
 
@@ -63,7 +67,7 @@ PW=$(npm root -g)/playwright node lamp-src/tests/t33.js
 ```
 
 - Port 8765 is QGIS on JJ's laptop: only use it in a sandbox.
-- Tests: t25 group, t27 replies/pictures/reminders, t28, t31 reading ring, t33 Listen/feelings/puzzle, t34 highlights/page colours; app tests t22, t23, t26 silent update, t29, t30 Greek/Hebrew, t32 word of the day, t35 offline download. `<FILL IN: one runall script>`.
+- Tests: t25 group, t27 replies/pictures/reminders, t28, t31 reading ring, t33 Listen/feelings/puzzle, t34 highlights/page colours; app tests t22, t23, t26 silent update, t29, t30 Greek/Hebrew, t32 word of the day, t35 offline download; t36 streak and offline outbox, t37 Today's step and reviews, t38 first week, group tabs, reader bar, How's Lamp, path order and no tracking, t39 axe-core. Installed-app tests (t22, t23, t26, t29, t30, t32, t35) live in `lamp-src/app/`. Run them all with `lamp-src/tests/runall.sh` (one at a time, stops on failure).
 - After any change, at minimum: the test for that feature, t26 (updates), t35 (offline), plus screenshots.
 - **Deploy:** `cd lamp-src/app && python3 build.py && cp -r dist/. ../../lamp/ && rm -rf dist`, then commit as `JohanVelo <jjscholtz09@gmail.com>` and push `main`. Pages deploys; phones update silently on next open. Then check the `iphone-shots` screenshots.
 - **Artifact (until retired):** publish `lamp-src/lamp/lamp.html` to the artifact URL above, keeping its capabilities (`db` rules, `user`, `sample`, `downloads`).

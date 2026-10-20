@@ -14,7 +14,7 @@ const t=await p.textContent('.hl-list');ok(/God so loved/.test(t),tag+' text loa
 ok(await p.evaluate(()=>{const s=document.querySelector('.seg');return s.scrollWidth<=s.clientWidth+1||true}),'');
 await p.click('[data-hlf="g"]');await p.waitForTimeout(1500);ok(await p.$$eval('.hlcard',x=>x.length)===2,tag+' gold filter');
 await p.click('[data-hlo]');await p.waitForTimeout(1500);ok(!!await p.$('.reader'),tag+' read opens');
-await p.click('#rFont, [aria-label="Text size"], [aria-label*="Reading settings"]').catch(()=>p.evaluate(()=>toggleFontPop()));await p.waitForTimeout(400);
+await p.click('#dText:visible, #rFont:visible, [aria-label="Text size"], [aria-label*="Reading settings"]').catch(()=>p.evaluate(()=>toggleFontPop()));await p.waitForTimeout(400);
 if(!await p.$('#fontpop'))await p.evaluate(()=>toggleFontPop());
 await p.click('[data-page="paper"]');await p.waitForTimeout(400);ok(await p.evaluate(()=>document.querySelector('.reader').classList.contains('pg-paper')),tag+' paper');await shot('paper');
 await p.click('[data-page="night"]');await p.waitForTimeout(400);await p.evaluate(()=>$("#fontpop")?.remove());await shot('night');
