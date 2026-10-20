@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020182331">
+<link rel="stylesheet" href="app.css?v=20261020182739">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020182331"></script>
+<script src="app.js?v=20261020182739"></script>
 </head>
 <body>
 <style>
@@ -1476,6 +1476,7 @@ html.meeting{overflow:hidden}
 .hlcard blockquote{margin:0;font-family:var(--f-text);font-size:1.05rem;line-height:1.6}
 .hlcard footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .hlcard cite{font-style:normal;font-weight:700;color:var(--gold)}
+#offBible,#offOrig{display:inline-flex;align-items:center;gap:6px}#offBible svg,#offOrig svg{width:16px;height:16px;flex:none}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2792,6 +2793,7 @@ function openSettings(){
     <div class="field"><span>Home screen</span><small>Open Lamp with one tap, like an app.</small><div class="opts"><button id="setInstall">Put Lamp on my phone</button></div></div>
     <div class="field"><span>Group reading ring</span><small>Lets your group see which days you read this week, so you can cheer each other on. It never shows what you wrote.</small><div class="opts"><button data-shrd="1" aria-pressed="${s.shareRead!==false}">Share my reading days</button><button data-shrd="0" aria-pressed="${s.shareRead===false}">Keep them private</button></div></div>
     <div class="field"><span>Reminders</span><small>Put them in your phone's calendar, and it reminds you even when Lamp is closed.</small><div class="opts"><button id="remRead">Daily reading</button><button id="remMeet">Group meeting</button></div></div>
+    ${HAS_ORIG&&"caches" in window?`<div class="field"><span>Read without internet</span><small>Save the Bible on this device so it opens with no signal and uses no data later. Use Wi-Fi if you can.</small><div class="opts"><button id="offBible">Save the whole Bible · 4 MB</button><button id="offOrig">Add Greek and Hebrew · 7 MB</button></div><small id="offMsg" aria-live="polite"></small></div>`:""}
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
     <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Lamp account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small></div>
@@ -2801,6 +2803,7 @@ function openSettings(){
   const close=()=>$("#scrim")?.remove();
   $("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  if($("#offBible")){offCheck();$("#offBible").onclick=()=>offSave("bible");$("#offOrig").onclick=()=>offSave("orig")}
   document.querySelectorAll("[data-shrd]").forEach(b=>b.onclick=()=>{const on=b.dataset.shrd==="1";setSetting("shareRead",on);document.querySelectorAll("[data-shrd]").forEach(x=>x.setAttribute("aria-pressed",x===b));
     if(G.on&&!G.ro){if(on)ringShare();else{const r=mine().rd||{};const patch={};for(const k of Object.keys(r))patch[k]=null;if(Object.keys(patch).length)gWrite({rd:patch},1)}}});
   document.querySelectorAll("[data-intro]").forEach(b=>b.onclick=()=>{setSetting("intro",b.dataset.intro==="1");document.querySelectorAll("[data-intro]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
@@ -3968,6 +3971,20 @@ function paintHere(){const el=$("#gHereRow");if(!el)return;if(!G.on){el.innerHTM
 
 
 
+
+
+/* ================= Save the Bible for reading offline ================= */
+const OFF_LIST=k=>k==="bible"?CANON.map(c=>`bib/BSB/${c}.json`).concat(CANON.map(c=>`bib/x/${c}.json`)):CANON.map(c=>`orig/${c}.json`).concat(["orig/lex-g.json","orig/lex-h.json"]);
+async function offHave(k){try{let n=0;const L=OFF_LIST(k);for(const u of L)if(await caches.match(u))n++;return [n,L.length]}catch(e){return [0,1]}}
+async function offCheck(){for(const k of ["bible","orig"]){const [n,t]=await offHave(k);const b=$(k==="bible"?"#offBible":"#offOrig");if(b&&n===t){b.innerHTML=`${I.check}${k==="bible"?"Bible saved":"Greek and Hebrew saved"}`;b.setAttribute("aria-pressed","true")}}}
+let offBusy=false;
+async function offSave(k){if(offBusy)return;const b=$(k==="bible"?"#offBible":"#offOrig");if(b?.getAttribute("aria-pressed")==="true")return toast("Already saved on this device");
+  offBusy=true;const L=OFF_LIST(k);let done=0,bad=0;const msg=t=>{const m=$("#offMsg");if(m)m.textContent=t};
+  const q=[...L];const work=async()=>{while(q.length){const u=q.shift();try{if(!(await caches.match(u))){const r=await fetch(u);if(!r.ok)throw 0;await (await caches.open("lamp-data-v1")).put(u,r)}}catch(e){bad++}done++;msg(`Saving… ${Math.round(done/L.length*100)}%`)}};
+  await Promise.all([work(),work(),work(),work()]);offBusy=false;
+  await new Promise(r=>setTimeout(r,600));const [n,t]=await offHave(k);
+  if(n===t){msg(k==="bible"?"The whole Bible is saved. It opens even with no signal.":"Greek and Hebrew are saved for offline use.");await offCheck();burst(b,16);buzz(12)}
+  else msg(`Saved ${n} of ${t} files. ${bad?"The connection dropped for some. ":""}Tap again to finish.`)}
 
 /* ================= Journal: highlights ================= */
 let hlF="all";
