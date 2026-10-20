@@ -53,7 +53,7 @@ A Bible reading and study-group app. It has a 190-day reading path, a reader wit
 
 ```bash
 # build the installed app
-cd lamp-src/app && python3 build.py
+(cd lamp-src/app && python3 build.py)
 # serve it for tests (8767 = installed app, 8765 = lamp.html as the artifact)
 python3 -m http.server 8767 --directory lamp-src/app/dist &
 mkdir -p /tmp/lt && cp lamp-src/lamp/lamp.html /tmp/lt/ && ln -sfn $PWD/lamp/{bib,art,bible.json,geo.json,tests.json} /tmp/lt/
