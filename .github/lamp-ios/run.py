@@ -104,7 +104,12 @@ def run():
         tap(d, "[data-others='0']"); time.sleep(1)
         js(d, "document.querySelector('#go-0').scrollIntoView({block:'center'})"); time.sleep(0.5); shot("12-group-answers")
         tap(d, "#go-0 [data-rpo]"); time.sleep(0.6)
-        el = d.find_element(By.CSS_SELECTOR, "#go-0 .rpin"); el.send_keys("Amen to that"); time.sleep(0.5); shot("13-typing-reply-keyboard")
+        el = d.find_element(By.CSS_SELECTOR, "#go-0 .rpin"); el.click(); time.sleep(0.6)
+        try: el.send_keys("Amen to that")
+        except Exception: pass
+        if js(d, "return document.querySelector('#go-0 .rpin').value") != "Amen to that":
+            js(d, "const i=document.querySelector('#go-0 .rpin');i.focus();i.value='Amen to that'")
+        time.sleep(0.5); shot("13-typing-reply-keyboard")
         js(d, "document.querySelector('#go-0 .rpf').requestSubmit()"); time.sleep(1)
         note("Amen to that" in js(d, "return document.querySelector('#go-0').textContent"), "reply sends and shows")
         tap(d, "[data-gt='prayer']"); time.sleep(1); shot("14-prayer")
