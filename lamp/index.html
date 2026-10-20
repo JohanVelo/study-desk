@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020174520">
+<link rel="stylesheet" href="app.css?v=20261020180344">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020174520"></script>
+<script src="app.js?v=20261020180344"></script>
 </head>
 <body>
 <style>
@@ -1422,6 +1422,41 @@ html.meeting{overflow:hidden}
 .wd-v cite{font-style:normal;font-weight:700;color:var(--gold);white-space:nowrap}
 .wd-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:4px;font-size:.86rem}
 .wd-foot .btn svg{width:15px;height:15px}
+
+.ls-t{display:flex;flex-direction:column;gap:2px;min-width:0}.ls-t b{font-family:var(--f-display);font-size:1.25rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ls-rate{font-weight:700;font-size:.9rem;font-variant-numeric:tabular-nums}
+#lsSnd[aria-pressed="true"]{background:#E2B758;color:#1a1408;border-color:#E2B758}
+.ls-verse{font-family:var(--f-display);font-size:clamp(1.6rem,4.4vw,2.8rem);line-height:1.32;text-wrap:balance;max-width:26ch;margin:6px 0}
+.ls .qs,.fd .qs{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.ls-bot{position:relative;display:flex;flex-direction:column;align-items:center;gap:16px;padding:6px 20px calc(24px + env(safe-area-inset-bottom,0px))}
+.ls-bar{width:min(100%,520px);height:4px;border-radius:2px;background:rgba(242,235,220,.18);overflow:hidden}
+.ls-bar i{display:block;height:100%;width:0;background:#E2B758;border-radius:2px;transition:width .6s var(--expo,ease)}
+.ls-ctl{display:flex;align-items:center;gap:22px}
+.ls-play{width:72px;height:72px;border-radius:50%;border:0;display:grid;place-items:center;background:#E2B758;color:#1a1408;box-shadow:0 14px 44px -12px rgba(226,183,88,.8);transition:transform .25s var(--spring)}
+.ls-play:active{transform:scale(.94)}.ls-play svg{width:30px;height:30px}
+.feelrow{display:flex;flex-direction:column;gap:10px}
+.feel-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 2px 6px;margin:0 -2px;scroll-snap-type:x proximity}
+.feel-chips::-webkit-scrollbar{display:none}
+.feel-chips button{flex:none;display:inline-flex;align-items:center;gap:7px;min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:.92rem;scroll-snap-align:start;transition:border-color .2s,transform .25s var(--spring)}
+.feel-chips button:hover{border-color:var(--gold)}.feel-chips button:active{transform:scale(.96)}
+.feel-chips span{font-size:1.1rem}
+#fdSave svg{width:16px;height:16px;margin-right:6px;vertical-align:-3px}
+.mpz-go{align-self:flex-start}
+.pcard.pz{width:100%;min-width:0;max-width:100%}
+.pz-pool{min-width:0}
+.pz-built{overflow-wrap:anywhere;min-height:3.2em;font-family:var(--f-text);font-size:1.15rem;line-height:1.6;margin:0;padding:14px 16px;border-radius:14px;background:var(--sunk);border:1px dashed var(--line)}
+.pz-ph{color:var(--muted);font-family:var(--f-body);font-size:.92rem}
+.pz-pool{display:flex;flex-wrap:wrap;gap:8px}
+.pz-pool button{min-height:44px;padding:6px 14px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:500 1rem var(--f-text);box-shadow:var(--shadow);transition:opacity .3s,transform .25s var(--spring),background .2s}
+.pz-pool button:active{transform:scale(.95)}
+.pz-pool button.pz-done{opacity:0;transform:scale(.8);pointer-events:none}
+.pz-pool button.pz-no{background:color-mix(in srgb,#C0473B 18%,var(--surface));border-color:#C0473B}
+.pz-pool button.pz-hint{background:var(--gold-soft);border-color:var(--gold)}
+.pz-stat{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.9rem;color:var(--muted)}
+.pz-win{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0;text-align:center}
+.pz-win b{font-family:var(--f-display);font-size:1.8rem}.pz-win span{color:var(--muted)}
+.pz-stars{display:flex;gap:6px;font-size:2.2rem;line-height:1}.pz-stars span{color:color-mix(in srgb,var(--ink) 15%,transparent)}.pz-stars span.on{color:var(--gold);animation:pop2 .5s var(--spring) both}
+.pz-stars span:nth-child(2){animation-delay:.12s}.pz-stars span:nth-child(3){animation-delay:.24s}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2037,6 +2072,7 @@ function vToday(){
   </section>`:""}
   ${installTip()}
   ${qtCard()}
+  ${feelRow()}
   ${groupTeaser()}
   ${arcHTML(actFor(p))}
   <div class="tgrid"><aside class="tside">
@@ -2114,6 +2150,7 @@ const after={
     if(!GEO)loadGeo().then(()=>view==="today"&&refreshThumbs());
     if(!BIBLE) loadBible().then(()=>{if(view!=="today")return;const m=minsFor(p),el=$("#mins");if(m&&el){el.textContent=`About ${m} min`;el.hidden=false}fillVotd()});
     fillVotd();
+    document.querySelectorAll("[data-feel]").forEach(b=>b.onclick=()=>openFeel(b.dataset.feel));
     if(HAS_ORIG)(window.requestIdleCallback||setTimeout)(()=>fillWotd(),{timeout:2500});
     $("#gotIt")?.addEventListener("click",()=>{setSetting("welcomed",true);render()});
     document.querySelectorAll(".reflect textarea").forEach(t=>t.addEventListener("input",()=>{
@@ -2161,6 +2198,7 @@ const after={
     const reb=()=>{render();if(!reduced())$("#memo")?.animate([{opacity:.4,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:300,easing:"cubic-bezier(.16,1,.3,1)"})};
     document.querySelectorAll(".mw").forEach(b=>b.onclick=()=>{b.textContent=b.dataset.w;b.classList.remove("hid","fl");b.classList.add("shown")});
     if($("#mNext"))$("#mNext").onclick=()=>{memoLv++;reb()};
+    if($("#mPuz"))$("#mPuz").onclick=()=>openPuzzle(memoKey);
     if($("#mBack"))$("#mBack").onclick=()=>{memoLv--;reb()};
     if($("#mShow"))$("#mShow").onclick=()=>{const v=state.saved[memoKey];$("#memoBody").innerHTML=`<p class="memo-text">${esc(v.text)}</p>`};
     if($("#mGot"))$("#mGot").onclick=()=>{const v=state.saved[memoKey];const today=new Date().toDateString();
@@ -2339,6 +2377,7 @@ function vJournal(){
       <div class="memo-lv">Step ${memoLv+1} of 4 · ${["Read it slowly, twice","Fill the gaps","First letters only","From memory"][memoLv]}</div>
       <div class="memo-ref">${esc(v.ref)}</div>
       <div id="memoBody">${memoBody(v.text)}</div>
+      <button class="btn sm gold mpz-go" id="mPuz">${I.spark}Play the verse puzzle${v.bt?` · best ${fmtSec(v.bt)}`:""}</button>
       <div class="memo-act">${memoLv>0?`<button class="btn ghost" id="mBack">Back</button>`:"<span></span>"}${memoLv<3?`<button class="btn primary" id="mNext">${memoLv===0?"I've read it":"Next step"}</button>`:`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="mShow">Show me</button><button class="btn primary" id="mGot">I said it right</button></div>`}</div>
     </article>
     <p class="muted" style="font-size:.9rem">Say the verse out loud at each step. Tap any hidden word to peek. Getting it right on three different days fills all three dots.</p>`;
@@ -2411,7 +2450,7 @@ function openPassage(p,listen,jumpV,opt){
       <button class="icon-btn" id="rClose" aria-label="Close reader">${I.close}</button>
       ${back?`<button class="rback" id="rBack" aria-label="Back to ${esc(refName(back))}">${I.left}${esc(refName(back))}</button>`:""}
       <div class="rt">${esc(refName(p))}</div>
-      ${"speechSynthesis" in window?`<button class="icon-btn" id="rSpeak" aria-label="Read aloud">${I.speak}</button>`:""}
+      ${"speechSynthesis" in window?`<button class="icon-btn" id="rSpeak" aria-label="Listen to this chapter">${I.speak}</button>`:""}
       <button class="icon-btn" id="rFont" aria-label="Text settings">${I.aa}</button>
     </div>
     <div class="rprog"><i id="rProg"></i></div>
@@ -2431,7 +2470,7 @@ function openPassage(p,listen,jumpV,opt){
   $("#rFont").onclick=toggleFontPop;
   $("#rTr").onclick=toggleFontPop;
   $("#rBack")?.addEventListener("click",()=>{const st=R.stack.slice(0,-1);openPassage(back,false,0,{stack:st})});
-  $("#rSpeak")?.addEventListener("click",toggleSpeak);
+  $("#rSpeak")?.addEventListener("click",openListen);
   const sc=$("#rScroll");sc.addEventListener("scroll",()=>{const m=sc.scrollHeight-sc.clientHeight;$("#rProg").style.width=(m>0?sc.scrollTop/m*100:100)+"%"},{passive:true});
   (was?$("#rBack")||$("#rClose"):$("#rClose")).focus({preventScroll:true,focusVisible:false});
   $("#scr").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)selectVerse(+v.dataset.vn)});
@@ -2582,7 +2621,7 @@ function toggleSpeak(){
   next();
 }
 function closeReader(){
-  stopSpeak();R=null;const rd=$(".reader");
+  stopSpeak();if($("#ls"))closeListen();R=null;const rd=$(".reader");
   const done=()=>{$("#layer").innerHTML="";document.body.style.overflow="";if(view==="today")render()};
   if(rd&&!reduced()&&rd.animate){rd.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(18px)"}],{duration:220,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"}).onfinish=done}else done();
 }
@@ -3905,6 +3944,109 @@ function paintHere(){const el=$("#gHereRow");if(!el)return;if(!G.on){el.innerHTM
 
 
 
+
+/* ================= Listen: the chapter read aloud, full screen ================= */
+const LS_PLAY=`<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>`,LS_PAUSE=`<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/></svg>`,LS_NOTE=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`;
+const LSN={i:0,list:[],on:false,rate:1,title:"",t:null};
+function artNear(book,ch){let best=-1,bd=1e9;for(let i=0;i<ART.length;i++){const bc=typeof artBC==="function"?artBC(i):(ART[i][2]?[ART[i][2],ART[i][3]]:null);if(!bc||bc[0]!==book)continue;const d=Math.abs((bc[1]||0)-ch);if(d<bd){bd=d;best=i}}
+  return best>=0?best:(CANON.indexOf(book)*7+ch)%ART.length}
+function lsVoice(){const vs=speechSynthesis.getVoices();return vs.find(v=>/^en/i.test(v.lang)&&/natural|premium|enhanced|siri|google|samantha|daniel|karen|moira/i.test(v.name))||vs.find(v=>/^en/i.test(v.lang))}
+function openListen(){if(!R||$("#ls"))return;if(!("speechSynthesis" in window))return toast("Listening isn't available on this device");
+  stopSpeak();const vs=[...document.querySelectorAll("#scr .v")].map(s=>({v:+s.dataset.vn,t:(s.lastChild?.textContent||"").replace(/\s+/g," ").trim()})).filter(x=>x.t);
+  if(!vs.length)return;LSN.list=vs;LSN.i=Math.max(0,R.sel?vs.findIndex(x=>x.v===R.sel):0);LSN.rate=state.settings.rate||1;LSN.title=refName(R.p);clearSel();
+  $("#layer").insertAdjacentHTML("beforeend",`<div class="qt ls" id="ls" role="dialog" aria-modal="true" aria-label="Listening to ${esc(LSN.title)}"><div class="qt-bg" style="background-image:url(${artSrc(artNear(R.p.book,R.p.ch))})"></div><div class="qt-shade"></div>
+    <header class="qt-top"><div class="ls-t"><span class="qt-k">Listening</span><b>${esc(LSN.title)} · ${esc(R.tr||"")}</b></div><div class="qt-tools"><button class="mt-btn ls-rate" id="lsRate" aria-label="Reading speed">${LSN.rate}×</button><button class="mt-btn" id="lsSnd" aria-pressed="false" aria-label="Soft music">${LS_NOTE}</button><button class="mt-btn" id="lsX" aria-label="Close">${I.close}</button></div></header>
+    <main class="qt-stage" id="lsStage" aria-live="polite"></main>
+    <footer class="ls-bot"><div class="ls-bar"><i id="lsFill"></i></div><div class="ls-ctl"><button class="mt-btn" id="lsPrev" aria-label="Previous verse">${I.left}</button><button class="ls-play" id="lsPlay" aria-label="Pause">${LS_PAUSE}</button><button class="mt-btn" id="lsNext" aria-label="Next verse">${I.right}</button></div></footer></div>`);
+  document.documentElement.classList.add("meeting");$("#ls").tabIndex=-1;$("#ls").focus({preventScroll:true});
+  $("#lsX").onclick=closeListen;$("#lsPlay").onclick=()=>LSN.on?lsPause():lsPlay();$("#lsPrev").onclick=()=>lsJump(-1);$("#lsNext").onclick=()=>lsJump(1);
+  $("#lsRate").onclick=()=>{const R3=[.8,1,1.25];LSN.rate=R3[(R3.indexOf(LSN.rate)+1)%3];setSetting("rate",LSN.rate);$("#lsRate").textContent=LSN.rate+"×";if(LSN.on)lsPlay()};
+  $("#lsSnd").onclick=()=>{if(QT.snd){qtSound(false);$("#lsSnd").setAttribute("aria-pressed","false")}else{qtSound(true);$("#lsSnd").setAttribute("aria-pressed",String(!!QT.snd))}};
+  let sx=null;const st=$("#lsStage");st.addEventListener("pointerdown",e=>sx=e.clientX);st.addEventListener("pointerup",e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)lsJump(dx<0?1:-1)});
+  lsPlay()}
+function lsPaint(){const st=$("#lsStage");if(!st)return;const x=LSN.list[LSN.i];
+  if(!x){st.innerHTML=`<div class="qs qs-peace"><div class="qt-glow" aria-hidden="true">${I.logo}</div><div class="qt-k">Amen</div><h2 class="qt-q">You listened to ${esc(LSN.title)}</h2><p class="qt-sub">Sit with it for a moment. What one line stayed with you?</p></div>`;
+    $("#lsFill").style.width="100%";$("#lsPlay").innerHTML=LS_PLAY;$("#lsPlay").setAttribute("aria-label","Listen again");return}
+  st.innerHTML=`<div class="qs"><div class="qt-k">Verse ${x.v}</div><p class="ls-verse">${esc(x.t)}</p><p class="qt-sub">${LSN.i+1} of ${LSN.list.length}</p></div>`;
+  if(!reduced())st.firstElementChild.animate([{opacity:0,transform:"translateY(14px)",filter:"blur(4px)"},{opacity:1,transform:"none",filter:"none"}],{duration:650,easing:"cubic-bezier(.16,1,.3,1)"});
+  $("#lsFill").style.width=`${LSN.i/LSN.list.length*100}%`;
+  document.querySelectorAll("#scr .v.speaking").forEach(e=>e.classList.remove("speaking"));document.querySelector(`#scr .v[data-vn="${x.v}"]`)?.classList.add("speaking")}
+function lsSpeak(){const x=LSN.list[LSN.i];if(!x||!LSN.on){if(!x){LSN.on=false;lsPaint()}return}
+  const u=new SpeechSynthesisUtterance(x.t);const v=lsVoice();if(v)u.voice=v;u.rate=LSN.rate;const my=LSN.t=Symbol();
+  u.onend=()=>{if(LSN.t!==my||!LSN.on)return;LSN.i++;lsPaint();setTimeout(lsSpeak,280)};
+  u.onerror=ev=>{if(LSN.t===my&&ev.error!=="interrupted"&&ev.error!=="canceled"){lsPause();toast("Listening stopped. Your device may not support it here.")}};
+  speechSynthesis.speak(u)}
+function lsPlay(){if(LSN.i>=LSN.list.length)LSN.i=0;LSN.on=true;try{speechSynthesis.cancel()}catch(e){}LSN.t=null;lsPaint();$("#lsPlay").innerHTML=LS_PAUSE;$("#lsPlay").setAttribute("aria-label","Pause");lsSpeak()}
+function lsPause(){LSN.on=false;LSN.t=null;try{speechSynthesis.cancel()}catch(e){}const b=$("#lsPlay");if(b){b.innerHTML=LS_PLAY;b.setAttribute("aria-label","Play")}}
+function lsJump(n){LSN.i=Math.max(0,Math.min(LSN.list.length-1,LSN.i+n));if(LSN.on)lsPlay();else lsPaint()}
+function closeListen(){lsPause();if(QT.snd&&!$("#qt"))qtSound(false);document.querySelectorAll("#scr .v.speaking").forEach(e=>e.classList.remove("speaking"));
+  const m=$("#ls");if(!m)return;document.documentElement.classList.remove("meeting");m.remove()}
+
+/* ================= Verses for how you feel ================= */
+const FEEL=[["anxious","Anxious","😟",["PHP.4.6-7","1PE.5.7","MAT.6.34","ISA.41.10","PSA.94.19","JHN.14.27"]],
+  ["sad","Sad","😢",["PSA.34.18","MAT.5.4","PSA.147.3","PSA.30.5","2CO.1.3-4","REV.21.4"]],
+  ["lonely","Lonely","🫂",["DEU.31.6","MAT.28.20","ISA.43.2","PSA.27.10","HEB.13.5","PSA.68.6"]],
+  ["tired","Tired","😮‍💨",["MAT.11.28-29","ISA.40.29-31","PSA.23.1-3","2CO.12.9","GAL.6.9","PSA.4.8"]],
+  ["afraid","Afraid","😨",["JOS.1.9","PSA.56.3","2TI.1.7","PSA.23.4","ISA.43.1","PSA.27.1"]],
+  ["stressed","Stressed","🌀",["PSA.46.10","ISA.26.3","PRO.3.5-6","MAT.6.33","PSA.55.22","JHN.16.33"]],
+  ["guilty","Guilty","💔",["1JN.1.9","ROM.8.1","PSA.103.12","ISA.1.18","MIC.7.18-19","2CO.5.17"]],
+  ["angry","Angry","😤",["JAS.1.19-20","EPH.4.26","PRO.15.1","PSA.37.8","COL.3.13","ROM.12.19"]],
+  ["waiting","Waiting","⏳",["PSA.27.14","LAM.3.25-26","ISA.40.31","HAB.2.3","PSA.130.5","ROM.8.28"]],
+  ["doubting","Doubting","🤔",["MRK.9.24","HEB.11.1","JHN.20.29","ISA.55.8-9","PSA.73.26","ROM.10.17"]],
+  ["thankful","Thankful","🙏",["PSA.100.4-5","1TH.5.18","PSA.107.1","JAS.1.17","PSA.103.2-3","COL.3.15"]],
+  ["joyful","Joyful","😊",["PSA.118.24","NEH.8.10","PHP.4.4","ZEP.3.17","PSA.16.11","ROM.15.13"]]];
+function feelRow(){return `<section class="feelrow" aria-label="Verses for how you feel"><div class="kicker">How are you feeling today?</div><div class="feel-chips">${FEEL.map(([k,l,e])=>`<button data-feel="${k}"><span aria-hidden="true">${e}</span>${l}</button>`).join("")}</div></section>`}
+const FD={i:0,list:[],k:""};
+async function feelText(r){const [b,c,vv]=r.split(".");const [v1,v2]=vv.split("-").map(Number);try{const a=await loadBook("BSB",b);const ch=a?.[+c-1]||[];return ch.slice(v1-1,(v2||v1)).join(" ")}catch(e){return ""}}
+async function openFeel(k){const f=FEEL.find(x=>x[0]===k);if(!f||$("#fd"))return;FD.k=k;FD.i=0;FD.f=f;
+  FD.list=f[3].map(r=>{const [b,c,v]=r.split(".");return {r,b,c:+c,ref:`${refName({book:b,ch:+c})}:${v.replace("-","–")}`,t:null}});
+  $("#layer").insertAdjacentHTML("beforeend",`<div class="qt fd" id="fd" role="dialog" aria-modal="true" aria-label="Verses for when you feel ${esc(f[1].toLowerCase())}"><div class="qt-bg" id="fdBg"></div><div class="qt-shade"></div>
+    <header class="qt-top"><div class="qt-steps" id="fdSteps"></div><div class="qt-tools"><button class="mt-btn" id="fdX" aria-label="Close">${I.close}</button></div></header>
+    <main class="qt-stage" id="fdStage" aria-live="polite"></main>
+    <footer class="qt-bot pn-bot"><button class="qt-skip" id="fdSave">${I.bookmark}Save</button><button class="qt-next" id="fdNext">Next verse</button></footer></div>`);
+  document.documentElement.classList.add("meeting");$("#fd").tabIndex=-1;$("#fd").focus({preventScroll:true});
+  $("#fdX").onclick=closeFeel;$("#fdNext").onclick=()=>fdGo(1);$("#fdSave").onclick=fdSave;
+  let sx=null;const st=$("#fdStage");st.addEventListener("pointerdown",e=>sx=e.clientX);st.addEventListener("pointerup",e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(Math.abs(dx)>60)fdGo(dx<0?1:-1)});
+  await Promise.all(FD.list.map(async x=>{x.t=await feelText(x.r)}));fdPaint()}
+function fdGo(n){const j=FD.i+n;if(j>=FD.list.length){closeFeel();return}if(j<0)return;FD.i=j;fdPaint(true)}
+function fdSave(){const x=FD.list[FD.i];if(!x?.t)return;const key=x.r.split("-")[0];if(state.saved[key]){toast("Already in your journal");return}
+  const it={ref:x.ref,text:x.t,tr:"BSB",v:+key.split(".")[2],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#fdSave"),12);buzz(10);toast("Saved to your journal");fdPaint()}
+function fdPaint(anim){const st=$("#fdStage");if(!st)return;const L=FD.list,x=L[FD.i];
+  $("#fdSteps").innerHTML=L.map((_,j)=>`<i class="${j<FD.i?"done":j===FD.i?"on":""}"></i>`).join("");
+  $("#fdBg").style.backgroundImage=`url(${artSrc(artNear(x.b,x.c))})`;
+  const saved=!!state.saved[x.r.split("-")[0]];$("#fdSave").innerHTML=`${saved?I.check:I.bookmark}${saved?"Saved":"Save"}`;
+  $("#fdNext").textContent=FD.i===L.length-1?"Done":"Next verse";
+  st.innerHTML=`<div class="qs"><div class="qt-k">${FD.i===0?`When you feel ${esc(FD.f[1].toLowerCase())}`:esc(x.ref)}</div><p class="ls-verse">${esc(x.t||"")}</p>${FD.i===0?`<p class="qt-sub">${esc(x.ref)} · swipe for more</p>`:""}</div>`;
+  if(anim&&!reduced())st.firstElementChild.animate([{opacity:0,transform:"translateX(30px)"},{opacity:1,transform:"none"}],{duration:500,easing:"cubic-bezier(.16,1,.3,1)"})}
+function closeFeel(){const m=$("#fd");document.documentElement.classList.remove("meeting");if(m)m.remove()}
+
+/* ================= Verse puzzle: tap the pieces in order ================= */
+const PZ={};
+const fmtSec=s=>s<60?`${Math.round(s)} s`:`${Math.floor(s/60)} min ${Math.round(s%60)} s`;
+function openPuzzle(key){const v=state.saved[key];if(!v)return;const w=v.text.split(/\s+/).filter(Boolean);const size=w.length>36?3:w.length>16?2:1;
+  const parts=[];for(let i=0;i<w.length;i+=size)parts.push(w.slice(i,i+size).join(" "));
+  let order=parts.map((p,i)=>i);for(let n=0;n<4;n++){for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}if(order.some((x,i)=>x!==i))break}
+  Object.assign(PZ,{key,parts,order,next:0,miss:0,t0:Date.now()});
+  openSheet(`<div class="pcard pz"><div class="kick">Verse puzzle · ${esc(v.ref)}</div>
+    <p class="pz-built" id="pzB" aria-live="polite"><span class="pz-ph">Tap the pieces in the right order</span></p>
+    <div class="pz-pool" id="pzP">${order.map(i=>`<button data-pz="${i}">${esc(parts[i])}</button>`).join("")}</div>
+    <div class="pz-stat"><span id="pzM">No mistakes yet</span><button class="btn sm ghost" id="pzHint">Hint</button></div></div>`,"Verse puzzle");
+  document.querySelectorAll("[data-pz]").forEach(b=>b.onclick=()=>pzTap(b));
+  $("#pzHint").onclick=()=>{const b=document.querySelector(`[data-pz="${PZ.next}"]`);if(b){PZ.miss++;b.classList.add("pz-hint");setTimeout(()=>b.classList.remove("pz-hint"),900);pzStat()}}}
+function pzStat(){const m=$("#pzM");if(m)m.textContent=PZ.miss?`${PZ.miss} ${PZ.miss===1?"slip":"slips"}`:"No mistakes yet"}
+function pzTap(b){const i=+b.dataset.pz;
+  if(i!==PZ.next){PZ.miss++;pzStat();buzz(30);if(!reduced())b.animate([{transform:"translateX(0)"},{transform:"translateX(-6px)"},{transform:"translateX(6px)"},{transform:"translateX(0)"}],{duration:280});b.classList.add("pz-no");setTimeout(()=>b.classList.remove("pz-no"),400);return}
+  PZ.next++;b.disabled=true;b.classList.add("pz-done");buzz(6);
+  const B=$("#pzB");B.querySelector(".pz-ph")?.remove();B.insertAdjacentHTML("beforeend",`<span class="pz-w">${esc(PZ.parts[i])} </span>`);
+  if(!reduced())B.lastElementChild.animate([{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:300,easing:"cubic-bezier(.16,1,.3,1)"});
+  if(PZ.next===PZ.parts.length)pzWin()}
+function pzWin(){const v=state.saved[PZ.key];const sec=(Date.now()-PZ.t0)/1000;const stars=PZ.miss===0?3:PZ.miss<=2?2:1;const best=!v.bt||sec<v.bt;
+  if(best){v.bt=Math.round(sec);queue({saved:{[PZ.key]:{...v}}})}
+  $("#pzP").outerHTML=`<div class="pz-win"><div class="pz-stars" aria-label="${stars} of 3 stars">${[0,1,2].map(i=>`<span class="${i<stars?"on":""}">★</span>`).join("")}</div><b>${stars===3?"Perfect!":stars===2?"Well done!":"You got there!"}</b><span>${fmtSec(sec)}${best?" · your best time":` · best ${fmtSec(v.bt)}`}</span></div>`;
+  $("#pzM").parentNode.innerHTML=`<button class="btn ghost" id="pzAgain">Play again</button><button class="btn primary" id="pzDone">Done</button>`;
+  $("#pzAgain").onclick=()=>openPuzzle(PZ.key);$("#pzDone").onclick=()=>{$("#scrim")?.remove();if(view==="journal")render()};
+  burst($(".pz-stars"),stars===3?40:22);buzz([20,40,20])}
+
 /* ================= A word from today's reading ================= */
 async function fillWotd(){const el=$("#wotd");if(!el||!HAS_ORIG)return;const day=curDay(),p=PLAN[day-1];const heb=CANON.indexOf(p.book)<39;
   let bk,L,en;try{[bk,L,en]=await Promise.all([origBook(p.book),origLex(heb?"h":"g"),loadBook("BSB",p.book)])}catch(e){return}
@@ -4394,6 +4536,8 @@ document.addEventListener("keydown",e=>{
   if($("#artv")&&(e.key==="ArrowRight"||e.key==="ArrowLeft")){stepArt(e.key==="ArrowRight"?1:-1);return}
   if(e.key!=="Escape") return;
   if($("#meet")){closeMeet();return}
+  if($("#ls")){closeListen();return}
+  if($("#fd")){closeFeel();return}
   if($("#qt")){closeQT();return}
   if($("#pn")){closePN();return}
   if($("#artv")){closeArt();return}

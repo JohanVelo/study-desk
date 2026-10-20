@@ -134,6 +134,15 @@ def run():
         js(d, "setView('today')"); time.sleep(1)
         js(d, "openReader(curDay(),false)"); time.sleep(2.5); shot("20-reader")
         js(d, "closeReader()"); time.sleep(0.5)
+        # listen mode (real iPhone voices)
+        js(d, "openPassage(passFor('PSA',23),false)"); time.sleep(2.5); tap(d, "#rSpeak"); time.sleep(6); shot("20d-listen")
+        st = js(d, "return [LSN.on, LSN.i, speechSynthesis.getVoices().length]")
+        note(bool(js(d, "return !!document.querySelector('#ls .ls-verse')")), f"listen mode opens (playing, verse, voices = {st})")
+        js(d, "closeListen();closeReader()"); time.sleep(0.6)
+        # verses for how you feel
+        js(d, "setView('today')"); time.sleep(1.2); js(d, "openFeel('anxious')"); time.sleep(3); shot("20e-feel")
+        note("prayer" in (js(d, "return document.querySelector('#fdStage')?.textContent||''") or ""), "verses for how you feel show")
+        js(d, "closeFeel()"); time.sleep(0.5)
         # original Greek words
         js(d, "openPassage(passFor('JHN',19),false,30)"); time.sleep(2.5)
         js(d, "if(R.sel!==30)selectVerse(30)"); time.sleep(0.5); tap(d, "#vOrig")
