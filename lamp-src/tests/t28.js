@@ -1,0 +1,48 @@
+const {chromium}=require(process.env.PW);const fs=require('fs');
+const MOCK=fs.readFileSync(__dirname+'/mock.js','utf8');
+(async()=>{const b=await chromium.launch();const base='http://127.0.0.1:8765/lamp.html';fs.mkdirSync(__dirname+'/s15',{recursive:true});
+const sizes=process.argv[2]==='quick'?[[390,844,'light']]:[[390,844,'light'],[390,844,'dark'],[1440,900,'light'],[1440,900,'dark'],[768,1024,'dark']];
+const log=[];let fails=0;const ok=(c,m)=>{log.push((c?'PASS ':'FAIL ')+m);if(!c)fails++};
+for(const [w,h,cs] of sizes){
+const ctx=await b.newContext({viewport:{width:w,height:h},colorScheme:cs,hasTouch:w<800});
+await ctx.addInitScript(()=>{localStorage.setItem('lamp-state-v1',JSON.stringify({done:{1:new Date().toISOString()},notes:{},saved:{},settings:{onboarded:true,welcomed:true,intro:false}}));localStorage.setItem('lamp-seen',JSON.stringify({study:'2000-01-01',prayer:'2000-01-01'}))});
+await ctx.route('**/lamp.html',async r=>{const res=await r.fetch();let t=await res.text();t='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'+t;r.fulfill({response:res,body:t,headers:{...res.headers(),'content-type':'text/html; charset=utf-8'}})});
+await ctx.addInitScript(MOCK);
+await ctx.addInitScript(()=>{const S=window.__mock.store;const now=new Date(Date.now()-3*864e5).toISOString();const d=new Date();const today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+  const lw=new Date(Date.now()-7*864e5);const last=`${lw.getFullYear()}-${String(lw.getMonth()+1).padStart(2,"0")}-${String(lw.getDate()).padStart(2,"0")}`;
+  const days=["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
+  S.set('group/meta',{week:'w7',name:'Thursday group',when:days[d.getDay()]+' at 7 pm'});
+  S.set('gm/u_a',{joined:now,seen:now,ans:{w7:{q0:'That he is close and personal, not distant. Jesus invites us to call him Father.',q2:'Forgive us… is the hardest for me this week.'}},aat:{w7:{q0:now,q2:now}},ck:{w7:{read:true}},pr:{p1:{t:'Please pray for my mom, she has surgery on Friday.',at:now}},here:{[today]:true,[last]:true},re:{'u_b:w7:q0':'💡'},rp:{'u_me:w7:q1':{r1:{t:'Love this, thank you!',at:new Date().toISOString()}}}});
+  S.set('gm/u_b',{joined:now,seen:now,ans:{w7:{q0:'He already knows what we need, so prayer is about relationship.'}},aat:{w7:{q0:now}},pr:{p2:{t:'Wisdom for a job decision.',at:now,anon:true}},here:{[last]:true}});
+  S.set('gm/u_c',{joined:now,seen:now,here:{[today]:true}});S.set('gm/u_me',{joined:now,seen:now,ans:{w7:{q1:'Because he loves us.'}}});
+});
+const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));p.on('console',m=>{if(m.type()==='error')errs.push('console '+m.text())});
+const tag=`${w}-${cs}`;const shot=n=>p.screenshot({path:`${__dirname}/s15/${n}-${tag}.png`});
+await p.goto(base);await p.waitForTimeout(1800);
+ok(!!await p.$('.qtcard'),tag+' quiet time card on Today');await shot('today');
+await p.click('.qtcard');await p.waitForTimeout(1200);await shot('qt1-still');
+await p.click('#qtSnd');await p.waitForTimeout(300);ok(await p.evaluate(()=>!!QT.snd),tag+' sound starts');
+await p.click('#qtNext');await p.waitForTimeout(3500);ok(await p.evaluate(()=>QT.text.length>10),tag+' verse loaded');await shot('qt2-read');
+await p.click('#qtNext');await p.waitForTimeout(800);await p.click('[data-qw="2"]');await p.waitForTimeout(300);await shot('qt3-word');
+await p.click('#qtNext');await p.waitForTimeout(800);await p.fill('#qtNote','He is patient with me.');await shot('qt4-reflect');
+await p.click('#qtNext');await p.waitForTimeout(1200);await shot('qt5-pray');
+await p.click('#qtNext');await p.waitForTimeout(5000);await shot('qt6-peace');
+await p.click('#qtNext');await p.waitForTimeout(800);
+ok(!(await p.$('#qt')),tag+' closes');
+const q=await p.evaluate(()=>JSON.stringify(Object.values(state.qt)));ok(q.includes('patient'),tag+' saved: '+q.slice(0,120));
+ok(await p.evaluate(()=>document.querySelector('.qtcard .kicker').textContent.includes('Done today')),tag+' card shows done');
+await p.evaluate(()=>setView('journal'));await p.waitForTimeout(800);ok((await p.textContent('main, body')).includes('He is patient'),tag+' in journal');await shot('journal');
+// streak with a rest day
+const st=await p.evaluate(()=>{const keep=JSON.stringify(state.done);const iso=n=>new Date(Date.now()-n*864e5).toISOString();state.done={1:iso(0),2:iso(1),3:iso(3),4:iso(4)};const r=streak();state.done=JSON.parse(keep);return r});ok(st===4,tag+' streak survives one rest day: '+st);
+await p.evaluate(()=>setView('group'));await p.waitForTimeout(1200);
+await p.click('[data-rsvp="yes"]');await p.waitForTimeout(500);ok(await p.evaluate(()=>JSON.stringify(__mock.store.get('gm/u_me').rsvp||{}).includes('yes')),tag+' rsvp saved');
+ok((await p.textContent('#gHereRow')).includes('1 coming'),tag+' rsvp count');await shot('rsvp');
+await p.click('[data-gt="prayer"]');await p.waitForTimeout(600);await shot('prayer-tab');await p.click('#prNow');await p.waitForTimeout(900);await shot('pn1');
+await p.click('#pnPray');await p.waitForTimeout(700);await p.click('#pnPray');await p.waitForTimeout(700);await shot('pn-end');
+ok((await p.textContent('#pnStage')).includes('You prayed for 2'),tag+' prayed through 2');
+ok(await p.evaluate(()=>Object.keys(__mock.store.get('gm/u_me').praying||{}).length===2),tag+' praying saved');
+await p.click('#pnPray');await p.waitForTimeout(300);ok(!(await p.$('#pn')),tag+' pray-now closes');
+ok(!errs.length,tag+' no errors '+errs.join(' | '));
+await ctx.close();
+}
+console.log(log.join('\n'));console.log(fails?fails+' FAILED':'ALL PASS');await b.close();})();

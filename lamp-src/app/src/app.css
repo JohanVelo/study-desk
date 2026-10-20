@@ -1,0 +1,36 @@
+#gate{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;overflow-y:auto;background:radial-gradient(120% 80% at 50% 0%,#2A2216 0%,#120F0B 55%,#0B0A08 100%);color:#EDE6D6;font-family:Figtree,system-ui,sans-serif;padding:calc(env(safe-area-inset-top,0px) + 28px) 18px calc(env(safe-area-inset-bottom,0px) + 28px);transition:opacity .5s ease,transform .5s ease}
+#gate.out{opacity:0;transform:scale(1.03);pointer-events:none}
+#gate .gglow{position:fixed;left:50%;top:14%;width:420px;height:420px;margin-left:-210px;border-radius:50%;background:radial-gradient(circle,rgba(226,183,88,.28),rgba(226,183,88,0) 65%);filter:blur(10px);animation:gbreath 5s ease-in-out infinite;pointer-events:none}
+@keyframes gbreath{50%{transform:scale(1.08);opacity:.8}}
+#gate .gwrap{position:relative;width:100%;max-width:400px;margin:auto}
+#gate .gbrand{display:flex;flex-direction:column;align-items:center;gap:4px;margin-bottom:22px}
+#gate .glogo{width:64px;height:64px;color:#E2B758;filter:drop-shadow(0 0 18px rgba(226,183,88,.55))}
+#gate .glogo svg{width:100%;height:100%}
+#gate .gword{font-family:"Cormorant Garamond",Georgia,serif;font-size:2.6rem;font-weight:600;letter-spacing:.02em;line-height:1}
+#gate .gtag{font-family:"Cormorant Garamond",Georgia,serif;font-style:italic;font-size:1.05rem;color:rgba(237,230,214,.6)}
+#gate .gcard{background:rgba(255,255,255,.045);border:1px solid rgba(242,198,104,.18);border-radius:22px;padding:24px 20px 18px;box-shadow:0 20px 60px rgba(0,0,0,.35);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+#gate h1{font-family:"Cormorant Garamond",Georgia,serif;font-weight:600;font-size:1.85rem;line-height:1.1;margin:0 0 6px}
+#gate .gsub{margin:0 0 18px;color:rgba(237,230,214,.72);font-size:.95rem;line-height:1.5}
+#gate .gsub b{color:#EDE6D6}
+#gate .gf{display:block;margin-bottom:12px}
+#gate .gf>span{display:block;font-size:.8rem;font-weight:600;letter-spacing:.02em;margin-bottom:6px;color:rgba(237,230,214,.75)}
+#gate .gin{position:relative}
+#gate input{width:100%;box-sizing:border-box;font:inherit;font-size:16px;color:#F5EFE2;background:rgba(0,0,0,.28);border:1px solid rgba(237,230,214,.16);border-radius:12px;padding:13px 14px;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none}
+#gate input:focus{border-color:#E2B758;box-shadow:0 0 0 3px rgba(226,183,88,.22)}
+#gate input#gCode{text-transform:uppercase;letter-spacing:.12em;font-weight:600}
+#gate .geye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:none;color:rgba(237,230,214,.55);display:grid;place-items:center;border-radius:10px;cursor:pointer}
+#gate .geye.on{color:#E2B758}#gate .geye svg{width:20px;height:20px}
+#gate .gerr{min-height:1.2em;margin:2px 0 10px;color:#F2A38C;font-size:.88rem;line-height:1.4}
+#gate .gbtn{width:100%;border:0;border-radius:14px;padding:14px 16px;font:inherit;font-weight:700;font-size:1rem;color:#1B1408;background:linear-gradient(180deg,#F0CB75,#D9A945);box-shadow:0 8px 24px rgba(226,183,88,.32),inset 0 1px 0 rgba(255,255,255,.4);cursor:pointer;transition:transform .15s,filter .2s;-webkit-tap-highlight-color:transparent}
+#gate .gbtn:active{transform:scale(.98)}
+#gate .gbtn:disabled{filter:saturate(.6) brightness(.85)}
+#gate .gbtn.busy{color:transparent;position:relative}
+#gate .gbtn.busy::after{content:"";position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;border:2.5px solid #1B1408;border-right-color:transparent;animation:gspin .7s linear infinite}
+#gate .galt{text-align:center;margin:14px 0 0;font-size:.92rem;color:rgba(237,230,214,.65)}
+#gate .gpeek{margin-top:6px}
+#gate .glink{border:0;background:none;color:#E9C16C;font:inherit;font-weight:600;cursor:pointer;padding:6px 2px}
+#gate .gpeek .glink{color:rgba(237,230,214,.5);font-weight:500}
+#gate .gbig{font-size:2.6rem;text-align:center;margin-bottom:6px}
+#gate .gspin{width:34px;height:34px;margin:20px auto;border-radius:50%;border:3px solid rgba(226,183,88,.25);border-top-color:#E2B758;animation:gspin .8s linear infinite}
+@keyframes gspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){#gate .gglow{animation:none}}

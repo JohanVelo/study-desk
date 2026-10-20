@@ -1,0 +1,12 @@
+const {chromium,devices}=require(process.env.PW);const fs=require('fs');
+const FAKE=fs.readFileSync(__dirname+'/fake-supabase.js','utf8');
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({...devices['Pixel 7']});
+await ctx.route('**/supabase.js',r=>r.fulfill({body:FAKE,contentType:'application/javascript'}));
+const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.goto('http://localhost:8767/');await p.waitForTimeout(2500);
+const sw=await p.evaluate(async()=>{const r=await navigator.serviceWorker.getRegistration();return !!r?.active});
+const man=await p.evaluate(async()=>{const r=await fetch('manifest.webmanifest');return (await r.json()).display});
+const cached=await p.evaluate(async()=>{const k=await caches.keys();const c=await caches.open(k[0]);return (await c.keys()).length});
+await ctx.setOffline(true);await p.reload();await p.waitForTimeout(2000);
+const off=await p.evaluate(()=>document.title+' gate:'+(document.querySelector('#gate h1')?.textContent||document.querySelector('#gate .gspin')?'spinner':'none'));
+console.log('sw active:',sw,'manifest:',man,'cached files:',cached,'offline load:',off,'ERR',errs.join('|')||'none');await b.close()})();

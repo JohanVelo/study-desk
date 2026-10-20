@@ -1,0 +1,13 @@
+const {chromium}=require(process.env.PW);
+const LOGO=(sw)=>`<svg viewBox="0 0 24 24" fill="none" stroke="#E9BE62" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"><defs><radialGradient id="f" cx="50%" cy="65%" r="60%"><stop offset="0" stop-color="#FFF3C4"/><stop offset=".55" stop-color="#F3C969"/><stop offset="1" stop-color="#D9902F"/></radialGradient></defs><path d="M12 2.5c1.8 2.2 2.6 3.8 2.6 5.2a2.6 2.6 0 1 1-5.2 0c0-1.4.8-3 2.6-5.2Z" fill="url(#f)" stroke="none"/><path d="M4 14h16l-2.2 4.2a3 3 0 0 1-2.7 1.6H8.9a3 3 0 0 1-2.7-1.6L4 14Z" fill="rgba(233,190,98,.16)"/><path d="M12 10.5V14"/><path d="M20 14c1.4 0 2-.8 2-1.6S21.4 11 20.5 11"/></svg>`;
+const icon=(size,scale)=>`<html><body style="margin:0"><div style="width:${size}px;height:${size}px;display:grid;place-items:center;background:radial-gradient(70% 60% at 50% 34%,#4A3A1E 0%,#251C10 45%,#120F0B 100%);position:relative;overflow:hidden">
+<div style="position:absolute;left:50%;top:30%;width:${size*.7}px;height:${size*.7}px;margin:-${size*.35}px 0 0 -${size*.35}px;border-radius:50%;background:radial-gradient(circle,rgba(255,214,120,.42),rgba(255,214,120,0) 62%)"></div>
+<div style="width:${size*scale}px;height:${size*scale}px;position:relative;filter:drop-shadow(0 0 ${size*.03}px rgba(255,200,90,.6))">${LOGO(1.25)}</div></div></body></html>`;
+const splash=(w,h)=>`<html><body style="margin:0"><div style="width:${w}px;height:${h}px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:${w*.03}px;background:radial-gradient(120% 80% at 50% 0%,#2A2216 0%,#120F0B 55%,#0B0A08 100%);font-family:Georgia,serif;color:#EDE6D6">
+<div style="width:${w*.26}px;height:${w*.26}px;filter:drop-shadow(0 0 ${w*.04}px rgba(255,200,90,.55))">${LOGO(1.3)}</div>
+<div style="font-size:${w*.11}px;letter-spacing:.02em">Lamp</div><div style="font-style:italic;font-size:${w*.042}px;opacity:.6">A light for your path</div></div></body></html>`;
+(async()=>{const b=await chromium.launch();const p=await b.newPage();
+for(const [n,s,sc] of [['icon-192',192,.66],['icon-512',512,.66],['maskable-512',512,.5],['apple-180',180,.64],['favicon-64',64,.8]]){await p.setViewportSize({width:s,height:s});await p.setContent(icon(s,sc));await p.screenshot({path:`src/icons/${n}.png`})}
+// iPhone portrait launch screens (device px)
+for(const [w,h,d] of [[1290,2796,3],[1179,2556,3],[1284,2778,3],[1170,2532,3],[1125,2436,3],[1242,2688,3],[828,1792,2],[750,1334,2],[1206,2622,3],[1320,2868,3]]){const c=await b.newContext({viewport:{width:w/d,height:h/d},deviceScaleFactor:d});const q=await c.newPage();await q.setContent(splash(w/d,h/d));await q.screenshot({path:`src/splash/${w}x${h}.png`});await c.close()}
+await b.close()})();
