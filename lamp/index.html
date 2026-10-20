@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020160356">
+<link rel="stylesheet" href="app.css?v=20261020163234">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020160356"></script>
+<script src="app.js?v=20261020163234"></script>
 </head>
 <body>
 <style>
@@ -2203,10 +2203,10 @@ function vLearn(){
   </section>
   <section class="card" id="art">
     <h2 style="font-size:1.85rem">The Bible in art</h2>
-    <p class="lede" style="margin:6px 0 4px">All 100 engravings from Gustave Doré's famous illustrated Bible of 1866, the images that shaped how generations pictured these stories. A gold dot means it's in your reading plan.</p>
-    <div class="art-h">Old Testament and Apocrypha</div><div class="artgrid">${artGrid(0,56)}</div>
-    <div class="art-h">New Testament</div><div class="artgrid">${artGrid(56,100)}</div>
-    <p class="art-credit">Engravings by Gustave Doré (1832 to 1883) from The Doré Bible Gallery. Public domain. Scans from Project Gutenberg.</p>
+    <p class="lede" style="margin:6px 0 4px">${ART.length} engravings from Gustave Doré's famous illustrated Bible of 1866, in Bible order, the images that shaped how generations pictured these stories. A gold dot means it's in your reading plan.</p>
+    <div class="art-h">Old Testament and Apocrypha</div><div class="artgrid">${artGrid(artOrd(0))}</div>
+    <div class="art-h">New Testament</div><div class="artgrid">${artGrid(artOrd(1))}</div>
+    <p class="art-credit">Engravings by Gustave Doré (1832 to 1883) from The Doré Bible Gallery. Public domain. Scans from Project Gutenberg${ART.length>100?" and AionianBible.org (Nainoia Inc., CC BY 4.0)":""}.</p>
   </section>
   <section class="card" id="story">
     <h2 style="font-size:1.85rem">The big story in nine acts</h2>
@@ -2679,11 +2679,17 @@ function buzz(ms){try{if(!reduced())navigator.vibrate?.(ms)}catch(e){}}
 /* ================= Art: Gustave Doré, The Doré Bible Gallery (1866), public domain ================= */
 const ART=[["The creation of Eve","Genesis 2","GEN",2],["Driven from the garden","Genesis 3","GEN",3],["The murder of Abel","Genesis 4","GEN",4],["The flood","Genesis 7","GEN",7],["Noah curses Ham","Genesis 9","GEN",9],["The tower of Babel","Genesis 11","GEN",11],["Abraham welcomes three strangers","Genesis 18","GEN",18],["The destruction of Sodom","Genesis 19","GEN",19],["Hagar sent away","Genesis 21","GEN",21],["Hagar in the wilderness","Genesis 21","GEN",21],["Abraham's faith is tested","Genesis 22","GEN",22],["The burial of Sarah","Genesis 23","GEN",23],["Eliezer and Rebekah","Genesis 24","GEN",24],["Isaac blesses Jacob","Genesis 27","GEN",27],["Jacob keeps Laban's flocks","Genesis 29","GEN",29],["Joseph sold into Egypt","Genesis 37","GEN",37],["Joseph explains Pharaoh's dream","Genesis 41","GEN",41],["Joseph reveals himself to his brothers","Genesis 45","GEN",45],["Moses in the bulrushes","Exodus 2","EXO",2],["The battle against Gibeon","Joshua 10"],["Sisera killed by Jael","Judges 4"],["Deborah's song of triumph","Judges 5"],["Jephthah meets his daughter","Judges 11"],["Jephthah's daughter and her friends","Judges 11"],["Samson kills the lion","Judges 14"],["Samson and Delilah","Judges 16"],["The death of Samson","Judges 16"],["Naomi and her daughters-in-law","Ruth 1"],["Ruth and Boaz","Ruth 2"],["The ark comes home","1 Samuel 6"],["David plays for King Saul","1 Samuel 18"],["David spares Saul","1 Samuel 26"],["The death of Saul","1 Samuel 31"],["The death of Absalom","2 Samuel 18"],["David mourns for Absalom","2 Samuel 18"],["Solomon","1 Kings 3"],["The judgment of Solomon","1 Kings 3"],["Cedars for the temple","1 Kings 5"],["The prophet killed by a lion","1 Kings 13"],["Elijah and the soldiers of Ahaziah","2 Kings 1"],["Elijah taken up in a chariot of fire","2 Kings 2"],["The death of Jezebel","2 Kings 9"],["Esther exposes Haman","Esther 7"],["Isaiah","Isaiah 44"],["Sennacherib's army destroyed","2 Kings 19"],["Baruch the scribe","Jeremiah 36"],["Ezekiel prophesies","Ezekiel 2"],["The valley of dry bones","Ezekiel 37"],["Daniel","Daniel 1"],["The fiery furnace","Daniel 3"],["Belshazzar's feast","Daniel 5"],["Daniel in the lions' den","Daniel 6"],["The prophet Amos","Amos 1"],["Jonah warns Nineveh","Jonah 3"],["Daniel and the priests of Bel","Bel and the Dragon"],["Heliodorus driven from the temple","2 Maccabees 3"],["The nativity","Luke 2","LUK",2],["The star in the east","Matthew 2"],["The flight into Egypt","Matthew 2"],["The massacre of the innocents","Matthew 2"],["Jesus among the teachers","Luke 2"],["Jesus heals the sick","Mark 1","MRK",1],["The Sermon on the Mount","Matthew 5"],["Jesus calms the storm","Mark 4","MRK",4],["A man who could not speak","Luke 11","LUK",11],["Jesus in the synagogue","Luke 4","LUK",4],["Picking grain on the Sabbath","Mark 2","MRK",2],["Jesus walks on the water","Mark 6","MRK",6],["Jesus enters Jerusalem","Mark 11","MRK",11],["Jesus and the tax coin","Mark 12","MRK",12],["The widow's offering","Luke 21","LUK",21],["Jairus's daughter raised","Mark 5","MRK",5],["The good Samaritan","Luke 10","LUK",10],["The Samaritan reaches the inn","Luke 10"],["The lost son","Luke 15","LUK",15],["Lazarus and the rich man","Luke 16","LUK",16],["The Pharisee and the tax collector","Luke 18","LUK",18],["Jesus and the Samaritan woman","John 4","JHN",4],["The woman caught in adultery","John 8","JHN",8],["Lazarus raised from the dead","John 11","JHN",11],["Mary anoints Jesus","John 12","JHN",12],["The Last Supper","Mark 14","MRK",14],["The agony in the garden","Luke 22","LUK",22],["Jesus prays on the Mount of Olives","Luke 22"],["The betrayal","John 18","JHN",18],["Jesus falls under the cross","John 19","JHN",19],["The flogging","Mark 15"],["The crucifixion","Mark 15","MRK",15],["The end of the crucifixion","Luke 23","LUK",23],["The burial of Jesus","John 19"],["The angel at the tomb","Mark 16","MRK",16],["The road to Emmaus","Luke 24","LUK",24],["The ascension","Acts 1","ACT",1],["The stoning of Stephen","Acts 7","ACT",7],["Saul's conversion","Acts 9","ACT",9],["Peter freed from prison","Acts 12","ACT",12],["Paul at Ephesus","Acts 19","ACT",19],["Paul threatened by the crowd","Acts 21","ACT",21],["Paul's shipwreck","Acts 27","ACT",27],["Death on the pale horse","Revelation 6"]];
 const ART_EXTRA={"GEN.16":9,"PSA.23":30,"JHN.6":67,"JHN.13":81,"JHN.17":83,"JHN.20":90,"LUK.8":63,"LUK.19":68,"LUK.6":62};
+if(document.querySelector('link[rel="manifest"]'))fetch("art/more.json").then(r=>r.ok?r.json():[]).then(m=>{if(Array.isArray(m)&&m.length&&ART.length===100){ART.push(...m.filter(x=>Array.isArray(x)&&x.length===4));if(["learn","today"].includes(view)&&!document.querySelector(".reader,#qt,#meet,#scrim")&&!document.activeElement?.matches?.("input,textarea"))render()}}).catch(()=>{});
 const artSrc=(i,t)=>`art/${t?"t":""}${String(i+1).padStart(3,"0")}.jpg`;
 function artFor(p){const k=`${p.book}.${p.ch}`;if(k in ART_EXTRA)return ART_EXTRA[k];return ART.findIndex(a=>a[2]===p.book&&a[3]===p.ch)}
 function artDay(i){const a=ART[i];if(a[2])return dayOf(a[2],a[3])||0;for(const [k,v] of Object.entries(ART_EXTRA))if(v===i){const [b,c]=k.split(".");return dayOf(b,+c)||0}return 0}
 function heroArt(p){const i=artFor(p);if(i<0)return"";return `<button class="hero-art" data-art="${i}" aria-label="View the engraving: ${esc(ART[i][0])}"><img src="${artSrc(i)}" alt="" loading="lazy" decoding="async" onload="this.parentNode.classList.add('in')"><span class="cap"><b>${esc(ART[i][0])}</b>Gustave Doré, 1866</span></button>`}
-function artGrid(from,to){let o="";for(let i=from;i<to;i++){const d=artDay(i);o+=`<button class="art-th" data-art="${i}" style="--i:${i-from}"><img src="${artSrc(i,1)}" alt="" loading="lazy" decoding="async" onload="this.parentNode.classList.add('in')"><span><b>${esc(ART[i][0])}</b><small>${esc(ART[i][1])}</small></span>${d?`<i class="inplan" title="In your reading plan"></i>`:""}</button>`}return o}
+const CANON="GEN EXO LEV NUM DEU JOS JDG RUT 1SA 2SA 1KI 2KI 1CH 2CH EZR NEH EST JOB PSA PRO ECC SNG ISA JER LAM EZK DAN HOS JOL AMO OBA JON MIC NAM HAB ZEP HAG ZEC MAL MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV".split(" ");
+/* plates in Bible order: testament 0 = Old Testament (plus the Apocrypha plates, which have no book code), 1 = New */
+function artBC(i){if(ART[i][2])return [ART[i][2],ART[i][3]];const m=String(ART[i][1]||"").match(/^(.+?) (\d+)$/);if(m){const c=CANON.find(c=>bookName(c)===m[1]);if(c)return [c,+m[2]]}for(const [k,v] of Object.entries(ART_EXTRA))if(v===i){const [b,c]=k.split(".");return [b,+c]}return null}
+function artOrd(nt){const key=i=>{const bc=artBC(i);const c=bc?CANON.indexOf(bc[0]):-1;return c<0?[i<56?38.5:66,i]:[c,bc[1]||0]};
+  return ART.map((a,i)=>i).filter(i=>{const k=key(i)[0];return nt?k>=39:k<39}).sort((a,b)=>{const x=key(a),y=key(b);return x[0]-y[0]||x[1]-y[1]||a-b})}
+function artGrid(list){let o="";list.forEach((i,n)=>{const d=artDay(i);o+=`<button class="art-th" data-art="${i}" style="--i:${Math.min(n,24)}"><img src="${artSrc(i,1)}" alt="" loading="lazy" decoding="async" onload="this.parentNode.classList.add('in')"><span><b>${esc(ART[i][0])}</b><small>${esc(ART[i][1])}</small></span>${d?`<i class="inplan" title="In your reading plan"></i>`:""}</button>`});return o}
 let artCur=-1;
 function openArt(i){
   artCur=i;const ex=$("#artv");
@@ -2700,7 +2706,7 @@ function openArt(i){
   const rb=$("#artRead");if(rb)rb.onclick=()=>{const d=artDay(artCur);closeArt();if(R)closeReader();state.selected=d;lsWrite();setView("today")};
   setTimeout(()=>$("#artX")?.focus(),30);
 }
-function stepArt(n){openArt((artCur+n+ART.length)%ART.length)}
+function stepArt(n){const L=[...artOrd(0),...artOrd(1)];const k=L.indexOf(artCur);openArt(L[(k+n+L.length)%L.length])}
 function closeArt(){const v=$("#artv");if(!v)return;document.body.style.overflow=R?"hidden":"";if(reduced()){v.remove();return}v.animate([{opacity:1},{opacity:0}],{duration:200,fill:"forwards"}).onfinish=()=>v.remove()}
 
 /* ================= Diagrams ================= */
