@@ -113,6 +113,7 @@ def run():
         js(d, "document.querySelector('#go-0 .rpf').requestSubmit()"); time.sleep(1)
         note("Amen to that" in js(d, "return document.querySelector('#go-0').textContent"), "reply sends and shows")
         tap(d, "[data-gt='prayer']"); time.sleep(1); shot("14-prayer")
+        tap(d, "#prNow"); time.sleep(1.5); shot("14b-pray-through"); js(d, "closePN()"); time.sleep(0.5)
         # meeting mode
         js(d, "scrollTo(0,0)"); tap(d, "#gMeet"); time.sleep(1.5); shot("15-meeting-welcome")
         note(wait(d, "document.querySelector('#meet .qr path')", 4), "meeting mode QR shows")
@@ -120,6 +121,12 @@ def run():
             tap(d, "#mNext"); time.sleep(1.2)
         shot("16-meeting-question")
         js(d, "closeMeet()"); time.sleep(0.6)
+
+        # quiet time
+        js(d, "setView('today')"); time.sleep(1.2); tap(d, ".qtcard"); time.sleep(2); shot("16b-quiet-time")
+        tap(d, "#qtNext"); time.sleep(6); shot("16c-quiet-time-read")
+        note(wait(d, "QT.text.length>10", 5), "quiet time loads the verse")
+        js(d, "closeQT()"); time.sleep(0.8)
 
         # other tabs
         for n, v in [("17-path", "path"), ("18-learn", "learn"), ("19-journal", "journal")]:
