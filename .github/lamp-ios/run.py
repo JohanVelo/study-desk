@@ -135,9 +135,12 @@ def run():
         js(d, "openReader(curDay(),false)"); time.sleep(2.5); shot("20-reader")
         js(d, "closeReader()"); time.sleep(0.5)
         # listen mode (real iPhone voices)
-        js(d, "openPassage(passFor('PSA',23),false)"); time.sleep(2.5); tap(d, "#rSpeak"); time.sleep(6); shot("20d-listen")
-        st = js(d, "return [LSN.on, LSN.i, speechSynthesis.getVoices().length]")
-        note(bool(js(d, "return !!document.querySelector('#ls .ls-verse')")), f"listen mode opens (playing, verse, voices = {st})")
+        js(d, "openPassage(passFor('PSA',23),false)"); time.sleep(2.5)
+        # the simulator has no voices installed and speech can stall the driver, so stand in a silent voice
+        js(d, "window.__spoke=0;speechSynthesis.speak=u=>{window.__spoke++;setTimeout(()=>u.onend&&u.onend(),400)};speechSynthesis.cancel=()=>{}")
+        tap(d, "#rSpeak"); time.sleep(3); shot("20d-listen")
+        st = js(d, "return [LSN.i, window.__spoke, speechSynthesis.getVoices().length]")
+        note(bool(js(d, "return !!document.querySelector('#ls .ls-verse')||LSN.i>0")) and (st[0] or 0) > 1, f"listen mode moves verse by verse (verse, spoken, voices = {st})")
         js(d, "closeListen();closeReader()"); time.sleep(0.6)
         # verses for how you feel
         js(d, "setView('today')"); time.sleep(1.2); js(d, "openFeel('anxious')"); time.sleep(3); shot("20e-feel")
