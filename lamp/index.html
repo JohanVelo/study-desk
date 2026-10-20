@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261020180344">
+<link rel="stylesheet" href="app.css?v=20261020182331">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261020180344"></script>
+<script src="app.js?v=20261020182331"></script>
 </head>
 <body>
 <style>
@@ -1457,6 +1457,25 @@ html.meeting{overflow:hidden}
 .pz-win b{font-family:var(--f-display);font-size:1.8rem}.pz-win span{color:var(--muted)}
 .pz-stars{display:flex;gap:6px;font-size:2.2rem;line-height:1}.pz-stars span{color:color-mix(in srgb,var(--ink) 15%,transparent)}.pz-stars span.on{color:var(--gold);animation:pop2 .5s var(--spring) both}
 .pz-stars span:nth-child(2){animation-delay:.12s}.pz-stars span:nth-child(3){animation-delay:.24s}
+
+.reader.pg-paper{--bg:#F4ECDC;--surface:#FBF5E9;--sunk:#EDE3CF;--ink:#3B2F22;--muted:#7A6A55;--line:#E2D5BC;--accent:#2C4E9E;--accent-soft:#E8E3F0;--gold:#9A6F17;--gold-soft:#F0E2C2;--on-accent:#fff;--ok:#2F7D55;color:var(--ink);color-scheme:light}
+.reader.pg-night{--bg:#000;--surface:#0E0E0E;--sunk:#151515;--ink:#CFC6B4;--muted:#8A8273;--line:#222;--accent:#93ABEE;--accent-soft:#1A2236;--gold:#E2B758;--gold-soft:#2E2414;--on-accent:#0E1420;--ok:#6CC596;--shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px -14px rgba(0,0,0,.7);color:var(--ink);color-scheme:dark}
+.reader.pg-paper .rbar,.reader.pg-night .rbar{background:color-mix(in srgb,var(--bg) 92%,transparent)}
+.pg-opts button{display:inline-flex;align-items:center;gap:6px}
+.pg-sw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.2);flex:none}
+.pgs-app{background:linear-gradient(135deg,#F2F3EE 50%,#111512 50%)}.pgs-paper{background:#F4ECDC}.pgs-night{background:#000;border-color:#555}
+.seg{max-width:100%;overflow-x:auto;scrollbar-width:none}
+@media (max-width:480px){.seg button{padding-inline:11px;font-size:.86rem}.seg .segn{display:none}}.seg::-webkit-scrollbar{display:none}.seg button{flex:none}
+.hl-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.hl-filter button{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;font-size:.88rem}
+.hl-filter button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.hl-filter .hl-dot{width:12px;height:12px;pointer-events:none}
+.hl-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.hlcard{display:flex;flex-direction:column;gap:10px;border-left:5px solid var(--hlc,var(--gold))}
+.hlc-g{--hlc:#D9A93A}.hlc-b{--hlc:#5B8BD9}.hlc-n{--hlc:#4FA36F}.hlc-r{--hlc:#D9667A}
+.hlcard blockquote{margin:0;font-family:var(--f-text);font-size:1.05rem;line-height:1.6}
+.hlcard footer{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.hlcard cite{font-style:normal;font-weight:700;color:var(--gold)}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2194,6 +2213,7 @@ const after={
   journal(){
     document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.open;lsWrite();setView("today")});
     document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{jTab=b.dataset.tab;memoLv=0;render()});
+    if(jTab==="hl")hlFill();
     document.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>{memoKey=b.dataset.mk;memoLv=0;render()});
     const reb=()=>{render();if(!reduced())$("#memo")?.animate([{opacity:.4,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:300,easing:"cubic-bezier(.16,1,.3,1)"})};
     document.querySelectorAll(".mw").forEach(b=>b.onclick=()=>{b.textContent=b.dataset.w;b.classList.remove("hid","fl");b.classList.add("shown")});
@@ -2367,7 +2387,8 @@ function vJournal(){
   const entries=Object.entries(state.notes).filter(([,n])=>n&&(n.what||n.shows||n.stands)).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const saved=Object.entries(state.saved).filter(([,v])=>v).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const head=`<div><h1 class="page-h">Journal</h1></div>
-  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes · ${entries.length}</button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses · ${saved.length}</button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorize</button></div>`;
+  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorize</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
+  if(jTab==="hl")return head+hlView();
   if(jTab==="memo"){
     if(!saved.length) return head+`<div class="card empty">${I.bookmark}<h2>Hide a verse in your heart</h2><p>Save a verse while you read, then practise it here in four quick steps until you know it by heart.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
     if(!memoKey||!state.saved[memoKey])memoKey=(saved.find(([,v])=>(v.m||0)<3)||saved[0])[0];
@@ -2445,7 +2466,7 @@ function openPassage(p,listen,jumpV,opt){
   R={day:p.day||0,p,sel:null,stack,vmap:new Map(),tr:"WEB",range:opt.range||null};
   document.body.style.overflow="hidden";
   const back=stack.length?stack[stack.length-1]:null;
-  $("#layer").innerHTML=`<div class="reader" role="dialog" aria-modal="true" aria-label="${esc(refName(p))}">
+  $("#layer").innerHTML=`<div class="reader${state.settings.page&&state.settings.page!=="app"?" pg-"+state.settings.page:""}" role="dialog" aria-modal="true" aria-label="${esc(refName(p))}">
     <div class="rbar">
       <button class="icon-btn" id="rClose" aria-label="Close reader">${I.close}</button>
       ${back?`<button class="rback" id="rBack" aria-label="Back to ${esc(refName(back))}">${I.left}${esc(refName(back))}</button>`:""}
@@ -2588,12 +2609,14 @@ function toggleFontPop(){
   const s=state.settings;
   document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="fontpop" id="fontpop">
     <div class="field"><span>Translation</span><div class="opts">${Object.keys(TRN).map(k=>`<button data-rt="${k}" aria-pressed="${(s.rt||"WEB")===k}" title="${TRN[k]}">${k}</button>`).join("")}</div>${R&&R.tr!==(s.rt||"WEB")?`<small>WEB covers the chapters on your path, so this one shows ${R.tr}.</small>`:""}</div>
+    <div class="field"><span>Page</span><div class="opts pg-opts">${[["app","Match app"],["paper","Paper"],["night","Night"]].map(([k,l])=>`<button data-page="${k}" aria-pressed="${(s.page||"app")===k}"><i class="pg-sw pgs-${k}" aria-hidden="true"></i>${l}</button>`).join("")}</div></div>
     <div class="field"><span>Text size</span><div class="opts">${[["s","Small"],["m","Medium"],["l","Large"],["xl","Huge"]].map(([k,l])=>`<button data-size="${k}" aria-pressed="${s.size===k}">${l}</button>`).join("")}</div></div>
     <div class="field"><span>Verse numbers</span><div class="opts"><button data-nums="1" aria-pressed="${!!s.nums}">Show</button><button data-nums="0" aria-pressed="${!s.nums}">Hide</button></div></div>
     <div class="field"><span>Reading voice speed</span><div class="opts">${[[.85,"Slow"],[1,"Normal"],[1.2,"Fast"]].map(([k,l])=>`<button data-rate="${k}" aria-pressed="${s.rate==k}">${l}</button>`).join("")}</div></div>
   </div>`);
   const pop=$("#fontpop");
   pop.querySelectorAll("[data-rt]").forEach(b=>b.onclick=async()=>{setSetting("rt",b.dataset.rt);pop.querySelectorAll("[data-rt]").forEach(x=>x.setAttribute("aria-pressed",x===b));stopSpeak();const sc=$("#rScroll"),top=sc.scrollTop;await loadText();sc.scrollTop=top;pop.remove()});
+  pop.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{const k=b.dataset.page;setSetting("page",k);const rd=$(".reader");rd.classList.remove("pg-paper","pg-night");if(k!=="app")rd.classList.add("pg-"+k);pop.querySelectorAll("[data-page]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{setSetting("size",b.dataset.size);$("#scr").style.setProperty("--rs",SIZES[b.dataset.size]);pop.querySelectorAll("[data-size]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-nums]").forEach(b=>b.onclick=()=>{const on=b.dataset.nums==="1";setSetting("nums",on);$("#scr").classList.toggle("nonum",!on);pop.querySelectorAll("[data-nums]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{setSetting("rate",+b.dataset.rate);pop.querySelectorAll("[data-rate]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(speaking){stopSpeak();toggleSpeak()}});
@@ -3944,6 +3967,22 @@ function paintHere(){const el=$("#gHereRow");if(!el)return;if(!G.on){el.innerHTM
 
 
 
+
+
+/* ================= Journal: highlights ================= */
+let hlF="all";
+const hlKeys=()=>Object.entries(state.hl||{}).filter(([,c])=>c).map(([k,c])=>{const [b,ch,v]=k.split(".");return {k,c,b,ch:+ch,v:+v}}).filter(x=>CANON.includes(x.b)).sort((a,z)=>CANON.indexOf(a.b)-CANON.indexOf(z.b)||a.ch-z.ch||a.v-z.v);
+const hlCount=()=>hlKeys().length;
+function hlView(){const all=hlKeys();
+  if(!all.length)return `<div class="card empty">${I.bookmark}<h2>Colour what speaks to you</h2><p>While reading, tap any verse and pick a colour. Every highlight gathers here, in Bible order.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
+  const n=c=>all.filter(x=>x.c===c).length;const list=hlF==="all"?all:all.filter(x=>x.c===hlF);
+  return `<div class="hl-filter" role="group" aria-label="Show highlights"><button data-hlf="all" aria-pressed="${hlF==="all"}">All · ${all.length}</button>${HL.filter(([c])=>n(c)).map(([c,l])=>`<button data-hlf="${c}" aria-pressed="${hlF===c}"><i class="hl-dot hd-${c}" aria-hidden="true"></i>${l} · ${n(c)}</button>`).join("")}</div>
+  <div class="hl-list">${list.map(x=>`<article class="card hlcard hlc-${x.c}"><blockquote data-hlt="${x.k}"><span class="thinking"><i></i><i></i><i></i></span></blockquote><footer><cite>${esc(refName({book:x.b,ch:x.ch}))}:${x.v}</cite><button class="btn sm ghost" data-hlo="${x.k}">${I.open}Read</button></footer></article>`).join("")}</div>`}
+async function hlFill(){document.querySelectorAll("[data-hlf]").forEach(b=>b.onclick=()=>{hlF=b.dataset.hlf;render()});
+  document.querySelectorAll("[data-hlo]").forEach(b=>b.onclick=()=>{const [bk,ch,v]=b.dataset.hlo.split(".");openPassage(passFor(bk,+ch),false,+v)});
+  const books=[...new Set([...document.querySelectorAll("[data-hlt]")].map(e=>e.dataset.hlt.split(".")[0]))];
+  for(const bk of books){let a=null;try{a=await loadBook("BSB",bk)}catch(e){}
+    document.querySelectorAll(`[data-hlt^="${bk}."]`).forEach(e=>{const [,ch,v]=e.dataset.hlt.split(".");const t=a?.[+ch-1]?.[+v-1];e.textContent=t||"Couldn't load this verse. Check your connection."})}}
 
 /* ================= Listen: the chapter read aloud, full screen ================= */
 const LS_PLAY=`<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.2-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/></svg>`,LS_PAUSE=`<svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><rect x="6.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/><rect x="13.5" y="5" width="4" height="14" rx="1.3" fill="currentColor"/></svg>`,LS_NOTE=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>`;
