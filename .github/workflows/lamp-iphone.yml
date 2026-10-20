@@ -7,6 +7,8 @@ on:
     branches: [main]
     paths: ["lamp/**", ".github/lamp-ios/**", ".github/workflows/lamp-iphone.yml"]
 concurrency: { group: lamp-iphone, cancel-in-progress: true }
+permissions:
+  contents: write
 jobs:
   iphone:
     runs-on: macos-15
@@ -37,3 +39,9 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: lamp-iphone-screens, path: out, retention-days: 14 }
+      - name: Publish screenshots to the iphone-shots branch
+        if: always()
+        run: |
+          cd out && git init -q -b iphone-shots && git add -A
+          git -c user.name="Lamp iPhone test" -c user.email="actions@users.noreply.github.com" commit -q -m "iPhone screenshots for ${GITHUB_SHA::7}"
+          git push -q -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" iphone-shots
