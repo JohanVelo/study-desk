@@ -31,7 +31,7 @@ log.push('wheel: '+await p.textContent('#wRes'));
 // games
 await p.click('[data-gt="games"]');await p.waitForTimeout(600);await shot('games');
 await p.click('[data-game="match"]');await p.waitForTimeout(500);await shot('match');
-const pairs=await p.evaluate(()=>WK().pairs);
+await p.waitForSelector('.mcard');const pairs=await p.evaluate(()=>window.__mp);
 for(const [a,c] of pairs){const ids=await p.evaluate(([a,c])=>[...document.querySelectorAll('.mcard')].map((b,i)=>[i,b.querySelector('.mf-front').textContent]).filter(x=>x[1]===a||x[1]===c).map(x=>x[0]),[a,c]);
  for(const i of ids){await p.click(`[data-mi="${i}"]`);await p.waitForTimeout(150)}await p.waitForTimeout(450)}
 await p.waitForTimeout(1200);await shot('match-done');log.push('match: '+await p.textContent('.gscore').catch(()=>'none'));
