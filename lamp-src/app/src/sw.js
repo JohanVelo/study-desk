@@ -9,5 +9,5 @@ self.addEventListener("fetch", e => {
   if (e.request.method !== "GET" || u.origin !== location.origin) return;
   const page = e.request.mode === "navigate" || u.pathname.endsWith("/") || u.pathname.endsWith("index.html");
   if (page) { e.respondWith(fetch(e.request).then(r => { const c = r.clone(); caches.open(V).then(x => x.put("index.html", c)); return r; }).catch(() => caches.match("index.html"))); return; }
-  e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => { if (r.ok && /\/(bib|art|icons|orig|sat)\/|\.json$|\.js$|\.css$/.test(u.pathname)) { const c = r.clone(); caches.open(/\/(bib|orig|sat)\/|\/art\/.*\.jpg$/.test(u.pathname) ? DATA : V).then(x => x.put(e.request, c)); } return r; })));
+  e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => { if (r.ok && /\/(bib|art|icons|orig|sat|por|img)\/|\.json$|\.js$|\.css$/.test(u.pathname)) { const c = r.clone(); caches.open(/\/(bib|orig|sat|por|img)\/|\/art\/.*\.jpg$/.test(u.pathname) ? DATA : V).then(x => x.put(e.request, c)); } return r; })));
 });

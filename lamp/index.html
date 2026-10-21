@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261021143522">
+<link rel="stylesheet" href="app.css?v=20261021173843">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261021143522"></script>
+<script src="app.js?v=20261021173843"></script>
 </head>
 <body>
 <style>
@@ -281,7 +281,18 @@ textarea:focus,.input:focus,select:focus{outline:none;border-color:var(--accent)
 .places-list button{border:0;background:var(--sunk);border-radius:8px;padding:5px 10px;font-size:.84rem;color:var(--ink)}
 .places-list button[aria-pressed="true"]{background:var(--accent);color:var(--on-accent)}
 
-.shelf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.shelf{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.shelf .testament{grid-column:1/-1}
+.lshelf-w{overflow-x:auto;overflow-y:hidden;margin:12px -16px -4px;padding:10px 16px 24px;scrollbar-width:none;scroll-snap-type:x proximity;-webkit-mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(90deg,transparent,#000 14px,#000 calc(100% - 22px),transparent)}
+.lshelf-w::-webkit-scrollbar{display:none}
+.bshelf.lshelf{height:auto;min-height:150px;width:max-content;min-width:100%;margin:0;padding:0 8px;gap:2px;align-items:flex-end}
+.lshelf .spine{flex:0 0 var(--w)!important;width:var(--w);height:var(--h);filter:none;scroll-snap-align:start}
+@media (min-width:1000px){.shelf{grid-template-columns:repeat(2,minmax(0,1fr))}.shelf .sec{display:flex;flex-direction:column}.shelf .sec .lshelf-w{margin-top:auto}.shelf .sec p{margin-bottom:12px}}
+.bkend{flex:none;align-self:flex-end;width:14px;height:64px;margin-left:3px;border-radius:3px 3px 0 0;background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,236,200,.25) 35%,rgba(0,0,0,.2)),linear-gradient(180deg,#9A6634,#6E4520);box-shadow:-3px 0 6px -2px rgba(0,0,0,.45)}
+.lshelf .spine.long b{font-size:.6rem;letter-spacing:0}
+.lshelf .spine.long .sp-lab{top:calc(19% + 6px);bottom:calc(17% + 3px)}
+.lshelf .spine b{font-size:.74rem;letter-spacing:.04em}
+.lshelf .spine .sp-lab{left:14%;right:14%;top:calc(19% + 10px);bottom:calc(17% + 6px)}
 .shelf .sec{padding:16px;border-radius:12px;background:var(--sunk)}
 .shelf h3{font-size:1.25rem;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .shelf h3 span{font:500 .82rem var(--f-mono);color:var(--gold)}
@@ -1720,19 +1731,38 @@ html.easy .tside .more{display:none}
 .jr-p{fill:none;stroke:var(--gold);stroke-width:9;stroke-linecap:round;transform:rotate(-90deg);transform-origin:55px 55px}
 .jr-n{font:700 22px var(--f-body);fill:var(--ink);text-anchor:middle;font-variant-numeric:tabular-nums}.jr-l{font:600 9.5px var(--f-body);fill:var(--muted);text-anchor:middle;letter-spacing:.04em}
 .jr-txt h2{font:600 clamp(1.5rem,4vw,1.9rem)/1.15 var(--f-display);margin:2px 0 4px}.jr-txt p{margin:0 0 12px}
-.bshelf{display:flex;align-items:flex-end;gap:5px;height:clamp(150px,22vw,210px);padding:0 6px;border-bottom:7px solid color-mix(in srgb,#8A5A2B 70%,var(--surface));border-radius:0 0 4px 4px;box-shadow:0 10px 14px -10px rgba(60,35,10,.45)}
-.spine{position:relative;flex:1;min-width:0;height:var(--h);padding:0;border:0;border-radius:4px 4px 1px 1px;cursor:pointer;overflow:hidden;color:#F3E7CF;
-  background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.08) 22%,rgba(0,0,0,.05) 60%,rgba(0,0,0,.3)),var(--lc);
-  box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);transition:transform .35s var(--spring),filter .2s;opacity:.8;filter:saturate(.4)}
-.spine::before,.spine::after{content:"";position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,#B8873A,#F0D08A,#B8873A);opacity:.85}
-.spine::before{top:12px}.spine::after{top:18px}
-.spine i{position:absolute;left:0;right:0;bottom:0;height:calc(var(--f)*100%);background:linear-gradient(0deg,rgba(240,208,138,.24),rgba(240,208,138,.1));border-top:1px solid rgba(240,208,138,.55);transform-origin:bottom}
-.spine b{position:absolute;left:50%;top:28px;bottom:26px;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);font:600 1rem/1 var(--f-display);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:calc(100% - 54px)}
-.spine small{position:absolute;bottom:6px;left:0;right:0;text-align:center;font:600 .72rem var(--f-display);letter-spacing:.04em;opacity:.85;white-space:nowrap;overflow:hidden}
-.spine.full,.spine.now{opacity:1;filter:none}.spine.full i{border-top:0;background:linear-gradient(0deg,rgba(240,208,138,.18),transparent)}
-.spine.now{box-shadow:inset 0 0 0 1px rgba(0,0,0,.15),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
-@media (hover:hover){.spine:hover{transform:translateY(-4px)}}
-@media (max-width:520px){.bshelf{height:150px;gap:3px;padding:0 2px}.spine b{font-size:.84rem}.jr-ring{width:100px;height:100px}.jr-top{gap:14px}}
+.bshelf{position:relative;display:flex;align-items:flex-end;gap:3px;height:clamp(158px,22vw,220px);padding:0 10px 0;margin:4px 0 22px}
+.bshelf::before{content:"";position:absolute;left:0;right:0;bottom:-14px;height:14px;border-radius:2px 2px 4px 4px;z-index:2;
+  background:linear-gradient(180deg,rgba(255,236,200,.35),rgba(255,236,200,0) 18%,rgba(0,0,0,0) 70%,rgba(0,0,0,.35)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='24'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.006 .45' numOctaves='3' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23w)'/%3E%3C/svg%3E"),linear-gradient(90deg,#7A4E26,#9A6634 30%,#8A5A2C 70%,#6E4520);
+  box-shadow:0 12px 18px -8px rgba(40,20,5,.55),0 2px 0 rgba(0,0,0,.25)}
+.bshelf::after{content:"";position:absolute;left:4px;right:4px;bottom:-2px;height:10px;z-index:1;background:radial-gradient(60% 100% at 50% 0,rgba(0,0,0,.45),transparent 70%);filter:blur(3px)}
+.spine{position:relative;z-index:1;flex:1 1 0;min-width:0;height:var(--h);padding:0;border:0;border-radius:5px 5px 2px 2px/9px 9px 2px 2px;cursor:pointer;overflow:hidden;color:#F3E2B6;
+  background:
+    linear-gradient(90deg,rgba(0,0,0,.62) 0,rgba(0,0,0,.18) 9%,rgba(255,240,215,.2) 30%,rgba(255,240,215,.05) 46%,rgba(0,0,0,.1) 72%,rgba(0,0,0,.6) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(0,0,0,.4)) 0 9%/100% 6px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(0,0,0,.4)) 0 19%/100% 6px no-repeat,
+    linear-gradient(180deg,rgba(255,255,255,.22),rgba(0,0,0,.4)) 0 83%/100% 6px no-repeat,
+    linear-gradient(90deg,#6E4C14,#E9C77A 30%,#FFF1C2 42%,#C8973E 62%,#6E4C14) 0 calc(9% - 4px)/100% 1.5px no-repeat,
+    linear-gradient(90deg,#6E4C14,#E9C77A 30%,#FFF1C2 42%,#C8973E 62%,#6E4C14) 0 calc(19% + 8px)/100% 1.5px no-repeat,
+    linear-gradient(90deg,#6E4C14,#E9C77A 30%,#FFF1C2 42%,#C8973E 62%,#6E4C14) 0 calc(83% - 4px)/100% 1.5px no-repeat,
+    linear-gradient(90deg,#6E4C14,#E9C77A 30%,#FFF1C2 42%,#C8973E 62%,#6E4C14) 0 calc(100% - 7px)/100% 2px no-repeat,
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035' numOctaves='2' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .8 -.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E"),var(--lc);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.35),inset 0 2px 1px rgba(255,255,255,.12),2px 0 3px -1px rgba(0,0,0,.35);
+  transition:transform .35s var(--spring),filter .25s;filter:saturate(.6) brightness(.82)}
+.spine:nth-child(3n+1){flex-grow:1.12}.spine:nth-child(4n+2){flex-grow:.9}
+.spine.full,.spine.now{filter:none}
+.spine i{position:absolute;left:0;right:0;bottom:0;height:calc(var(--f)*100%);background:linear-gradient(0deg,rgba(255,226,150,.2),rgba(255,226,150,.05));border-top:1px solid rgba(240,208,138,.5);transform-origin:bottom;pointer-events:none}
+.spine.full i{display:none}
+.spine .sp-lab{position:absolute;left:16%;right:16%;top:calc(19% + 14px);bottom:calc(17% + 8px);border-radius:2px;
+  background:linear-gradient(90deg,rgba(0,0,0,.35),rgba(255,255,255,.06) 40%,rgba(0,0,0,.35)),url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),#1E1611;
+  box-shadow:inset 0 0 0 1px rgba(233,199,122,.75),inset 0 0 0 3px #1E1611,inset 0 0 0 3.6px rgba(233,199,122,.45),0 1px 1px rgba(255,255,255,.12)}
+.spine b{position:absolute;inset:8px 0;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;transform:rotate(180deg);font:600 .98rem/1 var(--f-display);letter-spacing:.06em;white-space:nowrap;overflow:hidden;
+  background:linear-gradient(180deg,#FFF0C4,#D9AE5C 55%,#A97C2E);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 1px 0 rgba(0,0,0,.6))}
+.spine small{position:absolute;top:calc(9% + 9px);left:0;right:0;text-align:center;font:600 .66rem/1 var(--f-display);letter-spacing:.06em;color:#E9C77A;text-shadow:0 1px 0 rgba(0,0,0,.6);white-space:nowrap;overflow:hidden}
+.spine.now::after{content:"";position:absolute;top:0;right:11%;width:5px;height:calc(9% + 22px);z-index:2;background:linear-gradient(90deg,#7E1B22,#C3343C 50%,#8B1E25);clip-path:polygon(0 0,100% 0,100% 100%,50% 86%,0 100%);box-shadow:0 1px 2px rgba(0,0,0,.4)}
+.spine.now{box-shadow:inset 0 0 0 1px rgba(0,0,0,.35),inset 0 2px 1px rgba(255,255,255,.12),0 0 0 2px var(--surface),0 0 0 3.5px var(--gold)}
+@media (hover:hover){.spine:hover{transform:translateY(-6px)}}
+@media (max-width:520px){.bshelf{height:156px;gap:2px;padding:0 4px}.spine b{font-size:.8rem;letter-spacing:.03em}.spine .sp-lab{left:12%;right:12%}.jr-ring{width:100px;height:100px}.jr-top{gap:14px}}
 .stats .stat:nth-child(4) b{color:var(--gold)}
 .story{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;color:#FFF8EA;background:#1A140D;transition:background .8s ease;overflow:hidden;-webkit-user-select:none;user-select:none}
 .story.s1,.story.s8{background:radial-gradient(70% 50% at 50% 40%,#6B4A1C,#1A140D 75%)}.story.s2{background:linear-gradient(160deg,#2B3D72,#121a33)}.story.s3{background:linear-gradient(160deg,#7A2E2E,#2a1010)}
@@ -1789,6 +1819,21 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 .map.sat:not(.satfail){background:#14223D}
 .reader.pg-night .rdock{background:#0A0A0A;-webkit-backdrop-filter:none;backdrop-filter:none;border-top-color:#1E1E1E}
 .reader.pg-night .vbar{background:#E8E1D2;color:#0A0A0A}
+.t-ring{fill:none;stroke:var(--gold);stroke-width:1.4;opacity:.85}
+.t-node.has-por .t-name,.t-node.has-por .t-sub{text-anchor:middle}
+.figv-note:has(>.note-pic:not(.wide)){display:grid;grid-template-columns:92px minmax(0,1fr);column-gap:14px;row-gap:6px;align-content:start}
+.figv-note:has(>.note-pic:not(.wide))>:not(.note-pic):not(.nx){grid-column:2}
+.figv-note>.note-pic:not(.wide){grid-column:1;grid-row:1/span 4}
+.note-pic{display:flex;flex-direction:column;gap:5px;width:92px;margin:2px 14px 6px 0;padding:0;border:0;background:none;color:var(--muted);text-align:left;cursor:zoom-in}
+.note-pic img{width:92px;height:92px;object-fit:cover;border-radius:12px;box-shadow:0 0 0 1px var(--line),0 6px 16px -8px rgba(0,0,0,.5)}
+.note-pic span{font:500 .68rem/1.3 var(--f-body)}
+@media (min-width:641px){.figv-note:has(>.note-pic:not(.wide)){grid-template-columns:76px minmax(0,1fr)}.note-pic:not(.wide){width:76px}.note-pic:not(.wide) img{width:76px;height:76px}.note-pic:not(.wide) span{display:none}}
+.note-pic.wide{float:none;width:100%;margin:0 0 6px}.note-pic.wide img{width:100%;height:auto;aspect-ratio:16/10}
+.figv-note::after{content:"";display:block;clear:both}
+.picv{position:fixed;inset:0;z-index:120;background:rgba(6,8,7,.94);display:grid;place-items:center;padding:16px;animation:fade .25s var(--ease)}
+.picv img{max-width:100%;max-height:calc(100% - 70px);border-radius:10px;box-shadow:0 30px 80px -20px #000}
+.picv p{color:#E9E2D2;font:500 .9rem var(--f-body);margin-top:10px;text-align:center}
+.picv button{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:12px;width:44px;height:44px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;display:grid;place-items:center}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2098,6 +2143,14 @@ const SHELF=[
   {t:"Revelation",n:1,d:"A vision of Jesus' final victory and the new creation, written in symbolic picture-language."}
 ];
 
+/* the library as a bookcase: one shelf per kind of writing, each book as thick as its chapters */
+const SHELF_LC=["#6E2A26","#5C3F22","#2F5240","#283C6E","#6B2430","#22575A","#2B3557","#4A2C5E"];
+function libShelves(){let i=0,k=0;return SHELF.map(s=>{if(s.testament)return `<div class="testament">${s.t}<span>${s.testament}</span></div>`;
+  const lc=SHELF_LC[k++%SHELF_LC.length],from=i;i+=s.n;
+  const books=LIB.slice(from,i).map((b,j)=>{const code=BCODES[from+j],ch=b[1],w=Math.round(22+Math.sqrt(ch)*3.3),h=118+((from+j)*37%5)*7;
+    return `<button class="spine lsp${b[0].length>8?" long":""}" role="listitem" data-lb="${code}" style="--lc:${lc};--w:${w}px;--h:${h}px" aria-label="${esc(b[0])}, ${ch} chapter${ch>1?"s":""}. Open chapter 1"><span class="sp-lab"><b>${esc(b[0])}</b></span></button>`}).join("");
+  return `<div class="sec"><h3>${s.t}<span>${s.n} book${s.n>1?"s":""}</span></h3><p>${s.d}</p><div class="lshelf-w"><div class="bshelf lshelf" role="list" aria-label="${esc(s.t)} books">${books}<i class="bkend" aria-hidden="true"></i></div></div></div>`}).join("")}
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-lb]");if(!b)return;buzz?.(8);openPassage(passFor(b.dataset.lb,1))});
 const TERMS=[
   ["Messiah / Christ","ideas","Both mean \"anointed one\" (Hebrew and Greek). Israel waited for an anointed king from David's family who would rescue them. \"Christ\" is a title, not Jesus' surname."],
   ["Son of Man","ideas","Jesus' favourite name for himself. It comes from Daniel 7, where a human figure receives an everlasting kingdom from God."],
@@ -2514,7 +2567,7 @@ function journeyCard(total){const pc=total/TOTAL,R=46,L=+(2*Math.PI*R).toFixed(1
     <div class="jr-txt"><div class="kicker">Your journey</div><h2>${total} of ${TOTAL} chapters</h2><p class="muted">${total>=TOTAL?"You've read the whole path.":`Now in stage ${cur.stage+1} of ${STAGES.length}: ${esc(st.title)}`}</p>
       ${total?`<button class="btn sm" id="storyGo">${I.spark}Your Lamp story</button>`:""}</div></div>
     <div class="bshelf" role="list" aria-label="Your bookshelf: one book for each stage">${STAGES.map((sg,i)=>{const days=PLAN.filter(p=>p.stage===i),d=days.filter(p=>isDone(p.day)).length,f=d/days.length;
-      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><b>${esc(BOOKS[sg.book].name)}</b><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
+      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
 
 /* ================= Your Lamp story ================= */
 const ST={i:0,t:null,hold:false,list:[]};
@@ -3008,7 +3061,7 @@ function vLearn(){
   <section class="card" id="library">
     <h2 style="font-size:1.85rem">It's a library, not one book</h2>
     <p class="lede" style="margin:6px 0 14px">66 books written over about 1,500 years by around 40 authors, in Hebrew, Aramaic and Greek. Knowing what kind of writing you're in changes how you read it.</p>
-    <div class="shelf">${SHELF.map(s=>s.testament?`<div class="testament">${s.t}<span>${s.testament}</span></div>`:`<div class="sec"><h3>${s.t}<span>${s.n}</span></h3><p>${s.d}</p></div>`).join("")}</div>
+    <div class="shelf">${libShelves()}</div>
   </section>
   <section class="card" id="words">
     <h2 style="font-size:1.85rem">Who's who &amp; key words</h2>
@@ -3658,7 +3711,7 @@ const FAM={
  nodes:[
   ["terah",500,40,"Terah","father of Abram","Lived in Ur, then set out for Canaan but stopped in Harran and died there.",[["Genesis 11:26–32","GEN",11]]],
   ["haran",170,150,"Haran","died young in Ur","Abram's brother, who died before the family left Ur. His son Lot went with Abram.",[["Genesis 11:28","GEN",11]]],
-  ["abraham",500,150,"Abraham","wives Sarah and Hagar","Called by God at 75 and promised a land, a nation and a blessing for the whole world. Renamed from Abram ('exalted father') to Abraham ('father of many').",[["Genesis 12","GEN",12],["Genesis 17","GEN",17]]],
+  ["abraham",500,150,"Abraham","husband of Sarah","Called by God at 75 and promised a land, a nation and a blessing for the whole world. Renamed from Abram ('exalted father') to Abraham ('father of many').",[["Genesis 12","GEN",12],["Genesis 17","GEN",17]]],
   ["nahor",830,150,"Nahor","stayed in Harran","Abram's brother. His family stayed behind in the region of Harran, where Abraham later sent for a wife for Isaac.",[["Genesis 22:20–23","GEN",22]]],
   ["lot",170,265,"Lot","Abram's nephew","Chose the well-watered plain near Sodom. Rescued twice, once by Abram and once by angels before Sodom's destruction.",[["Genesis 13","GEN",13],["Genesis 19","GEN",19]]],
   ["ishmael",350,265,"Ishmael","son of Hagar","'God hears.' Sent away with his mother, but God promised to make him a great nation too. Father of twelve tribal princes of Arabia.",[["Genesis 16","GEN",16],["Genesis 21:8–21","GEN",21]]],
@@ -3668,7 +3721,7 @@ const FAM={
   ["esau",410,385,"Esau","also called Edom","Isaac's firstborn twin, who sold his birthright for a bowl of stew. Ancestor of the Edomites.",[["Genesis 25:19–34","GEN",25],["Genesis 36","GEN",36]]],
   ["jacob",600,385,"Jacob","renamed Israel","The younger twin who grabbed his brother's heel and later his blessing. Wrestled with God and was renamed Israel. His twelve sons became the twelve tribes.",[["Genesis 27","GEN",27],["Genesis 32:22–32","GEN",32]]],
   ["rebekah",790,385,"Rebekah","wife of Isaac","Found at a well by Abraham's servant, who prayed for a sign. Mother of Esau and Jacob.",[["Genesis 24","GEN",24]]],
-  ["laban",930,385,"Laban","Rebekah's brother","Jacob's uncle, who tricked him into marrying Leah before Rachel. The trickster got tricked.",[["Genesis 29","GEN",29]]]],
+  ["laban",938,385,"Laban","Rebekah's brother","Jacob's uncle, who tricked him into marrying Leah before Rachel. The trickster got tricked.",[["Genesis 29","GEN",29]]]],
  groups:[
   ["leah",180,520,300,"Leah's children","Reuben · Simeon · Levi · Judah\nIssachar · Zebulun · Dinah","Leah was Laban's elder daughter and the less loved wife, yet both the priestly line (Levi) and the royal line (Judah) came through her.",[["Genesis 29:31–35","GEN",29],["Genesis 30","GEN",30]]],
   ["zilpah",405,520,130,"Zilpah's","Gad · Asher","Leah's servant, given to Jacob as a wife.",[["Genesis 30:9–13","GEN",30]]],
@@ -3676,18 +3729,25 @@ const FAM={
   ["rachel",770,520,220,"Rachel's children","Joseph · Benjamin","Jacob's great love, for whom he worked 14 years. She died giving birth to Benjamin.",[["Genesis 29:16–30","GEN",29],["Genesis 35:16–20","GEN",35]]]],
  leaves:[
   ["levi",110,650,"Moses & Aaron","from Levi","The tribe of Levi became Israel's priests. Moses and Aaron were Levites.",[["Exodus 2","EXO",2]]],
-  ["judah",300,650,"King David → Jesus","from Judah","Jacob blessed Judah: 'The sceptre will not depart from Judah.' David came from Judah, and Matthew traces Jesus' family line back through him to Abraham.",[["Genesis 49:8–10","GEN",49],["Matthew 1:1–17",null,0]]],
+  ["judah",320,650,"King David → Jesus","from Judah","Jacob blessed Judah: 'The sceptre will not depart from Judah.' David came from Judah, and Matthew traces Jesus' family line back through him to Abraham.",[["Genesis 49:8–10","GEN",49],["Matthew 1:1–17",null,0]]],
   ["joseph",770,650,"Ephraim & Manasseh","Joseph's sons","Joseph was sold by his brothers, rose to rule Egypt and saved the family in a famine. His two sons each became a tribe.",[["Genesis 37","GEN",37],["Genesis 50:20","GEN",50]]]],
  edges:[["terah","haran"],["terah","abraham"],["terah","nahor"],["haran","lot"],["abraham","ishmael"],["abraham","isaac"],["nahor","bethuel"],["lot","moab"],["isaac","esau"],["isaac","jacob"],["bethuel","rebekah"],["bethuel","laban"],["jacob","leah"],["jacob","zilpah"],["jacob","bilhah"],["jacob","rachel"],["leah","levi"],["leah","judah"],["rachel","joseph"]],
  marry:[["isaac","rebekah"]]
 };
+/* portraits cut from Doré's engravings (public domain); a = the plate they come from */
+const PORT={abraham:{a:10},isaac:{a:13},jacob:{a:14},rebekah:{a:12},ishmael:{a:9},lot:{a:7},rachel:{a:14},judah:{a:30},joseph:{a:17}};
+/* a picture shown with a tapped item's note: "figure:item" -> {src, alt, cap, art (plate to open)} */
+const NOTE_PIC={};for(const [k,p] of Object.entries(PORT))NOTE_PIC["family:"+k]={src:`por/${k}.webp`,cap:`Gustave Doré, “${ART[p.a][0]}”`,art:p.a};
+function notePic(fid,k){const p=NOTE_PIC[fid+":"+k];if(!p)return "";
+  return `<button class="note-pic${p.wide?" wide":""}" ${p.art!=null?`data-noteart="${p.art}"`:`data-notesrc="${esc(p.big||p.src)}"`} aria-label="${esc(p.cap)}. Open the picture"><img src="${esc(p.src)}" alt="" decoding="async"><span>${esc(p.cap)}</span></button>`}
 function famPos(id){for(const n of FAM.nodes)if(n[0]===id)return {x:n[1],y:n[2],h:54};for(const g of FAM.groups)if(g[0]===id)return {x:g[1],y:g[2],h:70};for(const l of FAM.leaves)if(l[0]===id)return {x:l[1],y:l[2],h:54}}
 function figTree(){
   const e=FAM.edges.map(([a,b],i)=>{const p=famPos(a),q=famPos(b);const y1=p.y+p.h/2,y2=q.y-q.h/2,my=(y1+y2)/2;return `<path d="M${p.x},${y1} V${my} H${q.x} V${y2}" class="t-edge" pathLength="1" style="--d:${.15+i*.04}s"/>`}).join("");
   const mr=FAM.marry.map(([a,b])=>{const p=famPos(a),q=famPos(b);return `<path d="M${p.x+65},${p.y} C${q.x-40},${p.y} ${q.x},${p.y+20} ${q.x},${q.y-27}" class="t-marry"/><text x="${(p.x+q.x)/2+40}" y="${p.y-6}" class="t-lbl">married</text>`}).join("");
-  const box=(id,x,y,w,h,n,sub,i,cls="")=>`<g class="t-node ${cls}" data-note="${id}" tabindex="0" role="button" aria-label="${esc(n)}" style="--d:${.1+i*.05}s"><rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="12"/><text x="${x}" y="${y-(sub.includes("\n")?12:3)}" class="t-name">${esc(n)}</text>${sub.split("\n").map((s,j)=>`<text x="${x}" y="${y+(sub.includes("\n")?8:15)+j*15}" class="t-sub">${esc(s)}</text>`).join("")}</g>`;
+  const box=(id,x,y,w,h,n,sub,i,cls="")=>{const pt=PORT[id];if(pt&&!cls.includes("grp"))w=cls.includes("leaf")?232:id==="rebekah"?150:170;const cx=x-w/2+25,tx=pt?x+19:x;
+    return `<g class="t-node ${cls}${pt?" has-por":""}" data-note="${id}" tabindex="0" role="button" aria-label="${esc(n)}" style="--d:${.1+i*.05}s"><rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="12"/>${pt?`<clipPath id="pc-${id}"><circle cx="${cx}" cy="${y}" r="19"/></clipPath><image href="por/${id}.webp" x="${cx-19}" y="${y-19}" width="38" height="38" clip-path="url(#pc-${id})" preserveAspectRatio="xMidYMid slice"/><circle class="t-ring" cx="${cx}" cy="${y}" r="19.5"/>`:""}<text x="${tx}" y="${y-(sub.includes("\n")?12:3)}" class="t-name">${esc(n)}</text>${sub.split("\n").map((s,j)=>`<text x="${tx}" y="${y+(sub.includes("\n")?8:15)+j*15}" class="t-sub">${esc(s)}</text>`).join("")}</g>`};
   let i=0;
-  return `<svg class="fig tree" viewBox="0 0 1000 712" role="img" aria-label="Family tree of Abraham">
+  return `<svg class="fig tree" viewBox="-6 0 1014 712" role="img" aria-label="Family tree of Abraham">
    <text x="20" y="28" class="t-gen">Generation 1</text>
    ${e}${mr}
    ${FAM.nodes.map(n=>box(n[0],n[1],n[2],130,54,n[3],n[4],i++,n[0]==="abraham"||n[0]==="jacob"?"key":"")).join("")}
@@ -3879,8 +3939,10 @@ function openFig(id,focus){
   const notes=figNotes(id);
   const show=k=>{const n=notes[k];if(!n)return;document.querySelectorAll(".figv [data-note]").forEach(g=>g.classList.toggle("sel",g.dataset.note===k));
     $("#fgNote").classList.add("open");
-    $("#fgNote").innerHTML=`<button class="nx" id="fgNx" aria-label="Close note">${I.close}</button><h3>${esc(n[0])}</h3><p>${esc(n[1])}</p>${n[2]&&n[2].length?`<div class="refs">${n[2].map(([l,b,c])=>{const d=b?dayOf(b,c):0;return d?`<button data-figday="${d}">${I.open}${esc(l)}${isDone(d)?" ✓":""}</button>`:b?`<button data-figpass="${b}.${c}.${(l.match(/:(\d+)/)||[])[1]||0}">${I.open}${esc(l)}</button>`:`<span class="refx">${esc(l)}</span>`}).join("")}</div>`:""}`;
+    $("#fgNote").innerHTML=`<button class="nx" id="fgNx" aria-label="Close note">${I.close}</button>${notePic(id,k)}<h3>${esc(n[0])}</h3><p>${esc(n[1])}</p>${n[2]&&n[2].length?`<div class="refs">${n[2].map(([l,b,c])=>{const d=b?dayOf(b,c):0;return d?`<button data-figday="${d}">${I.open}${esc(l)}${isDone(d)?" ✓":""}</button>`:b?`<button data-figpass="${b}.${c}.${(l.match(/:(\d+)/)||[])[1]||0}">${I.open}${esc(l)}</button>`:`<span class="refx">${esc(l)}</span>`}).join("")}</div>`:""}`;
     if(!reduced())$("#fgNote").animate([{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:260,easing:"ease-out"});
+    $("#fgNote").querySelector("[data-noteart]")?.addEventListener("click",e=>openArt(+e.currentTarget.dataset.noteart));
+    $("#fgNote").querySelector("[data-notesrc]")?.addEventListener("click",e=>openPic(e.currentTarget.dataset.notesrc,e.currentTarget.textContent));
     $("#fgNx").onclick=()=>{$("#fgNote").classList.remove("open");$("#fgNote").innerHTML=figHint(f);document.querySelectorAll(".figv [data-note].sel").forEach(g=>g.classList.remove("sel"))};
     $("#fgNote").querySelectorAll("[data-figday]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.figday;lsWrite();closeFig();setView("today")});
     $("#fgNote").querySelectorAll("[data-figpass]").forEach(b=>b.onclick=()=>{const [bk,c,v]=b.dataset.figpass.split(".");closeFig();openPassage(passFor(bk,+c),false,+v||0)})};
@@ -5338,7 +5400,18 @@ document.addEventListener("keydown",e=>{
 /* tab rows that scroll show a soft edge until you reach the end */
 function edgeMask(){document.querySelectorAll(".gtabs,.seg").forEach(el=>{const sc=el.scrollWidth>el.clientWidth+2;el.classList.toggle("scrolls",sc);el.classList.toggle("end",!sc||el.scrollLeft+el.clientWidth>=el.scrollWidth-4);if(!el._em){el._em=1;el.addEventListener("scroll",()=>el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4),{passive:true})}})}
 new MutationObserver(()=>{cancelAnimationFrame(edgeMask.r);edgeMask.r=requestAnimationFrame(edgeMask)}).observe(document.body,{childList:true,subtree:true});addEventListener("resize",edgeMask);
+/* iPhone: after the keyboard closes, iOS can leave the page's fixed bars (bottom tabs, top bar) out of place
+   until the next scroll. Nudge the layout back as soon as the keyboard goes away. */
+(function(){const fix=()=>{const y=scrollY;scrollTo(scrollX,y+1);scrollTo(scrollX,y);document.querySelectorAll(".tabbar,.topbar").forEach(el=>{el.style.transform="translateZ(0)";requestAnimationFrame(()=>el.style.transform="")})};
+  const typing=()=>document.activeElement?.matches?.("input,textarea,select,[contenteditable]");
+  document.addEventListener("focusout",e=>{if(e.target.matches?.("input,textarea,select,[contenteditable]"))setTimeout(()=>{if(!typing())fix()},80)});
+  if(window.visualViewport){let last=visualViewport.height;visualViewport.addEventListener("resize",()=>{const h=visualViewport.height;if(h>last+60&&!typing())requestAnimationFrame(fix);last=h})}
+  addEventListener("pageshow",()=>requestAnimationFrame(fix));document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")requestAnimationFrame(fix)})})();
+/* a full-screen picture (renders, terrain views) */
+function openPic(src,cap){$("#picv")?.remove();document.body.insertAdjacentHTML("beforeend",`<div class="picv" id="picv" role="dialog" aria-modal="true" aria-label="${esc(cap||"Picture")}"><button aria-label="Close picture">${I.close}</button><div><img src="${esc(src)}" alt="${esc(cap||"")}"><p>${esc(cap||"")}</p></div></div>`);
+  const v=$("#picv");v.onclick=e=>{if(e.target===v||e.target.closest("button"))v.remove()};v.querySelector("button").focus({preventScroll:true})}
 function closeTop(){
+  if($("#picv")){$("#picv").remove();return true}
   if($("#msm")){$("#msmGo").click();return true}
   if($("#story")){closeStory();return true}
   if($("#meet")){closeMeet();return true}
@@ -5356,7 +5429,7 @@ function closeTop(){
   return false}
 /* Back button (Android, browser) closes the top layer instead of leaving Lamp */
 const HB={depth:0,skip:0};
-const LAYERS="#msm,#story,#meet,#ls,#fd,#qt,#pn,#artv,.figv,#scrim,#fontpop,.reader:not(.closing)";
+const LAYERS="#picv,#msm,#story,#meet,#ls,#fd,#qt,#pn,#artv,.figv,#scrim,#fontpop,.reader:not(.closing)";
 function layerDepth(){let n=0;for(const sel of LAYERS.split(","))if(document.querySelector(sel))n++;return n}
 new MutationObserver(()=>{const d=layerDepth();if(d>HB.depth){try{for(let i=HB.depth;i<d;i++)history.pushState({lampLayer:i+1},"")}catch(e){}HB.depth=d}
   else if(d<HB.depth){const n=HB.depth-d;HB.depth=d;if(history.state&&history.state.lampLayer){HB.skip+=n;try{history.go(-n)}catch(e){HB.skip=0}}}}).observe(document.body,{childList:true,subtree:true});
