@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261021074010">
+<link rel="stylesheet" href="app.css?v=20261021110820">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261021074010"></script>
+<script src="app.js?v=20261021110820"></script>
 </head>
 <body>
 <style>
@@ -701,7 +701,7 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .badge b{font-size:.86rem;line-height:1.25}
 .badge span{font-size:.76rem;color:var(--muted);line-height:1.3}
 .badge.on .medal{border:0;background:radial-gradient(circle at 35% 30%,var(--gold-soft),color-mix(in srgb,var(--gold) 55%,var(--gold-soft)));color:var(--surface);box-shadow:0 0 0 3px var(--gold-soft),0 8px 18px -8px var(--gold)}
-.badge:not(.on){opacity:.7}
+.badge:not(.on) .medal{opacity:.6}.badge:not(.on) b{color:var(--muted)}
 
 /* Search */
 .sres{display:flex;flex-direction:column;gap:6px;max-height:min(60vh,520px);overflow:auto}
@@ -728,7 +728,8 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .scripture p{margin:0 0 1em}
 .scripture .poem{margin:0 0 1em;padding-left:1.4em}
 .scripture .poem .ln{display:block;text-indent:-1em;padding-left:1em}
-.scripture .first::first-letter{font-family:var(--f-display);float:left;font-size:4.1em;line-height:.82;padding:.06em .1em 0 0;color:var(--gold);font-weight:600}
+.scripture .first::first-letter{font-family:var(--f-display);float:left;font-size:4.1em;line-height:.82;padding:.06em .04em 0 0;color:var(--gold);font-weight:600}
+@supports (initial-letter:3) or (-webkit-initial-letter:3){.scripture .first::first-letter{float:none;font-size:inherit;line-height:inherit;padding:0;margin-right:.06em;-webkit-initial-letter:3;initial-letter:3}}
 .scripture sup{font:600 .62em var(--f-mono);color:var(--gold);margin-right:.25em;vertical-align:.5em;user-select:none}
 .scripture .v{cursor:pointer;border-radius:4px;transition:background .2s;-webkit-box-decoration-break:clone;box-decoration-break:clone}
 .scripture .v:hover{background:color-mix(in srgb,var(--gold-soft) 60%,transparent)}
@@ -1634,9 +1635,81 @@ html.easy .btn{min-height:52px}
 html.easy .tside .more{display:none}
 
 .ms-read .ms-k{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.mt-btn.ms-say{width:auto;padding:0 16px;gap:8px;display:inline-flex;align-items:center;font:600 .95rem var(--f-ui);letter-spacing:0;text-transform:none}
+.mt-btn.ms-say{width:auto;padding:0 16px;gap:8px;display:inline-flex;align-items:center;font:600 .95rem var(--f-body);letter-spacing:0;text-transform:none}
 .mt-btn.ms-say.on{background:#F3DFA2;color:#14110C}
 #mStage .mv.speaking{background:rgba(243,223,162,.14);border-radius:4px;box-shadow:none;-webkit-box-decoration-break:clone;box-decoration-break:clone;color:#FFF6DC}
+
+.wks{display:flex;flex-direction:column;gap:8px;min-width:0}
+.wks-row{display:flex;align-items:center;gap:12px}
+.wks-fl{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 14px 0 11px;border-radius:999px;background:var(--gold-soft);color:color-mix(in srgb,var(--gold) 70%,var(--ink));font-weight:600;white-space:nowrap}
+.wks-fl svg{width:16px;height:16px;color:var(--gold)}.wks-fl b{font:700 1.15rem/1 var(--f-body);font-variant-numeric:tabular-nums;display:inline-block}.wks-fl small{font-size:.8rem;font-weight:600}
+.wks-fl:not(.on){background:var(--sunk);opacity:.85}
+.wks-d{list-style:none;display:flex;gap:6px;margin:0;padding:0}
+.wks-d li{display:flex;flex-direction:column;align-items:center;gap:3px;width:30px}
+.wks-d i{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:#fff}
+.wks-d i svg{width:15px;height:15px;stroke-width:3}
+.wks-d li.on i{background:var(--gold);border-color:var(--gold);color:#1B140A;box-shadow:0 2px 8px -2px color-mix(in srgb,var(--gold) 60%,transparent)}
+.wks-d li.now i{outline:2px solid var(--accent);outline-offset:2px}
+.wks-d li.fut i{border-style:dashed;border-color:var(--muted);opacity:.45}
+.wks-d li>span[aria-hidden]{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.04em}.wks-d li.now>span[aria-hidden]{color:var(--accent)}
+.wks-sub{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-size:.86rem;color:var(--muted);font-weight:500}.wks-sub .ok{color:var(--ok);font-weight:700}
+.wks-sub .chip{margin-left:4px}
+@media (min-width:900px){.dayhead .wks{align-items:flex-end}.wks-sub{justify-content:flex-end}}
+@media (max-width:899px){.dayhead{align-items:flex-start}.wks-row{width:100%;justify-content:space-between}}
+@media (max-width:599px){.wks-fl{padding:0 12px 0 10px}.wks-fl small{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}.wks-d{gap:4px}}
+@media (max-width:360px){.wks-d{gap:3px}.wks-d li{width:27px}.wks-d i{width:25px;height:25px}}
+.msm{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px;background:#120E09;color:#F7F0E2;overflow:auto}
+.msm-glow{position:absolute;inset:0;background:radial-gradient(60% 45% at 50% 38%,rgba(232,170,60,.32),transparent 70%);pointer-events:none;animation:msmB 6s ease-in-out infinite alternate}
+@keyframes msmB{to{opacity:.6;transform:scale(1.06)}}
+.msm-in{position:relative;max-width:440px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.msm-lamp svg{width:56px;height:56px;color:#F3DFA2;filter:drop-shadow(0 0 18px rgba(243,200,110,.6))}
+.msm-n b{display:block;font:600 clamp(5rem,26vw,8.5rem)/1.05 var(--f-display);color:#F3DFA2;font-variant-numeric:lining-nums tabular-nums;margin-bottom:6px}
+.msm-n span{font-size:.8rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(243,223,162,.8)}
+.msm h2{font:500 clamp(1.7rem,6vw,2.2rem)/1.15 var(--f-display);margin:14px 0 0;color:#FFF8E8}
+.msm p{margin:0;color:rgba(247,240,226,.78);line-height:1.55}
+.msm blockquote{text-wrap:balance;margin:14px 0 6px;font:italic 400 1.15rem/1.5 var(--f-display);color:rgba(247,240,226,.82)}.msm cite{display:block;margin-top:6px;font:600 .78rem var(--f-body);font-style:normal;letter-spacing:.08em;color:rgba(243,223,162,.75)}
+.msm-act{display:flex;gap:10px;margin-top:12px}.msm .btn{min-width:130px}.msm .btn:not(.primary){background:rgba(255,255,255,.08);color:#F7F0E2;border-color:rgba(255,255,255,.2)}.msm .btn.primary{background:#F3DFA2;color:#1B140A;border-color:#F3DFA2}
+
+.jour{display:flex;flex-direction:column;gap:18px}
+.jr-top{display:flex;align-items:center;gap:20px}
+.jr-ring{width:118px;height:118px;flex:none}
+.jr-t{fill:none;stroke:var(--sunk);stroke-width:9}
+.jr-p{fill:none;stroke:var(--gold);stroke-width:9;stroke-linecap:round;transform:rotate(-90deg);transform-origin:55px 55px}
+.jr-n{font:700 22px var(--f-body);fill:var(--ink);text-anchor:middle;font-variant-numeric:tabular-nums}.jr-l{font:600 9.5px var(--f-body);fill:var(--muted);text-anchor:middle;letter-spacing:.04em}
+.jr-txt h2{font:600 clamp(1.5rem,4vw,1.9rem)/1.15 var(--f-display);margin:2px 0 4px}.jr-txt p{margin:0 0 12px}
+.shelf{display:flex;align-items:flex-end;gap:5px;height:clamp(150px,22vw,210px);padding:0 6px;border-bottom:7px solid color-mix(in srgb,#8A5A2B 70%,var(--surface));border-radius:0 0 4px 4px;box-shadow:0 10px 14px -10px rgba(60,35,10,.45)}
+.spine{position:relative;flex:1;min-width:0;height:var(--h);padding:0;border:0;border-radius:4px 4px 1px 1px;cursor:pointer;overflow:hidden;color:#F3E7CF;
+  background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(255,255,255,.08) 22%,rgba(0,0,0,.05) 60%,rgba(0,0,0,.3)),var(--lc);
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);transition:transform .35s var(--spring),filter .2s;opacity:.8;filter:saturate(.4)}
+.spine::before,.spine::after{content:"";position:absolute;left:0;right:0;height:3px;background:linear-gradient(90deg,#B8873A,#F0D08A,#B8873A);opacity:.85}
+.spine::before{top:12px}.spine::after{top:18px}
+.spine i{position:absolute;left:0;right:0;bottom:0;height:calc(var(--f)*100%);background:linear-gradient(0deg,rgba(240,208,138,.24),rgba(240,208,138,.1));border-top:1px solid rgba(240,208,138,.55);transform-origin:bottom}
+.spine b{position:absolute;left:50%;top:28px;bottom:26px;writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);font:600 1rem/1 var(--f-display);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-height:calc(100% - 54px)}
+.spine small{position:absolute;bottom:6px;left:0;right:0;text-align:center;font:600 .72rem var(--f-display);letter-spacing:.04em;opacity:.85;white-space:nowrap;overflow:hidden}
+.spine.full,.spine.now{opacity:1;filter:none}.spine.full i{border-top:0;background:linear-gradient(0deg,rgba(240,208,138,.18),transparent)}
+.spine.now{box-shadow:inset 0 0 0 1px rgba(0,0,0,.15),0 0 0 2px var(--surface),0 0 0 4px var(--gold)}
+.spine:hover{transform:translateY(-4px)}
+@media (max-width:520px){.shelf{height:150px;gap:3px;padding:0 2px}.spine b{font-size:.84rem}.jr-ring{width:100px;height:100px}.jr-top{gap:14px}}
+.stats .stat:nth-child(4) b{color:var(--gold)}
+.story{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;color:#FFF8EA;background:#1A140D;transition:background .8s ease;overflow:hidden;-webkit-user-select:none;user-select:none}
+.story.s1,.story.s8{background:radial-gradient(70% 50% at 50% 40%,#6B4A1C,#1A140D 75%)}.story.s2{background:linear-gradient(160deg,#2B3D72,#121a33)}.story.s3{background:linear-gradient(160deg,#7A2E2E,#2a1010)}
+.story.s4{background:linear-gradient(170deg,#2E5B5E,#0f2223)}.story.s5{background:linear-gradient(160deg,#6A4520,#24170a)}.story.s6{background:linear-gradient(160deg,#523163,#1d1124)}.story.s7{background:linear-gradient(160deg,#2F5240,#0f1d16)}
+.st-bars{display:flex;gap:4px;padding:max(12px,env(safe-area-inset-top)) 14px 0;position:relative;z-index:3}
+.st-bars i{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}.st-bars b{display:block;height:100%;background:#FFF8EA;transform:scaleX(0);transform-origin:left}
+.st-bars i.done b{transform:scaleX(1)}.story.s8 .st-bars i.on b,.story .st-bars i.on b{will-change:transform}
+.st-x{position:absolute;top:max(24px,calc(env(safe-area-inset-top) + 12px));right:14px;z-index:4;color:#FFF8EA;border-color:rgba(255,255,255,.25);background:rgba(0,0,0,.2)}
+.st-stage{flex:1;display:grid;place-items:center;padding:24px 28px 40px;position:relative;z-index:1}
+.st-s{max-width:460px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
+.st-k{font:700 .78rem var(--f-body);letter-spacing:.2em;text-transform:uppercase;color:rgba(255,236,190,.85)}
+.st-n{font:600 clamp(6rem,30vw,10rem)/1.05 var(--f-display);font-variant-numeric:lining-nums tabular-nums;color:#F6DE9E;text-shadow:0 0 40px rgba(246,222,158,.35)}
+.st-big{font-size:5rem;line-height:1;color:#F6DE9E;margin:10px 0}.st-big svg{width:84px;height:84px;filter:drop-shadow(0 0 22px rgba(243,200,110,.6))}
+.st-s h2{font:500 clamp(1.6rem,6.5vw,2.3rem)/1.2 var(--f-display);margin:6px 0 0;text-wrap:balance}
+.st-s p{margin:0;font-size:1.02rem;line-height:1.55;color:rgba(255,248,234,.8);text-wrap:balance}
+.st-s blockquote{margin:12px 0 0;font:italic 400 1.2rem/1.5 var(--f-display);color:rgba(255,248,234,.9);text-wrap:balance}.st-s cite{display:block;margin-top:8px;font:700 .75rem var(--f-body);font-style:normal;letter-spacing:.1em;color:rgba(255,236,190,.8)}
+.st-act{display:flex;gap:10px;margin-top:18px;position:relative;z-index:5}.st-act .btn{min-width:130px}.st-act .btn:not(.primary){background:rgba(255,255,255,.1);color:#FFF8EA;border-color:rgba(255,255,255,.25)}.st-act .btn.primary{background:#F6DE9E;color:#1B140A;border-color:#F6DE9E}
+.st-nav{position:absolute;top:70px;bottom:0;width:35%;z-index:2;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}.st-nav.prev{left:0}.st-nav.next{right:0;width:65%}
+.story.s8 .st-stage{z-index:3}
+.st-nav:focus-visible{outline:2px solid rgba(255,248,234,.6);outline-offset:-6px}
 #explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -2265,7 +2338,7 @@ function vToday(){
   return `
   <div class="dayhead">
     <div><div class="kicker">Day ${day} of ${TOTAL}${day!==nextDay()&&day!==todayDone()?" · revisiting":""}</div><h1>${stepState(day).every(Boolean)?"Done for today":done?"Read. Well done.":greeting()}</h1></div>
-    <div class="chips"><span class="chip gold">${I.flame}${streak()} day streak</span>${weekChip()}${buddyChip()}<span class="chip">${doneCount()} / ${TOTAL} · ${pct}%</span></div>
+    ${weekStrip(pct)}
   </div>
   ${installTip()}
   ${welcomeBack()}
@@ -2304,6 +2377,10 @@ function vToday(){
 /* ================= Week goal, reading buddy, sharing reflections, welcome back ================= */
 const weekGoal=()=>+state.settings.weekGoal||4;
 function weekRead(){const k=myReadKeys();return ringWeek().filter(x=>k.has(x)).length}
+function weekStrip(pct){const wk=ringWeek(),mk=myReadKeys(),t=hereDay(),n=weekRead(),g=weekGoal(),s=streak(),L=["M","T","W","T","F","S","S"],F=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+  return `<div class="wks"><div class="wks-row"><span class="wks-fl${s?" on":""}">${I.flame}<b class="odo">${s}</b><small>day streak</small></span>
+    <ol class="wks-d">${wk.map((k,i)=>`<li class="${mk.has(k)?"on":""}${k===t?" now":""}${k>t?" fut":""}" data-wk="${k}"><i>${mk.has(k)?I.check:""}</i><span aria-hidden="true">${L[i]}</span><span class="sr-only">${F[i]}${mk.has(k)?", read":""}</span></li>`).join("")}</ol></div>
+    <div class="wks-sub"><span class="${n>=g?"ok":""}">${n} of ${g} days this week</span><span aria-hidden="true">·</span><span>${pct}% of the path</span>${buddyChip()}</div></div>`}
 function weekChip(){const n=weekRead(),g=weekGoal();return `<span class="chip${n>=g?" ok":""}" title="Your goal is ${g} days a week">${n>=g?I.check:""}${Math.min(n,7)} of ${g} days this week</span>`}
 function buddyId(){const b=state.settings.buddy;return G.on&&b&&G.people[b]&&b!==myKey()?b:null}
 function buddyStreak(b){const A=new Set([...myReadKeys(),...Object.keys(mine().rd||{})]),B=G.people[b]?.rd||{};const s=new Set();for(const k of A)if(B[k])s.add(dayKey(new Date(k+"T12:00")));return runTo(s,new Date())}
@@ -2334,6 +2411,98 @@ function welcomeBack(){const ds=Object.values(state.done||{}).filter(Boolean).ma
   const p=PLAN.find(x=>state.done[x.day]&&new Date(state.done[x.day]).getTime()===last);
   return `<section class="card wback"><div class="kicker">Welcome back</div><h2>No catching up needed</h2><p>It's been ${gap} days. Lamp simply carries on from where you were${p?`. Last time you read <b>${esc(refName(p))}</b>: ${esc(p.title.replace(/\.$/,""))}`:""}. Just today's chapter is enough.</p></section>`}
 
+
+
+
+/* ================= Journey card and bookshelf ================= */
+const LEATHER=["#7A2E2E","#2F5240","#2B3D72","#6A4520","#523163","#2E5B5E","#82501F","#3B4F2A","#6B2D47"];
+function journeyCard(total){const pc=total/TOTAL,R=46,L=+(2*Math.PI*R).toFixed(1),cur=PLAN[nextDay()-1]||PLAN[TOTAL-1];const st=STAGES[cur.stage];
+  const mx=Math.max(...STAGES.map((_,i)=>PLAN.filter(p=>p.stage===i).length));
+  return `<section class="card jour"><div class="jr-top">
+    <svg class="jr-ring" viewBox="0 0 110 110" role="img" aria-label="${Math.round(pc*100)}% of the path read"><circle cx="55" cy="55" r="${R}" class="jr-t"/><circle cx="55" cy="55" r="${R}" class="jr-p" data-len="${L}" style="stroke-dasharray:${L};stroke-dashoffset:${(L*(1-pc)).toFixed(1)}"/><text x="55" y="53" class="jr-n">${Math.round(pc*100)}%</text><text x="55" y="70" class="jr-l">of the path</text></svg>
+    <div class="jr-txt"><div class="kicker">Your journey</div><h2>${total} of ${TOTAL} chapters</h2><p class="muted">${total>=TOTAL?"You've read the whole path.":`Now in stage ${cur.stage+1} of ${STAGES.length}: ${esc(st.title)}`}</p>
+      ${total?`<button class="btn sm" id="storyGo">${I.spark}Your Lamp story</button>`:""}</div></div>
+    <div class="shelf" role="list" aria-label="Your bookshelf: one book for each stage">${STAGES.map((sg,i)=>{const days=PLAN.filter(p=>p.stage===i),d=days.filter(p=>isDone(p.day)).length,f=d/days.length;
+      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><b>${esc(BOOKS[sg.book].name)}</b><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
+
+/* ================= Your Lamp story ================= */
+const ST={i:0,t:null,hold:false,list:[]};
+function storyData(){const D=Object.values(state.done||{}).filter(Boolean).map(t=>new Date(t)).sort((a,b)=>a-b);const n=D.length;
+  const morn=D.filter(d=>d.getHours()<12).length,eve=D.filter(d=>d.getHours()>=17).length,aft=n-morn-eve;
+  const when=morn>=eve&&morn>=aft?["morning","before noon",morn]:eve>=aft?["evening","after 5 pm",eve]:["afternoon","in the afternoon",aft];
+  const sv=Object.values(state.saved||{}).filter(v=>v&&v.text);const fav=sv.slice().sort((a,b)=>(b.s||0)-(a.s||0)||(b.m||0)-(a.m||0))[0];
+  const shelf=STAGES.filter((_,i)=>PLAN.filter(p=>p.stage===i).every(p=>isDone(p.day)));
+  return{n,first:D[0],days:myReadKeys().size,best:bestStreak(),when,pctWhen:n?Math.round(when[2]/n*100):0,mins:n*4,saved:sv.length,known:sv.filter(v=>(v.m||0)>=3).length,fav,
+    notes:Object.values(state.notes||{}).filter(x=>x&&Object.values(x).some(v=>typeof v==="string"&&v.trim())).length,ans:plAns().length,ex:Object.keys(state.ex||{}).length,hl:Object.keys(state.hl||{}).length,shelf,stage:STAGES[(PLAN[nextDay()-1]||PLAN[TOTAL-1]).stage]}}
+function storySlides(){const d=storyData(),S=[],h=d.mins>=90?`${Math.round(d.mins/60)} hours`:`${d.mins} minutes`;
+  S.push({c:"s1",k:"Your Lamp story",big:I.logo,t:"Look how far you've come",p:d.first?`Since ${d.first.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}`:""});
+  S.push({c:"s2",k:"Chapters read",n:d.n,t:`About ${h} in God's word`,p:"Every one of them was a choice to sit and listen."});
+  S.push({c:"s3",k:"Days with the Bible",n:d.days,t:`Your best run: ${d.best} day${d.best===1?"":"s"} in a row`,p:"Faithfulness is built one ordinary day at a time."});
+  if(d.n>=3)S.push({c:"s4",k:"When you read",big:d.when[0]==="evening"?"☾":"☀",t:`You're ${d.when[0]==="afternoon"?"an":"a"} ${d.when[0]} reader`,p:`${d.pctWhen}% of your chapters were read ${d.when[1]}.`});
+  S.push({c:"s5",k:"Your bookshelf",n:d.shelf.length,t:d.shelf.length?`${d.shelf.length===1?"Book":"Books"} finished: ${d.shelf.map(x=>x.title).join(", ")}`:`You're reading ${d.stage.title}`,p:d.shelf.length?"Each one sits on your shelf on My path.":"Your first book is on its way to the shelf."});
+  if(d.saved)S.push({c:"s6",k:"Verses you kept",n:d.saved,t:d.known?`${d.known} you know by heart`:"Saved to come back to",q:d.fav?[d.fav.text,d.fav.ref]:null});
+  if(d.notes||d.ans||d.ex)S.push({c:"s7",k:"Your heart",n:d.notes,t:"reflections written",p:[d.ans?`${d.ans} answered prayer${d.ans>1?"s":""}`:"",d.ex?`${d.ex} evening${d.ex>1?"s":""} looked back with God`:""].filter(Boolean).join(" · ")||"Your words, kept safe on your device."});
+  S.push({c:"s8",k:"Keep walking",big:I.logo,t:"Your word is a lamp to my feet and a light to my path.",p:"Psalm 119:105",end:true,d});
+  return S}
+function openStory(){if($("#story"))return;ST.list=storySlides();ST.i=0;
+  $("#layer").insertAdjacentHTML("beforeend",`<div class="story" id="story" role="dialog" aria-modal="true" aria-label="Your Lamp story"><div class="st-bars">${ST.list.map(()=>`<i><b></b></i>`).join("")}</div>
+    <button class="mt-btn st-x" id="stX" aria-label="Close">${I.close}</button><main class="st-stage" id="stStage" aria-live="polite"></main>
+    <button class="st-nav prev" id="stP" aria-label="Previous"></button><button class="st-nav next" id="stN" aria-label="Next"></button></div>`);
+  document.documentElement.classList.add("meeting");const el=$("#story");el.tabIndex=-1;el.focus({preventScroll:true});
+  $("#stX").onclick=closeStory;$("#stP").onclick=()=>stGo(-1);$("#stN").onclick=()=>stGo(1);
+  el.addEventListener("keydown",e=>{if(e.key==="Escape")closeStory();else if(e.key==="ArrowRight")stGo(1);else if(e.key==="ArrowLeft")stGo(-1)});
+  const st=$("#stStage");st.addEventListener("pointerdown",()=>{ST.hold=true;el.classList.add("held")});addEventListener("pointerup",()=>{ST.hold=false;$("#story")?.classList.remove("held")});
+  stPaint()}
+function stGo(d){const to=ST.i+d;if(to<0)return;if(to>=ST.list.length){closeStory();return}ST.i=to;stPaint(d)}
+function stPaint(dir){const S=ST.list[ST.i],st=$("#stStage");if(!st)return;clearTimeout(ST.t);
+  $("#story").className="story "+S.c;
+  st.innerHTML=`<div class="st-s"><div class="st-k">${S.k}</div>${S.n!=null?`<div class="st-n" data-n="${S.n}">${S.n}</div>`:`<div class="st-big" aria-hidden="true">${S.big}</div>`}<h2>${esc(S.t)}</h2>${S.p?`<p>${esc(S.p)}</p>`:""}${S.q?`<blockquote>“${esc(S.q[0])}”<cite>${esc(S.q[1])}</cite></blockquote>`:""}
+    ${S.end?`<div class="st-act"><button class="btn" id="stShare">${I.send}Share</button><button class="btn primary" id="stDone">Done</button></div>`:""}</div>`;
+  document.querySelectorAll(".st-bars i").forEach((b,j)=>{b.className=j<ST.i?"done":j===ST.i?"on":"";b.firstChild.getAnimations().forEach(a=>a.cancel())});
+  $("#stShare")?.addEventListener("click",e=>{e.stopPropagation();shareMilestone({n:S.d.n,unit:"chapters read",t:"My Lamp story"})});$("#stDone")?.addEventListener("click",e=>{e.stopPropagation();closeStory()});
+  const N=st.querySelector(".st-n");
+  if(reduced())return;
+  st.firstElementChild.animate([{opacity:0,transform:`translateX(${(dir||0)*30}px) scale(.98)`},{opacity:1,transform:"none"}],{duration:520,easing:"cubic-bezier(.16,1,.3,1)"});
+  if(N){const to=+N.dataset.n,t0=performance.now();const tick=t=>{const k=Math.min(1,(t-t0)/1000);N.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&N.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
+  if(S.end)return;const bar=document.querySelector(".st-bars i.on b");const a=bar.animate([{transform:"scaleX(0)"},{transform:"scaleX(1)"}],{duration:6000,easing:"linear",fill:"forwards"});
+  const watch=()=>{if(!$("#story")||ST.list[ST.i]!==S)return;if(ST.hold)a.pause();else if(a.playState==="paused")a.play();ST.t=setTimeout(watch,120)};watch();a.onfinish=()=>{if(ST.list[ST.i]===S)stGo(1)}}
+function closeStory(){clearTimeout(ST.t);$("#story")?.remove();document.documentElement.classList.remove("meeting")}
+
+/* ================= Moments: a calm finish, and rare milestones ================= */
+const JUST={done:null};
+function settleToday(){if(JUST.done!==hereDay()||reduced()){JUST.done=null;return}JUST.done=null;
+  const li=document.querySelector(".wks-d li.now");li?.animate([{transform:"scale(.6)",opacity:.4},{transform:"scale(1.18)",opacity:1,offset:.6},{transform:"scale(1)"}],{duration:620,easing:"cubic-bezier(.2,.9,.3,1.2)"});
+  const b=document.querySelector(".wks-fl b");if(b){const n=+b.textContent;if(n>0){b.animate([{transform:"translateY(70%)",opacity:0},{transform:"none",opacity:1}],{duration:520,delay:120,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"})}}
+  document.querySelector(".wks-fl")?.animate([{boxShadow:"0 0 0 0 rgba(232,170,60,.0)"},{boxShadow:"0 0 0 10px rgba(232,170,60,.18)"},{boxShadow:"0 0 0 18px rgba(232,170,60,0)"}],{duration:900,easing:"ease-out"});
+  document.querySelector(".tstep")?.animate([{transform:"scale(1)"},{transform:"scale(1.012)"},{transform:"scale(1)"}],{duration:700,easing:"cubic-bezier(.16,1,.3,1)"})}
+const MS_DONE=[[7,"A whole week of chapters","Seven chapters in. This is how a habit begins."],[30,"Thirty chapters","A month's worth of Scripture. It's becoming part of you."],[50,"Fifty chapters","Halfway to a hundred. Keep walking."],[100,"One hundred chapters","A hundred times you opened the Book and listened."],[150,"150 chapters","Most people never read this much of the Bible."],[190,"The whole path","Every chapter, start to finish. Well done, good and faithful servant."]];
+const MS_RUN=[[7,"7 days in a row","A full week, every day."],[30,"30 days in a row","A month without missing. That's faithfulness."],[100,"100 days in a row","A hundred mornings with God's word."],[365,"A year, every day","365 days in a row."]];
+function milestoneNow(){const seen=state.settings.ms||{},d=doneCount(),r=streak();
+  for(const [n,t,s] of MS_DONE)if(d===n&&!seen["d"+n])return{id:"d"+n,n,unit:n===190?"of 190 chapters":"chapters read",t,s};
+  for(const [n,t,s] of MS_RUN)if(r===n&&!seen["r"+n])return{id:"r"+n,n,unit:"days in a row",t,s};return null}
+const MS_VERSE=["Your word is a lamp to my feet and a light to my path.","Psalm 119:105"];
+function openMilestone(m){setSetting("ms",{...(state.settings.ms||{}),[m.id]:new Date().toISOString()});
+  $("#layer").insertAdjacentHTML("beforeend",`<div class="msm" id="msm" role="dialog" aria-modal="true" aria-labelledby="msmT"><div class="msm-glow"></div>
+    <div class="msm-in"><div class="msm-lamp" aria-hidden="true">${I.logo}</div><div class="msm-n"><b id="msmN">${m.n}</b><span>${m.unit}</span></div>
+    <h2 id="msmT">${esc(m.t)}</h2><p>${esc(m.s)}</p><blockquote>“${MS_VERSE[0]}”<cite>${MS_VERSE[1]}</cite></blockquote>
+    <div class="msm-act"><button class="btn" id="msmShare">${I.send}Share</button><button class="btn primary" id="msmGo">Continue</button></div></div></div>`);
+  document.documentElement.classList.add("meeting");const el=$("#msm");el.tabIndex=-1;el.focus({preventScroll:true});
+  if(!reduced()){const N=$("#msmN"),t0=performance.now(),D=1100;const step=now=>{const k=Math.min(1,(now-t0)/D),e=1-Math.pow(1-k,3);N.textContent=Math.round(m.n*e);if(k<1&&$("#msmN"))requestAnimationFrame(step)};requestAnimationFrame(step);
+    el.querySelector(".msm-in").animate([{opacity:0,transform:"translateY(18px) scale(.98)"},{opacity:1,transform:"none"}],{duration:800,easing:"cubic-bezier(.16,1,.3,1)"})}
+  const close=()=>{el.remove();document.documentElement.classList.remove("meeting")};
+  $("#msmGo").onclick=close;el.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+  $("#msmShare").onclick=()=>shareMilestone(m)}
+async function shareMilestone(m){const c=document.createElement("canvas");c.width=1080;c.height=1350;const x=c.getContext("2d");
+  const g=x.createRadialGradient(540,520,40,540,620,900);g.addColorStop(0,"#5A3F17");g.addColorStop(.45,"#2A1F12");g.addColorStop(1,"#120E09");x.fillStyle=g;x.fillRect(0,0,1080,1350);
+  try{await document.fonts.load('600 260px "Cormorant Garamond"');await document.fonts.load('500 40px "Figtree"')}catch(e){}
+  const disp=getComputedStyle(document.documentElement).getPropertyValue("--f-display")||"serif",ui=getComputedStyle(document.documentElement).getPropertyValue("--f-body")||"sans-serif";
+  x.textAlign="center";x.fillStyle="#F3DFA2";x.font=`600 300px ${disp}`;x.fillText(String(m.n),540,640);
+  x.fillStyle="rgba(243,223,162,.75)";x.font=`600 40px ${ui}`;x.letterSpacing="6px";x.fillText(m.unit.toUpperCase(),540,770);x.letterSpacing="0px";
+  x.fillStyle="#F7F0E2";x.font=`500 64px ${disp}`;x.fillText(m.t,540,860);
+  x.fillStyle="rgba(247,240,226,.7)";x.font=`italic 400 42px ${disp}`;x.fillText("“Your word is a lamp to my feet",540,1000);x.fillText("and a light to my path.”",540,1060);x.font=`500 34px ${ui}`;x.fillText(MS_VERSE[1]+"  ·  Lamp",540,1230);
+  const blob=await new Promise(r=>c.toBlob(r,"image/png"));const file=new File([blob],"lamp-milestone.png",{type:"image/png"});
+  try{if(navigator.canShare?.({files:[file]})){await navigator.share({files:[file],text:`${m.t} on Lamp`});return}}catch(e){if(e?.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="lamp-milestone.png";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("Picture saved")}
 
 /* ================= My prayers: a private list and the answers ================= */
 const plOpen=()=>Object.entries(state.pl||{}).filter(([,p])=>p&&p.t&&!p.ans).sort((a,b)=>String(b[1].at).localeCompare(String(a[1].at)));
@@ -2520,11 +2689,14 @@ function markDone(day,btn){
   queue({done:{[day]:state.done[day]}});
   if(!was){ringShare();
     const p=PLAN[day-1];const stageDone=PLAN.filter(x=>x.stage===p.stage).every(x=>isDone(x.day));
-    burst(btn,stageDone?44:22);flareLogo();buzz(stageDone?[30,60,30]:18);
-    toast(doneCount()===TOTAL?"You finished the whole path!":stageDone?`Stage ${p.stage+1} complete: ${STAGES[p.stage].title}!`:`${refName(p)} done · ${streak()} day streak`);
+    const ms=milestoneNow();
+    burst(btn,stageDone?44:22);flareLogo();buzz(stageDone||ms?[30,60,30]:18);chime(stageDone||!!ms);
+    if(ms)setTimeout(()=>openMilestone(ms),reduced()?50:650);
+    else toast(doneCount()===TOTAL?"You finished the whole path!":stageDone?`Stage ${p.stage+1} complete: ${STAGES[p.stage].title}!`:`${refName(p)} done · ${streak()} day streak`);
+    JUST.done=hereDay();
     state.selected=null;
     const fresh=BADGES.filter(b=>b.test()&&!before.has(b.id));
-    if(fresh.length) setTimeout(()=>{toast(`New badge: ${fresh[0].name}`);burst(btn,30)},1500);
+    if(fresh.length&&!ms) setTimeout(()=>{toast(`New badge: ${fresh[0].name}`);burst(btn,30)},1500);
   }
   lsWrite();
 }
@@ -2547,7 +2719,7 @@ const after={
     paintGrpRef(day);
     $("#markDone").onclick=e=>{if(isDone(day)){stepOpenAt(1);return}markDone(day,e.currentTarget);stepOpen=null;render()};
     document.querySelectorAll("[data-ts]").forEach(b=>b.onclick=()=>stepOpenAt(+b.dataset.ts));fbWire();
-    $("#exGo")?.addEventListener("click",openExamen);
+    $("#exGo")?.addEventListener("click",openExamen);settleToday();
     $("#tsAhead")?.addEventListener("click",()=>{state.selected=day+1;lsWrite();render();scrollTo({top:0,behavior:reduced()?"auto":"smooth"})});
     rvPaint();
     $("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});
@@ -2572,7 +2744,11 @@ const after={
   },
   path(){
     if(!reduced())document.querySelectorAll(".stat b").forEach(b=>{const to=+b.textContent;if(!to)return;const t0=performance.now();const tick=t=>{const k=Math.min(1,(t-t0)/700);b.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1)requestAnimationFrame(tick)};b.textContent="0";requestAnimationFrame(tick)});
-    document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{state.selected=+c.dataset.day;lsWrite();setView("today")})},
+    document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{state.selected=+c.dataset.day;lsWrite();setView("today")});
+    document.querySelectorAll("[data-spine]").forEach(b=>b.onclick=()=>document.getElementById("stage-"+b.dataset.spine)?.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"start"}));
+    $("#storyGo")?.addEventListener("click",openStory);
+    if(!reduced()){const r=$(".jr-ring .jr-p");if(r){const L=+r.dataset.len;r.animate([{strokeDashoffset:L},{strokeDashoffset:r.style.strokeDashoffset}],{duration:1100,easing:"cubic-bezier(.16,1,.3,1)"})}
+      document.querySelectorAll(".spine i").forEach((x,j)=>x.animate([{transform:"scaleY(0)"},{transform:"scaleY(1)"}],{duration:700,delay:200+j*60,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}))}},
   learn(){
     if(!GEO)loadGeo().then(()=>view==="learn"&&refreshThumbs());
     document.querySelectorAll(".subnav button").forEach(b=>b.onclick=()=>document.getElementById(b.dataset.t)?.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"start"}));
@@ -2628,17 +2804,18 @@ function calHTML(){
   let cells="";
   for(let i=0;i<weeks*7;i++){const d=new Date(start);d.setDate(start.getDate()+i);const fut=d>today;const on=days.has(dayKey(d));
     cells+=`<i class="${on?"on":""} ${fut?"future":""} ${+d===+today?"today":""}" title="${d.toLocaleDateString(undefined,{day:"numeric",month:"short"})}${on?" · read":""}"></i>`}
-  return `<div class="cal-wrap"><div class="cal" role="img" aria-label="Reading days over the last ${weeks} weeks: ${days.size} days with reading">${cells}</div></div>`;
+  return `<div class="cal-wrap" tabindex="0" role="group" aria-label="Reading days calendar"><div class="cal" role="img" aria-label="Reading days over the last ${weeks} weeks: ${days.size} days with reading">${cells}</div></div>`;
 }
 function vPath(){
   const cur=nextDay();const total=doneCount();
   return `<div><div class="kicker">${total} of ${TOTAL} chapters read</div><h1 class="page-h">Your reading path</h1>
   <p class="lede">${NUMW[STAGES.length]||STAGES.length} stages, one chapter a day. Tap any chapter to open it, and go back to earlier days whenever you like.</p></div>
+  ${journeyCard(total)}
   <div class="stats">
     <div class="card stat"><b>${streak()}</b><span>Day streak</span></div>
     <div class="card stat"><b>${bestStreak()}</b><span>Best streak</span></div>
-    <div class="card stat"><b>${total}</b><span>Chapters read</span></div>
     <div class="card stat"><b>${Object.values(state.saved).filter(Boolean).length}</b><span>Saved verses</span></div>
+    <div class="card stat"><b>${plAns().length}</b><span>Answered prayers</span></div>
   </div>
   <section class="card"><div class="kicker" style="margin-bottom:12px">Reading days · last 18 weeks</div>${calHTML()}</section>
   <section class="card"><div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:14px;flex-wrap:wrap"><h2 style="font-size:1.6rem">Badges</h2><span class="chip gold">${earnedIds().size} of ${BADGES.length}</span></div>
@@ -2647,7 +2824,7 @@ function vPath(){
   <div class="legend"><span><i class="d"></i>Read</span><span><i class="c"></i>Up next</span><span><i></i>Not yet</span></div>
   ${STAGES.map((s,si)=>{
     const days=PLAN.filter(p=>p.stage===si);const d=days.filter(p=>isDone(p.day)).length;
-    return `<section class="card stage">
+    return `<section class="card stage" id="stage-${si}">
       <div class="stage-head"><div><div class="kicker">Stage ${si+1} · ${BOOKS[s.book].name}${s.range?" "+s.range:""} · ${days.length} chapters</div><h2>${esc(s.title)}</h2><p>${esc(s.blurb)}</p></div><span class="chip ${d===days.length?"gold":""}">${d===days.length?I.check:""}${d} / ${days.length}</span></div>
       <div class="bar"><i style="width:${d/days.length*100}%"></i></div>
       <div class="grid">${days.map(p=>`<button class="cell ${isDone(p.day)?"done":""} ${p.day===cur?"cur":""}" data-day="${p.day}" title="${esc(refName(p)+": "+p.title)}" aria-label="${esc(refName(p)+", "+p.title+(isDone(p.day)?", read":""))}">${p.ch}</button>`).join("")}</div>
@@ -3186,6 +3363,7 @@ function openSettings(){
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
     <div class="field"><span>Easy mode</span><small>Bigger text, the chapter read aloud first, and a slower reading voice. Good for anyone who finds small text or long reading hard.</small><div class="opts"><button data-easy="1" aria-pressed="${!!s.easy}">On</button><button data-easy="0" aria-pressed="${!s.easy}">Off</button></div></div>
+    <div class="field"><span>Sounds and touch</span><small>A soft chime when you finish a chapter, and a gentle tap on phones that support it.</small><div class="opts"><button data-snd="1" aria-pressed="${s.sound!==false}">Chime on</button><button data-snd="0" aria-pressed="${s.sound===false}">Silent</button></div></div>
     <div class="field"><span>Weekly goal</span><small>Reading 4 days a week is where research sees the biggest difference. Your streak still counts every day.</small><div class="opts">${[3,4,5,7].map(k=>`<button data-wg="${k}" aria-pressed="${weekGoal()===k}">${k} days</button>`).join("")}</div></div>
     <div class="field"><span>Read or listen</span><small>Which button comes first on Today. You can always use both.</small><div class="opts">${[["read","Read"],["listen","Listen"]].map(([k,l])=>`<button data-mode-opt="${k}" aria-pressed="${(s.mode||"read")===k}">${l}</button>`).join("")}</div></div>
     <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Lamp account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small><small class="syncnote" data-syncnote></small></div>
@@ -3193,6 +3371,7 @@ function openSettings(){
     <div class="row-end"><button class="btn primary" id="setDone">Done</button></div>
   </div></div>`);
   const close=()=>$("#scrim")?.remove();
+  document.querySelectorAll("[data-snd]").forEach(b=>b.onclick=()=>{const on=b.dataset.snd==="1";setSetting("sound",on);setSetting("haptics",on);document.querySelectorAll("[data-snd]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(on){chime();buzz(15)}});
   document.querySelectorAll("[data-easy]").forEach(b=>b.onclick=()=>{setEasy(b.dataset.easy==="1");document.querySelectorAll("[data-easy]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render();toast(b.dataset.easy==="1"?"Easy mode is on":"Easy mode is off")});
   document.querySelectorAll("[data-wg]").forEach(b=>b.onclick=()=>{setSetting("weekGoal",+b.dataset.wg);document.querySelectorAll("[data-wg]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   document.querySelectorAll("[data-mode-opt]").forEach(b=>b.onclick=()=>{setSetting("mode",b.dataset.modeOpt);document.querySelectorAll("[data-mode-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
@@ -3216,7 +3395,13 @@ function openSettings(){
   const _sh=$("#scrim .sheet");_sh.tabIndex=-1;_sh.focus({preventScroll:true});
 }
 
-function buzz(ms){try{if(!reduced())navigator.vibrate?.(ms)}catch(e){}}
+let hapEl=null;
+function buzz(ms){try{if(reduced()||state.settings.haptics===false)return;if(navigator.vibrate){navigator.vibrate(ms);return}
+  if(/iPhone|iPad/.test(navigator.userAgent)||(navigator.maxTouchPoints>1&&/Macintosh/.test(navigator.userAgent))){if(!hapEl){hapEl=document.createElement("label");hapEl.setAttribute("aria-hidden","true");hapEl.style.cssText="position:fixed;left:-200px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";hapEl.innerHTML='<input type="checkbox" switch tabindex="-1">';document.body.appendChild(hapEl)}hapEl.click()}}catch(e){}}
+let chimeCtx=null;
+function chime(big){if(state.settings.sound===false)return;try{chimeCtx=chimeCtx||new (window.AudioContext||window.webkitAudioContext)();const c=chimeCtx;if(c.state==="suspended")c.resume();const t=c.currentTime+.02;
+  const notes=big?[[523.25,0],[659.25,.12],[783.99,.24],[1046.5,.36]]:[[659.25,0],[987.77,.09]];
+  for(const [f,d] of notes)for(const [m,v] of [[1,.07],[2.01,.018],[3.02,.007]]){const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=f*m;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(v,t+d+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d+(big?2.4:1.6)/m);o.connect(g).connect(c.destination);o.start(t+d);o.stop(t+d+2.6)}}catch(e){}}
 /* ================= Art: Gustave Doré, The Doré Bible Gallery (1866), public domain ================= */
 const ART=[["The creation of Eve","Genesis 2","GEN",2],["Driven from the garden","Genesis 3","GEN",3],["The murder of Abel","Genesis 4","GEN",4],["The flood","Genesis 7","GEN",7],["Noah curses Ham","Genesis 9","GEN",9],["The tower of Babel","Genesis 11","GEN",11],["Abraham welcomes three strangers","Genesis 18","GEN",18],["The destruction of Sodom","Genesis 19","GEN",19],["Hagar sent away","Genesis 21","GEN",21],["Hagar in the wilderness","Genesis 21","GEN",21],["Abraham's faith is tested","Genesis 22","GEN",22],["The burial of Sarah","Genesis 23","GEN",23],["Eliezer and Rebekah","Genesis 24","GEN",24],["Isaac blesses Jacob","Genesis 27","GEN",27],["Jacob keeps Laban's flocks","Genesis 29","GEN",29],["Joseph sold into Egypt","Genesis 37","GEN",37],["Joseph explains Pharaoh's dream","Genesis 41","GEN",41],["Joseph reveals himself to his brothers","Genesis 45","GEN",45],["Moses in the bulrushes","Exodus 2","EXO",2],["The battle against Gibeon","Joshua 10"],["Sisera killed by Jael","Judges 4"],["Deborah's song of triumph","Judges 5"],["Jephthah meets his daughter","Judges 11"],["Jephthah's daughter and her friends","Judges 11"],["Samson kills the lion","Judges 14"],["Samson and Delilah","Judges 16"],["The death of Samson","Judges 16"],["Naomi and her daughters-in-law","Ruth 1"],["Ruth and Boaz","Ruth 2"],["The ark comes home","1 Samuel 6"],["David plays for King Saul","1 Samuel 18"],["David spares Saul","1 Samuel 26"],["The death of Saul","1 Samuel 31"],["The death of Absalom","2 Samuel 18"],["David mourns for Absalom","2 Samuel 18"],["Solomon","1 Kings 3"],["The judgment of Solomon","1 Kings 3"],["Cedars for the temple","1 Kings 5"],["The prophet killed by a lion","1 Kings 13"],["Elijah and the soldiers of Ahaziah","2 Kings 1"],["Elijah taken up in a chariot of fire","2 Kings 2"],["The death of Jezebel","2 Kings 9"],["Esther exposes Haman","Esther 7"],["Isaiah","Isaiah 44"],["Sennacherib's army destroyed","2 Kings 19"],["Baruch the scribe","Jeremiah 36"],["Ezekiel prophesies","Ezekiel 2"],["The valley of dry bones","Ezekiel 37"],["Daniel","Daniel 1"],["The fiery furnace","Daniel 3"],["Belshazzar's feast","Daniel 5"],["Daniel in the lions' den","Daniel 6"],["The prophet Amos","Amos 1"],["Jonah warns Nineveh","Jonah 3"],["Daniel and the priests of Bel","Bel and the Dragon"],["Heliodorus driven from the temple","2 Maccabees 3"],["The nativity","Luke 2","LUK",2],["The star in the east","Matthew 2"],["The flight into Egypt","Matthew 2"],["The massacre of the innocents","Matthew 2"],["Jesus among the teachers","Luke 2"],["Jesus heals the sick","Mark 1","MRK",1],["The Sermon on the Mount","Matthew 5"],["Jesus calms the storm","Mark 4","MRK",4],["A man who could not speak","Luke 11","LUK",11],["Jesus in the synagogue","Luke 4","LUK",4],["Picking grain on the Sabbath","Mark 2","MRK",2],["Jesus walks on the water","Mark 6","MRK",6],["Jesus enters Jerusalem","Mark 11","MRK",11],["Jesus and the tax coin","Mark 12","MRK",12],["The widow's offering","Luke 21","LUK",21],["Jairus's daughter raised","Mark 5","MRK",5],["The good Samaritan","Luke 10","LUK",10],["The Samaritan reaches the inn","Luke 10"],["The lost son","Luke 15","LUK",15],["Lazarus and the rich man","Luke 16","LUK",16],["The Pharisee and the tax collector","Luke 18","LUK",18],["Jesus and the Samaritan woman","John 4","JHN",4],["The woman caught in adultery","John 8","JHN",8],["Lazarus raised from the dead","John 11","JHN",11],["Mary anoints Jesus","John 12","JHN",12],["The Last Supper","Mark 14","MRK",14],["The agony in the garden","Luke 22","LUK",22],["Jesus prays on the Mount of Olives","Luke 22"],["The betrayal","John 18","JHN",18],["Jesus falls under the cross","John 19","JHN",19],["The flogging","Mark 15"],["The crucifixion","Mark 15","MRK",15],["The end of the crucifixion","Luke 23","LUK",23],["The burial of Jesus","John 19"],["The angel at the tomb","Mark 16","MRK",16],["The road to Emmaus","Luke 24","LUK",24],["The ascension","Acts 1","ACT",1],["The stoning of Stephen","Acts 7","ACT",7],["Saul's conversion","Acts 9","ACT",9],["Peter freed from prison","Acts 12","ACT",12],["Paul at Ephesus","Acts 19","ACT",19],["Paul threatened by the crowd","Acts 21","ACT",21],["Paul's shipwreck","Acts 27","ACT",27],["Death on the pale horse","Revelation 6"]];
 const ART_EXTRA={"GEN.16":9,"PSA.23":30,"JHN.6":67,"JHN.13":81,"JHN.17":83,"JHN.20":90,"LUK.8":63,"LUK.19":68,"LUK.6":62};

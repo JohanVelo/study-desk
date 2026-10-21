@@ -24,6 +24,10 @@ await p.evaluate(()=>{const t=new Date().toISOString();state.pl={a:{t:'Rain for 
 await p.evaluate(()=>{setView('today')});await p.waitForTimeout(500);await p.evaluate(()=>openExamen());await p.waitForTimeout(400);await run('examen','#scrim');await p.evaluate(()=>$('#scrim')?.remove());
 await p.evaluate(()=>openLeader());await p.waitForTimeout(400);await run('leader','#scrim');await p.evaluate(()=>$('#scrim')?.remove());
 await p.evaluate(()=>{openMeet();meetGo(1);meetGo(1)});await p.waitForTimeout(1500);await run('meeting read','#meet');await p.evaluate(()=>closeMeet());
+await p.evaluate(()=>{setView('path')});await p.waitForTimeout(900);await run('path journey shelf','#view');
+await p.evaluate(()=>openStory());await p.waitForTimeout(600);await run('story','#story');await p.evaluate(()=>{ST.i=ST.list.length-1;stPaint()});await p.waitForTimeout(300);await run('story end','#story');await p.evaluate(()=>closeStory());
+await p.evaluate(()=>openMilestone({id:'x',n:7,unit:'chapters read',t:'A whole week',s:'Seven chapters in.'}));await p.waitForTimeout(400);await run('milestone','#msm');await p.evaluate(()=>$('#msm').remove());
+await p.evaluate(()=>{setView('today')});await p.waitForTimeout(600);await run('today week strip','.dayhead');
 await p.evaluate(()=>openSettings());await p.waitForTimeout(500);await run('settings','#scrim');
 await ctx.close()}
 await b.close();console.log(log.join('\n'));console.log(fails?fails+' FAILED':'ALL PASS')})();

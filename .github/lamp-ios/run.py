@@ -147,6 +147,12 @@ def run():
         note("prayer" in (js(d, "return document.querySelector('#fdStage')?.textContent||''") or ""), "verses for how you feel show")
         js(d, "closeFeel()"); time.sleep(0.5)
         # original Greek words
+        # v24: week strip, bookshelf, Lamp story, milestone
+        js(d, "setView('path')"); time.sleep(2); shot("20i-bookshelf")
+        note(bool(js(d, "return document.querySelectorAll('.spine').length===9")), "bookshelf shows nine books")
+        js(d, "openStory()"); time.sleep(1.5); js(d, "stGo(1)"); time.sleep(1.5); shot("20j-lamp-story")
+        js(d, "closeStory();openMilestone({id:'ios',n:30,unit:'chapters read',t:'Thirty chapters',s:'A month of Scripture.'})"); time.sleep(1.5); shot("20k-milestone")
+        js(d, "document.querySelector('#msm')?.remove();document.documentElement.classList.remove('meeting');setView('today')"); time.sleep(1)
         # v23: my prayer list, evening Examen, easy mode
         js(d, "jTab='pray';setView('journal')"); time.sleep(1.2)
         js(d, "document.querySelector('#plT').value='Rain for the farms';document.querySelector('#plF').requestSubmit()"); time.sleep(1); shot("20f-my-prayers")
