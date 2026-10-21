@@ -112,7 +112,7 @@ for d in ["icons", "splash"]: shutil.copytree(os.path.join(SRC, d), os.path.join
 for f in ["bible.json", "geo.json", "tests.json"]: shutil.copy(os.path.join(DATA, f), OUT)
 for d in ["art", "bib"]: shutil.copytree(os.path.join(DATA, d), os.path.join(OUT, d))
 shutil.copytree(os.path.join(LAMP, "sat"), os.path.join(OUT, "sat"))
-for d in ["por", "img"]:
+for d in ["por", "img", "fun"]:
     if os.path.isdir(os.path.join(LAMP, d)): shutil.copytree(os.path.join(LAMP, d), os.path.join(OUT, d))  # satellite map backdrops (Copernicus Sentinel-2)
 more = os.path.join(SRC, "artmore")
 if os.path.isdir(more):
