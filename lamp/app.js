@@ -183,15 +183,36 @@
     if (!session) return show("signin");
     ME = { id: session.user.id, email: session.user.email };
     const { data: m, error } = await sb.from("lamp_members").select("user_id,name,color,role").eq("user_id", ME.id).maybeSingle();
-    if (error) return show("offline");
+    if (error) return offlineIn();
     if (!m) {
       const p = pend();
       if (p.code && p.name) { const { error: je } = await sb.rpc("lamp_join", { code: p.code, display_name: p.name }); if (!je) { localStorage.removeItem("lamp-pending"); return afterAuth(session); } return show("code", friendly(je)); }
       return show("code");
     }
-    try { await loadAll(); } catch (e) { return show("offline"); }
+    try { await loadAll(); } catch (e) { return offlineIn(); }
     localStorage.setItem("lamp-known", "1");
     finish(false);
+  }
+  /* signed in before but no signal now: open the app on this phone's copy and join the group when the signal is back */
+  let reTry = false;
+  function offlineIn() {
+    if (!localStorage.getItem("lamp-known")) return show("offline");
+    window.LAMP_ACCOUNT = true; finish(true);
+    const again = () => { if (LOCAL && navigator.onLine !== false) reconnect(); };
+    addEventListener("online", again); document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") again(); });
+    setInterval(again, 60000);
+  }
+  async function reconnect() {
+    if (reTry || !LOCAL) return; reTry = true;
+    try {
+      const { data } = await sb.auth.getSession(); const session = data?.session; if (!session) return;
+      ME = { id: session.user.id, email: session.user.email };
+      const { data: m, error } = await sb.from("lamp_members").select("user_id").eq("user_id", ME.id).maybeSingle();
+      if (error || !m) return;
+      await loadAll();
+      LOCAL = false; document.documentElement.classList.remove("lamp-local");
+      dispatchEvent(new Event("lamp-online"));
+    } catch (e) {} finally { reTry = false; }
   }
   function finish(local) {
     LOCAL = local; resolveReady();
@@ -205,7 +226,7 @@
     sb.auth.onAuthStateChange((ev, session) => { if (ev === "PASSWORD_RECOVERY") show("newpass"); });
     if (/type=recovery/.test(hash)) { setTimeout(() => cur === "loading" && show("newpass"), 1200); return; }
     const { data, error } = await sb.auth.getSession();
-    if (error && /fetch|network/i.test(error.message)) return show("offline");
+    if (error && /fetch|network/i.test(error.message)) return offlineIn();
     if (hash && /access_token|error_description/.test(hash)) history.replaceState(null, "", location.pathname);
     if (data?.session) return afterAuth(data.session);
     if (localStorage.getItem("lamp-local") === "1") return finish(true);

@@ -15,7 +15,7 @@ await p.goto(base);await p.waitForTimeout(2000);await p.evaluate(()=>setView('pa
 ok(await p.$$eval('.spine',x=>x.length)===9,tag+' nine books on the shelf');
 ok(await p.$eval('.spine.full',e=>/Meet Jesus/.test(e.getAttribute('aria-label'))),tag+' Mark finished');
 ok(await p.$('.spine.now')!==null,tag+' current book marked');
-const fit=await p.$eval('.shelf',e=>e.scrollWidth<=e.clientWidth+1);ok(fit,tag+' shelf fits');
+const fit=await p.$eval('.bshelf',e=>e.scrollWidth<=e.clientWidth+1);ok(fit,tag+' shelf fits');
 await shot('path');
 await p.click('#storyGo');await p.waitForTimeout(900);
 ok(/Your Lamp story/.test(await p.textContent('#story')),tag+' story opens');await shot('story1');

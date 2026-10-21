@@ -23,7 +23,7 @@ rep("When you finish the path, ask Claude in our chat to add more. Good next ste
 rep("Nothing matches that yet. Ask Claude about it in the Ask tab.", "Nothing matches that yet. Try another word.")
 rep('synced to your Claude account, so they follow you between devices', 'synced to your Lamp account, so they follow you between devices')
 rep("Group features (shared answers, prayer, live games) switch on when you open Lamp inside Claude. For now everything saves on this device.</span>",
-    "You're looking around without an account, so everything saves on this phone only.</span><button class=\"btn sm primary\" onclick=\"LAMP_APP.signIn()\">Sign in or join</button>")
+    "${window.LAMP_ACCOUNT?`You're offline, so your group will appear when the signal is back. Everything you do now is kept.</span>`:`You're looking around without an account, so everything saves on this phone only.</span><button class=\"btn sm primary\" onclick=\"LAMP_APP.signIn()\">Sign in or join</button>`}")
 rep('toast("Live games need Lamp open inside Claude with edit access.")', 'toast("Sign in to play live games with the group.")')
 rep("Live games connect everyone's phones, so they work when Lamp is open inside Claude.", "Live games connect everyone's phones, so sign in to play with the group.")
 rep("saving to the group needs your group leader to give you edit access.", "saving to the group needs you to sign in.")
@@ -53,7 +53,7 @@ rep('const n={"1":"today","2":"group","3":"path","4":"learn","5":"journal","6":"
 rep('.tabbar{display:grid;grid-template-columns:repeat(6,1fr);', '.tabbar{display:grid;grid-template-columns:repeat(5,1fr);')
 rep('</style>', '#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}\n.gnote .btn{margin-left:auto;flex:none}\n</style>')
 # account in Settings
-rep('''    <div class="field"><span>Home screen</span>''', '''    ${window.LAMP_APP?.signedIn?`<div class="field"><span>Your account</span><small>Signed in as <b>${esc(LAMP_APP.name)}</b> (${esc(LAMP_APP.email)}).</small><div class="opts"><button id="acName">Change my name</button><button id="acOut">Sign out</button></div></div>`:`<div class="field"><span>Your account</span><small>You're looking around without an account. Sign in to save to the group.</small><div class="opts"><button id="acIn">Sign in or join</button></div></div>`}
+rep('''    <div class="field"><span>Home screen</span>''', '''    ${window.LAMP_APP?.signedIn?`<div class="field"><span>Your account</span><small>Signed in as <b>${esc(LAMP_APP.name)}</b> (${esc(LAMP_APP.email)}).</small><div class="opts"><button id="acName">Change my name</button><button id="acOut">Sign out</button></div></div>`:`<div class="field"><span>Your account</span><small>${window.LAMP_ACCOUNT?`You're signed in, but there's no signal right now. Everything you do is kept and sends when you're back online.</small></div>`:`You're looking around without an account. Sign in to save to the group.</small><div class="opts"><button id="acIn">Sign in or join</button></div></div>`}`}
     <div class="field"><span>Home screen</span>''')
 rep('''  $("#setInstall").onclick=()=>{close();openInstall()};''', '''  $("#setInstall").onclick=()=>{close();openInstall()};
   $("#acOut")?.addEventListener("click",()=>{$("#acOut").parentNode.innerHTML=`<button id="acOut2" class="danger">Yes, sign me out</button><button id="acKeep">Stay signed in</button>`;$("#acOut2").onclick=()=>LAMP_APP.signOut();$("#acKeep").onclick=()=>openSettings()});
@@ -111,6 +111,7 @@ open(os.path.join(OUT, "sw.js"), "w").write(open(os.path.join(SRC, "sw.js")).rea
 for d in ["icons", "splash"]: shutil.copytree(os.path.join(SRC, d), os.path.join(OUT, d))
 for f in ["bible.json", "geo.json", "tests.json"]: shutil.copy(os.path.join(DATA, f), OUT)
 for d in ["art", "bib"]: shutil.copytree(os.path.join(DATA, d), os.path.join(OUT, d))
+shutil.copytree(os.path.join(LAMP, "sat"), os.path.join(OUT, "sat"))  # satellite map backdrops (Copernicus Sentinel-2)
 more = os.path.join(SRC, "artmore")
 if os.path.isdir(more):
     for f in os.listdir(more): shutil.copy(os.path.join(more, f), os.path.join(OUT, "art"))

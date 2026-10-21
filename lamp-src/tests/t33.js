@@ -19,7 +19,7 @@ await p.keyboard.press('Escape');await p.waitForTimeout(300);ok(!await p.$('#fd'
 await p.evaluate(()=>openPassage(passFor('PSA',23),false));await p.waitForTimeout(1500);
 await p.click(+w<800?'#dListen':'#rSpeak');await p.waitForTimeout(1200);ok(!!await p.$('#ls .ls-verse'),tag+' listen opens');await shot('listen');
 await p.click('#lsNext');await p.waitForTimeout(700);ok(await p.evaluate(()=>LSN.i===1),tag+' listen next');
-await p.click('#lsRate');ok(await p.textContent('#lsRate')==='1.25×',tag+' speed');
+await p.click('#lsRate');ok(await p.textContent('#lsRate')==='1.2×',tag+' speed');
 {const a=await p.evaluate(()=>LSN.on);await p.click('#lsPlay');await p.waitForTimeout(100)}
 await p.evaluate(()=>{LSN.i=LSN.list.length;lsPaint()});await p.waitForTimeout(500);await shot('listen-end');
 await p.click('#lsX');await p.waitForTimeout(300);ok(!await p.$('#ls'),tag+' listen closes');

@@ -147,6 +147,13 @@ def run():
         note("prayer" in (js(d, "return document.querySelector('#fdStage')?.textContent||''") or ""), "verses for how you feel show")
         js(d, "closeFeel()"); time.sleep(0.5)
         # original Greek words
+        # v25: satellite maps and iOS switches
+        js(d, "setView('learn')"); time.sleep(1.5); js(d, "document.querySelector('#map')?.scrollIntoView()"); time.sleep(2.5); shot("20l-satellite-map")
+        note(bool(js(d, "const i=document.querySelector('#map .satimg');return !!i&&!document.querySelector('#map.satfail, svg.satfail')")), "satellite map shows")
+        js(d, "openFig('paul')"); time.sleep(3); shot("20m-paul-satellite")
+        js(d, "document.querySelector('#fgClose')?.click()"); time.sleep(0.6)
+        js(d, "setView('group');G.sub='prayer';render()"); time.sleep(1.5); js(d, "document.querySelector('#prAnon')?.scrollIntoView({block:'center'})"); time.sleep(0.6); shot("20n-ios-switch")
+        js(d, "setView('today')"); time.sleep(1)
         # v24: week strip, bookshelf, Lamp story, milestone
         js(d, "setView('path')"); time.sleep(2); shot("20i-bookshelf")
         note(bool(js(d, "return document.querySelectorAll('.spine').length===9")), "bookshelf shows nine books")
