@@ -1562,6 +1562,59 @@ html.meeting{overflow:hidden}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .chip.gold{color:var(--gold)}}
 :root[data-theme="dark"] .danger{color:#FF8A75}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .danger{color:#FF8A75}}
+
+.chip.ok{background:color-mix(in srgb,var(--accent) 14%,var(--surface));color:var(--accent)}
+.chip svg{width:14px;height:14px}
+.chip.buddy{background:color-mix(in srgb,var(--accent) 10%,var(--surface))}
+.bud h2{margin:2px 0 6px;font:600 1.3rem var(--f-display)}
+.bud-ask{font-weight:600;color:var(--accent);margin:8px 0 0}
+.bud-pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.bud-pick button{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:4px 14px 4px 6px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-weight:600;cursor:pointer}
+.bud-pick button.hl{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 25%,transparent)}
+.bud-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.bud-n{display:flex;flex-direction:column;align-items:center;min-width:72px;padding:8px 10px;border-radius:16px;background:var(--gold-soft)}
+.bud-n b{font:600 1.9rem var(--f-display);line-height:1;color:var(--gold)}.bud-n span{font-size:.72rem;font-weight:600;color:var(--muted)}
+.bud-rows{display:flex;flex-direction:column;gap:8px;margin:12px 0 6px}
+.bud-row{display:flex;align-items:center;gap:10px}.bud-row .rg-nm{flex:1;min-width:0;font-weight:600}
+.bud-msg{margin:6px 0 0}
+.shr{display:flex;gap:10px;align-items:center;margin-top:10px;min-height:44px;font-weight:600;font-size:.92rem;cursor:pointer}
+.shr input{width:20px;height:20px;accent-color:var(--accent);flex:none}
+.grpref:empty{display:none}
+.gr-d{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+.gr-d summary{cursor:pointer;font-weight:600;color:var(--accent);min-height:44px;display:flex;align-items:center}
+.gr-d .oans{display:flex;gap:10px;margin:8px 0}.gr-d .oans p{margin:2px 0 0;line-height:1.5}
+.wback h2{margin:2px 0 6px;font:600 1.25rem var(--f-display)}.wback p{margin:0;line-height:1.55}
+
+.plnew h2{margin:2px 0 10px;font:600 1.25rem var(--f-display)}
+.plf{display:flex;gap:8px;margin-bottom:10px}.plf input{flex:1;min-width:0}
+.pl-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:12px;margin-top:14px}
+.plc p{margin:0 0 10px;font-size:1.02rem;line-height:1.5}
+.plc footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.plc footer>span:last-child{display:flex;gap:6px;align-items:center}
+.plc footer .plf{width:100%;margin:0}
+.icon-btn.sm{width:40px;height:40px}
+.pl-ans{margin-top:22px}.pl-ans h2{font:600 1.3rem var(--f-display);margin:0 0 12px}
+.pl-tl{list-style:none;margin:0;padding:0 0 0 6px;border-left:2px solid var(--gold-soft)}
+.pl-tl li{position:relative;display:flex;gap:12px;padding:0 0 18px 16px}
+.pl-dot{position:absolute;left:-8px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--bg)}
+.pl-tl b{display:block;line-height:1.4}.pl-tl p{margin:4px 0;line-height:1.5}.pl-tl small{color:var(--muted)}
+.excard{display:flex;align-items:center;gap:14px;text-align:left;width:100%;cursor:pointer;color:inherit;background:linear-gradient(135deg,color-mix(in srgb,#2B3A67 16%,var(--surface)),var(--surface))}
+.ex-moon{display:grid;place-items:center;flex:none;width:52px;height:52px;border-radius:16px;background:#1E2547;color:#F3DFA2;font-size:1.6rem}
+.ex-moon.big{width:72px;height:72px;font-size:2.2rem;margin:4px auto 10px}
+.excard .qt-txt{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}.excard b{font:600 1.15rem var(--f-display)}.excard .qt-txt>span:last-child{color:var(--muted);font-size:.88rem}
+.excard-s h3{margin:6px 0 4px;font:600 1.3rem var(--f-display)}
+.excard-s textarea{width:100%;margin:8px 0}
+.ex-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 14px}.ex-steps i{height:5px;border-radius:9px;background:var(--line)}.ex-steps i.on,.ex-steps i.done{background:var(--accent)}
+.ex-done{text-align:center}.ex-done p{line-height:1.6;color:var(--muted)}
+.tmain .wback{order:-2}
+html.easy{font-size:112.5%}
+html.easy .ts-t small,html.easy .muted,html.easy .kicker{font-size:.95em}
+html.easy .btn{min-height:52px}
+html.easy .tside .more{display:none}
+
+.ms-read .ms-k{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mt-btn.ms-say{width:auto;padding:0 16px;gap:8px;display:inline-flex;align-items:center;font:600 .95rem var(--f-ui);letter-spacing:0;text-transform:none}
+.mt-btn.ms-say.on{background:#F3DFA2;color:#14110C}
+#mStage .mv.speaking{background:rgba(243,223,162,.14);border-radius:4px;box-shadow:none;-webkit-box-decoration-break:clone;box-decoration-break:clone;color:#FFF6DC}
 </style>
 
 <div class="intro" id="intro" aria-label="Lamp is starting" role="presentation">
@@ -1990,7 +2043,7 @@ const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Le
 /* ================= State & storage ================= */
 const LS="lamp-state-v1";
 const DEFAULTS={theme:"system",trans:"NLT",rt:"WEB",size:"m",nums:true,rate:1,welcomed:false,onboarded:false,intro:true};
-let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},settings:{...DEFAULTS},selected:null};
+let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},pl:{},ex:{},settings:{...DEFAULTS},selected:null};
 let docRef=null,saveTimer=null,pending={},retryT=null,retryN=0;
 const OUTBOX="lamp-outbox-v1";
 try{const o=JSON.parse(localStorage.getItem(OUTBOX)||"null");if(o&&typeof o==="object")pending=o}catch(e){}
@@ -1998,13 +2051,14 @@ function outboxSave(){try{Object.keys(pending).length?localStorage.setItem(OUTBO
 const outboxCount=()=>Object.values(pending).reduce((n,v)=>n+(v&&typeof v==="object"&&!Array.isArray(v)?Object.keys(v).length:1),0);
 function lsRead(){try{return JSON.parse(localStorage.getItem(LS)||"null")}catch(e){return null}}
 function lsWrite(){try{localStorage.setItem(LS,JSON.stringify(state))}catch(e){}}
-const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
+const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
 
 function merge(remote){
   if(!remote) return;
   for(const [k,v] of Object.entries(remote.done||{})){ if(v) state.done[k]=v; else if(v===null) state.done[k]=null; }
   for(const [k,v] of Object.entries(remote.notes||{})){ const mine=state.notes[k]; if(!mine||(v&&(v.at||"")>(mine.at||""))) state.notes[k]=v; }
   for(const [k,v] of Object.entries(remote.saved||{})){ const mine=state.saved[k]; if(!(k in state.saved)||v===null||(v&&mine&&((v.m||0)>(mine.m||0)||(v.lr||"")>(mine.lr||"")))) state.saved[k]=v; }
+  for(const k of ["pl","ex"])for(const [id,v] of Object.entries(remote[k]||{})){const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
   for(const [k,v] of Object.entries(remote.step||{})){ if(v&&typeof v==="object") state.step[k]={...(state.step[k]||{}),...v}; }
   for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)) state.hl[k]=v; }
   for(const [k,v] of Object.entries(remote.qt||{})){ if(v&&(!state.qt[k]||(v.at||"")>(state.qt[k].at||""))) state.qt[k]=v; }
@@ -2046,7 +2100,7 @@ async function connect(){
 }
 function setSync(on){document.querySelectorAll(".sync").forEach(s=>{s.classList.toggle("on",on);s.querySelector("span").textContent=on?"Synced to your account":"Saved on this device"})}
 function setSetting(k,v){state.settings[k]=v;queue({settings:{[k]:v}});}
-function applyTheme(){const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+function applyTheme(){applyEasy();const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
 
 /* ================= Scripture text ================= */
 let BIBLE=null,biblePromise=null;
@@ -2186,14 +2240,16 @@ function vToday(){
   return `
   <div class="dayhead">
     <div><div class="kicker">Day ${day} of ${TOTAL}${day!==nextDay()&&day!==todayDone()?" · revisiting":""}</div><h1>${stepState(day).every(Boolean)?"Done for today":done?"Read. Well done.":greeting()}</h1></div>
-    <div class="chips"><span class="chip gold">${I.flame}${streak()} day streak</span><span class="chip">${doneCount()} / ${TOTAL} · ${pct}%</span></div>
+    <div class="chips"><span class="chip gold">${I.flame}${streak()} day streak</span>${weekChip()}${buddyChip()}<span class="chip">${doneCount()} / ${TOTAL} · ${pct}%</span></div>
   </div>
   ${installTip()}
+  ${welcomeBack()}
   ${L?groupTeaser():""}
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
   </div><aside class="tside">
   ${fbCard()}
+  ${exCard()}
   ${(()=>{const n=doneCount(),all=state.settings.allOpen||n>=4;const q=all||n>=2,f=all;
     return q||f?`<div class="kicker side-k">Not today's reading?</div>${q?qtCard():""}${f?feelRow():""}`:`<div class="card soon"><div class="kicker">Coming up</div><p>After a couple of readings, a 5-minute quiet time and verses for how you're feeling will appear here.</p></div>`})()}
   <details class="card more" id="tMore" ${firstOfBook?"open":""}>
@@ -2218,6 +2274,74 @@ function vToday(){
   </details>
   </aside></div>`;
 }
+
+
+/* ================= Week goal, reading buddy, sharing reflections, welcome back ================= */
+const weekGoal=()=>+state.settings.weekGoal||4;
+function weekRead(){const k=myReadKeys();return ringWeek().filter(x=>k.has(x)).length}
+function weekChip(){const n=weekRead(),g=weekGoal();return `<span class="chip${n>=g?" ok":""}" title="Your goal is ${g} days a week">${n>=g?I.check:""}${Math.min(n,7)} of ${g} days this week</span>`}
+function buddyId(){const b=state.settings.buddy;return G.on&&b&&G.people[b]&&b!==myKey()?b:null}
+function buddyStreak(b){const A=new Set([...myReadKeys(),...Object.keys(mine().rd||{})]),B=G.people[b]?.rd||{};const s=new Set();for(const k of A)if(B[k])s.add(dayKey(new Date(k+"T12:00")));return runTo(s,new Date())}
+function buddyChip(){const b=buddyId();if(!b)return"";const n=buddyStreak(b);return `<span class="chip buddy" title="Days in a row you and ${esc(pname(b))} have both read">${I.group}${n?`${n} with `:"Buddy: "}${esc(pname(b).split(" ")[0])}</span>`}
+function paintBuddy(){const el=$("#gBuddy");if(!el)return;if(!G.on){el.innerHTML="";return}
+  const b=buddyId(),others=members().filter(id=>id!==myKey());if(!others.length){el.innerHTML="";return}
+  const wk=ringWeek(),ti=wk.indexOf(hereDay()),mk=myReadKeys();
+  const pickedMe=others.filter(id=>G.people[id].bd===myKey()&&id!==b);
+  if(!b){el.innerHTML=`<section class="card bud"><div class="kicker">Reading buddy</div><h2>Keep a streak together</h2><p class="muted">Pick one person. You'll both see how many days in a row you've each read. Friends who keep a streak together are far more likely to keep going.</p>
+    ${pickedMe.length?`<p class="bud-ask">${esc(pname(pickedMe[0]))} picked you as their reading buddy.</p>`:""}
+    <div class="bud-pick">${others.map(id=>`<button data-bud="${esc(id)}" class="${pickedMe.includes(id)?"hl":""}">${face(id,"sm")}<span>${esc(pname(id))}</span></button>`).join("")}</div></section>`}
+  else{const n=buddyStreak(b),them=G.people[b].rd||{},mutual=G.people[b].bd===myKey(),both=mk.has(hereDay())&&them[hereDay()];
+    el.innerHTML=`<section class="card bud on"><div class="bud-top"><div><div class="kicker">Reading buddy${mutual?"":" · waiting for them to pick you back"}</div><h2>You and ${esc(pname(b))}</h2></div><div class="bud-n"><b>${n}</b><span>day${n===1?"":"s"} together</span></div></div>
+      <div class="bud-rows">${[[myKey(),"You",k=>mk.has(k)],[b,pname(b),k=>them[k]]].map(([id,nm,f])=>`<div class="bud-row">${face(id,"sm")}<span class="rg-nm">${esc(nm)}</span><span class="rg-dots" role="img" aria-label="${wk.filter(f).length} of 7 days">${wk.map((k,i)=>`<i class="${f(k)?"on":i>ti?"fut":""}${i===ti?" now":""}"></i>`).join("")}</span></div>`).join("")}</div>
+      <p class="muted bud-msg">${both?"You've both read today. Well done.":mk.has(hereDay())?`You've read today. ${esc(pname(b).split(" ")[0])} hasn't yet.`:`Read today to keep your streak with ${esc(pname(b).split(" ")[0])} going.`}</p>
+      <div class="actions"><button class="btn sm" id="budNudge">${I.send}Send ${esc(pname(b).split(" ")[0])} a note</button><button class="btn sm ghost" id="budChange">Change buddy</button></div></section>`}
+  el.querySelectorAll("[data-bud]").forEach(x=>x.onclick=()=>{const id=x.dataset.bud;setSetting("buddy",id);gWrite({bd:id});ringShare();paintBuddy();buzz(20);toast(`${pname(id)} is your reading buddy`)});
+  $("#budChange")?.addEventListener("click",()=>{setSetting("buddy",null);gWrite({bd:null});paintBuddy()});
+  $("#budNudge")?.addEventListener("click",async()=>{const nm=pname(b).split(" ")[0],me=mk.has(hereDay());const t=me?`Hi ${nm}, I've done today's reading in Lamp. Your turn, let's keep our streak going!`:`Hi ${nm}, shall we both do today's reading in Lamp? ${LAMP_URL}`;
+    if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e?.name==="AbortError")return}}window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank","noopener")})}
+let refT=null;
+function refShare(day){if(!G.on||G.ro||!state.settings.shareRef)return;clearTimeout(refT);refT=setTimeout(()=>{const t=(state.notes[day]?.what||"").trim();gWrite({pd:{[day]:t?{t:t.slice(0,600),at:new Date().toISOString()}:null}})},900)}
+function paintGrpRef(day){const el=$("#grpRef");if(!el)return;if(!G.on){el.innerHTML="";return}
+  const L=members().filter(id=>id!==myKey()&&G.people[id].pd?.[day]?.t).map(id=>({id,...G.people[id].pd[day]})).sort((a,b)=>String(b.at).localeCompare(String(a.at)));
+  el.innerHTML=L.length?`<details class="gr-d" ${L.length<=2?"open":""}><summary>${L.length} in your group shared what happened in ${esc(refName(PLAN[day-1]))}</summary>${L.map(x=>`<div class="oans">${face(x.id,"sm")}<div><b>${esc(pname(x.id))}</b><p>${esc(x.t)}</p></div></div>`).join("")}</details>`:""}
+function welcomeBack(){const ds=Object.values(state.done||{}).filter(Boolean).map(t=>new Date(t).getTime());if(!ds.length)return"";
+  const last=Math.max(...ds),gap=Math.floor((Date.now()-last)/864e5);if(gap<4||todayDone())return"";
+  const p=PLAN.find(x=>state.done[x.day]&&new Date(state.done[x.day]).getTime()===last);
+  return `<section class="card wback"><div class="kicker">Welcome back</div><h2>No catching up needed</h2><p>It's been ${gap} days. Lamp simply carries on from where you were${p?`. Last time you read <b>${esc(refName(p))}</b>: ${esc(p.title.replace(/\.$/,""))}`:""}. Just today's chapter is enough.</p></section>`}
+
+
+/* ================= My prayers: a private list and the answers ================= */
+const plOpen=()=>Object.entries(state.pl||{}).filter(([,p])=>p&&p.t&&!p.ans).sort((a,b)=>String(b[1].at).localeCompare(String(a[1].at)));
+const plAns=()=>Object.entries(state.pl||{}).filter(([,p])=>p&&p.t&&p.ans).sort((a,b)=>String(b[1].ans).localeCompare(String(a[1].ans)));
+const fmtD=t=>new Date(t).toLocaleDateString("en-GB",{day:"numeric",month:"short",year:new Date(t).getFullYear()!==new Date().getFullYear()?"numeric":undefined});
+function plView(){const o=plOpen(),a=plAns();
+  return `<section class="card plnew"><div class="kicker">Only you can see this list</div><h2>What do you want to pray about?</h2>
+    <form id="plF" class="plf"><input id="plT" class="search" maxlength="300" placeholder="For example: Mum's health" aria-label="New prayer"><button class="btn primary">Add</button></form>
+    ${o.length?`<button class="btn" id="plPray">${I.hand}Pray through my list · ${o.length}</button>`:""}</section>
+  ${o.length?`<div class="pl-list">${o.map(([k,p])=>`<article class="card plc" data-pl="${k}"><p>${esc(p.t)}</p><footer><span class="muted">Added ${fmtD(p.at)}${p.n?` · prayed ${p.n}×`:""}</span><span><button class="btn sm" data-pla="${k}">${I.check}Answered</button><button class="icon-btn sm" data-pld="${k}" aria-label="Remove this prayer">${I.close}</button></span></footer></article>`).join("")}</div>`:`<div class="card empty">${I.hand}<h2>Start a prayer list</h2><p>Add the people and things you're praying for. When God answers, mark it, and you'll build up a record of his faithfulness to look back on.</p></div>`}
+  ${a.length?`<section class="pl-ans"><h2>Answered prayers <span class="muted">· ${a.length}</span></h2><ol class="pl-tl">${a.map(([k,p])=>{const d=Math.max(1,Math.round((new Date(p.ans)-new Date(p.at))/864e5));return `<li><span class="pl-dot" aria-hidden="true"></span><div><b>${esc(p.t)}</b>${p.an?`<p>${esc(p.an)}</p>`:""}<small>Answered ${fmtD(p.ans)} · after ${d} day${d===1?"":"s"}</small></div></li>`}).join("")}</ol></section>`:""}`}
+function plWire(){$("#plF")?.addEventListener("submit",e=>{e.preventDefault();const t=$("#plT").value.trim();if(!t)return;const k="p"+Date.now().toString(36);const v={t,at:new Date().toISOString(),u:new Date().toISOString()};state.pl[k]=v;queue({pl:{[k]:v}});render();toast("Added to your prayer list")});
+  $("#plPray")?.addEventListener("click",()=>openPrayNow(true));
+  document.querySelectorAll("[data-pld]").forEach(b=>b.onclick=()=>{const k=b.dataset.pld;state.pl[k]=null;queue({pl:{[k]:null}});render();toast("Removed")});
+  document.querySelectorAll("[data-pla]").forEach(b=>b.onclick=()=>{const k=b.dataset.pla,c=b.closest(".plc");c.querySelector("footer").innerHTML=`<form class="plf" data-plaf="${k}"><input class="search" maxlength="300" placeholder="How was it answered? (optional)" aria-label="How was it answered"><button class="btn primary sm">Save</button></form>`;
+    c.querySelector("input").focus();c.querySelector("form").onsubmit=e=>{e.preventDefault();const v={...state.pl[k],ans:new Date().toISOString(),an:c.querySelector("input").value.trim(),u:new Date().toISOString()};state.pl[k]=v;queue({pl:{[k]:v}});burst(c,30);buzz([20,40,20]);toast("Praise God! Saved to your answered prayers");setTimeout(render,500)}})}
+
+/* ================= Evening Examen: look back on the day with God ================= */
+const EX=[["Thank","What are you thankful for today?","Start by noticing the good gifts of today, big or small."],["Notice","Where did you sense God with you today?","A moment of peace, a kind word, a verse that stayed with you."],["Turn","Is there anything to put right?","Tell God honestly. He is quick to forgive (1 John 1:9)."],["Tomorrow","What do you need for tomorrow?","Ask for his help, then rest. He watches over you while you sleep (Psalm 121:4)."]];
+function exCard(){const h=new Date().getHours();if(h<17&&!state.settings.exAny)return"";const d=state.ex?.[hereDay()];
+  return `<button class="card excard" id="exGo"><span class="ex-moon" aria-hidden="true">☾</span><span class="qt-txt"><span class="kicker">${d?"Done tonight":"Evening · 3 minutes"}</span><b>Look back on today</b><span>Thank, notice, put right, and rest</span></span><span class="gt-r">${I.right}</span></button>`}
+function openExamen(){let i=0;const k=hereDay();const a={...(state.ex?.[k]||{})};
+  const paint=()=>{const box=$("#exBox");if(!box)return;if(i>=EX.length){box.innerHTML=`<div class="ex-done"><div class="ex-moon big" aria-hidden="true">☾</div><h3>Rest well</h3><p>“In peace I will lie down and sleep, for you alone, Lord, make me dwell in safety.” Psalm 4:8</p><div class="row-end"><button class="btn primary" id="exClose">Goodnight</button></div></div>`;$("#exClose").onclick=()=>{$("#scrim")?.remove();if(view==="today")render()};return}
+    const [t,q,h]=EX[i];box.innerHTML=`<div class="ex-steps">${EX.map((_,j)=>`<i class="${j<i?"done":j===i?"on":""}"></i>`).join("")}</div><div class="kicker">${i+1} of 4 · ${t}</div><h3>${q}</h3><p class="muted">${h}</p>
+      <textarea id="exA" class="search" rows="3" placeholder="Write a few words, or just pray it (optional)">${esc(a["q"+i]||"")}</textarea>
+      <div class="row-end">${i?`<button class="btn ghost" id="exB">Back</button>`:""}<button class="btn primary" id="exN">${i===3?"Finish":"Next"}</button></div>`;
+    const save=()=>{a["q"+i]=$("#exA").value.trim();a.at=new Date().toISOString();a.u=a.at;state.ex[k]={...a};queue({ex:{[k]:{...a}}})};
+    $("#exN").onclick=()=>{save();i++;paint()};$("#exB")?.addEventListener("click",()=>{save();i--;paint()});setTimeout(()=>$("#exA")?.focus({preventScroll:true}),50)};
+  openSheet(`<div class="pcard excard-s"><div class="kick">Evening Examen</div><h2>Look back on today with God</h2><div id="exBox"></div></div>`,"Evening Examen");paint()}
+
+/* ================= Easy mode: bigger, simpler, listen first ================= */
+function applyEasy(){document.documentElement.classList.toggle("easy",!!state.settings.easy)}
+function setEasy(on){setSetting("easy",on);if(on){setSetting("mode","listen");setSetting("size","l");setSetting("rate",.85)}else{setSetting("mode","read");setSetting("size","m");setSetting("rate",1)}applyEasy()}
 
 /* ================= How's Lamp? (once a month, totals only) ================= */
 const fbMonth=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`};
@@ -2260,6 +2384,8 @@ function stepCard(day){const p=PLAN[day-1],s=PLAN[day-1]&&STAGES[p.stage],b=BOOK
        <div class="q"><label for="q3">What stood out, or what confused you?</label><textarea id="q3" data-k="stands">${esc(n.stands)}</textarea></div>
      </details>
      <div class="saved" id="saved" aria-live="polite"></div>
+     ${G.on&&!G.ro?`<label class="shr"><input type="checkbox" id="shrRef" ${state.settings.shareRef?"checked":""}><span>Share my "What happened?" answer with my group</span></label>`:""}
+     <div id="grpRef" class="grpref"></div>
      <div class="actions deeper">
        <button class="btn sm" id="explain">${I.spark}Explain it simply</button>
        <button class="btn sm" id="quizBtn">${I.medal}Test yourself${n.quiz!=null?` · best ${n.quiz}/3`:""}</button>
@@ -2289,7 +2415,7 @@ function stepCard(day){const p=PLAN[day-1],s=PLAN[day-1]&&STAGES[p.stage],b=BOOK
   </article>`}
 function stepGroupHTML(){
   if(!G.on)return `<p class="ts-p">Talk to God about what you read. Thank him for one thing, and ask for help with one thing.</p>
-    <div class="actions"><button class="btn primary" id="tsPrayed">${I.check}I've prayed</button><button class="btn" data-qt>Guided quiet time</button></div>`;
+    <div class="actions"><button class="btn primary" id="tsPrayed">${I.check}I've prayed</button>${plOpen().length?`<button class="btn" id="tsMyList">Pray through my list · ${plOpen().length}</button>`:`<button class="btn" data-qt>Guided quiet time</button>`}</div>`;
   const w=WK(curWk());let pr=null;
   for(const id of members())if(id!==myKey())for(const [k,x] of Object.entries(G.people[id].pr||{}))if(x&&x.t&&!x.ans&&(!pr||String(x.at)>String(pr.at)))pr={id,...x};
   return `<p class="ts-p">This week: <b>${esc(w.title)}</b>, ${esc(w.ref)}.</p>
@@ -2337,14 +2463,20 @@ function rvPaint(){const box=$("#rvBox");if(!box)return;const day=curDay();
   if(RV.list===null||RV.day!==ymd(new Date())){const pl=rvPlan();RV.list=pl.kind==="due"?pl.list.map(x=>x[0]):[];RV.i=0;RV.shown=false;RV.n=0;RV.day=ymd(new Date())}
   const known=Object.values(state.saved||{}).filter(v=>v&&(v.m||0)>=3).length;
   if(RV.i<RV.list.length){const k=RV.list[RV.i],v=state.saved[k];if(!v){RV.i++;return rvPaint()}
-    box.innerHTML=`<div class="rv-card"><div class="rv-top"><span class="kicker">Review ${RV.i+1} of ${RV.list.length}</span><button class="btn sm ghost" id="rvPuz">Puzzle instead</button></div>
+    const byRef=(v.s||0)>=7&&RV.i%2===1;
+    if(byRef)box.innerHTML=`<div class="rv-card"><div class="rv-top"><span class="kicker">Review ${RV.i+1} of ${RV.list.length} · which verse is this?</span></div>
+      <p class="rv-text">${esc(v.text)}</p>
+      ${RV.shown?`<div class="rv-ref">${esc(v.ref)}</div><p class="muted rv-ask">Did you know where it's from?</p>
+        <div class="rv-grade"><button class="btn" data-g="1">No idea</button><button class="btn" data-g="2">Nearly</button><button class="btn primary" data-g="3">I knew it</button></div>`
+      :`<p class="rv-hint" id="rvHint">Say the book, chapter and verse before you look. Knowing where a verse lives helps you find it again.</p><div class="actions"><button class="btn primary" id="rvShow">Show where it's from</button></div>`}</div>`;
+    else box.innerHTML=`<div class="rv-card"><div class="rv-top"><span class="kicker">Review ${RV.i+1} of ${RV.list.length}</span><button class="btn sm ghost" id="rvPuz">Puzzle instead</button></div>
       <div class="rv-ref">${esc(v.ref)}</div>
       ${RV.shown?`<p class="rv-text">${esc(v.text)}</p><p class="muted rv-ask">How did you do?</p>
         <div class="rv-grade"><button class="btn" data-g="1">Forgot</button><button class="btn" data-g="2">Hard</button><button class="btn primary" data-g="3">Remembered</button></div>`
       :`<p class="rv-hint" id="rvHint">Say it from memory first.</p><div class="actions"><button class="btn" id="rvFl">First letters</button><button class="btn primary" id="rvShow">Show the verse</button></div>`}</div>`;
     $("#rvShow")&&($("#rvShow").onclick=()=>{RV.shown=true;rvPaint()});
     $("#rvFl")&&($("#rvFl").onclick=()=>{$("#rvHint").innerHTML=`<span class="rv-fl">${firstLetters(v.text)}</span>`;$("#rvFl").remove()});
-    $("#rvPuz").onclick=()=>openPuzzle(k);
+    $("#rvPuz")&&($("#rvPuz").onclick=()=>openPuzzle(k));
     box.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{const g=+b.dataset.g;const nv=srGrade(state.saved[k],g);state.saved[k]=nv;queue({saved:{[k]:{...nv}}});
       RV.n++;RV.i++;RV.shown=false;buzz(g===3?20:10);if(g===1)toast(`${v.ref} will come back tomorrow`);
       if(RV.i>=RV.list.length)stepMark(day,"m");rvPaint()});
@@ -2384,14 +2516,18 @@ const after={
     document.querySelectorAll("#tstep textarea").forEach(t=>t.addEventListener("input",()=>{
       const n=state.notes[day]||{};n[t.dataset.k]=t.value;n.at=new Date().toISOString();state.notes[day]=n;
       queue({notes:{[day]:n}});$("#saved").textContent="Saved to your journal";stepSync(day);
+      if(t.dataset.k==="what")refShare(day);
     }));
+    $("#shrRef")?.addEventListener("change",e=>{setSetting("shareRef",e.target.checked);if(e.target.checked)refShare(day);else if(G.on)gWrite({pd:{[day]:null}});toast(e.target.checked?"Your group can see your answer for this chapter":"Your answer is private again")});
+    paintGrpRef(day);
     $("#markDone").onclick=e=>{if(isDone(day)){stepOpenAt(1);return}markDone(day,e.currentTarget);stepOpen=null;render()};
     document.querySelectorAll("[data-ts]").forEach(b=>b.onclick=()=>stepOpenAt(+b.dataset.ts));fbWire();
+    $("#exGo")?.addEventListener("click",openExamen);
     $("#tsAhead")?.addEventListener("click",()=>{state.selected=day+1;lsWrite();render();scrollTo({top:0,behavior:reduced()?"auto":"smooth"})});
     rvPaint();
     $("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});
     $("#tsPray")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow()});
-    $("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});
+    $("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});$("#tsMyList")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow(true)});
     $("#prev").onclick=()=>{state.selected=Math.max(1,day-1);lsWrite();render()};
     $("#next").onclick=()=>{state.selected=Math.min(TOTAL,day+1);lsWrite();render()};
     $("#openReader").onclick=()=>openReader(day,false);
@@ -2429,6 +2565,7 @@ const after={
     document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.open;lsWrite();setView("today")});
     document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{jTab=b.dataset.tab;memoLv=0;render()});
     if(jTab==="hl")hlFill();
+    if(jTab==="pray")plWire();
     document.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>{memoKey=b.dataset.mk;memoLv=0;render()});
     const reb=()=>{render();if(!reduced())$("#memo")?.animate([{opacity:.4,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:300,easing:"cubic-bezier(.16,1,.3,1)"})};
     document.querySelectorAll(".mw").forEach(b=>b.onclick=()=>{b.textContent=b.dataset.w;b.classList.remove("hid","fl");b.classList.add("shown")});
@@ -2602,8 +2739,9 @@ function vJournal(){
   const entries=Object.entries(state.notes).filter(([,n])=>n&&(n.what||n.shows||n.stands)).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const saved=Object.entries(state.saved).filter(([,v])=>v).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const head=`<div><h1 class="page-h">Journal</h1></div>
-  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorize</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
+  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorize</button><button data-tab="pray" aria-pressed="${jTab==="pray"}">Prayers${plOpen().length?`<span class="segn"> · ${plOpen().length}</span>`:""}</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
   if(jTab==="hl")return head+hlView();
+  if(jTab==="pray")return head+plView();
   if(jTab==="memo"){
     if(!saved.length) return head+`<div class="card empty">${I.bookmark}<h2>Hide a verse in your heart</h2><p>Save a verse while you read, then practise it here in four quick steps until you know it by heart.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
     if(!memoKey||!state.saved[memoKey])memoKey=(saved.find(([,v])=>(v.m||0)<3)||saved[0])[0];
@@ -3021,12 +3159,16 @@ function openSettings(){
     ${HAS_ORIG&&"caches" in window?`<div class="field"><span>Read without internet</span><small>Save the Bible on this device so it opens with no signal and uses no data later. Use Wi-Fi if you can.</small><div class="opts"><button id="offBible">Save the whole Bible · 4 MB</button><button id="offOrig">Add Greek and Hebrew · 7 MB</button></div><small id="offMsg" aria-live="polite"></small></div>`:""}
     <div class="field"><span>Translation for outside links</span><small>Pick the reading translation in the reader's Aa menu. This one is for links that open Bible.com.</small><div class="opts">${Object.keys(TRANS).map(k=>`<button data-trans="${k}" aria-pressed="${s.trans===k}">${k}</button>`).join("")}</div></div>
     <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, King James Version and Bible in Basic English, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth.</p></div>
+    <div class="field"><span>Easy mode</span><small>Bigger text, the chapter read aloud first, and a slower reading voice. Good for anyone who finds small text or long reading hard.</small><div class="opts"><button data-easy="1" aria-pressed="${!!s.easy}">On</button><button data-easy="0" aria-pressed="${!s.easy}">Off</button></div></div>
+    <div class="field"><span>Weekly goal</span><small>Reading 4 days a week is where research sees the biggest difference. Your streak still counts every day.</small><div class="opts">${[3,4,5,7].map(k=>`<button data-wg="${k}" aria-pressed="${weekGoal()===k}">${k} days</button>`).join("")}</div></div>
     <div class="field"><span>Read or listen</span><small>Which button comes first on Today. You can always use both.</small><div class="opts">${[["read","Read"],["listen","Listen"]].map(([k,l])=>`<button data-mode-opt="${k}" aria-pressed="${(s.mode||"read")===k}">${l}</button>`).join("")}</div></div>
     <div class="field"><span>Your data</span><small>Your progress, journal and saved verses are ${docRef?"synced to your Claude account, so they follow you between devices":"saved in this browser"}. Only you can see them.</small><small class="syncnote" data-syncnote></small></div>
     <div class="field"><span>Start over</span><small>Clears your reading progress. Your journal and saved verses stay.</small><div id="resetZone"><button class="btn sm ghost danger" id="reset1">Reset reading progress</button></div></div>
     <div class="row-end"><button class="btn primary" id="setDone">Done</button></div>
   </div></div>`);
   const close=()=>$("#scrim")?.remove();
+  document.querySelectorAll("[data-easy]").forEach(b=>b.onclick=()=>{setEasy(b.dataset.easy==="1");document.querySelectorAll("[data-easy]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render();toast(b.dataset.easy==="1"?"Easy mode is on":"Easy mode is off")});
+  document.querySelectorAll("[data-wg]").forEach(b=>b.onclick=()=>{setSetting("weekGoal",+b.dataset.wg);document.querySelectorAll("[data-wg]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   document.querySelectorAll("[data-mode-opt]").forEach(b=>b.onclick=()=>{setSetting("mode",b.dataset.modeOpt);document.querySelectorAll("[data-mode-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   syncNote();$("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
@@ -3728,6 +3870,7 @@ function vGroup(){
   </div>
   <div id="gHereRow"></div>
   <div id="gRing"></div>
+  <div id="gBuddy"></div>
   <div id="gLive"></div>
   ${G.ro&&G.on?`<div class="gnote">${I.spark}<span>You can read everything here, but saving to the group needs your group leader to give you edit access. Your own reading still saves on this device.</span></div>`:""}
   ${!G.on?`<div class="gnote">${I.spark}<span>Group features (shared answers, prayer, live games) switch on when you open Lamp inside Claude. For now everything saves on this device.</span></div>`:""}
@@ -3759,7 +3902,7 @@ function gBody(anim){
 /* repaint only the live slots, never the inputs someone may be typing in */
 function gPaint(part){
   if(view==="today"&&$("#gTeaser"))$("#gTeaser").outerHTML=groupTeaser();
-  if(view==="today")stepGroupRefresh();
+  if(view==="today"){stepGroupRefresh();paintGrpRef(curDay())}
   gDots();if($("#meet"))meetPaint();
   if(view!=="group")return;
   gFaces();liveBanner();paintHere();paintRing();
@@ -4126,19 +4269,23 @@ This week: ${w.title} (${w.ref}).
 4. Optional: in Lamp, tap Settings (the gear), then Put Lamp on my phone, to add it to your home screen.
 
 That's it. It remembers you from then on, on your phone or computer. Answering questions, the games, tests and the prayer wall don't use any of your Claude messages.`}
+function prayNeeds(){const cut=Date.now()-14*864e5,L=[];for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t&&!p.ans&&Date.parse(p.at)>cut)L.push({id,k,...p});return L.sort((a,b)=>String(b.at).localeCompare(String(a.at)))}
 function openLeader(){
   const m=G.meta;
   openSheet(`<div class="pcard"><div class="kick">Leader tools</div><h2>Run the group</h2>
-    <div class="field"><span>This week's study</span><select id="ldWk" class="search">${SERIES_ALL.map(sr=>`<optgroup label="${esc(sr.title)}">${sr.weeks.map((w,i)=>`<option value="${w.id}" ${w.id===curWk()?"selected":""}>Week ${i+1} · ${esc(w.ref)} · ${esc(w.title)}</option>`).join("")}</optgroup>`).join("")}</select></div>
+    <div class="field"><span>This week's study</span><select id="ldWk" class="search" aria-label="This week's study">${SERIES_ALL.map(sr=>`<optgroup label="${esc(sr.title)}">${sr.weeks.map((w,i)=>`<option value="${w.id}" ${w.id===curWk()?"selected":""}>Week ${i+1} · ${esc(w.ref)} · ${esc(w.title)}</option>`).join("")}</optgroup>`).join("")}</select></div>
     ${(()=>{const t=fbTotals(),a=t.more+t.same+t.less;return `<div class="field"><span>How's Lamp going? (this month)</span><small>${a?`${a} answer${a>1?"s":""}: ${t.more} reading more, ${t.same} about the same, ${t.less} reading less. Lamp only shows totals.`:"No answers yet this month. People are asked once a month on Today, after their first week."}</small></div>`})()}
-    <div class="field"><span>Group name</span><input id="ldName" class="search" maxlength="40" value="${esc(m.name||"")}" placeholder="Our Bible study"></div>
-    <div class="field"><span>When you meet</span><input id="ldWhen" class="search" maxlength="40" value="${esc(m.when||"")}" placeholder="Thursdays at 7 pm"></div>
+    ${(()=>{const L=prayNeeds();return `<div class="field"><span>This week's prayer needs</span><small>${L.length?`${L.length} open request${L.length>1?"s":""} from the last two weeks. Send them as one message to your group chat, for anyone who isn't on Lamp yet. Requests marked "don't show my name" stay anonymous.`:"No open prayer requests from the last two weeks."}</small>${L.length?`<div class="row-end"><button class="btn" id="ldPray">${I.send}Send prayer list</button></div>`:""}</div>`})()}
+    <div class="field"><span>Group name</span><input id="ldName" aria-label="Group name" class="search" maxlength="40" value="${esc(m.name||"")}" placeholder="Our Bible study"></div>
+    <div class="field"><span>When you meet</span><input id="ldWhen" aria-label="When you meet" class="search" maxlength="40" value="${esc(m.when||"")}" placeholder="Thursdays at 7 pm"></div>
     <label class="ldauto"><input type="checkbox" id="ldAuto" ${m.auto===false?"":"checked"}><span><b>Move on automatically</b><br>Everyone's app goes to the next passage 7 days after you save, so you only need to come here if the group takes longer on one.</span></label>
     <div class="row-end"><button class="btn primary" id="ldSave">Save for everyone</button></div>
     <div class="field"><span>How to invite people</span><ol class="howto"><li>Open Lamp in Claude and tap <b>Share</b> at the top of the page.</li><li>Add each person by email and give them <b>edit</b> access, so their answers, prayers and scores can save.</li><li>Each person signs in to Claude once (a free account works). After that Lamp remembers them on every device.</li></ol></div>
-    <div class="field"><span>Message to send them</span><textarea id="ldMsg" class="search invmsg" rows="9" readonly>${esc(inviteMsg())}</textarea>
+    <div class="field"><span>Message to send them</span><textarea id="ldMsg" aria-label="Message to send them" class="search invmsg" rows="9" readonly>${esc(inviteMsg())}</textarea>
     <div class="row-end"><button class="btn ghost" id="ldCopy">${I.copy||""}Copy</button><button class="btn primary" id="ldShare">Send to the group</button></div></div></div>`,"Leader tools");
   $("#ldMsg").onfocus=e=>e.target.select();
+  $("#ldPray")?.addEventListener("click",async()=>{const L=prayNeeds();const t=`🙏 ${G.meta.name||"Our group"}: prayer for this week\n\n${L.map(p=>`• ${p.anon?"Someone":pname(p.id).split(" ")[0]}: ${p.t}`).join("\n")}\n\nThank you for praying.`;
+    if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e?.name==="AbortError")return}}window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank","noopener")});
   $("#ldCopy").onclick=()=>{const t=$("#ldMsg");t.select();navigator.clipboard?.writeText(t.value).then(()=>toast("Copied. Paste it in your group chat"),()=>{try{document.execCommand("copy");toast("Copied. Paste it in your group chat")}catch(e){toast("Select the text and copy it")}})};
   $("#ldShare").onclick=async()=>{const t=inviteMsg();if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e?.name==="AbortError")return}}window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank","noopener")};
   $("#ldSave").onclick=async()=>{const d={week:$("#ldWk").value,name:$("#ldName").value.trim(),when:$("#ldWhen").value.trim(),auto:$("#ldAuto").checked,at:new Date().toISOString()};G.wkPick=false;
@@ -4360,9 +4507,9 @@ const RING_GOAL=5;
 function ringWeek(){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return Array.from({length:7},(_,i)=>{const x=new Date(d);x.setDate(d.getDate()+i);return hereDay(x)})}
 function myReadKeys(){const s=new Set(Object.values(state.done||{}).filter(Boolean).map(t=>hereDay(new Date(t))));for(const [k,v] of Object.entries(state.qt||{}))if(v)s.add(k);return s}
 function ringShare(){if(!G.on||G.ro||state.settings.shareRead===false)return;const have=mine().rd||{},mineK=myReadKeys();const patch={};
-  for(const k of ringWeek())if(mineK.has(k)&&!have[k])patch[k]=true;if(Object.keys(patch).length)gWrite({rd:patch})}
+  for(let i=0;i<60;i++){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()-i);const k=hereDay(d);if(mineK.has(k)&&!have[k])patch[k]=true}if(Object.keys(patch).length)gWrite({rd:patch})}
 function paintRing(){const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}
-  ringShare();
+  ringShare();paintBuddy();
   const wk=ringWeek(),today=hereDay(),ti=wk.indexOf(today),ids=members(),n=Math.max(1,ids.length);
   const read=id=>wk.filter(k=>G.people[id].rd?.[k]);
   const perDay=wk.map(k=>ids.filter(id=>G.people[id].rd?.[k]).length);
@@ -4411,7 +4558,13 @@ function meetKey(e){if(e.target.closest("input,textarea"))return;
   else if(e.key==="f"||e.key==="F")$("#mFull").click();else if(e.key==="t"||e.key==="T")$("#mTimer").click()}
 function meetTime(){const el=$("#mTime");if(!el)return;const ms=M.acc+(M.run?Date.now()-M.t0:0),s=Math.floor(ms/1e3);el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
   $("#mTimer").classList.toggle("on",M.run);$("#mTimer").setAttribute("aria-label",M.run?"Pause the timer":"Start the timer")}
-function closeMeet(){clearInterval(M.tick);if(document.fullscreenElement)document.exitFullscreen?.();const m=$("#meet");document.documentElement.classList.remove("meeting");
+const MS={on:false,i:0};
+function msStop(){MS.on=false;try{speechSynthesis.cancel()}catch(e){}}
+function msStart(){const w=WK();const L=(M.verses||[]).slice(w.vs-1,w.ve);if(!L.length)return;try{speechSynthesis.cancel()}catch(e){}MS.on=true;MS.i=0;meetPaint();
+  const hi=()=>document.querySelectorAll("#mStage .mv").forEach((e,j)=>e.classList.toggle("speaking",MS.on&&j===MS.i));
+  const next=()=>{if(!MS.on)return;if(MS.i>=L.length){MS.on=false;meetPaint();return}hi();const u=new SpeechSynthesisUtterance(L[MS.i].replace(/[\[\]]/g,""));const v=lsVoice();if(v)u.voice=v;u.lang=v?.lang||"en-GB";u.rate=Math.min(1,state.settings.rate||1)*.95;
+    u.onend=()=>{MS.i++;next()};u.onerror=()=>{if(MS.on){MS.i++;next()}};speechSynthesis.speak(u);$("#mStage .mv.speaking")?.scrollIntoView({block:"nearest",behavior:reduced()?"auto":"smooth"})};next()}
+function closeMeet(){msStop();clearInterval(M.tick);if(document.fullscreenElement)document.exitFullscreen?.();const m=$("#meet");document.documentElement.classList.remove("meeting");
   if(!m)return;if(reduced()){m.remove();return}m.animate([{opacity:1},{opacity:0}],{duration:200}).onfinish=()=>m.remove()}
 function meetGo(d){const n=meetSlides().length;const to=M.i+d;if(to<0)return;if(to>=n){closeMeet();toast("Thanks for leading tonight");return}M.i=to;meetPaint(true,d)}
 function meetPaint(anim,dir){const st=$("#mStage");if(!st)return;const S=meetSlides();const [k]=S[M.i];const w=WK();const ids=members();
@@ -4421,7 +4574,7 @@ function meetPaint(anim,dir){const st=$("#mStage");if(!st)return;const S=meetSli
       <div class="ms-here">${here.length?`<span class="whos">${here.slice(0,12).map(id=>face(id)).join("")}</span><span>${here.length} here tonight</span>`:`<span>Open Lamp and tap <b>I'm here</b> in Group</span>`}</div></div>
       <div class="ms-qr"><div class="ms-qrbox">${qrSvg(LAMP_URL)}</div><b>Scan to open Lamp</b>${G.code?`<span>Group code <b class="ms-code">${esc(G.code)}</b></span>`:`<span>Answer along on your phone</span>`}</div></div>`}
   else if(k==="ice"){const L=iceList();M.ice%=L.length;h=`<div class="ms ms-c"><div class="ms-k">Icebreaker</div><h2 class="ms-big">${esc(L[M.ice])}</h2><button class="mt-pill" id="mIce">Another one</button></div>`}
-  else if(k==="read"){const v=M.verses;h=`<div class="ms ms-read"><div class="ms-k">Read together · ${esc(w.ref)}</div><div class="ms-text">${v?(v.slice(w.vs-1,w.ve).map((t,i)=>`<span class="mv"><sup>${w.vs+i}</sup>${esc(t)}</span>`).join(" ")||esc(w.sum)):`<p class="ms-load">Loading the passage…</p>`}</div></div>`}
+  else if(k==="read"){const v=M.verses;h=`<div class="ms ms-read"><div class="ms-k">Read together · ${esc(w.ref)}${v&&v.length&&"speechSynthesis" in window?`<button class="mt-btn ms-say${MS.on?" on":""}" id="mSay" aria-pressed="${MS.on}">${MS.on?I.pause:I.speak}<span>${MS.on?"Stop":"Read it aloud"}</span></button>`:""}</div><div class="ms-text">${v?(v.slice(w.vs-1,w.ve).map((t,i)=>`<span class="mv"><sup>${w.vs+i}</sup>${esc(t)}</span>`).join(" ")||esc(w.sum)):`<p class="ms-load">Loading the passage…</p>`}</div></div>`}
   else if(k[0]==="q"){const i=+k.slice(1);const [kind,q]=w.qs[i];const an=ids.filter(id=>G.people[id].ans?.[w.id]?.["q"+i]);const sh=M.show.has(i);
     h=`<div class="ms ms-q"><div class="ms-k"><span class="gq-k k-${kind.toLowerCase()}">${kind==="God"?"About God":kind==="Us"?"About us":"Live it"}</span> Question ${i+1} of ${w.qs.length}</div><h2 class="ms-big">${esc(q)}</h2>
       <div class="ms-ans-bar">${an.length?`<span class="whos">${an.slice(0,10).map(id=>face(id,"sm")).join("")}</span><span>${an.length} ${an.length===1?"answer":"answers"} in Lamp</span><button class="mt-pill" id="mAns" aria-expanded="${sh}">${sh?"Hide answers":"Show answers"}</button>`:`<span>Talk it through, or answer in Lamp to see it here</span>`}</div>
@@ -4430,7 +4583,8 @@ function meetPaint(anim,dir){const st=$("#mStage");if(!st)return;const S=meetSli
   else if(k==="try"){h=`<div class="ms ms-c"><div class="ms-k">Try this week</div><h2 class="ms-big sm">${esc(w.tryit)}</h2></div>`}
   else if(k==="pray"){const all=[];for(const id of ids)for(const [pk,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t&&!p.ans)all.push({id,pk,...p});all.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
     h=`<div class="ms ms-pray"><div class="ms-k">Pray together</div><p class="ms-lead">${esc(w.pray)}</p>${all.length?`<div class="ms-prs">${all.slice(0,8).map(p=>`<article><b>${p.anon?"Someone in the group":esc(pfirst(p.id))}</b><p>${esc(p.t)}</p></article>`).join("")}</div>`:`<p class="ms-sub">Requests shared on the prayer wall show here.</p>`}</div>`}
-  st.innerHTML=h;
+  if(k!=="read"&&MS.on)msStop();
+  st.innerHTML=h;$("#mSay")?.addEventListener("click",()=>MS.on?(msStop(),meetPaint()):msStart());
   $("#mDots").innerHTML=S.map(([kk,l],j)=>`<button class="${j===M.i?"on":""}" data-mdot="${j}" aria-label="${esc(l)}" ${j===M.i?'aria-current="step"':""}></button>`).join("");
   document.querySelectorAll("[data-mdot]").forEach(b=>b.onclick=()=>{const j=+b.dataset.mdot;const d=j>M.i?1:-1;M.i=j;meetPaint(true,d)});
   $("#mPrev").disabled=M.i===0;$("#mNext").setAttribute("aria-label",M.i===S.length-1?"Finish":"Next");$("#mNext").classList.toggle("fin",M.i===S.length-1);
@@ -4608,9 +4762,11 @@ function rsvpRow(){const wk=curWk(),ids=members(),my=mine().rsvp?.[wk];const by=
 
 /* ================= Pray through the wall, one at a time ================= */
 const PN={i:0,list:[],n:0};
-function openPrayNow(){const L=[];for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t&&!p.ans)L.push({id,k,...p});
-  if(!L.length)return toast("No prayer requests yet. Share one first.");
-  L.sort((a,b)=>String(b.at).localeCompare(String(a.at)));PN.list=L;PN.i=0;PN.n=0;
+function openPrayNow(own){const L=[];
+  if(own===true){for(const [k,p] of Object.entries(state.pl||{}))if(p&&p.t&&!p.ans)L.push({id:myKey(),k,...p})}
+  else for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t&&!p.ans)L.push({id,k,...p});
+  if(!L.length)return toast(own===true?"Your prayer list is empty. Add something first.":"No prayer requests yet. Share one first.");
+  L.sort((a,b)=>String(b.at).localeCompare(String(a.at)));PN.list=L;PN.i=0;PN.n=0;PN.own=own===true;
   const art=artSrc(ART.findIndex(a=>/pray|gethsemane|agony/i.test(a[0]))>=0?ART.findIndex(a=>/pray|gethsemane|agony/i.test(a[0])):0);
   $("#layer").insertAdjacentHTML("beforeend",`<div class="qt" id="pn" role="dialog" aria-modal="true" aria-label="Pray through the prayer wall"><div class="qt-bg" style="background-image:url(${art})"></div><div class="qt-shade"></div>
     <header class="qt-top"><div class="qt-steps" id="pnSteps"></div><div class="qt-tools"><button class="mt-btn" id="pnX" aria-label="Close">${I.close}</button></div></header>
@@ -4620,13 +4776,15 @@ function openPrayNow(){const L=[];for(const id of members())for(const [k,p] of O
   $("#pnX").onclick=closePN;$("#pnSkip").onclick=()=>pnGo(false);$("#pnPray").onclick=()=>pnGo(true);
   let sx=null;const st=$("#pnStage");st.addEventListener("pointerdown",e=>sx=e.clientX);st.addEventListener("pointerup",e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(dx<-60)pnGo(false)});
   pnPaint()}
-function closePN(){const m=$("#pn");document.documentElement.classList.remove("meeting");if(!m)return;m.remove();if(view==="group"&&G.sub==="prayer")paintPrayer()}
-function pnGo(prayed){const p=PN.list[PN.i];if(prayed&&p){const key=p.id+":"+p.k;if(!mine().praying?.[key]&&!(G.ro&&G.on))gWrite({praying:{[key]:true}},1);PN.n++;burst($("#pnPray"),12);buzz(12)}
+function closePN(){const m=$("#pn");document.documentElement.classList.remove("meeting");if(!m)return;m.remove();if(PN.own&&view==="journal")render();if(view==="group"&&G.sub==="prayer")paintPrayer()}
+function pnGo(prayed){const p=PN.list[PN.i];if(prayed&&p&&PN.own){const v={...state.pl[p.k],last:new Date().toISOString(),n:(state.pl[p.k]?.n||0)+1,u:new Date().toISOString()};state.pl[p.k]=v;queue({pl:{[p.k]:v}});PN.n++;burst($("#pnPray"),12);buzz(12)}
+  else if(prayed&&p){const key=p.id+":"+p.k;if(!mine().praying?.[key]&&!(G.ro&&G.on))gWrite({praying:{[key]:true}},1);PN.n++;burst($("#pnPray"),12);buzz(12)}
   PN.i++;pnPaint(true)}
 function pnPaint(anim){const st=$("#pnStage");if(!st)return;const L=PN.list,p=L[PN.i];
   $("#pnSteps").innerHTML=L.length<=12?L.map((_,j)=>`<i class="${j<PN.i?"done":j===PN.i?"on":""}"></i>`).join(""):`<span class="pn-count">${Math.min(PN.i+1,L.length)} of ${L.length}</span>`;
-  if(!p){st.innerHTML=`<div class="qs qs-peace"><div class="qt-glow" aria-hidden="true">${I.logo}</div><div class="qt-k">Amen</div><h2 class="qt-q">You prayed for ${PN.n} ${PN.n===1?"request":"requests"}</h2><p class="qt-sub">“The prayer of a righteous person has great power as it is working.” James 5:16. Your group can see who's praying for them.</p></div>`;
+  if(!p){st.innerHTML=`<div class="qs qs-peace"><div class="qt-glow" aria-hidden="true">${I.logo}</div><div class="qt-k">Amen</div><h2 class="qt-q">You prayed for ${PN.n} ${PN.n===1?"request":"requests"}</h2><p class="qt-sub">“The prayer of a righteous person has great power as it is working.” James 5:16. ${PN.own?"Mark a prayer as answered in your journal when you see God at work.":"Your group can see who's praying for them."}</p></div>`;
     $("#pnSkip").hidden=true;$("#pnPray").textContent="Done";$("#pnPray").onclick=closePN}
+  else if(PN.own){st.innerHTML=`<div class="qs"><div class="qt-k">Your prayer list</div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">On your list for ${ago(p.at).replace(/ ago$/,"")}${p.n?` · prayed ${p.n} ${p.n===1?"time":"times"}`:""}</p></div>`}
   else{const nm=p.anon&&p.id!==myKey()?"Someone in your group":p.id===myKey()?"Your request":pname(p.id);const n=members().filter(id=>G.people[id].praying?.[p.id+":"+p.k]).length;
     st.innerHTML=`<div class="qs"><div class="pn-who">${p.anon&&p.id!==myKey()?`<span class="face anon">?</span>`:face(p.id)}<span>${esc(nm)}</span></div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">${n?`${n} ${n===1?"person is":"people are"} praying for this`:"Be the first to pray for this"} · shared ${ago(p.at)}</p></div>`}
   if(anim&&!reduced())st.firstElementChild?.animate([{opacity:0,transform:"translateX(30px)"},{opacity:1,transform:"none"}],{duration:500,easing:"cubic-bezier(.16,1,.3,1)"})}
@@ -4701,7 +4859,7 @@ function ogPick(i){const w=OG.words[i];const L=OG.L;if(!w)return;OG.sel=i;
 
 /* ---------- Today teaser ---------- */
 function stepGroupRefresh(){const el=$("#tsGrp");if(!el||view!=="today")return;const open=document.activeElement&&el.contains(document.activeElement);if(open)return;
-  el.innerHTML=stepGroupHTML();const day=curDay();$("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});$("#tsPray")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow()});$("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});stepSync(day)}
+  el.innerHTML=stepGroupHTML();const day=curDay();$("#tsGroup")?.addEventListener("click",()=>{stepMark(day,"g",true);setView("group")});$("#tsPray")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow()});$("#tsPrayed")?.addEventListener("click",()=>{stepMark(day,"g");buzz(20)});$("#tsMyList")?.addEventListener("click",()=>{stepMark(day,"g");openPrayNow(true)});stepSync(day)}
 function groupTeaser(){
   const w=WK(curWk());const L=G.live&&G.live.ph!=="end"&&Date.now()-(G.live.at||0)<3*36e5;const n=members().length;
   return `<button class="card gteaser" id="gTeaser" data-v="group"><div class="gt-l"><div class="kicker">${L?"Live quiz on now":"This week in your group"}</div><b>${esc(w.title)}</b><span>${esc(w.ref)}${n>1?` · ${n} members`:""}</span></div><span class="gt-r">${L?`<span class="pulse"></span>Join`:"Open"}${I.right}</span></button>`;

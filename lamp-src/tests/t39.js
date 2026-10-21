@@ -1,6 +1,6 @@
 // axe-core on the new screens: Today's step (each step open), review, How's Lamp, group Play, reader with bottom bar, settings
 const {chromium}=require(process.env.PW);const fs=require('fs');
-const AXE=fs.readFileSync(require.resolve('axe-core/axe.min.js',{paths:[__dirname,__dirname+'/axe']}),'utf8');const MOCK=fs.readFileSync(__dirname+'/mock.js','utf8');
+const AXE=fs.readFileSync(__dirname+'/axe/node_modules/axe-core/axe.min.js','utf8');const MOCK=fs.readFileSync(__dirname+'/mock.js','utf8');
 (async()=>{const b=await chromium.launch();const base='http://127.0.0.1:8765/lamp.html';
 const log=[];let fails=0;const ok=(c,m)=>{log.push((c?'PASS ':'FAIL ')+m);if(!c)fails++};
 for(const [w,cs] of [[390,'light'],[390,'dark'],[1440,'light'],[1440,'dark']]){
@@ -18,6 +18,12 @@ await p.evaluate(()=>{stepOpenAt(2)});await p.click('#rvShow');await run('review
 await p.evaluate(()=>{document.querySelector('#tMore').open=true});await run('more about this chapter','.tside');
 await p.evaluate(()=>setView('group'));await p.waitForTimeout(800);await p.click('.gtabs [data-gt="games"]');await p.waitForTimeout(400);await run('group play','#view');
 await p.evaluate(()=>setView('today'));await p.waitForTimeout(500);await p.evaluate(()=>openReader(curDay(),false));await p.waitForTimeout(2000);await run('reader','.reader');
-await p.evaluate(()=>closeReader());await p.evaluate(()=>openSettings());await p.waitForTimeout(500);await run('settings','#scrim');
+await p.evaluate(()=>closeReader());
+await p.evaluate(()=>{setView('group');});await p.waitForTimeout(900);await run('group this week + buddy','#view');
+await p.evaluate(()=>{const t=new Date().toISOString();state.pl={a:{t:'Rain for the farms',at:t,n:2},b:{t:'My job',at:t,ans:t,an:'Got it'}};jTab='pray';setView('journal')});await p.waitForTimeout(600);await run('journal prayers','#view');
+await p.evaluate(()=>{setView('today')});await p.waitForTimeout(500);await p.evaluate(()=>openExamen());await p.waitForTimeout(400);await run('examen','#scrim');await p.evaluate(()=>$('#scrim')?.remove());
+await p.evaluate(()=>openLeader());await p.waitForTimeout(400);await run('leader','#scrim');await p.evaluate(()=>$('#scrim')?.remove());
+await p.evaluate(()=>{openMeet();meetGo(1);meetGo(1)});await p.waitForTimeout(1500);await run('meeting read','#meet');await p.evaluate(()=>closeMeet());
+await p.evaluate(()=>openSettings());await p.waitForTimeout(500);await run('settings','#scrim');
 await ctx.close()}
 await b.close();console.log(log.join('\n'));console.log(fails?fails+' FAILED':'ALL PASS')})();

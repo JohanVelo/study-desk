@@ -123,7 +123,7 @@ def run():
         js(d, "closeMeet()"); time.sleep(0.6)
 
         # quiet time
-        js(d, "setView('today')"); time.sleep(1.2); tap(d, ".qtcard"); time.sleep(2); shot("16b-quiet-time")
+        js(d, "setSetting('allOpen',true);setView('today')"); time.sleep(1.2); tap(d, ".qtcard"); time.sleep(2); shot("16b-quiet-time")
         tap(d, "#qtNext"); time.sleep(6); shot("16c-quiet-time-read")
         note(wait(d, "QT.text.length>10", 5), "quiet time loads the verse")
         js(d, "closeQT()"); time.sleep(0.8)
@@ -138,7 +138,7 @@ def run():
         js(d, "openPassage(passFor('PSA',23),false)"); time.sleep(2.5)
         # the simulator has no voices installed and speech can stall the driver, so stand in a silent voice
         js(d, "window.__spoke=0;speechSynthesis.speak=u=>{window.__spoke++;setTimeout(()=>u.onend&&u.onend(),400)};speechSynthesis.cancel=()=>{}")
-        tap(d, "#rSpeak"); time.sleep(3); shot("20d-listen")
+        tap(d, "#dListen"); time.sleep(3); shot("20d-listen")
         st = js(d, "return [LSN.i, window.__spoke, speechSynthesis.getVoices().length]")
         note(bool(js(d, "return !!document.querySelector('#ls .ls-verse')||LSN.i>0")) and (st[0] or 0) > 1, f"listen mode moves verse by verse (verse, spoken, voices = {st})")
         js(d, "closeListen();closeReader()"); time.sleep(0.6)
@@ -147,6 +147,13 @@ def run():
         note("prayer" in (js(d, "return document.querySelector('#fdStage')?.textContent||''") or ""), "verses for how you feel show")
         js(d, "closeFeel()"); time.sleep(0.5)
         # original Greek words
+        # v23: my prayer list, evening Examen, easy mode
+        js(d, "jTab='pray';setView('journal')"); time.sleep(1.2)
+        js(d, "document.querySelector('#plT').value='Rain for the farms';document.querySelector('#plF').requestSubmit()"); time.sleep(1); shot("20f-my-prayers")
+        note(bool(js(d, "return document.querySelectorAll('.plc').length===1")), "my prayer list adds a prayer")
+        js(d, "setSetting('exAny',true);setView('today')"); time.sleep(1.2); js(d, "openExamen()"); time.sleep(1.2); shot("20g-examen")
+        js(d, "document.querySelector('#scrim')?.remove();setEasy(true);render()"); time.sleep(1.2); shot("20h-easy-mode")
+        js(d, "setEasy(false);render()"); time.sleep(0.6)
         js(d, "openPassage(passFor('JHN',19),false,30)"); time.sleep(2.5)
         js(d, "if(R.sel!==30)selectVerse(30)"); time.sleep(0.5); tap(d, "#vOrig")
         note(wait(d, "document.querySelectorAll('#ogW .og-w').length>10", 15), "original Greek words show")
