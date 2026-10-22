@@ -2034,6 +2034,17 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 .e-acts{justify-content:flex-end}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.wc,.who-cl li,.cn-g,.fq-f,.ord-done li,.pr-tiles i{animation:none!important;transition:none!important}}
+
+/* ===== v28: a peaceful field behind the whole app ===== */
+html{background:var(--bg)}body{background:transparent}
+.fieldbg{position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bg) center/cover no-repeat;overflow:hidden}
+.fieldbg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s var(--ease)}
+.fieldbg img.on{opacity:1}
+.fieldbg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) var(--fv1,38%),transparent) 0%,color-mix(in srgb,var(--bg) var(--fv2,8%),transparent) 55%,color-mix(in srgb,var(--bg) var(--fv3,40%),transparent) 100%)}
+html.plainbg .fieldbg{display:none}
+html:not(.plainbg) .rail{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1px 12px color-mix(in srgb,var(--bg) 80%,transparent)}
+@media (prefers-reduced-transparency:reduce){.fieldbg::after{background:color-mix(in srgb,var(--bg) 82%,transparent)}}
 </style>
 
 <div class="intro" id="intro" aria-label="Lamp is starting" role="presentation">
@@ -2061,6 +2072,7 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
   </div>
   <div class="skip" id="introSkip">Tap anywhere to skip</div>
 </div>
+<div class="fieldbg" id="fieldbg" aria-hidden="true"></div>
 <div class="app">
   <aside class="rail">
     <div class="brand"><span id="logo1"></span>Lamp</div>
@@ -2796,6 +2808,16 @@ async function paintFinds(){const el=$("#finds");if(!el)return;const r=rngFor("f
   el.querySelector("[data-art]").onclick=()=>openArt(ai);el.querySelector(".f-place").onclick=e=>openPic(e.currentTarget.dataset.pic,e.currentTarget.dataset.cap);
   el.querySelector("[data-fref]")?.addEventListener("click",e=>{const [b,c,v]=e.currentTarget.dataset.fref.split(".");openPassage(passFor(b,+c),false,+v)})}
 
+
+/* Field background: our own rendered Galilee field, by time of day; night in dark mode */
+function fieldBgT(){const h=new Date().getHours();if(isDark())return h>=5&&h<17?"hills":h<19&&h>=17?"dusk":"night";return h>=5&&h<15?"day":h<19&&h>=15?"gold":"dusk"}
+function applyFieldBg(){const el=document.getElementById("fieldbg");if(!el)return;const plain=state.settings.bg==="plain";document.documentElement.classList.toggle("plainbg",plain);if(plain)return;
+  const t=fieldBgT(),tall=innerHeight>innerWidth,src=`img/field/${t}-${tall?"tall":"wide"}.webp`;if(el.dataset.src===src)return;el.dataset.src=src;
+  el.style.backgroundImage=`url(img/field/${t}-tiny.jpg)`;const im=new Image();im.alt="";im.decoding="async";im.src=src;
+  im.onload=()=>{el.querySelectorAll("img").forEach(x=>{x.classList.remove("on");setTimeout(()=>x.remove(),1300)});el.appendChild(im);requestAnimationFrame(()=>im.classList.add("on"))}}
+addEventListener("resize",()=>{clearTimeout(applyFieldBg._t);applyFieldBg._t=setTimeout(applyFieldBg,300)});
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyFieldBg);
+setInterval(applyFieldBg,6e5);
 const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Learn"],["journal","Journal"],["ask","Ask"]];
 
 /* ================= State & storage ================= */
@@ -2861,7 +2883,7 @@ async function connect(){
 }
 function setSync(on){document.querySelectorAll(".sync").forEach(s=>{s.classList.toggle("on",on);s.querySelector("span").textContent=on?"Synced to your account":"Saved on this device"})}
 function setSetting(k,v){state.settings[k]=v;queue({settings:{[k]:v}});}
-function applyTheme(){applyEasy();const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+function applyTheme(){applyEasy();setTimeout(applyFieldBg);const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
 
 /* ================= Scripture text ================= */
 let BIBLE=null,biblePromise=null;
@@ -4066,6 +4088,7 @@ function openSettings(){
     <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="setH">Settings</h2><button class="icon-btn" id="setX" aria-label="Close settings">${I.close}</button></div>
     <h3 class="set-g first">Look and feel</h3>
     <div class="field"><span>Appearance</span><div class="opts">${[["system","Match device"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-opt="${k}" aria-pressed="${s.theme===k}">${l}</button>`).join("")}</div></div>
+    <div class="field"><span>Background</span><small>A peaceful field behind every screen that follows the time of day, or a plain colour.</small><div class="opts"><button data-bgopt="field" aria-pressed="${s.bg!=="plain"}">Field</button><button data-bgopt="plain" aria-pressed="${s.bg==="plain"}">Plain</button></div></div>
     <div class="field"><span>Easy mode</span><small>Bigger text, the chapter read aloud first, and a slower reading voice. Good for anyone who finds small text or long reading hard.</small><div class="opts"><button data-easy="1" aria-pressed="${!!s.easy}">On</button><button data-easy="0" aria-pressed="${!s.easy}">Off</button></div></div>
     <div class="field"><span>Sounds and touch</span><small>A soft chime when you finish a chapter, and a gentle tap on phones that support it.</small><div class="opts"><button data-snd="1" aria-pressed="${s.sound!==false}">Chime on</button><button data-snd="0" aria-pressed="${s.sound===false}">Silent</button></div></div>
     <div class="field"><span>Opening animation</span><small>The lamp lights up each time you open Lamp. Tap it to skip.</small><div class="opts"><button data-intro="1" aria-pressed="${s.intro!==false}">On</button><button data-intro="0" aria-pressed="${s.intro===false}">Off</button><button id="replayIntro">Replay it now</button></div></div>
@@ -4091,6 +4114,7 @@ function openSettings(){
   document.querySelectorAll("[data-wg]").forEach(b=>b.onclick=()=>{setSetting("weekGoal",+b.dataset.wg);document.querySelectorAll("[data-wg]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   document.querySelectorAll("[data-mode-opt]").forEach(b=>b.onclick=()=>{setSetting("mode",b.dataset.modeOpt);document.querySelectorAll("[data-mode-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   syncNote();$("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
+  document.querySelectorAll("[data-bgopt]").forEach(b=>b.onclick=()=>{setSetting("bg",b.dataset.bgopt);applyFieldBg();document.querySelectorAll("[data-bgopt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   if($("#offBible")){offCheck();$("#offBible").onclick=()=>offSave("bible");$("#offOrig").onclick=()=>offSave("orig")}
   document.querySelectorAll("[data-shrd]").forEach(b=>b.onclick=()=>{const on=b.dataset.shrd==="1";setSetting("shareRead",on);document.querySelectorAll("[data-shrd]").forEach(x=>x.setAttribute("aria-pressed",x===b));
