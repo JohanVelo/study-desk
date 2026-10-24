@@ -14,7 +14,7 @@ const tag=`${w}-${cs.trim()}`;const shot=n=>p.screenshot({path:`${out}/${n}-${ta
 await p.goto(base);await p.waitForTimeout(2500);
 ok(await p.$$eval('.wks-d li',x=>x.length)===7,tag+' seven days in the strip');
 ok(/6/.test(await p.textContent('.wks-fl b')),tag+' streak 6');
-ok(/days this week/.test(await p.textContent('.wks-sub'))&&/% of the path/.test(await p.textContent('.wks-sub')),tag+' strip text');
+ok(/days this week|Weekly goal met/.test(await p.textContent('.wks-sub'))&&/% of the path/.test(await p.textContent('.wks-sub')),tag+' strip text');
 const box=await p.$eval('.dayhead',e=>{const r=e.getBoundingClientRect(),s=e.querySelector('.wks').getBoundingClientRect();return [r.right,s.right,s.left,r.left]});ok(box[1]<=box[0]+1&&box[2]>=box[3]-1,tag+' strip fits '+box);
 await shot('today');
 await p.click('#markDone');await p.waitForTimeout(1600);

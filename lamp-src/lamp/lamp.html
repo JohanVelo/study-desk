@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
 /* Layout: side rail on wide screens, bottom tab bar on phones; one calm reading column (max 780px); a full-screen reader sheet for scripture. */
 :root{
@@ -256,7 +256,7 @@ details.stage.fin:not([open]){opacity:.82}
 @media (hover:hover){.sug-list button:hover{background:var(--sunk)!important}}
 .lsec[hidden]{display:none!important}
 .ltabs{margin-inline:-4px;padding-inline:4px}
-.ltabs button{min-height:40px}
+.ltabs button{min-height:44px}
 .ltabs button[aria-selected="true"]{background:color-mix(in srgb,var(--accent) 16%,var(--surface));border-color:var(--accent);color:var(--ink)}
 .gteaser.lteaser{order:0}
 .subnav button{flex:none;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 15px;font-weight:600;font-size:.9rem;color:var(--muted)}
@@ -337,7 +337,7 @@ details.stage.fin:not([open]){opacity:.82}
 
 /* Journal */
 .seg{display:inline-flex;padding:4px;border-radius:12px;background:var(--sunk);gap:4px;align-self:flex-start;max-width:100%}
-.seg button{border:0;background:none;padding:8px 14px;border-radius:9px;font-weight:600;font-size:.92rem;color:var(--muted)}
+.seg button{border:0;background:none;padding:8px 14px;min-height:44px;border-radius:9px;font-weight:600;font-size:.92rem;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
 .entry{display:flex;flex-direction:column;gap:8px}
 .entry-head{display:flex;justify-content:space-between;gap:12px;align-items:baseline;flex-wrap:wrap}
@@ -497,7 +497,8 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .hero-art .cap{position:absolute;left:16px;right:16px;bottom:12px;z-index:1;color:#EDE6D6;font:500 .78rem var(--f-body);text-align:left;display:flex;flex-direction:column;gap:1px;letter-spacing:.02em}
 .hero-art .cap b{font:italic 600 1.15rem var(--f-display);letter-spacing:0}
 @media (min-width:1240px){.hero-art{aspect-ratio:2.1/1}}
-@media (max-width:560px){.hero-art{margin:-22px -22px 18px;width:calc(100% + 44px)}}
+@media (max-width:560px){.hero-art{margin:-22px -22px 18px;width:calc(100% + 44px)}
+@media (max-width:560px){.hero-art{aspect-ratio:3.2/1}.hero-art img{object-position:50% 30%}}}
 .rart{margin:6px auto 26px;max-width:520px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .rart button{border:0;padding:0;background:none;cursor:zoom-in;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);display:block}
 .rart img{display:block;width:100%;max-height:58vh;object-fit:contain;background:#111}
@@ -788,6 +789,7 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .rhead h2{font-size:2rem;margin-top:6px}
 .rhead p{color:var(--muted);font-size:.9rem;margin-top:8px}
 .scripture{font-family:var(--f-text);font-size:var(--rs,1.15rem);line-height:1.8;color:var(--ink);font-optical-sizing:auto}
+html.rfclear .scripture,html.rfclear .devo-s p{font-family:"Atkinson Hyperlegible",var(--f-body);letter-spacing:.012em;word-spacing:.08em;line-height:1.9}
 .scripture p{margin:0 0 1em}
 .scripture .poem{margin:0 0 1em;padding-left:1.4em}
 .scripture .poem .ln{display:block;text-indent:-1em;padding-left:1em}
@@ -1812,6 +1814,14 @@ html.easy .tside .more{display:none}
 .wks-d li.fut i{border-style:dashed;border-color:var(--muted);opacity:.45}
 .wks-d li>span[aria-hidden]{font-size:.7rem;font-weight:700;color:var(--muted);letter-spacing:.04em}.wks-d li.now>span[aria-hidden]{color:var(--accent)}
 .wks-sub{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;font-size:.86rem;color:var(--muted);font-weight:500}.wks-sub .ok{color:var(--ok);font-weight:700}
+.devo{display:grid;gap:8px}.devo-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.devo-by{font-size:.86rem;color:var(--muted);margin-top:2px}
+.devo-ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--accent)}.devo-ic svg{width:20px;height:20px}
+.devo-v{font-family:var(--f-display);font-size:1.32rem;line-height:1.3;margin:4px 0 0}.devo-v.big{font-size:1.6rem;margin-top:10px}.devo cite,.devo-s cite{font-style:normal;font-weight:600;font-size:.88rem;color:var(--accent)}
+.devo-x{margin:2px 0 4px;color:var(--ink);line-height:1.6}.devo-s p{line-height:1.7;margin:14px 0 0;font-size:1.04rem}.devo-s .pager{margin-top:18px}.devo-s .devo-src{font-size:.82rem;color:var(--muted);margin-top:18px}
+html:not(.plainbg) .view .lede,html:not(.plainbg) .side-k,html:not(.plainbg) .feelrow>.kicker{background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:6px 12px;border-radius:14px;width:fit-content;max-width:100%}
+@media (pointer:coarse){.btn.sm,[data-rsvp]{min-height:44px}}
+html:not(.plainbg) .topbar{background:color-mix(in srgb,var(--bg) 66%,transparent);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);border-bottom:0;border-radius:0 0 22px 22px;box-shadow:0 6px 24px -14px rgba(0,0,0,.35)}
+html:not(.plainbg) .subnav{background:color-mix(in srgb,var(--bg) 62%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-radius:18px;padding-inline:6px;margin-inline:-6px}
 html:not(.plainbg) .wks-sub{background:color-mix(in srgb,var(--bg) 74%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding:4px 12px;border-radius:999px;width:fit-content}html:not(.plainbg) .wks-sub .ok{color:color-mix(in srgb,var(--ok) 82%,var(--ink))}
 .wks-sub .chip{margin-left:4px}
 @media (min-width:900px){.dayhead .wks{align-items:flex-end}.wks-sub{justify-content:flex-end}}
@@ -1944,7 +1954,7 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 .dayhead{flex-direction:column;align-items:stretch!important;gap:14px}
 .fieldhero{position:relative;border-radius:26px;overflow:hidden;height:clamp(196px,24vw,250px);box-shadow:var(--shadow);isolation:isolate}
 .fieldhero .mdw{position:absolute;inset:0;width:100%;height:100%}
-.fh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 74%;transform:scaleX(-1)}@media (max-width:560px){.fh-img{object-position:22% 78%;transform:scale(1.55);transform-origin:24% 74%}}
+.fh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 74%;transform:scaleX(-1)}@media (max-width:560px){.fh-img{object-position:22% 78%;transform:scale(-1.5,1.5);transform-origin:45% 74%}}
 .fieldhero:has(.fh-img)::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,0) 55%)}.fh-dark.fieldhero:has(.fh-img)::before{background:linear-gradient(180deg,rgba(10,14,28,.5),rgba(10,14,28,0) 60%)}
 .fieldhero .mdw svg{width:100%;height:100%;display:block}
 .fh-txt{position:relative;z-index:2;padding:20px 22px;color:#1D2420;max-width:70%}.fh-dark .fh-txt{color:#EEF1EA}.fh-dark .fh-txt h1{text-shadow:0 1px 14px rgba(0,0,0,.45)}
@@ -2043,12 +2053,13 @@ html{background:var(--bg)}body{background:transparent}
 .fieldbg{position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bg) center/cover no-repeat;overflow:hidden}
 .fieldbg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s var(--ease)}
 .fieldbg img.on{opacity:1;animation:fbDrift 90s ease-in-out infinite alternate}
+html.scrolling .fieldbg img.on{animation-play-state:paused}
 @keyframes fbDrift{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.07) translate(-1.2%,-.6%)}}
 .fbird{position:absolute;left:0;top:0;width:34px;height:20px;color:#2B2A33;opacity:.82;will-change:transform;animation:fbFly var(--fd,16s) linear forwards}
-.fbird .w{transform-origin:17px 10px;animation:fbFlap .34s ease-in-out infinite alternate}
+.fbird .w{transform-origin:17px 9px;transform-box:view-box;animation:fbFlap .42s ease-in-out infinite alternate}
 
 @keyframes fbFly{0%{transform:translate(-6vw,var(--y0)) scale(var(--s))}25%{transform:translate(22vw,calc(var(--y0) - 3vh)) scale(var(--s))}50%{transform:translate(50vw,calc(var(--y0) + 1vh)) scale(var(--s))}75%{transform:translate(78vw,calc(var(--y0) - 4vh)) scale(var(--s))}100%{transform:translate(108vw,calc(var(--y0) - 2vh)) scale(var(--s))}}
-@keyframes fbFlap{from{transform:scaleY(1)}to{transform:scaleY(-.35)}}
+@keyframes fbFlap{from{transform:scaleY(1)}to{transform:scaleY(-.55) translateY(-1px)}}
 @media (prefers-reduced-motion:reduce){.fieldbg img.on{animation:none}.fbird{display:none}}
 .fieldbg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) var(--fv1,38%),transparent) 0%,color-mix(in srgb,var(--bg) var(--fv2,8%),transparent) 55%,color-mix(in srgb,var(--bg) var(--fv3,40%),transparent) 100%)}
 html.plainbg .fieldbg{display:none}
@@ -2174,7 +2185,7 @@ const STAGES=[
   ]},
   {book:"LUK",title:"The full story",blurb:"Jesus again, now in rich detail, with famous parables you will not find in Mark.",act:6,chapters:[
     ["Two births announced","Luke explains why he is writing. An angel tells Zechariah he will have a son (John) and tells Mary she will give birth to Jesus. Mary sings."],
-    ["Jesus is born","Born in Bethlehem and laid in a manger. Angels appear to shepherds, old Simeon and Anna recognize the baby, and at 12 Jesus stays behind in the temple."],
+    ["Jesus is born","Born in Bethlehem and laid in a manger. Angels appear to shepherds, old Simeon and Anna recognise the baby, and at 12 Jesus stays behind in the temple."],
     ["John prepares the way","John preaches a baptism of repentance. Jesus is baptized, and Luke traces his family tree all the way back to Adam."],
     ["Mission statement","Jesus resists temptation, then reads Isaiah in his hometown synagogue: good news for the poor, freedom for prisoners. They try to throw him off a cliff."],
     ["Fishing for people","A huge catch of fish, and Peter leaves everything to follow. Jesus heals a man with leprosy and a paralyzed man, and calls Levi the tax collector."],
@@ -2308,7 +2319,7 @@ const STAGES=[
     ["Joseph in Potiphar's house","Joseph rises as a slave, refuses his master's wife, is falsely accused and thrown in prison. \"But Yahweh was with Joseph.\""],
     ["Dreams in prison","Joseph explains the dreams of Pharaoh's cupbearer and baker. Both come true, but the cupbearer forgets him."],
     ["Pharaoh's dreams","Joseph explains Pharaoh's dreams: seven years of plenty, then seven of famine. In one day he goes from prisoner to Egypt's second in command."],
-    ["The brothers arrive","Famine drives Joseph's brothers to Egypt for grain. He recognizes them, they don't recognize him, and he tests them."],
+    ["The brothers arrive","Famine drives Joseph's brothers to Egypt for grain. He recognises them, they don't recognise him, and he tests them."],
     ["Benjamin comes","The brothers return with the youngest, Benjamin. Joseph throws them a feast and has to leave the room to weep."],
     ["Judah steps up","Joseph frames Benjamin with a silver cup. Judah, who once sold Joseph, offers himself as a slave in Benjamin's place."],
     ["\"I am Joseph\"","Joseph reveals who he is and forgives his brothers: \"God sent me before you to preserve life.\""],
@@ -2383,7 +2394,7 @@ const TERMS=[
   ["Righteous / justified","ideas","Being in right relationship with God. Genesis 15:6 says Abraham was counted righteous because he believed, and Romans builds on that."],
   ["Holy Spirit","ideas","God's own presence and power. In Acts the Spirit fills ordinary believers and makes them bold."],
   ["Parable","ideas","A short story with a twist that teaches about God's kingdom. It invites you to find yourself in it."],
-  ["Unclean spirit / demon","ideas","Evil spiritual beings that harm people. In the Gospels they always recognize Jesus and must obey him."],
+  ["Unclean spirit / demon","ideas","Evil spiritual beings that harm people. In the Gospels they always recognise Jesus and must obey him."],
   ["Clean and unclean","practices","Purity rules in the Law about food, disease and contact with death. Being unclean was not the same as sinning, but it kept you out of worship for a time."],
   ["Sabbath","practices","The seventh day (Friday sunset to Saturday sunset), set apart for rest, as God rested after creation. Many of Jesus' arguments are about it."],
   ["Passover","practices","The yearly feast remembering how God rescued Israel from Egypt and death \"passed over\" homes marked by a lamb's blood (Exodus 12). Jesus died at Passover."],
@@ -2830,9 +2841,10 @@ function fieldBird(){clearTimeout(fieldBird._t);fieldBird._t=setTimeout(fieldBir
   const el=document.getElementById("fieldbg");if(!el||document.hidden||state.settings.bg==="plain"||fieldBgT()==="night"||matchMedia("(prefers-reduced-motion: reduce)").matches||el.querySelector(".fbird"))return;
   const b=document.createElement("div");b.className="fbird";const tall=innerHeight>innerWidth;
   b.style.cssText=`--y0:${(tall?14:10)+Math.random()*16}vh;--s:${tall?.8:1};--fd:${13+Math.random()*6}s`;
-  b.innerHTML='<svg viewBox="0 0 34 20" width="34" height="20" fill="currentColor"><path d="M31 10C29 8.6 26 8.4 22 8.8L13 9.2 2.5 5 9.5 10 2.5 15 13 10.8 22 11.2C26 11.6 29 11.4 31 10Z"/><g class="w"><path d="M24 9.2C21 5 16 1.4 8 .4c5 2.4 9 5.6 11 8.9zM24 10.8C21 15 16 18.6 8 19.6c5-2.4 9-5.6 11-8.9z"/></g></svg>';
+  b.innerHTML='<svg viewBox="0 0 34 20" width="34" height="20" fill="currentColor"><g class="w"><path d="M1 9C6 2.5 11 3 15.6 8.6c.6.7 2.2.7 2.8 0C23 3 28 2.5 33 9c-5-3-10-2.4-14.4 2.6-.9 1-3.3 1-4.2 0C10 6.6 6 6 1 9z"/></g></svg>';
   b.addEventListener("animationend",e=>{if(e.animationName==="fbFly")b.remove()});el.appendChild(b)}
 setTimeout(fieldBird,7000);
+addEventListener("scroll",()=>{const h=document.documentElement;if(!h.classList.contains("scrolling"))h.classList.add("scrolling");clearTimeout(h._sc);h._sc=setTimeout(()=>h.classList.remove("scrolling"),220)},{passive:true,capture:true});
 addEventListener("resize",()=>{clearTimeout(applyFieldBg._t);applyFieldBg._t=setTimeout(applyFieldBg,300)});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyFieldBg);
 setInterval(applyFieldBg,6e5);
@@ -2861,7 +2873,7 @@ function merge(remote){
   for(const [k,v] of Object.entries(remote.saved||{})){ const mine=state.saved[k]; if(!(k in state.saved)||v===null||(v&&mine&&((v.m||0)>(mine.m||0)||(v.lr||"")>(mine.lr||"")))) state.saved[k]=v; }
   for(const k of ["pl","ex"])for(const [id,v] of Object.entries(remote[k]||{})){const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
   for(const [k,v] of Object.entries(remote.step||{})){ if(v&&typeof v==="object") state.step[k]={...(state.step[k]||{}),...v}; }
-  for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)) state.hl[k]=v; }
+  for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)||!(pending.hl&&k in pending.hl)) state.hl[k]=v; }
   for(const [k,v] of Object.entries(remote.qt||{})){ if(v&&(!state.qt[k]||(v.at||"")>(state.qt[k].at||""))) state.qt[k]=v; }
   if(remote.settings) state.settings={...DEFAULTS,...state.settings,...remote.settings};
 }
@@ -2875,7 +2887,7 @@ async function flush(){
   if(!docRef||!Object.keys(pending).length) return;
   const body=pending; pending={};
   try{ await docRef.update(body); retryN=0; }
-  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
+  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
     clearTimeout(retryT); retryT=setTimeout(flush,Math.min(300000,5000*2**Math.min(retryN++,6))); } }
   outboxSave(); syncNote();
 }
@@ -2895,16 +2907,17 @@ async function connect(){
     docRef=db.collection("data/users/"+id).doc("progress");
     const snap=await docRef.get();
     if(snap.exists){ const local=JSON.parse(JSON.stringify(pending)); merge(snap.data()); state=deepMerge(state,local); lsWrite(); if(Object.keys(pending).length)setTimeout(flush,300); }
-    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
+    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
     setSync(true); applyTheme(); render();
   }catch(e){ docRef=null; }
 }
 function setSync(on){document.querySelectorAll(".sync").forEach(s=>{s.classList.toggle("on",on);s.querySelector("span").textContent=on?"Synced to your account":"Saved on this device"})}
 function setSetting(k,v){state.settings[k]=v;queue({settings:{[k]:v}});}
-function applyTheme(){applyEasy();setTimeout(applyFieldBg);const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+function applyTheme(){applyEasy();document.documentElement.classList.toggle("rfclear",state.settings.rf==="clear");setTimeout(applyFieldBg);const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
 
 /* ================= Scripture text ================= */
 let BIBLE=null,biblePromise=null;
+function idle(f){("requestIdleCallback" in window)?requestIdleCallback(()=>f(),{timeout:2500}):setTimeout(f,900)}
 function loadBible(){ if(!biblePromise) biblePromise=fetch("bible.json").then(r=>{if(!r.ok)throw new Error("http");return r.json()}).then(j=>(BIBLE=j)).catch(()=>{biblePromise=null;return null}); return biblePromise; }
 function chapterBlocks(p){ return BIBLE?.[p.book]?.[String(p.ch)]||null; }
 const TRN={WEB:"World English Bible",BSB:"Berean Standard Bible",NHEB:"New Heart English Bible",KJV:"King James Version",ASV:"American Standard Version",BBE:"Bible in Basic English",YLT:"Young's Literal Translation"};
@@ -3013,7 +3026,8 @@ function renderNav(){
   $("#lampnote").textContent=s?`Burning for ${s} day${s===1?"":"s"}`:"Light it with today's reading";
   requestAnimationFrame(placeInd);gDots();
 }
-function placeInd(){
+function placeInd(){if(!placeInd._r){placeInd._r=requestAnimationFrame(()=>{placeInd._r=0;placeInd._do()})}}
+placeInd._do=function(){
   const nb=$("#navBtns [aria-current]"),ni=$("#navInd");
   if(nb&&ni&&nb.offsetParent){ni.style.width=nb.offsetWidth+"px";ni.style.height=nb.offsetHeight+"px";ni.style.transform=`translateY(${nb.offsetTop}px)`}
   const tb=$("#tabBtns [aria-current]"),ti=$("#tabInd");
@@ -3053,6 +3067,7 @@ function vToday(){
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
   <section class="card fresh" data-fresh="mini" aria-label="New today">${freshHTML(false)}</section>
+  ${state.settings.devo===false?"":`<section class="card devo" id="devo" aria-label="A word for today" hidden></section>`}
   </div><aside class="tside">
   <details class="card more" id="tMore" ${firstOfBook?"open":""}>
     <summary><div><div class="kicker">More about this chapter</div><h2>${esc(b.name)}, the big story and pictures</h2></div><span class="chev">${I.chev}</span></summary>
@@ -3088,7 +3103,7 @@ function weekRead(){const k=myReadKeys();return ringWeek().filter(x=>k.has(x)).l
 function weekStrip(pct){const wk=ringWeek(),mk=myReadKeys(),t=hereDay(),n=weekRead(),g=weekGoal(),s=streak(),L=["M","T","W","T","F","S","S"],F=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
   return `<div class="wks"><div class="wks-row"><span class="wks-fl${s?" on":""}">${I.flame}<b class="odo">${s}</b><small>day streak</small></span>
     <ol class="wks-d">${wk.map((k,i)=>`<li class="${mk.has(k)?"on":""}${k===t?" now":""}${k>t?" fut":""}" data-wk="${k}"><i>${mk.has(k)?I.check:""}</i><span aria-hidden="true">${L[i]}</span><span class="sr-only">${F[i]}${mk.has(k)?", read":""}</span></li>`).join("")}</ol></div>
-    <div class="wks-sub"><span class="${n>=g?"ok":""}">${n} of ${g} days this week</span><span aria-hidden="true">·</span><span>${pct}% of the path</span>${buddyChip()}</div></div>`}
+    <div class="wks-sub"><span class="${n>=g?"ok":""}">${n>=g?`Weekly goal met · ${n} day${n===1?"":"s"}`:`${n} of ${g} days this week`}</span><span aria-hidden="true">·</span><span>${pct}% of the path</span>${buddyChip()}</div></div>`}
 function weekChip(){const n=weekRead(),g=weekGoal();return `<span class="chip${n>=g?" ok":""}" title="Your goal is ${g} days a week">${n>=g?I.check:""}${Math.min(n,7)} of ${g} days this week</span>`}
 function buddyId(){const b=state.settings.buddy;return G.on&&b&&G.people[b]&&b!==myKey()?b:null}
 function buddyStreak(b){const A=new Set([...myReadKeys(),...Object.keys(mine().rd||{})]),B=G.people[b]?.rd||{};const s=new Set();for(const k of A)if(B[k])s.add(dayKey(new Date(k+"T12:00")));return runTo(s,new Date())}
@@ -3140,7 +3155,7 @@ function journeyCard(total){const pc=total/TOTAL,R=46,L=+(2*Math.PI*R).toFixed(1
     <div class="jr-txt"><div class="kicker">Your journey</div><h2>${total} of ${TOTAL} chapters</h2><p class="muted">${total>=TOTAL?"You've read the whole path.":`Now in stage ${cur.stage+1} of ${STAGES.length}: ${esc(st.title)}`}</p>
       ${total?`<button class="btn sm" id="storyGo">${I.spark}Your Lamp story</button>`:""}</div></div>
     <div class="bshelf" role="list" aria-label="Your bookshelf: one book for each stage">${STAGES.map((sg,i)=>{const days=PLAN.filter(p=>p.stage===i),d=days.filter(p=>isDone(p.day)).length,f=d/days.length;
-      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
+      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}${STAGES.filter(x=>x.book===sg.book).length>1?` ${days[0].ch}–${days[days.length-1].ch}`:""}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
 
 /* ================= Your Lamp story ================= */
 const ST={i:0,t:null,hold:false,list:[]};
@@ -3423,11 +3438,11 @@ function markDone(day,btn){
 }
 const after={
   today(){
-    srMigrate();
+    srMigrate();fillDevo();
     document.querySelectorAll("[data-fresh]").forEach(wireFresh);
     const day=curDay();const p=PLAN[day-1];
-    if(!GEO)loadGeo().then(()=>view==="today"&&refreshThumbs());
-    if(!BIBLE) loadBible().then(()=>{if(view!=="today")return;const m=minsFor(p),el=$("#mins");if(m&&el){el.textContent=`About ${m} min`;el.hidden=false}fillVotd()});
+    if(!GEO)idle(()=>loadGeo().then(()=>view==="today"&&refreshThumbs()));
+    if(!BIBLE) idle(()=>loadBible().then(()=>{if(view!=="today")return;const m=minsFor(p),el=$("#mins");if(m&&el){el.textContent=`About ${m} min`;el.hidden=false}fillVotd()}));
     fillVotd();
     document.querySelectorAll("[data-feel]").forEach(b=>b.onclick=()=>openFeel(b.dataset.feel));
     if(HAS_ORIG)(window.requestIdleCallback||setTimeout)(()=>fillWotd(),{timeout:2500});
@@ -3685,7 +3700,7 @@ function vJournal(){
   const entries=Object.entries(state.notes).filter(([,n])=>n&&(n.what||n.shows||n.stands)).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const saved=Object.entries(state.saved).filter(([,v])=>v).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const head=`<div><h1 class="page-h">Journal</h1></div>
-  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorize</button><button data-tab="pray" aria-pressed="${jTab==="pray"}">Prayers${plOpen().length?`<span class="segn"> · ${plOpen().length}</span>`:""}</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
+  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorise</button><button data-tab="pray" aria-pressed="${jTab==="pray"}">Prayers${plOpen().length?`<span class="segn"> · ${plOpen().length}</span>`:""}</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
   if(jTab==="hl")return head+hlView();
   if(jTab==="pray")return head+plView();
   if(jTab==="memo"){
@@ -3828,7 +3843,7 @@ function renderScripture(blocks){
 }
 function nbrChap(p,dir){let i=BCODES.indexOf(p.book),c=p.ch+dir;if(c<1){i--;if(i<0)return null;c=chCount(BCODES[i])}else if(c>chCount(p.book)){i++;if(i>=BCODES.length)return null;c=1}return passFor(BCODES[i],c)}
 function renderDock(){const d=$("#rDock");if(!d||!R)return;const p=R.p,pr=nbrChap(p,-1),nx=nbrChap(p,1),done=R.day&&isDone(R.day);
-  d.innerHTML=`<button id="dPrev" ${pr?"":"disabled"} aria-label="${pr?"Previous chapter: "+esc(refName(pr)):"No previous chapter"}">${I.left}<span>Back</span></button>
+  d.innerHTML=`<button id="dPrev" ${pr?"":"disabled"} aria-label="${pr?"Previous chapter: "+esc(refName(pr)):"No previous chapter"}">${I.left}<span>Previous</span></button>
     ${"speechSynthesis" in window?`<button id="dListen">${I.speak}<span>Listen</span></button>`:""}
     <button id="dText">${I.aa}<span>Text</span></button>
     ${R.day?`<button id="dDone" class="${done?"on":""}" aria-pressed="${!!done}">${I.check}<span>${done?"Read":"Mark read"}</span></button>`:""}
@@ -3929,12 +3944,14 @@ function toggleFontPop(){
     ${R?`<div class="field"><span>More versions</span><small>These are under copyright, so they open this chapter on Bible.com.</small><div class="trout">${Object.keys(TRANS).filter(k=>!TRN[k]).map(k=>`<a href="https://www.bible.com/bible/${TRANS[k]}/${R.p.book}.${R.p.ch}.${k}" target="_blank" rel="noopener">${k}${I.open}</a>`).join("")}</div></div>`:""}
     <div class="field"><span>Page</span><div class="opts pg-opts">${[["app","Match app"],["paper","Paper"],["night","Night"]].map(([k,l])=>`<button data-page="${k}" aria-pressed="${(s.page||"app")===k}"><i class="pg-sw pgs-${k}" aria-hidden="true"></i>${l}</button>`).join("")}</div></div>
     <div class="field"><span>Text size</span><div class="opts">${[["s","Small"],["m","Medium"],["l","Large"],["xl","Huge"]].map(([k,l])=>`<button data-size="${k}" aria-pressed="${s.size===k}">${l}</button>`).join("")}</div></div>
+    <div class="field"><span>Letters</span><small>Clear letters are easier to read for many people, including with dyslexia.</small><div class="opts"><button data-rf="classic" aria-pressed="${s.rf!=="clear"}">Classic</button><button data-rf="clear" aria-pressed="${s.rf==="clear"}">Clear</button></div></div>
     <div class="field"><span>Verse numbers</span><div class="opts"><button data-nums="1" aria-pressed="${!!s.nums}">Show</button><button data-nums="0" aria-pressed="${!s.nums}">Hide</button></div></div>
     <div class="field"><span>Reading voice speed</span><div class="opts">${[[.85,"Slow"],[1,"Normal"],[1.2,"Fast"]].map(([k,l])=>`<button data-rate="${k}" aria-pressed="${s.rate==k}">${l}</button>`).join("")}</div></div>
   </div>`);
   const pop=$("#fontpop");
   pop.querySelectorAll("[data-rt]").forEach(b=>b.onclick=async()=>{setSetting("rt",b.dataset.rt);pop.querySelectorAll("[data-rt]").forEach(x=>x.setAttribute("aria-pressed",x===b));stopSpeak();const sc=$("#rScroll"),top=sc.scrollTop;await loadText();sc.scrollTop=top;pop.remove()});
   pop.querySelectorAll("[data-page]").forEach(b=>b.onclick=()=>{const k=b.dataset.page;setSetting("page",k);const rd=$(".reader");rd.classList.remove("pg-paper","pg-night");if(k!=="app")rd.classList.add("pg-"+k);pop.querySelectorAll("[data-page]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+  pop.querySelectorAll("[data-rf]").forEach(b=>b.onclick=()=>{setSetting("rf",b.dataset.rf);document.documentElement.classList.toggle("rfclear",b.dataset.rf==="clear");pop.querySelectorAll("[data-rf]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-size]").forEach(b=>b.onclick=()=>{setSetting("size",b.dataset.size);$("#scr").style.setProperty("--rs",SIZES[b.dataset.size]);pop.querySelectorAll("[data-size]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-nums]").forEach(b=>b.onclick=()=>{const on=b.dataset.nums==="1";setSetting("nums",on);$("#scr").classList.toggle("nonum",!on);pop.querySelectorAll("[data-nums]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   pop.querySelectorAll("[data-rate]").forEach(b=>b.onclick=()=>{setSetting("rate",+b.dataset.rate);pop.querySelectorAll("[data-rate]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(speaking){stopSpeak();toggleSpeak()}});
@@ -3967,6 +3984,25 @@ function closeReader(){
   if(rd&&!reduced()&&rd.animate){rd.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(18px)"}],{duration:220,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"}).onfinish=done}else done();
 }
 const lastPt={};addEventListener("pointerdown",e=>{lastPt.x=e.clientX;lastPt.y=e.clientY},{capture:true,passive:true});
+
+/* ================= Morning and Evening: C. H. Spurgeon (1866), public domain; fun/me/MM.json = per day [mVerse,mRef,mText,eVerse,eRef,eText] ================= */
+const DEVO={};
+function devoLoad(m){return DEVO[m]||(DEVO[m]=fetch(`fun/me/${String(m).padStart(2,"0")}.json`).then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>{delete DEVO[m];return null}))}
+function devoNow(d=new Date()){const eve=d.getHours()>=16||d.getHours()<3;const x=d.getHours()<3?new Date(d-864e5):d;return{m:x.getMonth()+1,d:x.getDate(),eve}}
+function devoRefKey(r){const p=parseRef(String(r).split(/[;,–-]/)[0]);return p?`${p.b}.${p.c}.${p.v||1}`:null}
+function devoParas(t){return t.replace(/--/g,"—").split(/\n\s*\n/).map(x=>x.trim()).filter(Boolean)}
+async function fillDevo(){const el=$("#devo");if(!el)return;const n=devoNow();const a=await devoLoad(n.m);const r=a?.[n.d-1];if(!r||!el.isConnected)return;
+  const o=n.eve?3:0,[v,ref,t]=[r[o],r[o+1],r[o+2]],first=devoParas(t)[0]||"",cut=first.length>230?first.slice(0,first.lastIndexOf(" ",220))+"…":first,key=devoRefKey(ref);
+  el.innerHTML=`<div class="devo-hd"><div><div class="kicker">${n.eve?"For this evening":"For this morning"}</div><div class="devo-by">C. H. Spurgeon, <i>Morning and Evening</i></div></div><span class="devo-ic" aria-hidden="true">${n.eve?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'}</span></div>
+  <blockquote class="devo-v">${esc(v)}</blockquote><cite>${esc(ref)}</cite><p class="devo-x">${esc(cut)}</p>
+  <div class="pager"><button class="btn sm" id="devoRead">${I.open}Read it all</button>${key?`<button class="btn sm ghost" id="devoRef">${I.bookmark&&I.open}Open ${esc(ref.split(/[;,]/)[0])}</button>`:""}</div>`;el.hidden=false;
+  $("#devoRead").onclick=()=>openDevo(n,n.eve);$("#devoRef")?.addEventListener("click",()=>openRef(key))}
+async function openDevo(n,eve){const a=await devoLoad(n.m);const r=a?.[n.d-1];if(!r)return;const o=eve?3:0,[v,ref,t]=[r[o],r[o+1],r[o+2]],key=devoRefKey(ref);
+  const date=new Date(2026,n.m-1,n.d).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  openSheet(`<article class="devo-s"><div class="kick">${eve?"Evening":"Morning"} · ${date}</div><blockquote class="devo-v big">${esc(v)}</blockquote><cite>${esc(ref)}</cite>${devoParas(t).map(p=>`<p>${esc(p)}</p>`).join("")}
+  <div class="pager"><button class="btn sm ghost" id="devoSw">${eve?"Read this morning's":"Read this evening's"}</button>${key?`<button class="btn sm ghost" id="devoRef2">Open ${esc(ref.split(/[;,]/)[0])}</button>`:""}</div>
+  <p class="devo-src">From <i>Morning and Evening</i> by Charles Haddon Spurgeon (1866), public domain. Spurgeon quotes the King James Version and writes in the English of his day.</p></article>`,"A word for today");
+  $("#devoSw").onclick=()=>openDevo(n,!eve);$("#devoRef2")?.addEventListener("click",()=>{$("#scrim")?.remove();openRef(key)})}
 
 /* ================= Verse of the day ================= */
 const VOTD=["PSA.1.1","JHN.1.1","ROM.1.16","LUK.1.37","GEN.1.1","PHP.1.6","2CO.1.3","COL.1.17","JAS.1.2","ACT.1.8","EXO.3.14","JOB.1.21","ECC.3.1","DAN.2.21","2TI.1.7","1SA.2.2","1KI.8.56","TIT.2.11","JUD.1.24","2KI.6.16","EST.4.14","SNG.8.7","HAG.2.4","ZEC.4.6","MAL.3.6","3JN.1.2","PSA.1.3","MAT.4.4","JHN.1.5","ROM.3.23","ISA.6.8","GEN.1.27","PRO.3.5","HEB.4.12","1JN.1.7","DEU.6.4","ACT.2.42","1TH.4.11","EXO.14.14","JOS.1.8","LAM.3.22","HAB.2.14","2PE.1.3","1SA.16.7","LEV.19.18","JDG.6.12","RUT.1.16","2SA.22.31","ZEP.3.17","PSA.4.8","LUK.1.38","GEN.1.31","PHP.1.21","1CO.1.18","JAS.1.5","MRK.1.15","DEU.6.5","1PE.1.3","REV.1.8","JER.17.7","1TH.5.11","1TI.1.15","JOB.19.25","1CH.16.11","NEH.8.10","1SA.17.47","JUD.1.25","EZR.7.10","EZK.36.26","PHM.1.6","PSA.5.3","ISA.9.6","PRO.3.6","1CO.2.9","1JN.1.9","2CO.3.17","JAS.1.12","MRK.1.35","DEU.7.9","1PE.2.9","GAL.2.20","REV.3.20","ACT.4.12","1TH.5.16","NUM.6.24","1TI.4.12","ECC.3.11","DAN.3.17","2TI.2.15","1CH.16.34","HAB.3.18","AMO.5.24","PSA.8.3","MAT.4.19","JHN.1.12","ROM.5.1","EPH.1.7","1JN.3.1","MRK.4.39","JER.29.11","JOS.1.9","LAM.3.23","2PE.3.9","MIC.6.8","HOS.6.6","PSA.8.4","MAT.5.3","ROM.5.3","LUK.2.10","PHP.2.3","2CO.4.7","MRK.8.36","DEU.8.3","REV.4.11","ACT.4.20","JER.29.13","EXO.15.2","NUM.6.25","ECC.4.9","JOL.2.13","HAB.3.19","NEH.9.6","1KI.19.12","JON.2.9","PSA.9.10","MAT.5.4","JHN.1.14","ISA.12.2","GEN.2.7","PHP.2.5","COL.2.6","2CO.4.16","JER.31.3","1TI.6.6","JOB.38.4","2PE.3.18","PSA.16.8","MAT.5.5","HEB.4.15","PHP.2.13","COL.3.2","JAS.1.17","MRK.9.23","GAL.5.1","REV.21.4","NUM.6.26","2TH.3.3","1TI.6.12","JOS.24.15","1CH.29.11","TIT.3.5","NAM.1.7","PSA.16.11","JHN.1.29","GEN.2.18","HEB.4.16","1PE.3.15","GAL.5.13","ACT.16.31","EXO.20.3","1TH.5.17","JOB.42.2","PSA.18.2","MAT.5.6","JHN.3.16","LUK.2.11","PRO.4.23","1CO.3.16","COL.3.12","2CO.4.18","1PE.4.8","MRK.10.27","DEU.10.12","ACT.17.28","NUM.23.19","2TH.3.16","PSA.19.1","ROM.5.5","EPH.2.8","PHP.3.13","2CO.5.7","1PE.4.10","REV.21.5","2CH.7.14","1TH.5.18","2TI.3.16","JOL.2.28","PSA.19.14","MAT.5.7","ISA.26.3","PRO.9.10","1CO.6.19","PHP.3.14","1JN.3.18","JAS.1.19","2CO.5.17","MRK.10.45","DEU.30.19","2CH.16.9","EXO.33.14","PSA.23.1","MAT.5.8","JHN.3.17","PRO.11.25","GEN.3.15","EPH.2.10","1JN.4.4","REV.22.13","ACT.20.24","JER.32.17","DAN.6.10","2CH.20.15","EXO.34.6","2TI.4.7","MIC.7.18","PSA.23.4","HEB.10.23","EPH.3.20","COL.3.13","DEU.31.6","1PE.5.6","REV.22.20","JER.33.3","ECC.12.13","LAM.3.25","PSA.23.6","JHN.3.30","LUK.2.14","GEN.9.13","1CO.10.13","HEB.10.24","MRK.11.24","ACT.20.35","DAN.12.3","PSA.25.4","ISA.30.15","LUK.5.31","GEN.12.2","EPH.4.2","COL.3.14","1JN.4.7","JAS.1.22","2CO.5.21","GAL.5.22","MRK.12.30","DEU.31.8","1TH.5.24","PSA.27.1","MAT.5.9","LUK.6.27","2CO.9.7","DEU.33.27","PSA.27.4","MAT.5.14","ISA.40.8","PRO.12.25","GEN.12.3","HEB.11.1","EPH.4.26","JAS.2.17","1PE.5.7","MRK.16.6","PSA.27.14","ROM.5.8","PRO.15.1","1CO.10.31","EPH.4.29","JAS.4.7","GAL.5.23","1PE.5.10","PSA.28.7","ISA.40.29","LUK.6.31","PRO.16.3","JAS.4.8","GAL.6.2","PSA.30.5","JHN.4.14","ROM.6.4","ISA.40.31","PHP.4.4","JAS.4.10","PSA.31.24","ISA.41.10","LUK.6.36","HEB.11.6","JAS.5.16","PSA.32.8","MAT.5.16","JHN.4.24","GEN.15.6","COL.3.15","EPH.4.32","PSA.33.4","ISA.43.1","LUK.6.38","PRO.16.9","PHP.4.6","1JN.4.8","EPH.5.2","2CO.12.9","PSA.34.4","MAT.5.44","JHN.6.35","ROM.6.23","ISA.43.2","PRO.17.17","GEN.16.13","EPH.6.10","2CO.13.14","PSA.34.8","ROM.8.1","1CO.13.4","HEB.12.1","EPH.6.11","GAL.6.9","PSA.34.18","MAT.6.6","1CO.13.7","PHP.4.7","PSA.37.4","MAT.6.9","1CO.13.13","GEN.18.14","PHP.4.8","HEB.12.2","COL.3.17","PSA.37.5","MAT.6.10","LUK.9.23","PHP.4.11","COL.3.23","PSA.37.7","ISA.43.19","1CO.15.10","1JN.4.16","PSA.40.1","JHN.6.37","MAT.6.14","LUK.10.27","PRO.18.10","GEN.22.14","1CO.15.57","1JN.4.18","PHP.4.13","COL.4.2","PSA.42.1","JHN.8.12","ROM.8.18","GEN.28.15","COL.4.6","PSA.42.11","JHN.8.32","GEN.32.28","PSA.46.1","HEB.13.5","PSA.46.10","MAT.6.21","ROM.8.26","LUK.10.41","PRO.19.21","HEB.13.8","1JN.4.19","PSA.51.10","1JN.5.14","GEN.50.20","PSA.55.22","MAT.6.24","JHN.8.36","PRO.22.6","1CO.15.58","PHP.4.19","PSA.56.3","JHN.10.10","ISA.49.15","LUK.11.9","1CO.16.14","PSA.62.1","MAT.6.33","PRO.27.17","HEB.13.16","PSA.63.1","JHN.10.11","PSA.66.16","MAT.6.34","ROM.8.28","PSA.73.26","PRO.31.30","PSA.84.10","MAT.7.7","ROM.8.31","JHN.10.27","LUK.12.7","PSA.86.5","ROM.8.38","JHN.11.25","PSA.90.12","MAT.7.12","ISA.53.5","LUK.12.34","PSA.91.1","ROM.10.9","ISA.53.6","PSA.91.11","MAT.7.24","JHN.11.35","ROM.10.17","PSA.95.1","LUK.15.7","PSA.96.1","MAT.9.37","JHN.13.34","LUK.15.20","PSA.100.4","JHN.13.35","ISA.54.10","PSA.100.5","MAT.10.29","ROM.11.33","PSA.103.1","JHN.14.1","LUK.18.27","PSA.103.8","MAT.11.28","ROM.12.1","PSA.103.12","ROM.12.2","PSA.107.1","MAT.11.29","JHN.14.6","ISA.55.6","PSA.112.7","ROM.12.10","ISA.55.8","PSA.115.1","MAT.16.24","JHN.14.27","PSA.116.1","ISA.55.11","PSA.118.24","MAT.17.20","JHN.15.5","ROM.12.12","LUK.19.10","PSA.119.11","JHN.15.9","ROM.12.18","PSA.119.105","MAT.18.20","ISA.58.11","PSA.121.1","ISA.60.1","PSA.121.2","MAT.19.26","JHN.15.13","ROM.12.21","ISA.61.1","PSA.121.8","JHN.16.33","ROM.13.8","LUK.23.34","PSA.126.3","MAT.22.37","ROM.14.8","LUK.24.6","ISA.64.8","PSA.127.1","JHN.17.3","PSA.130.5","MAT.22.39","PSA.133.1","MAT.25.40","PSA.136.1","JHN.20.29","ROM.15.4","MAT.28.19","PSA.139.14","MAT.28.20","PSA.139.23","JHN.20.31","ROM.15.7","PSA.143.8","JHN.21.17","ROM.15.13","PSA.145.18","PSA.147.3","PSA.150.6"];
@@ -4108,6 +4144,7 @@ function openSettings(){
     <div class="field"><span>Appearance</span><div class="opts">${[["system","Match device"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-opt="${k}" aria-pressed="${s.theme===k}">${l}</button>`).join("")}</div></div>
     <div class="field"><span>Background</span><small>A peaceful field behind every screen that follows the time of day, or a plain colour.</small><div class="opts"><button data-bgopt="field" aria-pressed="${s.bg!=="plain"}">Field</button><button data-bgopt="plain" aria-pressed="${s.bg==="plain"}">Plain</button></div></div>
     <div class="field"><span>Easy mode</span><small>Bigger text, the chapter read aloud first, and a slower reading voice. Good for anyone who finds small text or long reading hard.</small><div class="opts"><button data-easy="1" aria-pressed="${!!s.easy}">On</button><button data-easy="0" aria-pressed="${!s.easy}">Off</button></div></div>
+    <div class="field"><span>A word for today</span><small>A short morning or evening reading on Today, from Spurgeon's <i>Morning and Evening</i> (1866).</small><div class="opts"><button data-devo="1" aria-pressed="${s.devo!==false}">Show</button><button data-devo="0" aria-pressed="${s.devo===false}">Hide</button></div></div>
     <div class="field"><span>Sounds and touch</span><small>A soft chime when you finish a chapter, and a gentle tap on phones that support it.</small><div class="opts"><button data-snd="1" aria-pressed="${s.sound!==false}">Chime on</button><button data-snd="0" aria-pressed="${s.sound===false}">Silent</button></div></div>
     <div class="field"><span>Opening animation</span><small>The lamp lights up each time you open Lamp. Tap it to skip.</small><div class="opts"><button data-intro="1" aria-pressed="${s.intro!==false}">On</button><button data-intro="0" aria-pressed="${s.intro===false}">Off</button><button id="replayIntro">Replay it now</button></div></div>
     <h3 class="set-g">Reading</h3>
@@ -4122,11 +4159,12 @@ function openSettings(){
     <h3 class="set-g">App</h3>
     <div class="field"><span>Home screen</span><small>Open Lamp with one tap, like an app.</small><div class="opts"><button id="setInstall">Put Lamp on my phone</button></div></div>
     <h3 class="set-g">About</h3>
-    <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, New Heart English Bible, King James Version, American Standard Version, Bible in Basic English and Young's Literal Translation, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Maps: Natural Earth. Places today in 3D: contains modified Copernicus Sentinel data 2024, on Copernicus DEM GLO-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018, provided under COPERNICUS by the European Union and ESA. Tabernacle pictures: 3D models made for Lamp from the measurements in Exodus 25–40, drawn with <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (MIT). Satellite pictures: contains modified Copernicus Sentinel data 2019, from the Sentinel-2 L2A 120 m mosaic by Sinergise (<a href="https://registry.opendata.aws/sentinel-s2-l2a-mosaic-120/" target="_blank" rel="noopener">AWS Open Data</a>, CC BY 4.0).</p></div>
+    <div class="field"><span>Sources and thanks</span><p class="credits">Bible text: World English Bible, Berean Standard Bible, New Heart English Bible, King James Version, American Standard Version, Bible in Basic English and Young's Literal Translation, all public domain, via <a href="https://github.com/scrollmapper/bible_databases" target="_blank" rel="noopener">scrollmapper/bible_databases</a>. Related verses: <a href="https://www.openbible.info/labs/cross-references/" target="_blank" rel="noopener">OpenBible.info</a> (CC BY). People and places: <a href="https://github.com/robertrouse/theographic-bible-metadata" target="_blank" rel="noopener">Theographic</a> (CC BY-SA 4.0) with Easton's Bible Dictionary. Engravings: Gustave Doré, 1866. Daily readings: C. H. Spurgeon, <i>Morning and Evening</i>, 1866 (public domain; text via the open <a href="https://github.com/gm5dna/morning-evening" target="_blank" rel="noopener">morning-evening</a> project). Maps: Natural Earth. Places today in 3D: contains modified Copernicus Sentinel data 2024, on Copernicus DEM GLO-30 © DLR e.V. 2010–2014 and © Airbus Defence and Space GmbH 2014–2018, provided under COPERNICUS by the European Union and ESA. Tabernacle pictures: 3D models made for Lamp from the measurements in Exodus 25–40, drawn with <a href="https://threejs.org" target="_blank" rel="noopener">three.js</a> (MIT). Satellite pictures: contains modified Copernicus Sentinel data 2019, from the Sentinel-2 L2A 120 m mosaic by Sinergise (<a href="https://registry.opendata.aws/sentinel-s2-l2a-mosaic-120/" target="_blank" rel="noopener">AWS Open Data</a>, CC BY 4.0).</p></div>
     <div class="field"><span>Start over</span><small>Clears your reading progress. Your journal and saved verses stay.</small><div id="resetZone"><button class="btn sm ghost danger" id="reset1">Reset reading progress</button></div></div>
     <div class="row-end"><button class="btn primary" id="setDone">Done</button></div>
   </div></div>`);
   const close=()=>$("#scrim")?.remove();
+  document.querySelectorAll("[data-devo]").forEach(b=>b.onclick=()=>{setSetting("devo",b.dataset.devo==="1");document.querySelectorAll("[data-devo]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   document.querySelectorAll("[data-snd]").forEach(b=>b.onclick=()=>{const on=b.dataset.snd==="1";setSetting("sound",on);setSetting("haptics",on);document.querySelectorAll("[data-snd]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(on){chime();buzz(15)}});
   document.querySelectorAll("[data-easy]").forEach(b=>b.onclick=()=>{setEasy(b.dataset.easy==="1");document.querySelectorAll("[data-easy]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render();toast(b.dataset.easy==="1"?"Easy mode is on":"Easy mode is off")});
   document.querySelectorAll("[data-wg]").forEach(b=>b.onclick=()=>{setSetting("weekGoal",+b.dataset.wg);document.querySelectorAll("[data-wg]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
@@ -4971,7 +5009,7 @@ function gStudy(){
 function wStudy(){
   const w=WK();
   kvText(w).then(t=>{const el=$("#gKv");if(el)el.textContent=t||w.ref});
-  $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`MAT.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorize")};
+  $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`MAT.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorise")};
   $("#gKvPic").onclick=async()=>{const t=await kvText(w);openPicture(t,`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,w.sr?.book||"MAT",w.kv[0])};
   $("#gKvGame").onclick=()=>{G.sub="games";gSel();gTabInd();startGame("verse")};
   document.querySelectorAll("[data-gt-go]").forEach(b=>b.onclick=()=>gGo(b.dataset.gtGo,$(`.gtabs [data-gt="${b.dataset.gtGo}"]`)));
@@ -6149,5 +6187,5 @@ $("#logo1").innerHTML=I.logo;$("#logo2").innerHTML=I.logo;$("#gear1").innerHTML=
 
 applyTheme();
 const h0=(location.hash||"").slice(1);if(VIEWS.some(([k])=>k===h0)) view=h0;
-render();connect();loadBible();playIntro(false);
+render();connect();idle(loadBible);playIntro(false);
 </script>
