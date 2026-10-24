@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261024111945">
+<link rel="stylesheet" href="app.css?v=20261024170448">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261024111945"></script>
+<script src="app.js?v=20261024170448"></script>
 </head>
 <body>
 <style>
@@ -2064,13 +2064,20 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 html{background:var(--bg)}body{background:transparent}
 .fieldbg{position:fixed;inset:0;z-index:-1;pointer-events:none;background:var(--bg) center/cover no-repeat;overflow:hidden}
 .fieldbg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.2s var(--ease)}
-.fieldbg img.on{opacity:1}
+.fieldbg img.on{opacity:1;animation:fbDrift 90s ease-in-out infinite alternate}
+@keyframes fbDrift{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.07) translate(-1.2%,-.6%)}}
+.fbird{position:absolute;left:0;top:0;width:34px;height:20px;color:#2B2A33;opacity:.82;will-change:transform;animation:fbFly var(--fd,16s) linear forwards}
+.fbird .w{transform-origin:17px 10px;animation:fbFlap .34s ease-in-out infinite alternate}
+
+@keyframes fbFly{0%{transform:translate(-6vw,var(--y0)) scale(var(--s))}25%{transform:translate(22vw,calc(var(--y0) - 3vh)) scale(var(--s))}50%{transform:translate(50vw,calc(var(--y0) + 1vh)) scale(var(--s))}75%{transform:translate(78vw,calc(var(--y0) - 4vh)) scale(var(--s))}100%{transform:translate(108vw,calc(var(--y0) - 2vh)) scale(var(--s))}}
+@keyframes fbFlap{from{transform:scaleY(1)}to{transform:scaleY(-.35)}}
+@media (prefers-reduced-motion:reduce){.fieldbg img.on{animation:none}.fbird{display:none}}
 .fieldbg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,color-mix(in srgb,var(--bg) var(--fv1,38%),transparent) 0%,color-mix(in srgb,var(--bg) var(--fv2,8%),transparent) 55%,color-mix(in srgb,var(--bg) var(--fv3,40%),transparent) 100%)}
 html.plainbg .fieldbg{display:none}
 html:not(.plainbg) .rail{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1px 12px color-mix(in srgb,var(--bg) 80%,transparent)}
 @media (prefers-reduced-transparency:reduce){.fieldbg::after{background:color-mix(in srgb,var(--bg) 82%,transparent)}}
-#explain,#quizBtn,#askAbout,#vAsk,#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
+#explain,#quizBtn,#askAbout,#vAsk,[data-askv],#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
 </style>
@@ -2842,7 +2849,15 @@ function fieldBgT(){const h=new Date().getHours();if(isDark())return h>=5&&h<19?
 function applyFieldBg(){const el=document.getElementById("fieldbg");if(!el)return;const plain=state.settings.bg==="plain";document.documentElement.classList.toggle("plainbg",plain);if(plain)return;
   const t=fieldBgT(),tall=innerHeight>innerWidth,src=`img/field/${t}-${tall?"tall":"wide"}.webp`;if(el.dataset.src===src)return;el.dataset.src=src;
   el.style.backgroundImage=`url(img/field/${t}-tiny.jpg)`;const im=new Image();im.alt="";im.decoding="async";im.src=src;
-  im.onload=()=>{el.querySelectorAll("img").forEach(x=>{x.classList.remove("on");setTimeout(()=>x.remove(),1300)});el.appendChild(im);requestAnimationFrame(()=>im.classList.add("on"))}}
+  im.onload=()=>{el.querySelectorAll("img").forEach(x=>{x.classList.remove("on");setTimeout(()=>x.remove(),1300)});el.insertBefore(im,el.querySelector(".fbird"));requestAnimationFrame(()=>im.classList.add("on"))}}
+/* now and then a little swallow crosses the sky (not at night, not with reduced motion) */
+function fieldBird(){clearTimeout(fieldBird._t);fieldBird._t=setTimeout(fieldBird,40000+Math.random()*50000);
+  const el=document.getElementById("fieldbg");if(!el||document.hidden||state.settings.bg==="plain"||fieldBgT()==="night"||matchMedia("(prefers-reduced-motion: reduce)").matches||el.querySelector(".fbird"))return;
+  const b=document.createElement("div");b.className="fbird";const tall=innerHeight>innerWidth;
+  b.style.cssText=`--y0:${(tall?14:10)+Math.random()*16}vh;--s:${tall?.8:1};--fd:${13+Math.random()*6}s`;
+  b.innerHTML='<svg viewBox="0 0 34 20" width="34" height="20" fill="currentColor"><path d="M31 10C29 8.6 26 8.4 22 8.8L13 9.2 2.5 5 9.5 10 2.5 15 13 10.8 22 11.2C26 11.6 29 11.4 31 10Z"/><g class="w"><path d="M24 9.2C21 5 16 1.4 8 .4c5 2.4 9 5.6 11 8.9zM24 10.8C21 15 16 18.6 8 19.6c5-2.4 9-5.6 11-8.9z"/></g></svg>';
+  b.addEventListener("animationend",e=>{if(e.animationName==="fbFly")b.remove()});el.appendChild(b)}
+setTimeout(fieldBird,7000);
 addEventListener("resize",()=>{clearTimeout(applyFieldBg._t);applyFieldBg._t=setTimeout(applyFieldBg,300)});
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",applyFieldBg);
 setInterval(applyFieldBg,6e5);
@@ -3870,7 +3885,7 @@ function renderEnd(){
     box.onclick=ev=>{const t=ev.target.closest("[data-person],[data-place]");if(t)openWho(t.dataset.person?"person":"place",+(t.dataset.person||t.dataset.place))};
   });
 }
-const REL=[["Father",0],["Mother",1],["Married to",4],["Children",3],["Siblings",2]];
+const REL=[["Father",0],["Mother",1],["Married to",4],["Children",2],["Siblings",3]];
 function openWho(kind,i){
   loadWho().then(W=>{if(!W)return;
     let body;
