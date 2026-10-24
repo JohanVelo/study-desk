@@ -1,0 +1,22 @@
+PASS real Mobile Safari: Mozilla/5.0 (iPhone; CPU iPhone OS 18_7 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.2 Mobile/15E148 Safari/604.1
+PASS live site shows the sign-up screen
+PASS Today screen opens with the verse for today
+PASS verse picture is drawn
+PASS iPhone share sheet accepts the picture (canShare=True)
+PASS 'Add to iPhone calendar' button shows
+PASS calendar file is built
+PASS group check-in strip shows
+PASS reply sends and shows
+PASS meeting mode QR shows
+PASS quiet time loads the verse
+PASS listen mode moves verse by verse (verse, spoken, voices = [16, 16, 68])
+PASS verses for how you feel show
+PASS satellite map shows
+PASS bookshelf shows nine books
+PASS my prayer list adds a prayer
+PASS original Greek words show
+PASS word card explains the grammar
+PASS service worker in control: True
+PASS no sideways scrolling
+
+ALL PASS
