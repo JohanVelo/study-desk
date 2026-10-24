@@ -1,7 +1,7 @@
 // v25: adversarial-review fixes (group saving, privacy, offline account, leader week, RSVP, live quiz, meeting keys) + satellite maps
 const {chromium}=require(process.env.PW);const fs=require('fs');
 const MOCK=fs.readFileSync(__dirname+'/mock.js','utf8');
-const FAKE=fs.readFileSync(__dirname+'/app/fake-supabase.js','utf8').replace('const run = () => {','const run = () => { if (window.__offline) return bad("TypeError: Failed to fetch");');
+const FAKE=fs.readFileSync(__dirname+'/../app/fake-supabase.js','utf8').replace('const run = () => {','const run = () => { if (window.__offline) return bad("TypeError: Failed to fetch");');
 (async()=>{const b=await chromium.launch();const base='http://127.0.0.1:8765/lamp.html';const out=__dirname+'/s25';fs.mkdirSync(out,{recursive:true});
 const log=[];let fails=0;const ok=(c,m)=>{log.push((c?'PASS ':'FAIL ')+m);if(!c)fails++};
 const fixHtml=async ctx=>ctx.route('**/lamp.html',async r=>{const res=await r.fetch();let t=await res.text();t='<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'+t;r.fulfill({response:res,body:t,headers:{...res.headers(),'content-type':'text/html'}})});
