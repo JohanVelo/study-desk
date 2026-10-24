@@ -498,7 +498,7 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .hero-art .cap b{font:italic 600 1.15rem var(--f-display);letter-spacing:0}
 @media (min-width:1240px){.hero-art{aspect-ratio:2.1/1}}
 @media (max-width:560px){.hero-art{margin:-22px -22px 18px;width:calc(100% + 44px)}
-@media (max-width:560px){.hero-art{aspect-ratio:3.2/1}.hero-art img{object-position:50% 30%}}}
+@media (max-width:560px){.hero-art{aspect-ratio:auto;max-height:none}.hero-art img{height:auto;display:block}}}
 .rart{margin:6px auto 26px;max-width:520px;display:flex;flex-direction:column;gap:8px;align-items:center}
 .rart button{border:0;padding:0;background:none;cursor:zoom-in;border-radius:12px;overflow:hidden;box-shadow:var(--shadow);display:block}
 .rart img{display:block;width:100%;max-height:58vh;object-fit:contain;background:#111}
