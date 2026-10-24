@@ -1878,7 +1878,7 @@ html:not(.plainbg) .wks-sub{background:color-mix(in srgb,var(--bg) 74%,transpare
 .spine.now::after{content:"";position:absolute;top:0;right:11%;width:5px;height:calc(9% + 22px);z-index:2;background:linear-gradient(90deg,#7E1B22,#C3343C 50%,#8B1E25);clip-path:polygon(0 0,100% 0,100% 100%,50% 86%,0 100%);box-shadow:0 1px 2px rgba(0,0,0,.4)}
 .spine.now{box-shadow:inset 0 0 0 1px rgba(0,0,0,.35),inset 0 2px 1px rgba(255,255,255,.12),0 0 0 2px var(--surface),0 0 0 3.5px var(--gold)}
 @media (hover:hover){.spine:hover{transform:translateY(-6px)}}
-@media (max-width:520px){.bshelf{height:156px;gap:2px;padding:0 4px}.spine b{font-size:.8rem;letter-spacing:.03em}.spine .sp-lab{left:12%;right:12%}.jr-ring{width:100px;height:100px}.jr-top{gap:14px}}
+@media (max-width:520px){.spine.rng b{font-size:.6rem;letter-spacing:0;inset:3px 0}.spine.rng .sp-lab{top:calc(19% + 8px);bottom:calc(17% + 4px)}.bshelf{height:156px;gap:2px;padding:0 4px}.spine b{font-size:.8rem;letter-spacing:.03em}.spine .sp-lab{left:12%;right:12%}.jr-ring{width:100px;height:100px}.jr-top{gap:14px}}
 .stats .stat:nth-child(4) b{color:var(--gold)}
 .story{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;color:#FFF8EA;background:#1A140D;transition:background .8s ease;overflow:hidden;-webkit-user-select:none;user-select:none}
 .story.s1,.story.s8{background:radial-gradient(70% 50% at 50% 40%,#6B4A1C,#1A140D 75%)}.story.s2{background:linear-gradient(160deg,#2B3D72,#121a33)}.story.s3{background:linear-gradient(160deg,#7A2E2E,#2a1010)}
@@ -2003,7 +2003,8 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 .fq-img{width:100%;aspect-ratio:7/9;max-height:300px;border-radius:14px;margin-bottom:10px;background-color:var(--sunk)!important}
 .fq-f{font-size:.92rem;line-height:1.5;padding:10px 12px;border-radius:12px;background:var(--gold-soft);color:var(--ink);margin-top:10px;animation:fadeUp .35s var(--expo) both}
 .wgrid{display:grid;gap:6px;justify-content:center}
-.wrow{display:grid;grid-template-columns:repeat(5,min(15vw,56px));gap:6px}
+.wrow{display:grid;grid-template-columns:repeat(5,clamp(32px,calc((100vh - 430px)/6),min(15vw,56px)));grid-template-columns:repeat(5,clamp(32px,calc((100dvh - 430px)/6),min(15vw,56px)));gap:6px}
+@media (max-height:700px){.wkeys button{min-height:44px}.wkeys{gap:5px}.wgrid{gap:5px}.wrow{gap:5px}}
 .wc{aspect-ratio:1;display:grid;place-items:center;border:2px solid var(--line);border-radius:10px;font:700 1.5rem/1 var(--f-body);text-transform:uppercase;background:var(--surface)}
 .wc.wf{border-color:var(--muted);animation:pop .12s var(--ease)}
 .wc.wg,.wc.wy,.wc.wx{color:#fff;border-color:transparent;animation:flip .5s var(--ease) both;animation-delay:calc(var(--i)*90ms)}
@@ -2620,10 +2621,11 @@ const isDark=()=>{const t=document.documentElement.getAttribute("data-theme");re
 const sceneT=()=>isDark()?"night":meadowTime(new Date());
 /* ================= Always something new: endless questions, daily puzzles, church seasons ================= */
 let FUN=null;function loadFun(){if(!FUN)FUN=fetch("fun/bank.json").then(r=>{if(!r.ok)throw 0;return r.json()}).catch(()=>{FUN=null;return null});return FUN}
-const funDay=(d=new Date())=>Math.floor((new Date(d.getFullYear(),d.getMonth(),d.getDate())-new Date(2026,0,1))/864e5);
+const funDay=(d=new Date())=>Math.round((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-Date.UTC(2026,0,1))/864e5);
 const funSeed=s=>{let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
 const rngFor=k=>seeded(funSeed(k));
 const pickR=(a,r)=>a[Math.floor(r()*a.length)];
+const dayPick=(a,k,r)=>{const d=funDay();if(d<297)return pickR(a,r);const o=shufR(a.map((_,i)=>i),rngFor(k+"-order-v1"));return a[o[(d-297)%a.length]]};
 const shufR=(a,r)=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 /* Seen questions: never-seen first, then the ones seen longest ago, so nothing repeats until the whole pool has been used */
 const QSEEN_K="lamp-qseen";
@@ -2702,6 +2704,7 @@ function funDone(g,title,line,share){const box=$("#fun");if(!box)return;
 const nextGame=g=>{const i=DAILY.findIndex(x=>x[0]===g);return DAILY.slice(i+1).concat(DAILY.slice(0,i)).map(x=>x[0]).find(x=>!dDone(x))};
 
 /* Lamp word */
+let wordKey=null,wordKb=0;
 async function fWord(){const F=await loadFun();const box=$("#fun");if(!box)return;if(!F){box.innerHTML=funOff();return}
   const order=shufR(F.words,rngFor("words-v1")),ans=order[funDay()%order.length],A=ans.w;
   const V=new Set((F.vocab||"").split(" ").concat(F.words.map(x=>x.w)));
@@ -2713,7 +2716,7 @@ async function fWord(){const F=await loadFun();const box=$("#fun");if(!box)retur
     (st.done?"":`<div class="wkeys">${["QWERTYUIOP","ASDFGHJKL","⏎ZXCVBNM⌫"].map(row=>`<div>${[...row].map(c=>`<button data-k="${c}" class="${km[c]?"k"+km[c]:""}${c==="⏎"||c==="⌫"?" wide":""}" aria-label="${c==="⏎"?"Enter":c==="⌫"?"Delete":c}">${c==="⏎"?"Enter":c}</button>`).join("")}</div>`).join("")}</div>`);
     box.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>key(b.dataset.k));if(st.done)end()};
   const key=c=>{if(st.done)return;if(c==="⌫"){cur=cur.slice(0,-1);draw();return}
-    if(c==="⏎"){if(cur.length<5){shake("Five letters, please");return}
+    if(c==="⏎"){if(cur.length<5){shake("Five letters, please");return}if(!V.has(cur)){shake("That word isn't in Lamp's word list");return}
       st.g.push(cur);cur="";if(st.g[st.g.length-1]===A||st.g.length===6)st.done=true;dSet("word",st);draw();return}
     if(cur.length<5){cur+=c;buzz(4);draw()}};
   const shake=m=>{toast(m);const r=box.querySelector(".wrow.now");if(r&&!reduced())r.animate([{transform:"translateX(0)"},{transform:"translateX(-7px)"},{transform:"translateX(7px)"},{transform:"translateX(0)"}],{duration:260})};
@@ -2722,8 +2725,8 @@ async function fWord(){const F=await loadFun();const box=$("#fun");if(!box)retur
     $("#wRead").onclick=()=>{const [b,c,v]=ans.ref.split(".");$("#scrim")?.remove();openPassage(passFor(b,+c),false,+v)};
     const grid=st.g.map(g=>score(g).map(s=>({g:"🟩",y:"🟨",x:"⬜"})[s]).join("")).join("\n");
     funDone("word","Lamp word",won?`Solved in ${st.g.length} of 6.`:"Not this time. Tomorrow's a new word.",`Lamp word, day ${funDay()+1}: ${won?st.g.length:"X"}/6\n${grid}`)};
-  if(!box._kb){box._kb=1;document.addEventListener("keydown",function h(e){if(!$("#fun")||!$(".wgrid")){document.removeEventListener("keydown",h);return}if(e.metaKey||e.ctrlKey||e.altKey)return;
-    if(e.key==="Enter"){e.preventDefault();key("⏎")}else if(e.key==="Backspace")key("⌫");else if(/^[a-z]$/i.test(e.key))key(e.key.toUpperCase())})}
+  wordKey=key;if(!wordKb){wordKb=1;document.addEventListener("keydown",e=>{if(!wordKey||!$("#fun")||!$(".wgrid"))return;if(e.metaKey||e.ctrlKey||e.altKey||/^(INPUT|TEXTAREA)$/.test(e.target.tagName))return;
+    if(e.key==="Enter"){e.preventDefault();wordKey("⏎")}else if(e.key==="Backspace")wordKey("⌫");else if(/^[a-z]$/i.test(e.key))wordKey(e.key.toUpperCase())})}
   draw()}
 const funOff=()=>`<div class="fun-off">${typeof fieldEmpty==="function"?fieldEmpty("lamp"):""}<p>The puzzles need to download once. Connect to the internet and try again.</p></div>`;
 
@@ -2743,7 +2746,7 @@ function revealQ(q,k){const ok=k===q.c;document.querySelectorAll("[data-qo]").fo
   const f=$(".fq-f");if(f&&q.f){f.hidden=false;f.textContent=q.f}if(ok){burst($(`[data-qo="${k}"]`),10);buzz(10)}else buzz([30,40,30])}
 
 /* Picture reveal: the engraving appears tile by tile */
-function fPic(){const box=$("#fun");const r=rngFor("pic-"+funDay());const ids=ART.map((a,i)=>i).filter(i=>i<100);const i=pickR(ids,r);
+function fPic(){const box=$("#fun");const r=rngFor("pic-"+funDay());const ids=ART.map((a,i)=>i).filter(i=>i<100);const i=dayPick(ids,"pic",r);
   const others=shufR(ids.filter(k=>ART[k][0]!==ART[i][0]),r).slice(0,5).map(k=>ART[k][0]);const opts=shufR([ART[i][0],...others],r);
   const order=shufR(Array.from({length:24},(_,k)=>k),r);let st=dGet("pic")||{n:4,miss:[],done:false};
   const draw=()=>{const shown=new Set(order.slice(0,st.done?24:st.n));
@@ -2775,7 +2778,7 @@ async function fConn(){const F=await loadFun();const box=$("#fun");if(!box)retur
 
 /* Who am I */
 async function fWho(){const F=await loadFun();const box=$("#fun");if(!box)return;if(!F){box.innerHTML=funOff();return}
-  const r=rngFor("who-"+funDay());const x=pickR(F.who,r);const opts=shufR([x.n,...x.alt,...shufR(F.who.filter(y=>y.n!==x.n&&!x.alt.includes(y.n)),r).slice(0,2).map(y=>y.n)],r);
+  const r=rngFor("who-"+funDay());const x=dayPick(F.who,"who",r);const opts=shufR([x.n,...x.alt,...shufR(F.who.filter(y=>y.n!==x.n&&!x.alt.includes(y.n)),r).slice(0,2).map(y=>y.n)],r);
   let st=dGet("who")||{n:1,miss:[],done:false};
   const draw=()=>{box.innerHTML=funHead("Who am I?",st.done?x.n:`Clue ${st.n} of 4 · fewer clues, more points`)+
     `<ol class="who-cl">${x.clues.map((c,k)=>`<li class="${k<st.n||st.done?"on":""}">${k<st.n||st.done?esc(c):"Hidden clue"}</li>`).join("")}</ol>`+
@@ -2789,7 +2792,7 @@ async function fWho(){const F=await loadFun();const box=$("#fun");if(!box)return
 
 /* In order: tap the events from first to last */
 async function fOrder(){const F=await loadFun();const box=$("#fun");if(!box)return;if(!F){box.innerHTML=funOff();return}
-  const r=rngFor("order-"+funDay());const x=pickR(F.order,r);const ev=shufR(x.e.map((t,k)=>({t,k})),r);let st=dGet("order")||{pick:[],miss:0,done:false};
+  const r=rngFor("order-"+funDay());const x=dayPick(F.order,"order",r);const ev=shufR(x.e.map((t,k)=>({t,k})),r);let st=dGet("order")||{pick:[],miss:0,done:false};
   const draw=()=>{box.innerHTML=funHead("In order",st.done?x.t:`${x.t} · tap them from first to last`)+
     `<ol class="ord-done">${st.pick.map(k=>`<li>${esc(x.e[k])}</li>`).join("")}</ol>`+(st.done?"":`<div class="ord-left">${ev.filter(o=>!st.pick.includes(o.k)).map(o=>`<button class="fo" data-ok="${o.k}">${esc(o.t)}</button>`).join("")}</div>`);
     box.querySelectorAll("[data-ok]").forEach(b=>b.onclick=()=>{const k=+b.dataset.ok;if(k===st.pick.length){st.pick.push(k);buzz(8);if(st.pick.length===x.e.length)st.done=true}else{st.miss++;b.classList.add("wrong");buzz([30,40,30]);setTimeout(()=>b.classList.remove("wrong"),500);toast("Something else happened before that")}dSet("order",st);if(k===st.pick.length-1||st.done)draw()});
@@ -2863,7 +2866,7 @@ function lsRead(){let raw=null;try{raw=localStorage.getItem(LS);return JSON.pars
 let lsWarned=false;
 function lsWrite(){const j=JSON.stringify(state);try{localStorage.setItem(LS,j);return true}catch(e){}
   try{for(const k of Object.keys(localStorage))if(k!==LS&&k!=="lamp-outbox-v1"&&/^(lamp-chat|lamp-ring-|lamp-ex-draft|lamp-qt-draft)/.test(k))localStorage.removeItem(k);localStorage.setItem(LS,j);return true}catch(e){}
-  if(!lsWarned){lsWarned=true;setTimeout(()=>toast(typeof db!=="undefined"&&db?"This phone's storage is full. Your progress is still saved to your account, but free up some space soon.":"This phone's storage is full, so Lamp can't save. Free up some space, then try again."),300)}return false}
+  if(!lsWarned){lsWarned=true;setTimeout(()=>toast(docRef?"This phone's storage is full. Your progress is still saved to your account, but free up some space soon.":"This phone's storage is full, so Lamp can't save. Free up some space, then try again.",7000),300)}return false}
 const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
 
 function merge(remote){
@@ -2985,7 +2988,7 @@ function md(t){
   if(inList) out+="</ul>";
   return out;
 }
-function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2600)}
+function toast(m,hold){const t=$("#toast");if(!hold&&Date.now()<(t._lock||0))return;t._lock=hold?Date.now()+hold:0;t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),hold||2600)}
 const reduced=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
 function burst(el,n=18){
   if(reduced()||!el) return;
@@ -3155,7 +3158,7 @@ function journeyCard(total){const pc=total/TOTAL,R=46,L=+(2*Math.PI*R).toFixed(1
     <div class="jr-txt"><div class="kicker">Your journey</div><h2>${total} of ${TOTAL} chapters</h2><p class="muted">${total>=TOTAL?"You've read the whole path.":`Now in stage ${cur.stage+1} of ${STAGES.length}: ${esc(st.title)}`}</p>
       ${total?`<button class="btn sm" id="storyGo">${I.spark}Your Lamp story</button>`:""}</div></div>
     <div class="bshelf" role="list" aria-label="Your bookshelf: one book for each stage">${STAGES.map((sg,i)=>{const days=PLAN.filter(p=>p.stage===i),d=days.filter(p=>isDone(p.day)).length,f=d/days.length;
-      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}${STAGES.filter(x=>x.book===sg.book).length>1?` ${days[0].ch}–${days[days.length-1].ch}`:""}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
+      return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}${STAGES.filter(x=>x.book===sg.book).length>1?" rng":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}${STAGES.filter(x=>x.book===sg.book).length>1?` ${days[0].ch}–${days[days.length-1].ch}`:""}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
 
 /* ================= Your Lamp story ================= */
 const ST={i:0,t:null,hold:false,list:[]};
@@ -3176,19 +3179,19 @@ function storySlides(){const d=storyData(),S=[],h=d.mins>=90?`${Math.round(d.min
   if(d.notes||d.ans||d.ex)S.push({c:"s7",k:"Your heart",n:d.notes,t:"reflections written",p:[d.ans?`${d.ans} answered prayer${d.ans>1?"s":""}`:"",d.ex?`${d.ex} evening${d.ex>1?"s":""} looked back with God`:""].filter(Boolean).join(" · ")||"Your words, kept safe on your device."});
   S.push({c:"s8",k:"Keep walking",big:I.logo,t:"Your word is a lamp to my feet and a light to my path.",p:"Psalm 119:105",end:true,d});
   return S}
-function openStory(){if($("#story"))return;ST.list=storySlides();ST.i=0;
-  $("#layer").insertAdjacentHTML("beforeend",`<div class="story" id="story" role="dialog" aria-modal="true" aria-label="Your Lamp story"><div class="st-bars">${ST.list.map(()=>`<i><b></b></i>`).join("")}</div>
+function openStory(){if($("#lstory"))return;ST.list=storySlides();ST.i=0;
+  $("#layer").insertAdjacentHTML("beforeend",`<div class="story" id="lstory" role="dialog" aria-modal="true" aria-label="Your Lamp story"><div class="st-bars">${ST.list.map(()=>`<i><b></b></i>`).join("")}</div>
     <button class="mt-btn st-x" id="stX" aria-label="Close">${I.close}</button><main class="st-stage" id="stStage" aria-live="polite"></main>
     <button class="st-nav prev" id="stP" aria-label="Previous"></button><button class="st-nav next" id="stN" aria-label="Next"></button></div>`);
-  document.documentElement.classList.add("meeting");const el=$("#story");el.tabIndex=-1;el.focus({preventScroll:true});
+  document.documentElement.classList.add("meeting");const el=$("#lstory");el.tabIndex=-1;el.focus({preventScroll:true});
   $("#stX").onclick=closeStory;$("#stP").onclick=()=>stGo(-1);$("#stN").onclick=()=>stGo(1);
   el.addEventListener("keydown",e=>{if(e.key==="Escape")closeStory();else if(e.key==="ArrowRight")stGo(1);else if(e.key==="ArrowLeft")stGo(-1)});
   const st=$("#stStage");st.addEventListener("pointerdown",()=>{ST.hold=true;el.classList.add("held")});el.addEventListener("pointerup",stRelease);el.addEventListener("pointercancel",stRelease);el.addEventListener("pointerleave",stRelease);
   stPaint()}
-function stRelease(){ST.hold=false;$("#story")?.classList.remove("held")}
+function stRelease(){ST.hold=false;$("#lstory")?.classList.remove("held")}
 function stGo(d){const to=ST.i+d;if(to<0)return;if(to>=ST.list.length){closeStory();return}ST.i=to;stPaint(d)}
 function stPaint(dir){const S=ST.list[ST.i],st=$("#stStage");if(!st)return;clearTimeout(ST.t);
-  $("#story").className="story "+S.c;
+  $("#lstory").className="story "+S.c;
   st.innerHTML=`<div class="st-s"><div class="st-k">${S.k}</div>${S.n!=null?`<div class="st-n" data-n="${S.n}">${S.n}</div>`:`<div class="st-big" aria-hidden="true">${S.big}</div>`}<h2>${esc(S.t)}</h2>${S.p?`<p>${esc(S.p)}</p>`:""}${S.q?`<blockquote>“${esc(S.q[0])}”<cite>${esc(S.q[1])}</cite></blockquote>`:""}
     ${S.end?`<div class="st-act"><button class="btn" id="stShare">${I.send}Share</button><button class="btn primary" id="stDone">Done</button></div>`:""}</div>`;
   document.querySelectorAll(".st-bars i").forEach((b,j)=>{b.className=j<ST.i?"done":j===ST.i?"on":"";b.firstChild.getAnimations().forEach(a=>a.cancel())});
@@ -3198,8 +3201,8 @@ function stPaint(dir){const S=ST.list[ST.i],st=$("#stStage");if(!st)return;clear
   st.firstElementChild.animate([{opacity:0,transform:`translateX(${(dir||0)*30}px) scale(.98)`},{opacity:1,transform:"none"}],{duration:520,easing:"cubic-bezier(.16,1,.3,1)"});
   if(N){const to=+N.dataset.n,t0=performance.now();const tick=t=>{const k=Math.min(1,(t-t0)/1000);N.textContent=Math.round(to*(1-Math.pow(1-k,3)));if(k<1&&N.isConnected)requestAnimationFrame(tick)};requestAnimationFrame(tick)}
   if(S.end)return;const bar=document.querySelector(".st-bars i.on b");const a=bar.animate([{transform:"scaleX(0)"},{transform:"scaleX(1)"}],{duration:6000,easing:"linear",fill:"forwards"});
-  const watch=()=>{if(!$("#story")||ST.list[ST.i]!==S)return;if(ST.hold)a.pause();else if(a.playState==="paused")a.play();ST.t=setTimeout(watch,120)};watch();a.onfinish=()=>{if(ST.list[ST.i]===S)stGo(1)}}
-function closeStory(){clearTimeout(ST.t);$("#story")?.remove();document.documentElement.classList.remove("meeting")}
+  const watch=()=>{if(!$("#lstory")||ST.list[ST.i]!==S)return;if(ST.hold)a.pause();else if(a.playState==="paused")a.play();ST.t=setTimeout(watch,120)};watch();a.onfinish=()=>{if(ST.list[ST.i]===S)stGo(1)}}
+function closeStory(){clearTimeout(ST.t);$("#lstory")?.remove();document.documentElement.classList.remove("meeting")}
 
 /* ================= Moments: a calm finish, and rare milestones ================= */
 const JUST={done:null};
@@ -3262,8 +3265,8 @@ function openExamen(){let i=0;const k=hereDay();const a={...(state.ex?.[k]||{})}
     const [t,q,h]=EX[i];box.innerHTML=`<div class="ex-steps">${EX.map((_,j)=>`<i class="${j<i?"done":j===i?"on":""}"></i>`).join("")}</div><div class="kicker">${i+1} of 4 · ${t}</div><h3>${q}</h3><p class="muted">${h}</p>
       <textarea id="exA" class="search" rows="3" placeholder="Write a few words, or just pray it (optional)">${esc(a["q"+i]||"")}</textarea>
       <div class="row-end">${i?`<button class="btn ghost" id="exB">Back</button>`:""}<button class="btn primary" id="exN">${i===3?"Finish":"Next"}</button></div>`;
-    const save=()=>{a["q"+i]=$("#exA").value.trim();a.at=new Date().toISOString();a.u=a.at;state.ex[k]={...a};queue({ex:{[k]:{...a}}})};
-    let exT;$("#exA").addEventListener("input",()=>{clearTimeout(exT);exT=setTimeout(save,500)});
+    const save=()=>{const el=$("#exA");if(el)a["q"+i]=el.value.trim();a.at=new Date().toISOString();a.u=a.at;state.ex[k]={...a};queue({ex:{[k]:{...a}}})};
+    let exT;$("#exA").addEventListener("input",e=>{a["q"+i]=e.target.value.trim();state.ex[k]={...a};clearTimeout(exT);exT=setTimeout(save,500)});
     $("#exN").onclick=()=>{clearTimeout(exT);save();i++;paint()};$("#exB")?.addEventListener("click",()=>{save();i--;paint()});setTimeout(()=>$("#exA")?.focus({preventScroll:true}),50)};
   openSheet(`<div class="pcard excard-s"><div class="kick">Evening Examen</div><h2>Look back on today with God</h2><div id="exBox"></div></div>`,"Evening Examen");paint()}
 
@@ -3814,7 +3817,7 @@ function openPassage(p,listen,jumpV,opt){
   loadText().then(ok=>{
     if(!ok||!R||R.p!==p) return;
     renderEnd();
-    if(jumpV){$(`#scr .v[data-vn="${jumpV}"]`)?.scrollIntoView({block:opt.range?"start":"center"});if(!opt.range)selectVerse(jumpV)}
+    if(jumpV){const ve=$(`#scr .v[data-vn="${jumpV}"]`);if(ve){ve.scrollIntoView({block:opt.range?"start":"center"});if(!opt.range)selectVerse(jumpV)}else toast(`${refName(p)} has no verse ${jumpV}, so here is the whole chapter`)}
     if(listen) toggleSpeak();
   });
 }
@@ -3889,11 +3892,13 @@ function openWho(kind,i){
     $("#scrim").querySelectorAll("[data-person]").forEach(b=>b.onclick=()=>openWho("person",+b.dataset.person));
   });
 }
+/* when a sheet closes, put focus back on the button that opened it */
+let sheetOpener=null;new MutationObserver(()=>{if(!sheetOpener||$("#scrim"))return;const o=sheetOpener;sheetOpener=null;const ae=document.activeElement;if((!ae||ae===document.body)&&o.isConnected)o.focus({preventScroll:true})}).observe(document.body,{childList:true,subtree:true});
 function openSheet(html,label){
   const ex=$("#scrim");
   const inner=`<button class="icon-btn shx" id="shX" aria-label="Close">${I.close}</button>${html}`;
   if(ex&&ex.dataset.kind==="sheet"){ex.querySelector(".sheet").innerHTML=inner;ex.querySelector(".sheet").scrollTop=0}
-  else{ex?.remove();(document.querySelector(".reader")||$("#layer")).insertAdjacentHTML("beforeend",`<div class="scrim" id="scrim" data-kind="sheet"><div class="sheet" style="position:relative" role="dialog" aria-modal="true" aria-label="${esc(label)}">${inner}</div></div>`);
+  else{if(!ex){const ae=document.activeElement;sheetOpener=ae&&ae!==document.body?ae:null}ex?.remove();(document.querySelector(".reader")||$("#layer")).insertAdjacentHTML("beforeend",`<div class="scrim" id="scrim" data-kind="sheet"><div class="sheet" style="position:relative" role="dialog" aria-modal="true" aria-label="${esc(label)}">${inner}</div></div>`);
     $("#scrim").onclick=e=>{if(e.target.id==="scrim")$("#scrim").remove()}}
   $("#shX").onclick=()=>$("#scrim")?.remove();const _sh=$("#shX").closest(".sheet");_sh.tabIndex=-1;_sh.focus({preventScroll:true});
 }
@@ -3998,7 +4003,7 @@ async function fillDevo(){const el=$("#devo");if(!el)return;const n=devoNow();co
   <div class="pager"><button class="btn sm" id="devoRead">${I.open}Read it all</button>${key?`<button class="btn sm ghost" id="devoRef">${I.bookmark&&I.open}Open ${esc(ref.split(/[;,]/)[0])}</button>`:""}</div>`;el.hidden=false;
   $("#devoRead").onclick=()=>openDevo(n,n.eve);$("#devoRef")?.addEventListener("click",()=>openRef(key))}
 async function openDevo(n,eve){const a=await devoLoad(n.m);const r=a?.[n.d-1];if(!r)return;const o=eve?3:0,[v,ref,t]=[r[o],r[o+1],r[o+2]],key=devoRefKey(ref);
-  const date=new Date(2026,n.m-1,n.d).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  const date=new Date(2028,n.m-1,n.d).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
   openSheet(`<article class="devo-s"><div class="kick">${eve?"Evening":"Morning"} · ${date}</div><blockquote class="devo-v big">${esc(v)}</blockquote><cite>${esc(ref)}</cite>${devoParas(t).map(p=>`<p>${esc(p)}</p>`).join("")}
   <div class="pager"><button class="btn sm ghost" id="devoSw">${eve?"Read this morning's":"Read this evening's"}</button>${key?`<button class="btn sm ghost" id="devoRef2">Open ${esc(ref.split(/[;,]/)[0])}</button>`:""}</div>
   <p class="devo-src">From <i>Morning and Evening</i> by Charles Haddon Spurgeon (1866), public domain. Spurgeon quotes the King James Version and writes in the English of his day.</p></article>`,"A word for today");
@@ -4884,6 +4889,7 @@ async function groupConnect(db,user){
     const cw=await user.can("data.write");if(cw===false)G.ro=true;
     try{const q=JSON.parse(localStorage.getItem(GQ_LS)||"null");if(q&&typeof q==="object")gQ=deepMerge(q,gQ)}catch(e){}
     const local=G.people.me;delete G.people.me;
+    if(local&&typeof local==="object"&&Object.keys(local).length){gQ=deepMerge(local,gQ);gqSave()}try{localStorage.removeItem(GLS)}catch(e){}
     db.collection("gm").onSnapshot(snap=>{const o={};snap.docs.forEach(d=>{const v=d.data();if(v&&typeof v==="object"&&!Array.isArray(v))o[d.id]=v});if(Object.keys(gQ).length&&o[G.id])o[G.id]=deepMerge(o[G.id],gQ);G.people=o;gNames();gPaint()},()=>{});
     db.doc("group/meta").onSnapshot(d=>{const was=curWk();G.meta=(d.exists&&d.data())||{};if(!G.wkPick&&curWk()!==was){G.wk=null;if(view==="group"&&!G.game&&!G.test){render();return}}gPaint()},()=>{});
     db.doc("group/ice").onSnapshot(d=>{G.ice=(d.exists&&d.data())||{};gPaint("ice")},()=>{});
@@ -5009,13 +5015,13 @@ function gStudy(){
 function wStudy(){
   const w=WK();
   kvText(w).then(t=>{const el=$("#gKv");if(el)el.textContent=t||w.ref});
-  $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`MAT.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorise")};
+  $("#gKvSave").onclick=async()=>{const t=await kvText(w);const key=`${w.sr?.book||"MAT"}.${w.kv[0]}.${w.kv[1]}`;if(state.saved[key]){toast("Already in your journal");return}const it={ref:`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,text:t,tr:"BSB",day:0,v:w.kv[1],at:new Date().toISOString()};state.saved[key]=it;queue({saved:{[key]:it}});burst($("#gKvSave"),12);toast("Saved. Practise it in Journal → Memorise")};
   $("#gKvPic").onclick=async()=>{const t=await kvText(w);openPicture(t,`${bookName(w.sr?.book||"MAT")} ${w.kv[0]}:${w.kv[1]}`,w.sr?.book||"MAT",w.kv[0])};
   $("#gKvGame").onclick=()=>{G.sub="games";gSel();gTabInd();startGame("verse")};
   document.querySelectorAll("[data-gt-go]").forEach(b=>b.onclick=()=>gGo(b.dataset.gtGo,$(`.gtabs [data-gt="${b.dataset.gtGo}"]`)));
   document.querySelectorAll("[data-ck]").forEach(b=>b.onclick=()=>{if(G.ro&&G.on){toast("Saving to the group isn't available for you yet");return}const k=b.dataset.ck;const on=!b.classList.contains("on");b.classList.toggle("on",on);if(on){burst(b,10);buzz(10)}gWrite({ck:{[w.id]:{[k]:on}}},1);paintStudy()});
   document.querySelectorAll("[data-qa]").forEach(t=>{const i=t.dataset.qa;const fit=()=>{t.style.height="auto";t.style.height=Math.min(320,t.scrollHeight+2)+"px"};fit();
-    t.oninput=()=>{fit();$("#gs-"+i).textContent="Saving…";clearTimeout(t._t);t._t=setTimeout(()=>{gWrite({ans:{[w.id]:{["q"+i]:t.value.trim()?t.value:null}},aat:{[w.id]:{["q"+i]:t.value.trim()?new Date().toISOString():null}}});$("#gs-"+i).textContent=G.ref?"Saved":"Saved on this device";setTimeout(()=>{const s=$("#gs-"+i);if(s)s.textContent=""},1800)},500)}});
+    t.oninput=()=>{fit();const gs=()=>$("#gs-"+i)||{};gs().textContent="Saving…";clearTimeout(t._t);t._t=setTimeout(()=>{gWrite({ans:{[w.id]:{["q"+i]:t.value.trim()?t.value:null}},aat:{[w.id]:{["q"+i]:t.value.trim()?new Date().toISOString():null}}});gs().textContent=G.ref?"Saved":"Saved on this device";setTimeout(()=>{const s=$("#gs-"+i);if(s)s.textContent=""},1800)},500)}});
   document.querySelectorAll("[data-gnref]").forEach(b=>b.onclick=()=>{const [bk,c]=b.dataset.gnref.split(".");openPassage(passFor(bk,+c))});
   document.querySelectorAll("[data-others]").forEach(b=>b.onclick=()=>{const o=$("#go-"+b.dataset.others);const open=o.hidden;o.hidden=!open;b.setAttribute("aria-expanded",open);paintStudy();if(open&&!reduced())o.animate([{opacity:0,transform:"translateY(-4px)"},{opacity:1,transform:"none"}],{duration:240})});
   paintStudy();
@@ -5578,13 +5584,14 @@ async function fillWotd(){const el=$("#wotd");if(!el||!HAS_ORIG)return;const day
   if(!cand.length){el.hidden=true;return}
   cand.sort((a,b)=>a[2][4]-b[2][4]);const R1=cand.filter(c=>c[3]);const pool=R1.length?R1:cand.slice(0,Math.max(3,Math.ceil(cand.length/3)));
   const [key,v,e]=pool[(day*7+p.ch)%pool.length];const t=en?.[p.ch-1]?.[v-1]||"";const lang=heb?"Hebrew":"Greek";
+  if(!el.isConnected)return;
   el.innerHTML=`<div class="kicker">A word from today's reading · ${lang}</div>
     <div class="wd-head"><span class="wd-lem" ${heb?'lang="he" dir="rtl"':'lang="grc"'}>${esc(e[0])}</span><span class="wd-tr">${esc(e[1])}</span></div>
     <p class="wd-gl"><b>${esc(e[2])}</b>${e[3]&&e[3].toLowerCase()!==e[2].toLowerCase()?` · ${esc(e[3].split(";").slice(0,2).join(";"))}`:""}</p>
     ${t?`<blockquote class="wd-v">${esc(t.length>200?t.slice(0,197)+"…":t)} <cite>${esc(refName(p))}:${v}</cite></blockquote>`:""}
     <div class="wd-foot"><span class="muted">Used ${e[4].toLocaleString()} times in the ${heb?"Old":"New"} Testament</span><button class="btn sm ghost" id="wdGo">See the verse in ${lang}${I.right}</button></div>`;
   el.hidden=false;if(!reduced())el.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"none"}],{duration:420,easing:"cubic-bezier(.16,1,.3,1)"});
-  $("#wdGo").onclick=()=>openOrigAt(p.book,p.ch,v,t,key)}
+  el.querySelector("#wdGo").onclick=()=>openOrigAt(p.book,p.ch,v,t,key)}
 
 /* ================= Group reading ring ================= */
 const RING_GOAL=5;
@@ -5637,7 +5644,7 @@ function openMeet(){M.i=0;M.show=new Set();M.ice=0;M.verses=null;const w=WK();
   document.removeEventListener("keydown",meetKey);document.addEventListener("keydown",meetKey);$("#meet").tabIndex=-1;$("#meet").focus({preventScroll:true,focusVisible:false});
   meetPaint(true);
 }
-function meetKey(e){if(!$("#meet")){document.removeEventListener("keydown",meetKey);return}if(e.target.closest?.("input,textarea,select")||$("#msm,#story,.sheet,#scrim"))return;
+function meetKey(e){if(!$("#meet")){document.removeEventListener("keydown",meetKey);return}if(e.target.closest?.("input,textarea,select")||$("#msm,#lstory,.sheet,#scrim"))return;
   if(["ArrowRight","PageDown"," "].includes(e.key)){e.preventDefault();meetGo(1)}else if(["ArrowLeft","PageUp"].includes(e.key)){e.preventDefault();meetGo(-1)}
   else if(e.key==="f"||e.key==="F")$("#mFull").click();else if(e.key==="t"||e.key==="T")$("#mTimer").click()}
 function meetTime(){const el=$("#mTime");if(!el)return;const ms=M.acc+(M.run?Date.now()-M.t0:0),s=Math.floor(ms/1e3);el.textContent=`${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
@@ -5889,7 +5896,7 @@ function qtSound(force){const b=$("#qtSnd");const on=typeof force==="boolean"?fo
 
 
 /* ================= RSVP ================= */
-function rsvpKey(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return curWk()+"@"+d.toISOString().slice(0,10)}
+function rsvpKey(){const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return curWk()+"@"+`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
 function rsvpRow(){const wk=rsvpKey(),ids=members(),my=mine().rsvp?.[wk];const by=v=>ids.filter(id=>G.people[id].rsvp?.[wk]===v);
   const yes=by("yes"),may=by("maybe");
   return `<div class="rsvp"><span class="rsvp-q">${G.meta.when?`${esc(G.meta.when.replace(/s\b/,""))}:`:"This week:"} ${yes.length?`<b>${yes.length} coming</b>${may.length?` · ${may.length} maybe`:""}`:"are you coming?"}</span>
@@ -6156,7 +6163,7 @@ function openPic(src,cap){$("#picv")?.remove();document.body.insertAdjacentHTML(
 function closeTop(){
   if($("#picv")){$("#picv").remove();return true}
   if($("#msm")){$("#msmGo").click();return true}
-  if($("#story")){closeStory();return true}
+  if($("#lstory")){closeStory();return true}
   if($("#meet")){closeMeet();return true}
   if($("#ls")){closeListen();return true}
   if($("#fd")){closeFeel();return true}
@@ -6172,7 +6179,7 @@ function closeTop(){
   return false}
 /* Back button (Android, browser) closes the top layer instead of leaving Lamp */
 const HB={depth:0,skip:0};
-const LAYERS="#picv,#msm,#story,#meet,#ls,#fd,#qt,#pn,#artv,.figv,#scrim,#fontpop,.reader:not(.closing)";
+const LAYERS="#picv,#msm,#lstory,#meet,#ls,#fd,#qt,#pn,#artv,.figv,#scrim,#fontpop,.reader:not(.closing)";
 function layerDepth(){let n=0;for(const sel of LAYERS.split(","))if(document.querySelector(sel))n++;return n}
 new MutationObserver(()=>{const d=layerDepth();if(d>HB.depth){try{for(let i=HB.depth;i<d;i++)history.pushState({lampLayer:i+1},"")}catch(e){}HB.depth=d}
   else if(d<HB.depth){const n=HB.depth-d;HB.depth=d;if(history.state&&history.state.lampLayer){HB.skip+=n;try{history.go(-n)}catch(e){HB.skip=0}}}}).observe(document.body,{childList:true,subtree:true});

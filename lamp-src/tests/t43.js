@@ -18,14 +18,14 @@ ok(await p.$('.spine.now')!==null,tag+' current book marked');
 const fit=await p.$eval('.bshelf',e=>e.scrollWidth<=e.clientWidth+1);ok(fit,tag+' shelf fits');
 await shot('path');
 await p.click('#storyGo');await p.waitForTimeout(900);
-ok(/Your Lamp story/.test(await p.textContent('#story')),tag+' story opens');await shot('story1');
-const seen=[];for(let i=0;i<10&&await p.$('#story');i++){seen.push(await p.$eval('.st-k',e=>e.textContent));if(await p.$('#stDone'))break;await p.click('#stN');await p.waitForTimeout(rm==='reduce'?200:1300);if(i===0)await shot('story2');if(seen.length===3)await shot('story-morning')}
+ok(/Your Lamp story/.test(await p.textContent('#lstory')),tag+' story opens');await shot('story1');
+const seen=[];for(let i=0;i<10&&await p.$('#lstory');i++){seen.push(await p.$eval('.st-k',e=>e.textContent));if(await p.$('#stDone'))break;await p.click('#stN');await p.waitForTimeout(rm==='reduce'?200:1300);if(i===0)await shot('story2');if(seen.length===3)await shot('story-morning')}
 ok(seen.includes('Chapters read')&&seen.includes('When you read')&&seen.includes('Verses you kept')&&seen.includes('Your heart'),tag+' slides '+seen.join('/'));
 ok(/morning reader/.test(await p.evaluate(()=>storySlides().map(s=>s.t).join('|'))),tag+' morning reader');
 await shot('story-end');
 const dl=p.waitForEvent('download',{timeout:5000}).catch(()=>null);await p.click('#stShare');ok(!!(await dl),tag+' story share card');
-await p.click('#stDone');await p.waitForTimeout(300);ok(await p.$('#story')===null,tag+' story closes');
-if(rm!=='reduce'){await p.click('#storyGo');await p.waitForTimeout(7200);ok(await p.evaluate(()=>ST.i)>=1,tag+' story moves on by itself');await p.keyboard.press('Escape');ok(await p.$('#story')===null,tag+' escape closes')}
+await p.click('#stDone');await p.waitForTimeout(300);ok(await p.$('#lstory')===null,tag+' story closes');
+if(rm!=='reduce'){await p.click('#storyGo');await p.waitForTimeout(7200);ok(await p.evaluate(()=>ST.i)>=1,tag+' story moves on by itself');await p.keyboard.press('Escape');ok(await p.$('#lstory')===null,tag+' escape closes')}
 const ov=await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1);ok(ov,tag+' no sideways scroll');
 ok(!errs.length,tag+' no errors '+errs.join('|'));await ctx.close()}}
 await b.close();console.log(log.join('\n'));console.log(fails?fails+' FAILED':'ALL PASS')})();
