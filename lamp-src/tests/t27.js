@@ -11,7 +11,7 @@ await ctx.addInitScript(MOCK);
 await ctx.addInitScript(()=>{const S=window.__mock.store;const now=new Date(Date.now()-3*864e5).toISOString();const d=new Date();const today=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
   const lw=new Date(Date.now()-7*864e5);const last=`${lw.getFullYear()}-${String(lw.getMonth()+1).padStart(2,"0")}-${String(lw.getDate()).padStart(2,"0")}`;
   const days=["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
-  S.set('group/meta',{week:'w7',name:'Thursday group',when:days[d.getDay()]+' at 7 pm'});
+  S.set('group/meta',{week:'w7',at:new Date().toISOString(),name:'Thursday group',when:days[d.getDay()]+' at 7 pm'});
   S.set('gm/u_a',{joined:now,seen:now,ans:{w7:{q0:'That he is close and personal, not distant. Jesus invites us to call him Father.',q2:'Forgive us… is the hardest for me this week.'}},aat:{w7:{q0:now,q2:now}},ck:{w7:{read:true}},pr:{p1:{t:'Please pray for my mom, she has surgery on Friday.',at:now}},here:{[today]:true,[last]:true},re:{'u_b:w7:q0':'💡'},rp:{'u_me:w7:q1':{r1:{t:'Love this, thank you!',at:new Date().toISOString()}}}});
   S.set('gm/u_b',{joined:now,seen:now,ans:{w7:{q0:'He already knows what we need, so prayer is about relationship.'}},aat:{w7:{q0:now}},pr:{p2:{t:'Wisdom for a job decision.',at:now,anon:true}},here:{[last]:true}});
   S.set('gm/u_c',{joined:now,seen:now,here:{[today]:true}});S.set('gm/u_me',{joined:now,seen:now,ans:{w7:{q1:'Because he loves us.'}}});

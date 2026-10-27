@@ -7,7 +7,7 @@ const ctx=await b.newContext({viewport:{width:w,height:h},colorScheme:cs});
 await ctx.addInitScript(()=>{localStorage.setItem('lamp-state-v1',JSON.stringify({done:{1:new Date().toISOString()},notes:{},saved:{},settings:{onboarded:true,welcomed:true,intro:false}}))});
 await ctx.addInitScript(MOCK);
 await ctx.addInitScript(()=>{const S=window.__mock.store;const now=new Date(Date.now()-3*864e5).toISOString();
-  S.set('group/meta',{week:'w7',name:'Thursday group',when:'Thursdays at 7 pm'});
+  S.set('group/meta',{week:'w7',at:new Date().toISOString(),name:'Thursday group',when:'Thursdays at 7 pm'});
   S.set('gm/u_a',{joined:now,seen:now,ans:{w7:{q0:'That he is close and personal, not distant. Jesus invites us to call him Father.',q2:'Forgive us… is the hardest for me this week.'}},ck:{w7:{read:true,tried:true}},sc:{w7:{match:820,quiz:1240}},pr:{p1:{t:'Please pray for my mom, she has surgery on Friday.',at:now}},votes:{'james':true},tests:{som:{best:9}}});
   S.set('gm/u_b',{joined:now,seen:now,ans:{w7:{q0:'He already knows what we need, so prayer is about relationship.'}},ck:{w7:{read:true}},sc:{w7:{verse:900}},pr:{p2:{t:'Wisdom for a job decision.',at:now,anon:true},p3:{t:'Thank you for healing my back!',at:now,ans:true}},praying:{'u_a:p1':true},ideas:{i1:{t:'Women of the Bible',at:now}},votes:{'u_b:i1':true,'james':true}});
   S.set('gm/u_c',{joined:now,seen:now,ck:{w7:{read:true}},votes:{'parables':true}});

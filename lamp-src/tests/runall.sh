@@ -4,7 +4,7 @@
 cd "$(dirname "$0")"
 export PW="${PW:-$(npm root -g)/playwright}"
 pass=0; failed=()
-for t in t36 t37 t38 t40 t41 t42 t43 t44 t45 t46 t25 t27 t28 t31 t33 t34 t16 ../app/t23 ../app/t26 ../app/t29 ../app/t30 ../app/t32 ../app/t35; do
+for t in t36 t37 t38 t40 t41 t42 t43 t44 t45 t46 t47 t25 t27 t28 t31 t33 t34 t16 ../app/t23 ../app/t26 ../app/t29 ../app/t30 ../app/t32 ../app/t35; do
   [ -f "$t.js" ] || continue
   printf '%-10s ' "$t"
   out=$(timeout 900 node "$t.js" 2>&1); code=$?

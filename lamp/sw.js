@@ -1,5 +1,5 @@
 /* Lamp offline support: the app opens without a connection, and Bible text you've read stays available. */
-const V = "lamp-20261024222729";
+const V = "lamp-20261027204153";
 const DATA = "lamp-data-v1"; // Bible text, art and word data never change, so they survive app updates
 const SHELL = ["./", "index.html", "app.js", "app.css", "supabase.js", "manifest.webmanifest", "bible.json", "tests.json", "geo.json", "fun/bank.json", "icons/icon-192.png"];
 // this month's and next month's "A word for today", so an update while offline never leaves it blank
