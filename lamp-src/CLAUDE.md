@@ -36,7 +36,7 @@ A Bible reading and study-group app. It has a 190-day reading path, a reader wit
 | `lamp-src/lamp/lamp.html` | The whole app in one file (HTML, CSS, JS, no framework). It is also the claude.ai artifact. |
 | `lamp-src/app/build.py` | Makes the installed app in `app/dist/`: 24 text swaps (removes AI, adds account settings and group code) plus `app/src/app.js`. Stops with an error if a swap no longer matches. |
 | `lamp-src/app/src/app.js` | Sign-in (email, password, group code) and a Supabase layer that speaks the same `claude.use("db")` / `claude.use("user")` API as the artifact. |
-| `lamp-src/app/src/sw.js` | Service worker. App cache is versioned per build; `lamp-data-v1` keeps `bib/`, `orig/` and `art/*.jpg` across updates. |
+| `lamp-src/app/src/sw.js` | Service worker. App cache is versioned per build; `lamp-data-v1` keeps `bib/`, `orig/` and `art/*.jpg` across updates, except `bib/people.json` and `bib/places.json` (rebuilt data, kept per build; t48). |
 | `lamp-src/app/src/schema.sql` | Supabase tables (`lamp_docs`, `lamp_members`, `lamp_config`) and row-level security. |
 | `lamp-src/app/config.json` | Supabase URL and publishable key. |
 | `lamp/` | The deployed app (built output plus big data: `bib/`, `art/`, `orig/`). Don't edit by hand; rebuild. |
