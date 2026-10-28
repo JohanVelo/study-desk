@@ -2045,6 +2045,19 @@ svg.sat:not(.satfail) .sat-cr{display:inline}
 .five-rev{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
 .five-rev li{padding:10px 12px 10px 14px;border-radius:12px;background:var(--sunk);border-left:4px solid var(--ok);display:flex;flex-direction:column;gap:2px}
 .five-rev li.no{border-left-color:var(--danger,#C0392B)}.five-rev b{font-weight:600;font-size:.95rem}.five-rev span{color:var(--muted);font-size:.88rem}
+.ar{display:flex;gap:8px;align-items:baseline;font-size:.92rem;line-height:1.45;margin-top:4px}.ar i{font-style:normal;font-weight:700;flex:none;width:1.1em;text-align:center}
+.ar span,.five-rev .ar span{color:var(--ink);font-size:.92rem}.ar small{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+.ar.r i{color:var(--ok)}.ar.r span{font-weight:600}.ar.m i{color:var(--danger,#C0392B)}.ar.m s{text-decoration-thickness:1.5px;text-decoration-color:color-mix(in srgb,var(--danger,#C0392B) 70%,transparent);color:var(--muted)}
+.five-rev .arf{display:block;margin-top:4px;color:var(--muted);font-size:.86rem;line-height:1.45}.ar-k{margin:14px 0 8px}
+.trv .ar{margin:6px 0 2px}.fq-f.miss{background:color-mix(in srgb,var(--danger,#C0392B) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--danger,#C0392B) 35%,transparent)}
+.lright{margin:8px 0 0;font-weight:600}.lright small{display:block;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+button.chip{border:0;cursor:pointer;min-height:36px}button.wks-fl{border:0;cursor:pointer;position:relative}
+.wks-g{font-size:.72rem;font-weight:700;padding:2px 6px;border-radius:999px;background:var(--surface);color:color-mix(in srgb,var(--gold) 60%,var(--ink))}
+.stk-top{display:flex;gap:16px;align-items:center;margin:4px 0 14px}.stk-top h2{margin:0}.stk-top p{margin:2px 0 0}
+.stk-fl{display:inline-flex;align-items:center;gap:6px;padding:12px 16px;border-radius:18px;background:var(--gold-soft);color:var(--gold)}.stk-fl svg{width:26px;height:26px}.stk-fl b{font:700 2rem/1 var(--f-body);font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--gold) 65%,var(--ink))}
+.stk-grace{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:var(--sunk);margin-bottom:10px}.stk-grace i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface);color:var(--muted);opacity:.55}
+.stk-grace i.on{background:var(--gold-soft);color:var(--gold);opacity:1}.stk-grace svg{width:16px;height:16px}.stk-grace span{margin-left:4px;font-weight:600}
+.stk-used{margin:0 0 12px;color:var(--muted)}.stk-how{margin:6px 0 0;padding-left:1.1em;display:flex;flex-direction:column;gap:8px;line-height:1.5}
 .pr-wrap{position:relative;width:100%;max-width:360px;margin:0 auto;aspect-ratio:7/9;border-radius:16px;overflow:hidden;background:var(--sunk)}
 .pr-img{position:absolute;inset:0}
 .pr-tiles{position:absolute;inset:0;display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(6,1fr)}
@@ -2112,7 +2125,7 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
     <div class="slides" id="slides">
       <section class="slide"><div class="ico" id="oi1"></div><div class="k" id="onbHi">Welcome</div><h2>One chapter a day</h2><p>Lamp walks you through the Bible's big story in 190 short daily readings, starting with the life of Jesus. About five minutes a day.</p><div class="onb-mode" role="group" aria-label="Read or listen"><span>Do you prefer to</span><button data-mode="read" aria-pressed="true">Read</button><button data-mode="listen" aria-pressed="false">Listen</button></div></section>
       <section class="slide"><div class="ico" id="oi2"></div><div class="k">Never feel lost</div><h2>Understand what you read</h2><p>Every chapter comes with a plain-English summary, background, a map and a guide you can ask anything. Tap any verse to save it or ask about it.</p></section>
-      <section class="slide"><div class="ico" id="oi3"></div><div class="k">Make it yours</div><h2>Keep your lamp burning</h2><p>Each day has four short steps: read, reflect, remember a verse, and see your group. The little flame at the top glows brighter the longer your streak.</p></section>
+      <section class="slide"><div class="ico" id="oi3"></div><div class="k">Make it yours</div><h2>Keep your lamp burning</h2><p>Each day has four short steps: read, reflect, remember a verse, and see your group. The little flame at the top glows brighter the longer your streak, and grace days cover the odd missed day.</p></section>
       <section class="slide"><div class="ico" id="oi4"></div><div class="k">Your Bible study group</div><h2>Study together</h2><p>The <b>Group</b> tab has this week's passage, questions, icebreakers, games and the prayer wall. You're signed in through Claude, so Lamp remembers you. No password, and nothing to set up.</p></section>
     </div>
     <div class="onb-ctl"><div class="dots" id="dots"><i class="on"></i><i></i><i></i><i></i></div><div><button class="ghostbtn" id="onbSkip">Skip</button><button class="go" id="onbNext">Next</button></div></div>
@@ -2136,7 +2149,7 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
   <div style="min-width:0">
     <header class="topbar">
       <div class="brand"><span id="logo2"></span>Lamp</div>
-      <div class="tr"><span class="chip gold" id="topStreak"></span><button class="icon-btn" data-search="1" aria-label="Search the Bible" id="search2"></button><button class="icon-btn" data-settings="1" aria-label="Settings" id="gear2"></button></div>
+      <div class="tr"><button class="chip gold" id="topStreak" data-streak="1"></button><button class="icon-btn" data-search="1" aria-label="Search the Bible" id="search2"></button><button class="icon-btn" data-settings="1" aria-label="Settings" id="gear2"></button></div>
     </header>
     <main><div class="col" id="view"></div></main>
   </div>
@@ -2772,14 +2785,17 @@ async function fFive(){const F=await loadFun();const box=$("#fun");if(!box)retur
   const qs=[L1[0],L1[1],L2[0],L2[1],L3[0]].map(([x,i])=>{const rr=rngFor("five-o-"+funDay()+i);const o=shufR(x.a,rr);return{q:x.q,o,c:o.indexOf(x.a[0]),r:CATL[x.c]||"",f:withRef(x.f,x.ref),ref:x.ref,id:"b"+i}});
   let st=dGet("five")||{a:[],done:false};
   const draw=()=>{const i=st.a.length;if(st.done||i>=5){st.done=true;dSet("five",st);
-      box.innerHTML=funHead("Today's five",`${st.a.filter(Boolean).length} of 5 right`)+`<ol class="five-rev">${qs.map((q,k)=>`<li class="${st.a[k]?"ok":"no"}"><b>${esc(q.q)}</b><span>${esc(q.o[q.c])}${q.f?` · ${esc(q.f)}`:""}</span></li>`).join("")}</ol>`;
+      box.innerHTML=funHead("Today's five",`${st.a.filter(Boolean).length} of 5 right`)+ansRev(qs.map((q,k)=>({q:q.q,ok:st.a[k],right:q.o[q.c],mine:st.k&&st.k[k]!=null?q.o[st.k[k]]:undefined,f:q.f})));
       markSeen(qs.map(q=>q.id));funDone("five","Today's five",["Tomorrow's a new set.","A good start.","Not bad at all.","Well done.","So close to perfect!","Perfect score!"][st.a.filter(Boolean).length],`Lamp · Today's five, day ${funDay()+1}: ${st.a.filter(Boolean).length}/5\n${st.a.map(x=>x?"🟩":"🟥").join("")}`);return}
     const q=qs[i];box.innerHTML=funHead("Today's five",`Question ${i+1} of 5 · ${["Warm up","Warm up","Getting harder","Getting harder","The tough one"][i]}`)+qCard(q);
-    box.querySelectorAll("[data-qo]").forEach(b=>b.onclick=()=>{const k=+b.dataset.qo,ok=k===q.c;revealQ(q,k);st.a.push(ok);dSet("five",{...st,done:false});setTimeout(draw,ok?1300:2400)})};
+    box.querySelectorAll("[data-qo]").forEach(b=>b.onclick=()=>{const k=+b.dataset.qo,ok=k===q.c;revealQ(q,k);st.a.push(ok);st.k=(st.k||[]).concat(k);dSet("five",{...st,done:false});setTimeout(draw,ok?1300:3200)})};
   draw()}
 const qCard=q=>`<div class="qcard fun-q">${q.img!=null?`<div class="fq-img" style="background:${artThumb(q.img)}" role="img" aria-label="An engraving by Gustave Doré"></div>`:""}<div class="kicker">${esc(q.r||"")}</div><h3>${esc(q.q)}</h3><div class="qopts">${q.o.map((t,k)=>`<button class="qo q${k}" data-qo="${k}">${esc(t)}</button>`).join("")}</div><p class="fq-f" hidden></p></div>`;
+/* a review list: what you picked, and always the right answer */
+const ansRev=(items,cls="")=>`<ol class="five-rev ans-rev ${cls}">${items.map(x=>`<li class="${x.ok?"ok":"no"}"><b>${esc(x.q)}</b>${x.ok?"":x.mine===undefined?"":`<div class="ar m"><i aria-hidden="true">✗</i><span><small>${x.mine===null?"No answer given":"You said"}</small>${x.mine===null?"":` <s>${esc(x.mine)}</s>`}</span></div>`}<div class="ar r"><i aria-hidden="true">✓</i><span><small>${x.ok?"You got it":"Right answer"}</small> ${esc(x.right)}</span></div>${x.f?`<span class="arf">${esc(x.f)}</span>`:""}</li>`).join("")}</ol>`;
+const rightLine=(q,ok)=>ok?(q.f||""):`The answer: ${q.o[q.c]}.${q.f?" "+q.f:""}`;
 function revealQ(q,k){const ok=k===q.c;document.querySelectorAll("[data-qo]").forEach(b=>{b.disabled=true;const n=+b.dataset.qo;b.classList.toggle("right",n===q.c);b.classList.toggle("wrong",n===k&&!ok)});
-  const f=$(".fq-f");if(f&&q.f){f.hidden=false;f.textContent=q.f}if(ok){burst($(`[data-qo="${k}"]`),10);buzz(10)}else buzz([30,40,30])}
+  const f=$(".fq-f"),t=rightLine(q,ok);if(f&&t){f.hidden=false;f.textContent=t;f.classList.toggle("miss",!ok)}if(ok){burst($(`[data-qo="${k}"]`),10);buzz(10)}else buzz([30,40,30])}
 
 /* Picture reveal: the engraving appears tile by tile */
 function fPic(){const box=$("#fun");const r=rngFor("pic-"+funDay());const ids=ART.map((a,i)=>i).filter(i=>i<100);const i=dayPick(ids,"pic",r);
@@ -2794,7 +2810,7 @@ function fPic(){const box=$("#fun");const r=rngFor("pic-"+funDay());const ids=AR
     if(st.done&&!box.querySelector(".fun-end")){const pts=st.won?Math.max(1,7-Math.ceil(st.n/4)):0;
       box.insertAdjacentHTML("beforeend",`<div class="wverse"><div class="kicker">${esc(ART[i][1]||"")}</div><p>From Gustave Doré's illustrated Bible, 1866.</p>${ART[i][2]?`<button class="linkbtn" id="prRead">Read the story</button>`:""}</div>`);
       $("#prRead")?.addEventListener("click",()=>{$("#scrim")?.remove();openPassage(passFor(ART[i][2],ART[i][3]),false)});
-      funDone("pic","Picture reveal",st.won?`You got it with ${st.n} of 24 pieces showing.`:"This one was tricky.",`Lamp · Picture reveal, day ${funDay()+1}: ${st.won?"🖼️ "+st.n+"/24 pieces":"❌"}`)}};
+      funDone("pic","Picture reveal",st.won?`You got it with ${st.n} of 24 pieces showing.`:`This one was tricky. It was ${esc(ART[i][0])}.`,`Lamp · Picture reveal, day ${funDay()+1}: ${st.won?"🖼️ "+st.n+"/24 pieces":"❌"}`)}};
   draw()}
 
 /* Connections */
@@ -2840,12 +2856,12 @@ async function fOrder(){const F=await loadFun();const box=$("#fun");if(!box)retu
 const ECATS=[["mix","A bit of everything"],["jesus","Jesus"],["people","People"],["places","Places"],["events","Big moments"],["parables","Parables"],["miracles","Miracles"],["words","Words & ideas"],["wisdom","Wisdom"],["numbers","Numbers"],["books","The books"]];
 function openEndless(cat){openSheet(`<div class="fun" id="fun"></div>`,"Keep playing");$("#scrim").classList.add("fun-scrim");const box=$("#fun");
   if(!cat){box.innerHTML=funHead("Keep playing","Fresh questions, never the same round twice")+`<div class="ecats">${ECATS.map(([k,l])=>`<button data-ec="${k}">${esc(l)}</button>`).join("")}</div>`;box.querySelectorAll("[data-ec]").forEach(b=>b.onclick=()=>openEndless(b.dataset.ec));return}
-  box.innerHTML=`<div class="skel">${"<i></i>".repeat(3)}</div>`;let i=0,pts=0,run=0,Q=[];
+  box.innerHTML=`<div class="skel">${"<i></i>".repeat(3)}</div>`;let i=0,pts=0,run=0,Q=[];const missed=[];
   const more=async()=>{Q=Q.concat(await freshQs(10,{cats:cat==="mix"?null:[cat]}))};
   const draw=()=>{const q=Q[i];if(!q){box.innerHTML=funHead("Keep playing","That's every question in this group for now")+`<button class="btn" id="eBack">Pick another group</button>`;$("#eBack").onclick=()=>openEndless();return}
     box.innerHTML=funHead(ECATS.find(x=>x[0]===cat)[1],`Question ${i+1} · ${pts} right${run>2?` · ${run} in a row`:""}`)+qCard(q)+`<div class="actions e-acts"><button class="btn ghost sm" id="eStop">Finish</button></div>`;
-    box.querySelectorAll("[data-qo]").forEach(b=>b.onclick=async()=>{const k=+b.dataset.qo,ok=k===q.c;revealQ(q,k);markSeen([q.id]);if(ok){pts++;run++}else run=0;i++;if(Q.length-i<3)more();setTimeout(draw,ok?(q.f?1700:900):2600)});
-    $("#eStop").onclick=()=>{box.innerHTML=funHead("Nice round",`${pts} of ${i} right`)+`<div class="actions"><button class="btn primary" id="eAgain">Play another round</button><button class="btn ghost" id="eCats">Pick a group</button></div>`;$("#eAgain").onclick=()=>openEndless(cat);$("#eCats").onclick=()=>openEndless();funStreakTick();paintFresh()}};
+    box.querySelectorAll("[data-qo]").forEach(b=>b.onclick=async()=>{const k=+b.dataset.qo,ok=k===q.c;revealQ(q,k);markSeen([q.id]);if(ok){pts++;run++}else{run=0;missed.push({q:q.q,ok:false,right:q.o[q.c],mine:q.o[k],f:q.f})}i++;if(Q.length-i<3)more();setTimeout(draw,ok?(q.f?1700:900):3200)});
+    $("#eStop").onclick=()=>{box.innerHTML=funHead("Nice round",`${pts} of ${i} right`)+(missed.length?`<div class="kicker ar-k">The ones to remember</div>${ansRev(missed)}`:"")+`<div class="actions"><button class="btn primary" id="eAgain">Play another round</button><button class="btn ghost" id="eCats">Pick a group</button></div>`;$("#eAgain").onclick=()=>openEndless(cat);$("#eCats").onclick=()=>openEndless();funStreakTick();paintFresh()}};
   more().then(draw)}
 
 /* ---------- The "New today" corner ---------- */
@@ -2999,17 +3015,29 @@ const dayKey=d=>{d=new Date(d);return `${d.getFullYear()}-${d.getMonth()+1}-${d.
 function readDays(){return new Set(Object.values(state.done).filter(Boolean).map(dayKey))}
 /* a quiet time keeps the flame lit too, and one rest day in any week doesn't break it */
 function streakDays(){ const days=readDays(); for(const k of Object.keys(state.qt||{})){const [y,m,dd]=k.split("-").map(Number);if(state.qt[k])days.add(dayKey(new Date(y,m-1,dd)))} return days; }
-/* the run of days ending on `end` (or the day before, if `end` itself is empty), allowing one rest day in any 7 */
-function runTo(days,end){ let n=0,d=new Date(end),rest=-99; if(!days.has(dayKey(d))) d.setDate(d.getDate()-1);
-  for(let i=0;i<5000;i++){ if(days.has(dayKey(d))){n++;d.setDate(d.getDate()-1);continue}
-    const p=new Date(d);p.setDate(p.getDate()-1); if(n-rest>=6&&days.has(dayKey(p))){rest=n;d=p;continue} break }
-  return n; }
-function streak(){ return runTo(streakDays(),new Date()); }
-function bestStreak(){ const days=streakDays(); let best=0;
-  for(const k of days){ const [y,m,d]=k.split("-").map(Number); const t=new Date(y,m-1,d); const nx=new Date(t); nx.setDate(nx.getDate()+1);
-    if(days.has(dayKey(nx))) continue; /* only measure from the last day of each run */
-    best=Math.max(best,runTo(days,t)); }
-  return Math.max(best,streak()); }
+/* Walk the days from the first one read up to `end`. A missed day is forgiven by the free rest day (one in any 7 read days),
+   then by a grace day: every 7 days in a row earns one, up to 3 saved. Today never breaks the streak, because it isn't over. */
+const GRACE_MAX=3;
+function streakRun(days,end){ const out={n:0,best:0,bank:0,used:0,rests:0};if(!days.size)return out;
+  let d=null;for(const k of days){const [y,m,dd]=k.split("-").map(Number);const t=new Date(y,m-1,dd);if(!d||t<d)d=t}
+  const e=new Date(end||Date.now());e.setHours(0,0,0,0);let n=0,bank=0,rest=-99,used=0,rests=0,best=0;
+  for(let i=0;i<20000&&d<=e;i++){const today=+d===+e;
+    if(days.has(dayKey(d))){n++;if(n%7===0&&bank<GRACE_MAX)bank++;if(n>best)best=n}
+    else if(!today&&n>0){if(n-rest>=6){rest=n;rests++}else if(bank>0){bank--;used++}else{n=0;bank=0;rest=-99;used=0;rests=0}}
+    d.setDate(d.getDate()+1)}
+  return {n,best,bank,used,rests} }
+const runTo=(days,end)=>streakRun(days,end).n; /* reading-buddy streaks use the same rules */
+let SRC=null;function streakNow(){const days=streakDays(),k=dayKey(new Date())+"|"+[...days].join(",");if(!SRC||SRC.k!==k)SRC={k,r:streakRun(days,new Date())};return SRC.r}
+function streak(){ return streakNow().n; }
+function bestStreak(){ return streakNow().best; }
+function graceLine(r){return r.bank?`${r.bank} grace day${r.bank===1?"":"s"} saved`:r.n?`Next grace day in ${7-r.n%7} day${7-r.n%7===1?"":"s"}`:"Read 7 days in a row to earn a grace day"}
+function openStreak(){const r=streakNow();
+  openSheet(`<div class="pcard stk"><div class="kick">Your streak</div><div class="stk-top"><span class="stk-fl">${I.flame}<b>${r.n}</b></span><div><h2>${r.n?`${plural(r.n,"day")} and counting`:"Light your lamp today"}</h2><p class="muted">Best ever: ${plural(r.best,"day")}</p></div></div>
+    <div class="stk-grace" role="img" aria-label="${esc(graceLine(r))}, out of ${GRACE_MAX}">${Array.from({length:GRACE_MAX},(_,k)=>`<i class="${k<r.bank?"on":""}">${I.flame}</i>`).join("")}<span>${esc(graceLine(r))}</span></div>
+    ${r.used?`<p class="stk-used">${plural(r.used,"grace day")} kept this streak going.</p>`:""}
+    <div class="kicker">How it works</div>
+    <ul class="stk-how"><li><b>Read or have a quiet time</b> on any day and your lamp stays lit.</li><li><b>One rest day a week is free.</b> Miss a day after six days of reading and nothing is lost.</li><li><b>Grace days:</b> every 7 days in a row earns one, and you can save up to ${GRACE_MAX}. If you miss another day, one is used for you automatically.</li><li>Today only counts against you once it's over, so there's always time to read.</li></ul></div>`,"Your streak");}
+function graceNotice(){try{const r=streakNow(),k="lamp-grace-used",seen=+localStorage.getItem(k)||0;if(r.used>seen&&r.n)toast(`Your ${r.n}-day streak is safe. A grace day covered a missed day.`);localStorage.setItem(k,String(r.used))}catch(e){}}
 function md(t){
   const lines=esc(t).split(/\n/);let out="",inList=false;
   const inline=s=>s.replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>").replace(/(^|[^*])\*(?!\s)(.+?)\*/g,"$1<em>$2</em>");
@@ -3060,7 +3088,7 @@ function renderNav(){
   const html=VIEWS.map(([k,l])=>`<button data-v="${k}" ${view===k?'aria-current="page"':""}>${I[k]}<span>${l}</span></button>`).join("");
   if(!$("#navBtns")){$("#nav").innerHTML=`<span class="nav-ind" id="navInd"></span><div id="navBtns" style="display:flex;flex-direction:column;gap:4px"></div>`;$("#tabbar").innerHTML=`<span class="tab-ind" id="tabInd"></span><div class="tabbtns" id="tabBtns"></div>`}
   $("#navBtns").innerHTML=html;$("#tabBtns").innerHTML=html;
-  const s=streak();$("#topStreak").innerHTML=`${I.flame}${s}`;$("#topStreak").title=`${s} day streak. Reading or a quiet time keeps it lit, and one rest day a week won't break it.`;
+  const sr=streakNow(),s=sr.n;$("#topStreak").innerHTML=`${I.flame}${s}`;$("#topStreak").setAttribute("aria-label",`${s} day streak, ${graceLine(sr).toLowerCase()}. Open your streak`);$("#topStreak").title=`${s} day streak · ${graceLine(sr)}`;
   document.documentElement.style.setProperty("--glow",(1.5+Math.min(s,10)*1.1).toFixed(1));
   $("#lampnote").textContent=s?`Burning for ${s} day${s===1?"":"s"}`:"Light it with today's reading";
   requestAnimationFrame(placeInd);gDots();
@@ -3140,7 +3168,7 @@ function vToday(){
 const weekGoal=()=>+state.settings.weekGoal||4;
 function weekRead(){const k=myReadKeys();return ringWeek().filter(x=>k.has(x)).length}
 function weekStrip(pct){const wk=ringWeek(),mk=myReadKeys(),t=hereDay(),n=weekRead(),g=weekGoal(),s=streak(),L=["M","T","W","T","F","S","S"],F=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
-  return `<div class="wks"><div class="wks-row"><span class="wks-fl${s?" on":""}">${I.flame}<b class="odo">${s}</b><small>day streak</small></span>
+  return `<div class="wks"><div class="wks-row"><button class="wks-fl${s?" on":""}" data-streak="1" aria-label="${s} day streak, ${esc(graceLine(streakNow()).toLowerCase())}. Open your streak">${I.flame}<b class="odo">${s}</b><small>day streak</small>${streakNow().bank?`<span class="wks-g" aria-hidden="true">+${streakNow().bank}</span>`:""}</button>
     <ol class="wks-d">${wk.map((k,i)=>`<li class="${mk.has(k)?"on":""}${k===t?" now":""}${k>t?" fut":""}" data-wk="${k}"><i>${mk.has(k)?I.check:""}</i><span aria-hidden="true">${L[i]}</span><span class="sr-only">${F[i]}${mk.has(k)?", read":""}</span></li>`).join("")}</ol></div>
     <div class="wks-sub"><span class="${n>=g?"ok":""}">${n>=g?`Weekly goal met · ${n} day${n===1?"":"s"}`:`${n} of ${g} days this week`}</span><span aria-hidden="true">·</span><span>${pct}% of the path</span>${buddyChip()}</div></div>`}
 function weekChip(){const n=weekRead(),g=weekGoal();return `<span class="chip${n>=g?" ok":""}" title="Your goal is ${g} days a week">${n>=g?I.check:""}${Math.min(n,7)} of ${g} days this week</span>`}
@@ -4109,7 +4137,7 @@ async function runQuiz(day){
       const j=+btn.dataset.j;const ok=j===q.answer;
       box.querySelectorAll(".qz-opts button").forEach(b=>{b.disabled=true;if(+b.dataset.j===q.answer)b.classList.add("right")});
       if(!ok)btn.classList.add("wrong");else burst(btn,8);
-      const w=box.querySelector(".why");w.textContent=(ok?"Correct. ":"Not quite. ")+(q.why||"");w.hidden=false;
+      const w=box.querySelector(".why");w.textContent=(ok?"Correct. ":`Not quite. The answer: ${q.options[q.answer]}. `)+(q.why||"");w.hidden=false;
       answered++;if(ok)score++;
       if(answered===qs.length){
         const n=state.notes[day]||{};const best=Math.max(n.quiz??0,score);n.quiz=best;n.at=n.at||new Date().toISOString();state.notes[day]=n;queue({notes:{[day]:{quiz:best,at:n.at}}});
@@ -5185,8 +5213,8 @@ function endGame(){G.game=null;gBody(true)}
 function saveScore(k,pts){const w=WK();const prev=mine().sc?.[w.id]?.[k]||0;if(pts>prev){gWrite({sc:{[w.id]:{[k]:pts}}},1);return true}return false}
 function gameShell(title,inner){return `<div class="ghd"><button class="btn sm ghost" id="gBack">${I.left}${G.test?"Tests":"Games"}</button><b>${title}</b><span class="gstat" id="gStat"></span></div>${inner}`}
 function runGame(){const k=G.game.k;({match:gmMatch,verse:gmVerse,quiz:gmQuiz,live:gmLive})[k]();$("#gBack")?.addEventListener("click",()=>{if(k==="live")liveLeave();endGame()})}
-function finishCard(title,pts,best,again){
-  $("#gGame").innerHTML=gameShell(title,`<div class="gdone"><div class="gscore">${pts}</div><p>${best?"New personal best!":"points"}</p><div class="gbtns"><button class="btn primary" id="gAgain">Play again</button><button class="btn ghost" id="gHome">All games</button></div></div>`);
+function finishCard(title,pts,best,again,extra){
+  $("#gGame").innerHTML=gameShell(title,`<div class="gdone"><div class="gscore">${pts}</div><p>${best?"New personal best!":"points"}</p><div class="gbtns"><button class="btn primary" id="gAgain">Play again</button><button class="btn ghost" id="gHome">All games</button></div></div>${extra||""}`);
   burst($(".gscore"),30);buzz(40);$("#gAgain").onclick=again;$("#gHome").onclick=endGame;$("#gBack").onclick=endGame;
 }
 async function matchPairs(w){const own=freshOrder(w.pairs,p=>"m"+p[0]).slice(0,4);markSeen(own.map(p=>"m"+p[0]));const out=own.slice();
@@ -5231,16 +5259,16 @@ function quizPool(){const w=WK();const idx=wkIdx(w.id);const own=w.quiz.map(q=>[
   return shuffle([...own,...rest]).map(([q,o,r])=>{const opts=shuffle(o.map((t,k)=>({t,ok:k===0})));return{q,o:opts.map(x=>x.t),c:opts.findIndex(x=>x.ok),r}})}
 async function gmQuiz(){
   $("#gGame").innerHTML=gameShell("Quick quiz",`<div class="skel">${"<i></i>".repeat(3)}</div>`);$("#gBack").onclick=endGame;
-  const Q=await freshQs(8,{wk:WK()});if(!$("#gGame"))return;let i=0,pts=0,streak=0,timer=null,t0=0;
+  const Q=await freshQs(8,{wk:WK()});if(!$("#gGame"))return;let i=0,pts=0,streak=0,timer=null,t0=0;const log=[];
   const draw=()=>{const q=Q[i];t0=Date.now();
     $("#gGame").innerHTML=gameShell("Quick quiz",`<div class="qbar"><i id="qT"></i></div><div class="qcard">${q.img!=null?`<div class="fq-img" style="background:${artThumb(q.img)}" role="img" aria-label="An engraving by Gustave Doré"></div>`:""}<div class="kicker">Question ${i+1} of ${Q.length} · ${esc(q.r)}</div><h3>${esc(q.q)}</h3><div class="qopts">${q.o.map((t,k)=>`<button class="qo q${k}" data-qo="${k}">${esc(t)}</button>`).join("")}</div><p class="fq-f" hidden></p></div>`);
     $("#gStat").textContent=`${pts} pts${streak>1?` · 🔥${streak}`:""}`;$("#gBack").onclick=()=>{clearInterval(timer);endGame()};
     const T=$("#qT");timer=setInterval(()=>{const f=1-(Date.now()-t0)/15000;if(!$("#qT")){clearInterval(timer);return}T.style.width=Math.max(0,f*100)+"%";if(f<=0){clearInterval(timer);answer(-1)}},100);
     document.querySelectorAll("[data-qo]").forEach(b=>b.onclick=()=>{clearInterval(timer);answer(+b.dataset.qo)});};
-  const answer=k=>{const q=Q[i];const ok=k===q.c;markSeen([q.id]);const ff=$(".fq-f");if(ff&&q.f){ff.hidden=false;ff.textContent=q.f}document.querySelectorAll("[data-qo]").forEach(b=>{b.disabled=true;const n=+b.dataset.qo;b.classList.toggle("right",n===q.c);b.classList.toggle("wrong",n===k&&!ok)});
+  const answer=k=>{const q=Q[i];const ok=k===q.c;markSeen([q.id]);log.push({q:q.q,ok,right:q.o[q.c],mine:k<0?null:q.o[k],f:q.f});const ff=$(".fq-f"),ft=rightLine(q,ok);if(ff&&ft){ff.hidden=false;ff.textContent=ft;ff.classList.toggle("miss",!ok)}document.querySelectorAll("[data-qo]").forEach(b=>{b.disabled=true;const n=+b.dataset.qo;b.classList.toggle("right",n===q.c);b.classList.toggle("wrong",n===k&&!ok)});
     if(ok){streak++;const gain=Math.round(100+100*Math.max(0,1-(Date.now()-t0)/15000))+(streak>2?25:0);pts+=gain;burst($(`[data-qo="${k}"]`),10);buzz(10)}else{streak=0;buzz([30,40,30])}
     $("#gStat").textContent=`${pts} pts${streak>1?` · 🔥${streak}`:""}`;
-    setTimeout(()=>{i++;if(i<Q.length)draw();else finishCard("Quick quiz",pts,saveScore("quiz",pts),gmQuiz)},(ok?900:1600)+(q.f?900:0))};
+    setTimeout(()=>{i++;if(i<Q.length)draw();else{const m=log.filter(x=>!x.ok);finishCard("Quick quiz",pts,saveScore("quiz",pts),gmQuiz,m.length?`<div class="kicker ar-k">The ones to remember</div>${ansRev(m)}`:"")}},(ok?900:2400)+(q.f?900:0))};
   draw();
 }
 
@@ -5294,7 +5322,7 @@ function gmLive(){
   if(L.ph==="rev"){
     const q=L.qs[L.i];const counts=q[1].map((_,k)=>joined.filter(id=>G.lv[id]?.a?.[L.i]?.c===k).length);const mx=Math.max(1,...counts);const my=G.lv[G.id]?.a?.[L.i];const ok=my&&my.c===q[2];
     box.innerHTML=gameShell("Play together",`<div class="qcard live"><div class="kicker">Question ${L.i+1} of ${L.qs.length}</div><h3>${esc(q[0])}</h3>
-      <div class="lres ${ok?"ok":"no"}">${ok?"Correct!":my?"Not this time":"No answer"}</div>
+      <div class="lres ${ok?"ok":"no"}">${ok?"Correct!":my?"Not this time":"No answer"}</div>${ok?"":`<p class="lright"><small>Right answer</small> ${esc(q[1][q[2]])}</p>`}
       <div class="lbars">${q[1].map((t,k)=>`<div class="lbar ${k===q[2]?"right":""}"><span>${esc(t)}</span><i style="--w:${counts[k]/mx*100}%"></i><b>${counts[k]}</b></div>`).join("")}</div>
       <p class="muted">${esc(q[3]||"")}</p>${boardHTML(5)}
       ${host?`<div class="hostbar"><button class="btn primary" id="lvNext">${L.i+1<L.qs.length?"Next question":"See the winners"}</button></div>`:""}</div>`);
@@ -5337,7 +5365,7 @@ function runTest(){
     const pct=Math.round(T.right/t.qs.length*100);const prev=myTests()[t.id]?.best||0;const best=T.right>prev;
     if(best&&!t.gen){const v={best:T.right,at:new Date().toISOString()};state.tests={...(state.tests||{}),[t.id]:v};lsWrite();gWrite({tests:{[t.id]:v}},1)}
     box.innerHTML=gameShell(esc(t.title),`<div class="gdone"><div class="tring" style="--p:${pct}%"><span>${T.right}<small>/${t.qs.length}</small></span></div><h3>${pct>=90?"Outstanding":pct>=70?"Really good":pct>=50?"Solid start":"Keep reading, it'll come"}</h3><p class="muted">${best&&!t.gen?"New personal best. ":""}Review what you missed below, then read those passages.</p><div class="gbtns center"><button class="btn primary" id="tAgain">Try again</button><button class="btn ghost" id="tHome">All tests</button></div></div>
-      <div class="treview">${T.log.map(([q,ok,ans])=>`<div class="trv ${ok?"ok":""}"><b>${ok?"✓":"✗"} ${esc(q.q)}</b><p>${esc(q.o[0])}. ${esc(q.why)}</p><button class="linkbtn" data-tr="${esc(q.r)}">${I.open}Read ${esc(refLabel(q.r))}</button></div>`).join("")}</div>`);
+      <div class="treview">${T.log.map(([q,ok,ans])=>`<div class="trv ${ok?"ok":""}"><b>${ok?"✓":"✗"} ${esc(q.q)}</b>${ok?"":`<div class="ar m"><i aria-hidden="true">✗</i><span><small>You said</small> <s>${esc(q._o?.[ans]??"")}</s></span></div>`}<div class="ar r"><i aria-hidden="true">✓</i><span><small>${ok?"You got it":"Right answer"}</small> ${esc(q.o[0])}</span></div><p>${esc(q.why)}</p><button class="linkbtn" data-tr="${esc(q.r)}">${I.open}Read ${esc(refLabel(q.r))}</button></div>`).join("")}</div>`);
     if(pct>=70)burst($(".tring"),30);
     $("#tAgain").onclick=()=>{G.test={t,i:0,right:0,log:[]};runTest()};$("#tHome").onclick=()=>{G.test=null;gBody(true)};$("#gBack").onclick=()=>{G.test=null;gBody(true)};
     box.querySelectorAll("[data-tr]").forEach(b=>b.onclick=()=>openRef(b.dataset.tr));return}
@@ -6185,6 +6213,7 @@ document.addEventListener("click",e=>{
   if(e.target.closest("[data-gotest]")){G.sub="test";G.test=null;G.game=null;setView("group");return}
   const nb=e.target.closest("[data-v]");if(nb){setView(nb.dataset.v);return}
   const lj=e.target.closest("[data-learn]");if(lj){learnJump=lj.dataset.learn;setView("learn");return}
+  if(e.target.closest("[data-streak]")){openStreak();return}
   if(e.target.closest("[data-settings]")){openSettings();return}
   if(e.target.closest("[data-search]")){openSearch();return}
   if(e.target.closest("#emptyRead")){openReader(curDay(),false)}
@@ -6262,7 +6291,7 @@ document.addEventListener("keydown",e=>{if(e.key!=="Tab")return;const ds=[...doc
   const a=document.activeElement;if(e.shiftKey&&(a===f[0]||!d.contains(a))){e.preventDefault();f[f.length-1].focus()}else if(!e.shiftKey&&(a===f[f.length-1]||!d.contains(a))){e.preventDefault();f[0].focus()}});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")flush();else dayCheck()});
 let shownWk=null;function wkCheck(){const c=curWk();if(shownWk&&shownWk!==c&&!G.wkPick){G.wk=null;if(view==="group"&&!G.game&&!G.test&&!$("#scrim")&&!R)render();else gPaint()}shownWk=c}
-let shownDay=null;function dayCheck(){wkCheck();const d=hereDay();if(shownDay&&shownDay!==d&&!R&&!$("#scrim")&&!document.querySelector("#layer>*")&&(view==="today"||view==="path")){state.selected=null;RV.list=null;render()}shownDay=d}
+let shownDay=null;function dayCheck(){wkCheck();graceNotice();const d=hereDay();if(shownDay&&shownDay!==d&&!R&&!$("#scrim")&&!document.querySelector("#layer>*")&&(view==="today"||view==="path")){state.selected=null;RV.list=null;render()}shownDay=d}
 setInterval(dayCheck,60000);setTimeout(dayCheck,0);
 $("#logo1").innerHTML=I.logo;$("#logo2").innerHTML=I.logo;$("#gear1").innerHTML=I.gear;$("#gear2").innerHTML=I.gear;$("#search1").innerHTML=I.search;$("#search2").innerHTML=I.search;
 

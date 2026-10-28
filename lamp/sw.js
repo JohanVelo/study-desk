@@ -1,5 +1,5 @@
 /* Lamp offline support: the app opens without a connection, and Bible text you've read stays available. */
-const V = "lamp-20261027211523";
+const V = "lamp-20261028141434";
 const DATA = "lamp-data-v1"; // Bible text, art and word data never change, so they survive app updates
 // people and places are rebuilt now and then, so they live in the per-build cache, never the long-lived one
 const FRESH = /\/bib\/(people|places)\.json$/;
