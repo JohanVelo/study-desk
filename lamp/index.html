@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261028141434">
+<link rel="stylesheet" href="app.css?v=20261028183314">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261028141434"></script>
+<script src="app.js?v=20261028183314"></script>
 </head>
 <body>
 <style>
@@ -459,7 +459,7 @@ html[data-dir="back"]::view-transition-old(root){animation-name:vtOutBack}
 .brand .flame{filter:drop-shadow(0 0 calc(var(--glow)*1px) color-mix(in srgb,var(--gold) 80%,transparent))}
 .brand svg.flare .flame{animation:flare .9s var(--expo)}
 @keyframes flare{0%{transform:scale(1)}35%{transform:scale(1.7);filter:drop-shadow(0 0 14px var(--gold))}100%{transform:scale(1)}}
-.lampnote{font-size:.8rem;color:var(--muted);margin:-18px 0 0 38px}
+.lampnote{display:block;font-size:.8rem;color:var(--muted);margin:-18px 0 0 38px;padding:4px 0;border:0;background:none;text-align:left;cursor:pointer;line-height:1.35}.lampnote:hover{color:var(--ink)}
 
 .scripture .v.hl-g{background:color-mix(in srgb,var(--gold) 24%,transparent);border-radius:3px}
 .scripture .v.hl-b{background:color-mix(in srgb,var(--c1) 22%,transparent);border-radius:3px}
@@ -2079,6 +2079,22 @@ button.chip{border:0;cursor:pointer;min-height:36px}button.wks-fl{border:0;curso
 .stk-fl{display:inline-flex;align-items:center;gap:6px;padding:12px 16px;border-radius:18px;background:var(--gold-soft);color:var(--gold)}.stk-fl svg{width:26px;height:26px}.stk-fl b{font:700 2rem/1 var(--f-body);font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--gold) 65%,var(--ink))}
 .stk-grace{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:var(--sunk);margin-bottom:10px}.stk-grace i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface);color:var(--muted);opacity:.55}
 .stk-grace i.on{background:var(--gold-soft);color:var(--gold);opacity:1}.stk-grace svg{width:16px;height:16px}.stk-grace span{margin-left:4px;font-weight:600}
+.tpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.tpc{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;padding:16px 16px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-height:44px;transition:transform .25s var(--spring),border-color .2s}
+@media (hover:hover){.tpc:hover{border-color:var(--accent);transform:translateY(-2px)}}.tpc:active{transform:scale(.98)}
+.tpc b{font:600 1.15rem/1.25 var(--f-display,serif)}.tpc>span:not(.tp-n):not(.tp-bar){color:var(--muted);font-size:.9rem;line-height:1.4}.tpc small{color:var(--muted);font-size:.8rem;font-weight:600}
+.tp-n{position:absolute;top:12px;right:12px;display:grid;place-items:center;min-width:28px;height:28px;padding:0 6px;border-radius:999px;background:var(--sunk);font-size:.8rem;font-weight:700;color:var(--muted)}.tp-n svg{width:14px;height:14px}
+.tpc.all .tp-n{background:color-mix(in srgb,var(--ok) 18%,var(--surface));color:var(--ok)}
+.tp-bar{display:block;height:5px;border-radius:9px;background:var(--sunk);overflow:hidden;margin-top:6px}.tp-bar i{display:block;height:100%;border-radius:9px;background:var(--gold);transition:width .5s var(--expo)}
+.tplist{list-style:none;margin:14px 0 8px;padding:0;display:flex;flex-direction:column;gap:10px}.tplist li{display:flex;gap:12px;align-items:flex-start;padding:12px;border-radius:14px;background:var(--sunk)}
+.tplist li b{font-weight:600}.tplist li p{margin:2px 0 4px;color:var(--muted);line-height:1.45}.tplist .linkbtn{font-weight:600;min-height:36px}
+.tp-ck{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);font-weight:700;color:var(--muted);cursor:pointer;transition:transform .25s var(--spring),background .2s}
+.tp-ck svg{width:18px;height:18px}.tplist li.done .tp-ck{background:var(--ok);border-color:var(--ok);color:#fff}.tp-ck:active{transform:scale(.9)}
+.tp-fin{display:flex;gap:8px;align-items:center;font-weight:600;color:var(--ok)}.tp-fin svg{width:18px;height:18px}.tp-note{font-size:.85rem}.tp-hymn{margin-top:18px}
+.hy-ic{flex:none;display:grid;place-items:center;width:56px;height:56px;border-radius:12px;background:color-mix(in srgb,var(--gold) 18%,var(--surface));color:color-mix(in srgb,var(--gold) 70%,var(--ink))}
+.hymncard{margin-top:10px}.hy-by{margin:2px 0 12px;font-size:.9rem}
+.hy-words{margin:0 0 14px;padding:16px 18px;border-left:3px solid var(--gold);border-radius:4px 14px 14px 4px;background:var(--gold-soft);font:italic 400 1.18rem/1.6 var(--f-display,serif);color:var(--ink)}
+.hymn .chips{margin-bottom:12px}.hymn .chip{border:1px solid var(--line);background:var(--surface);cursor:pointer;min-height:36px}.hymn .chip svg{width:14px;height:14px}.hy-note{font-size:.85rem}
 .stk-used{margin:0 0 12px;color:var(--muted)}.stk-how{margin:6px 0 0;padding-left:1.1em;display:flex;flex-direction:column;gap:8px;line-height:1.5}
 .pr-wrap{position:relative;width:100%;max-width:360px;margin:0 auto;aspect-ratio:7/9;border-radius:16px;overflow:hidden;background:var(--sunk)}
 .pr-img{position:absolute;inset:0}
@@ -2161,7 +2177,7 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 <div class="app">
   <aside class="rail">
     <div class="brand"><span id="logo1"></span>Lamp</div>
-    <p class="lampnote" id="lampnote"></p>
+    <button class="lampnote" id="lampnote" data-streak="1"></button>
     <nav class="nav" id="nav" aria-label="Sections"></nav>
     <button class="linkbtn" data-search="1" style="padding:0 12px"><span id="search1"></span>Search the Bible</button>
     <div class="rail-foot">
@@ -3115,7 +3131,7 @@ function renderNav(){
   $("#navBtns").innerHTML=html;$("#tabBtns").innerHTML=html;
   const sr=streakNow(),s=sr.n;$("#topStreak").innerHTML=`${I.flame}${s}`;$("#topStreak").setAttribute("aria-label",`${s} day streak, ${graceLine(sr).toLowerCase()}. Open your streak`);$("#topStreak").title=`${s} day streak · ${graceLine(sr)}`;
   document.documentElement.style.setProperty("--glow",(1.5+Math.min(s,10)*1.1).toFixed(1));
-  $("#lampnote").textContent=s?`Burning for ${s} day${s===1?"":"s"}`:"Light it with today's reading";
+  $("#lampnote").textContent=s?`Burning for ${s} day${s===1?"":"s"}${sr.bank?` · ${sr.bank} grace`:""}`:"Light it with today's reading";$("#lampnote").setAttribute("aria-label",`${s} day streak, ${graceLine(sr).toLowerCase()}. Open your streak`);
   requestAnimationFrame(placeInd);gDots();
 }
 function placeInd(){if(!placeInd._r){placeInd._r=requestAnimationFrame(()=>{placeInd._r=0;placeInd._do()})}}
@@ -3183,7 +3199,7 @@ function vToday(){
   </details>
   ${exCard()}
   ${(()=>{const n=doneCount(),all=state.settings.allOpen||n>=4;const q=all||n>=2,f=all;
-    return q||f?`<div class="kicker side-k">Not today's reading?</div>${q?qtCard():""}${f?feelRow():""}`:`<div class="card soon"><div class="kicker">Coming up</div><p>After a couple of readings, a 5-minute quiet time and verses for how you're feeling will appear here.</p></div>`})()}
+    return q||f?`<div class="kicker side-k">Not today's reading?</div>${q?qtCard():""}${q?hymnCard():""}${f?feelRow():""}`:`<div class="card soon"><div class="kicker">Coming up</div><p>After a couple of readings, a 5-minute quiet time and verses for how you're feeling will appear here.</p></div>`})()}
   ${fbCard()}
   </aside></div>`;
 }
@@ -3726,7 +3742,59 @@ function placeCard(i){
 }
 function bindRefs(){document.querySelectorAll("[data-goday]").forEach(b=>b.onclick=()=>{const d=+b.dataset.goday;if(d){state.selected=d;lsWrite();setView("today")}})}
 
-const LTABS=[["fresh","New today"],["diagrams","Maps & plans"],["art","Art"],["story","Big story"],["map","The land"],["library","Library"],["words","Who's who"],["how","How to read"]];
+/* ================= Read by topic: short plans for real life ================= */
+const TPLANS=[
+ ["anxious","When you're anxious","Five readings about trusting God with what weighs on you.",[["PHP.4.4","Philippians 4:4–9","Pray about everything, and God's peace will guard your heart and mind."],["MAT.6.25","Matthew 6:25–34","Jesus: look at the birds and the flowers, and don't worry about tomorrow."],["PSA.23.1","Psalm 23","The LORD is my shepherd, even in the darkest valley."],["1PE.5.6","1 Peter 5:6–11","Cast all your anxiety on him, because he cares for you."],["PSA.46.1","Psalm 46","God is our refuge and strength. Be still, and know that I am God."]]],
+ ["forgive","Forgiveness","Being forgiven, and learning to forgive.",[["PSA.51.1","Psalm 51","David's prayer after his sin: create in me a clean heart."],["LUK.15.11","Luke 15:11–32","The lost son comes home, and his father runs to meet him."],["MAT.18.21","Matthew 18:21–35","Peter asks how often to forgive. Jesus tells of the unforgiving servant."],["COL.3.12","Colossians 3:12–17","Forgive as the Lord forgave you, and put on love."],["1JN.1.5","1 John 1:5–10","If we confess our sins, he is faithful and just to forgive us."]]],
+ ["pray","Learning to pray","How Jesus and the Bible teach us to talk with God.",[["MAT.6.5","Matthew 6:5–15","Jesus teaches the Lord's Prayer."],["LUK.11.1","Luke 11:1–13","Ask, seek, knock: the Father gives good gifts."],["PSA.62.1","Psalm 62","Pour out your heart to him. God is our refuge."],["ROM.8.26","Romans 8:26–27","When we don't know what to pray, the Spirit helps us."],["JAS.5.13","James 5:13–18","Pray in trouble, sing when happy, pray for each other."]]],
+ ["grief","When you're grieving","God's comfort for loss and sorrow.",[["JHN.11.17","John 11:17–44","Jesus weeps with Mary and Martha, then raises Lazarus."],["PSA.34.1","Psalm 34","The LORD is close to the broken-hearted."],["2CO.1.3","2 Corinthians 1:3–7","The God of all comfort comforts us in all our troubles."],["1TH.4.13","1 Thessalonians 4:13–18","We grieve, but not like those who have no hope."],["REV.21.1","Revelation 21:1–5","God will wipe away every tear. No more death or mourning."]]],
+ ["jesus","Who is Jesus?","Five passages that say who he is.",[["JHN.1.1","John 1:1–18","The Word was God and became flesh and lived among us."],["MRK.8.27","Mark 8:27–38","Peter says: you are the Christ. Jesus speaks of the cross."],["PHP.2.5","Philippians 2:5–11","He humbled himself to death on a cross, and God exalted him."],["COL.1.15","Colossians 1:15–20","The image of the invisible God, through whom all things were made."],["HEB.1.1","Hebrews 1:1–4","God has spoken to us by his Son."]]],
+ ["new","A fresh start","What it means to begin again with God.",[["JHN.3.1","John 3:1–21","Nicodemus at night: you must be born again. John 3:16."],["LUK.19.1","Luke 19:1–10","Zacchaeus meets Jesus and his life turns around."],["ROM.5.1","Romans 5:1–11","Peace with God, and his love poured into our hearts."],["EPH.2.1","Ephesians 2:1–10","Saved by grace through faith, not by our own works."],["2CO.5.17","2 Corinthians 5:17–21","Anyone in Christ is a new creation."]]],
+ ["love","Love","God's love, and how to love others.",[["1CO.13.1","1 Corinthians 13","Love is patient, love is kind. The greatest of these is love."],["1JN.4.7","1 John 4:7–21","God is love. We love because he first loved us."],["JHN.15.9","John 15:9–17","Love each other as I have loved you."],["LUK.10.25","Luke 10:25–37","The good Samaritan: who is my neighbour?"],["ROM.8.31","Romans 8:31–39","Nothing can separate us from the love of God."]]],
+ ["courage","When you're afraid","Courage that comes from God being with you.",[["JOS.1.1","Joshua 1:1–9","Be strong and courageous, for the LORD your God is with you."],["PSA.27.1","Psalm 27","The LORD is my light and my salvation. Whom shall I fear?"],["ISA.41.8","Isaiah 41:8–13","Do not fear, for I am with you. I will help you."],["DAN.3.13","Daniel 3:13–28","Three friends refuse to bow, and a fourth figure walks with them in the fire."],["2TI.1.6","2 Timothy 1:6–10","God gave us a spirit of power, love and self-control, not fear."]]]];
+const tpState=id=>(state.settings.tp||{})[id]||{};
+const tpDone=id=>Object.keys(tpState(id).d||{}).length;
+function tpCards(){return `<div class="tpgrid">${TPLANS.map(([id,t,sub,items])=>{const n=tpDone(id);return `<button class="tpc${n===items.length?" all":""}" data-tp="${id}">${n?`<span class="tp-n" aria-hidden="true">${n===items.length?I.check:`${n}/${items.length}`}</span>`:""}<b>${esc(t)}</b><span>${esc(sub)}</span><span class="tp-bar" aria-hidden="true"><i style="width:${n/items.length*100}%"></i></span><small>${n?`${n} of ${items.length} read`:`${items.length} readings`}</small></button>`}).join("")}</div>`}
+function tpMark(id,i,on){const st=tpState(id),d={...(st.d||{})};if(on)d[i]=new Date().toISOString();else delete d[i];const tp={...(state.settings.tp||{}),[id]:{d}};state.settings.tp=tp;queue({settings:{tp}});paintTp()}
+function openTopic(id){const pl=TPLANS.find(x=>x[0]===id);if(!pl)return;const [,t,sub,items]=pl;
+  const body=()=>{const st=tpState(id).d||{},n=Object.keys(st).length;return `<div class="pcard tpsheet"><div class="kick">Read by topic · ${n} of ${items.length}</div><h2>${esc(t)}</h2><p class="muted">${esc(sub)}</p>
+    <ol class="tplist">${items.map(([ref,lbl,why],i)=>`<li class="${st[i]?"done":""}"><button class="tp-ck" data-tpk="${i}" aria-pressed="${!!st[i]}" aria-label="${st[i]?"Read. Tap to undo":"Mark as read"}: ${esc(lbl)}">${st[i]?I.check:i+1}</button><div><b>${esc(lbl)}</b><p>${esc(why)}</p><button class="linkbtn" data-tpr="${ref}">${I.open}Read ${esc(lbl)}</button></div></li>`).join("")}</ol>
+    ${n===items.length?`<p class="tp-fin">${I.check} You've read all ${items.length}. Pick another topic any time.</p>`:""}
+    <p class="muted tp-note">Readings use your chosen translation. Each one opens at its first verse.</p></div>`};
+  openSheet(body(),t);const wire=()=>{const sc=$("#scrim");if(!sc)return;
+    sc.querySelectorAll("[data-tpr]").forEach(b=>b.onclick=()=>{const i=[...sc.querySelectorAll("[data-tpr]")].indexOf(b);if(!tpState(id).d?.[i])tpMark(id,i,true);openRef(b.dataset.tpr)});
+    sc.querySelectorAll("[data-tpk]").forEach(b=>b.onclick=()=>{const i=+b.dataset.tpk,on=!tpState(id).d?.[i];tpMark(id,i,on);if(on){burst(b,8);buzz(10)}const c=sc.querySelector(".tpsheet");if(c){c.outerHTML=body();wire();sc.querySelector(`[data-tpk="${i}"]`)?.focus({preventScroll:true})}paintTp()})};
+  wire()}
+function paintTp(){const el=$("#tpWrap");if(el)el.innerHTML=tpCards()}
+
+/* ================= Hymn of the week (public-domain words) ================= */
+const HYMNS=[
+ ["Amazing Grace","John Newton, 1779","Amazing grace! how sweet the sound\nThat saved a wretch like me!\nI once was lost, but now am found,\nWas blind, but now I see.","Newton worked in the slave trade, as a captain too, and kept at it for some years after he came to faith. He later became a minister in England and spoke out against the slave trade.",[["EPH.2.8","Ephesians 2:8"],["JHN.9.25","John 9:25"]]],
+ ["It Is Well with My Soul","Horatio Spafford, 1873","When peace, like a river, attendeth my way,\nWhen sorrows like sea billows roll;\nWhatever my lot, Thou hast taught me to say,\nIt is well, it is well with my soul.","Spafford wrote it after his four daughters died when their ship sank in the Atlantic in 1873.",[["PHP.4.7","Philippians 4:7"],["ISA.66.12","Isaiah 66:12"]]],
+ ["Holy, Holy, Holy","Reginald Heber, 1826","Holy, holy, holy! Lord God Almighty!\nEarly in the morning our song shall rise to Thee;\nHoly, holy, holy, merciful and mighty!\nGod in three Persons, blessed Trinity!","Heber, an English bishop, wrote it for Trinity Sunday. It echoes the song of the creatures around God's throne.",[["ISA.6.3","Isaiah 6:3"],["REV.4.8","Revelation 4:8"]]],
+ ["Be Thou My Vision","Old Irish poem; translated by Mary Byrne (1905), put into verse by Eleanor Hull (1912)","Be Thou my Vision, O Lord of my heart;\nNaught be all else to me, save that Thou art;\nThou my best Thought, by day or by night,\nWaking or sleeping, Thy presence my light.","The words come from an old Irish prayer-poem, put into English verse in the early 1900s.",[["HEB.12.2","Hebrews 12:2"],["PSA.16.8","Psalm 16:8"]]],
+ ["Rock of Ages","Augustus Toplady, 1776","Rock of Ages, cleft for me,\nLet me hide myself in Thee;\nLet the water and the blood,\nFrom Thy wounded side which flowed,\nBe of sin the double cure,\nSave from wrath and make me pure.","Toplady was an English minister. A popular story says he wrote it while sheltering from a storm in a cleft of rock, but that may be legend.",[["EXO.33.22","Exodus 33:22"],["JHN.19.34","John 19:34"]]],
+ ["A Mighty Fortress Is Our God","Martin Luther, about 1529; English by Frederic Hedge, 1853","A mighty fortress is our God,\nA bulwark never failing;\nOur helper He, amid the flood\nOf mortal ills prevailing.","Luther based it on Psalm 46. It became the best-known hymn of the Reformation.",[["PSA.46.1","Psalm 46:1"]]],
+ ["Abide with Me","Henry Francis Lyte, 1847","Abide with me; fast falls the eventide;\nThe darkness deepens; Lord, with me abide;\nWhen other helpers fail and comforts flee,\nHelp of the helpless, O abide with me.","Lyte wrote it in 1847, the year he died. It takes up the words of the two on the road to Emmaus: stay with us, for it is nearly evening.",[["LUK.24.29","Luke 24:29"]]],
+ ["When I Survey the Wondrous Cross","Isaac Watts, 1707","When I survey the wondrous cross\nOn which the Prince of glory died,\nMy richest gain I count but loss,\nAnd pour contempt on all my pride.","Watts wrote hundreds of hymns and is often called the father of English hymn-writing.",[["GAL.6.14","Galatians 6:14"],["PHP.3.7","Philippians 3:7–8"]]],
+ ["Come, Thou Fount of Every Blessing","Robert Robinson, 1758","Come, Thou Fount of every blessing,\nTune my heart to sing Thy grace;\nStreams of mercy, never ceasing,\nCall for songs of loudest praise.","Robinson wrote it as a young man in England. A later verse says “Here I raise my Ebenezer”, from Samuel's stone of help.",[["1SA.7.12","1 Samuel 7:12"]]],
+ ["What a Friend We Have in Jesus","Joseph Scriven, 1855","What a friend we have in Jesus,\nAll our sins and griefs to bear!\nWhat a privilege to carry\nEverything to God in prayer!","Scriven, an Irishman living in Canada, first wrote it as a poem to comfort his mother.",[["JHN.15.15","John 15:15"],["PHP.4.6","Philippians 4:6"]]],
+ ["Blessed Assurance","Fanny Crosby, 1873","Blessed assurance, Jesus is mine!\nO what a foretaste of glory divine!\nHeir of salvation, purchase of God,\nBorn of His Spirit, washed in His blood.","Crosby was blind from infancy and wrote thousands of hymns. Her friend Phoebe Knapp wrote the tune.",[["HEB.10.22","Hebrews 10:22"]]],
+ ["Nearer, My God, to Thee","Sarah Flower Adams, 1841","Nearer, my God, to Thee, nearer to Thee!\nE'en though it be a cross that raiseth me,\nStill all my song shall be,\nNearer, my God, to Thee.","The hymn retells Jacob's dream of a stairway to heaven at Bethel.",[["GEN.28.10","Genesis 28:10–22"]]]];
+const hymnNow=()=>HYMNS[Math.floor((monOf(Date.now())-new Date(2026,0,5))/6048e5)%HYMNS.length+(Math.floor((monOf(Date.now())-new Date(2026,0,5))/6048e5)<0?HYMNS.length:0)]||HYMNS[0];
+function hymnCard(){const h=hymnNow();return `<button class="card qtcard hymncard" data-hymn aria-label="Open the hymn of the week: ${esc(h[0])}"><span class="hy-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span><span class="qt-txt"><span class="kicker">Hymn of the week</span><b>${esc(h[0])}</b><span>${esc(h[2].split("\n")[0])}</span></span><span class="qt-go">${I.right}</span></button>`}
+let hySpeak=false;
+function openHymn(){const h=hymnNow();const [t,by,words,story,refs]=h;
+  openSheet(`<div class="pcard hymn"><div class="kick">Hymn of the week</div><h2>${esc(t)}</h2><p class="muted hy-by">${esc(by)}</p>
+    <blockquote class="hy-words">${esc(words).replace(/\n/g,"<br>")}</blockquote>
+    ${"speechSynthesis" in window?`<button class="btn ghost sm" id="hySay">${I.speak}Read it aloud</button>`:""}
+    <div class="kicker">The story</div><p>${esc(story)}</p>
+    <div class="kicker">From the Bible</div><div class="chips">${refs.map(([r,l])=>`<button class="chip" data-hyr="${r}">${I.open}${esc(l)}</button>`).join("")}</div>
+    <p class="muted hy-note">The words are in the public domain. A new hymn arrives every Monday. Sing it with your group, or read it slowly as a prayer.</p></div>`,"Hymn of the week");
+  $("#scrim").querySelectorAll("[data-hyr]").forEach(b=>b.onclick=()=>openRef(b.dataset.hyr));
+  $("#hySay")?.addEventListener("click",()=>{try{if(hySpeak){speechSynthesis.cancel();hySpeak=false;$("#hySay").lastChild.textContent="Read it aloud";return}const u=new SpeechSynthesisUtterance(words.replace(/\n/g,". "));u.lang="en-GB";u.rate=.85;u.onend=()=>{hySpeak=false;const b=$("#hySay");if(b)b.lastChild.textContent="Read it aloud"};speechSynthesis.cancel();speechSynthesis.speak(u);hySpeak=true;$("#hySay").lastChild.textContent="Stop"}catch(e){}})}
+
+const LTABS=[["fresh","New today"],["topics","Read by topic"],["diagrams","Maps & plans"],["art","Art"],["story","Big story"],["map","The land"],["library","Library"],["words","Who's who"],["how","How to read"]];
 let ltab=(()=>{try{const t=localStorage.getItem("lamp-ltab");return LTABS.some(x=>x[0]===t)?t:"fresh"}catch(e){return "fresh"}})();
 function setLtab(t){ltab=t;try{localStorage.setItem("lamp-ltab",t)}catch(e){}
   document.querySelectorAll(".ltabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
@@ -3738,6 +3806,12 @@ function vLearn(){
   return `<div><div class="kicker">Background that makes it all click</div><h1 class="page-h">Learn</h1></div>
   <nav class="subnav ltabs" role="tablist" aria-label="Learn topics">${LTABS.map(([k,l])=>`<button role="tab" data-t="${k}" aria-selected="${ltab===k}" aria-controls="${k}">${l}</button>`).join("")}</nav>
   <section ${H("fresh")} data-fresh="full">${freshHTML(true)}</section>
+  <section ${H("topics")}>
+    <h2 style="font-size:1.85rem">Read by topic</h2>
+    <p class="lede" style="margin:6px 0 16px">Short plans for real life: five readings each, at your own pace, alongside your daily chapter. Tap one to start.</p>
+    <div id="tpWrap">${tpCards()}</div>
+    <div class="tp-hymn">${hymnCard()}</div>
+  </section>
   <section ${H("diagrams")}>
     <h2 style="font-size:1.85rem">See it for yourself</h2>
     <p class="lede" style="margin:6px 0 16px">Maps drawn from real coastline data, plus plans, family trees and timelines. Tap one to open it, then tap anything inside to learn more.</p>
@@ -3905,7 +3979,7 @@ function openPassage(p,listen,jumpV,opt){
   $("#rTr").onclick=toggleFontPop;
   $("#rBack")?.addEventListener("click",()=>{const st=R.stack.slice(0,-1);openPassage(back,false,0,{stack:st})});
   $("#rSpeak")?.addEventListener("click",openListen);
-  const sc=$("#rScroll");sc.addEventListener("scroll",()=>{const m=sc.scrollHeight-sc.clientHeight;$("#rProg").style.width=(m>0?sc.scrollTop/m*100:100)+"%"},{passive:true});
+  const sc=$("#rScroll");sc.addEventListener("scroll",()=>{const pr=$("#rProg");if(!pr)return;const m=sc.scrollHeight-sc.clientHeight;pr.style.width=(m>0?sc.scrollTop/m*100:100)+"%"},{passive:true}); /* the reader may already be closing */
   (was?$("#rBack")||$("#rClose"):$("#rClose")).focus({preventScroll:true,focusVisible:false});
   $("#scr").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)selectVerse(+v.dataset.vn)});
   loadText().then(ok=>{
@@ -6244,6 +6318,8 @@ document.addEventListener("click",e=>{
   const nb=e.target.closest("[data-v]");if(nb){setView(nb.dataset.v);return}
   const lj=e.target.closest("[data-learn]");if(lj){learnJump=lj.dataset.learn;setView("learn");return}
   if(e.target.closest("[data-streak]")){openStreak();return}
+  if(e.target.closest("[data-hymn]")){openHymn();return}
+  {const t=e.target.closest("[data-tp]");if(t){openTopic(t.dataset.tp);return}}
   if(e.target.closest("[data-settings]")){openSettings();return}
   if(e.target.closest("[data-search]")){openSearch();return}
   if(e.target.closest("#emptyRead")){openReader(curDay(),false)}
@@ -6280,7 +6356,7 @@ document.addEventListener("keydown",e=>{
     else{s.classList.add("snap");s.style.transform="";setTimeout(()=>s.classList.remove("snap"),360)}});
 })();
 /* tab rows that scroll show a soft edge until you reach the end */
-function edgeMask(){document.querySelectorAll(".gtabs,.seg").forEach(el=>{const sc=el.scrollWidth>el.clientWidth+2;el.classList.toggle("scrolls",sc);el.classList.toggle("end",!sc||el.scrollLeft+el.clientWidth>=el.scrollWidth-4);if(!el._em){el._em=1;el.addEventListener("scroll",()=>el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4),{passive:true})}})}
+function edgeMask(){document.querySelectorAll(".gtabs,.seg").forEach(el=>{const sc=el.scrollWidth>el.clientWidth+2;el.classList.toggle("scrolls",sc);el.classList.toggle("end",!sc||el.scrollLeft+el.clientWidth>=el.scrollWidth-4);if(!el._em){el._em=1;/* bring the chosen tab into view, so "Highlights" isn't half hidden on a phone */const on=el.querySelector('[aria-pressed="true"],[aria-selected="true"],[aria-current]');if(sc&&on){const l=on.offsetLeft-el.offsetLeft,r=l+on.offsetWidth;if(l<el.scrollLeft||r>el.scrollLeft+el.clientWidth){el.scrollLeft=Math.max(0,l-(el.clientWidth-on.offsetWidth)/2);el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4)}}el.addEventListener("scroll",()=>el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4),{passive:true})}})}
 new MutationObserver(()=>{cancelAnimationFrame(edgeMask.r);edgeMask.r=requestAnimationFrame(edgeMask)}).observe(document.body,{childList:true,subtree:true});addEventListener("resize",edgeMask);
 /* iPhone: after the keyboard closes, iOS can leave the page's fixed bars (bottom tabs, top bar) out of place
    until the next scroll. Nudge the layout back as soon as the keyboard goes away. */
