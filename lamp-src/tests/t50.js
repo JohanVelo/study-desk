@@ -11,9 +11,9 @@ const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.messag
 const bad=await p.evaluate(async()=>{const out=[];const refs=[...TPLANS.flatMap(x=>x[3].map(i=>i[0])),...HYMNS.flatMap(h=>h[4].map(r=>r[0]))];
   for(const r of refs){const [bk,c,v]=r.split('.');if(!BCODES.includes(bk)){out.push(r+' book');continue}const B=await loadBook('BSB',bk);const ch=B&&B[+c-1];if(!ch||!ch[+v-1])out.push(r)}return out});
 ok(!bad.length,tag+' all plan and hymn references exist: '+bad.join(','));
-ok(await p.evaluate(()=>TPLANS.length===8&&TPLANS.every(x=>x[3].length===5)),tag+' 8 plans of 5 readings');
+ok(await p.evaluate(()=>TPLANS.length===12&&TPLANS.every(x=>x[3].length===5)),tag+' 12 plans of 5 readings');
 await p.evaluate(()=>{setView('learn');setLtab('topics')});await p.waitForTimeout(700);
-ok(await p.evaluate(()=>!document.querySelector('#topics').hidden&&document.querySelectorAll('#topics .tpc').length===8),tag+' Read by topic tab shows 8 plans');
+ok(await p.evaluate(()=>!document.querySelector('#topics').hidden&&document.querySelectorAll('#topics .tpc').length===12),tag+' Read by topic tab shows 12 plans');
 ok(await p.evaluate(()=>{const t=document.querySelector('[role=tab][data-t="topics"]').getBoundingClientRect(),n=document.querySelector('[role=tab][data-t="topics"]').parentElement.getBoundingClientRect();return t.left>=n.left-1&&t.right<=n.right+1}),tag+' chosen tab is scrolled into view');
 await p.screenshot({path:`${__dirname}/s50/topics-${tag}.png`});
 await p.click('[data-tp="anxious"]');await p.waitForTimeout(600);

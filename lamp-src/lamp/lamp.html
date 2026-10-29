@@ -1200,6 +1200,19 @@ html.rfclear .scripture,html.rfclear .devo-s p{font-family:"Atkinson Hyperlegibl
 .prform textarea{width:100%;resize:none;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg);color:var(--ink);font:inherit;line-height:1.5}
 .prrow{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
 .prhide{display:flex;gap:6px;align-items:center;font-size:.86rem;color:var(--muted)}
+.pp{position:relative;padding:18px;border-radius:20px;background:linear-gradient(140deg,color-mix(in srgb,var(--gold) 15%,var(--surface)),var(--surface) 72%);border:1px solid color-mix(in srgb,var(--gold) 38%,var(--line));animation:revealUp .45s var(--expo) both}
+.pp-k{font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.pp-top{display:flex;gap:12px;align-items:center;margin:10px 0 12px}
+.pp-top .face{width:46px;height:46px;font-size:1.05rem}
+.pp-top h3{margin:0;font-family:var(--f-display);font-size:1.4rem;line-height:1.2}
+.pp-top p{margin:3px 0 0;font-size:.86rem;color:var(--muted)}
+.pp-reqs{margin:0 0 14px;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.pp-reqs li{padding:10px 13px;border-radius:12px;background:var(--bg);line-height:1.5;font-size:.94rem;white-space:pre-wrap;overflow-wrap:anywhere}
+.pp-none{margin:0 0 14px;color:var(--muted);line-height:1.5;font-size:.94rem}
+.pp .pp-do{min-height:44px;padding:10px 18px;font-size:.92rem}
+.pp-back{display:flex;gap:8px;align-items:center;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);font-size:.88rem;color:var(--muted)}
+.pp-back svg{width:14px;height:14px;vertical-align:-2px;color:var(--ok,#2E8B57)}
+#ppCard:not([hidden]){display:block;margin-bottom:12px}
 .prlist{display:flex;flex-direction:column;gap:10px}
 .prcard{display:flex;gap:12px;align-items:flex-start;padding:16px;border-radius:18px;background:var(--surface);border:1px solid var(--line);animation:revealUp .4s var(--expo) both}
 .prcard.ans{background:color-mix(in srgb,var(--ok,#2E8B57) 7%,var(--surface))}
@@ -2057,6 +2070,7 @@ button.chip{border:0;cursor:pointer;min-height:36px}button.wks-fl{border:0;curso
 .stk-fl{display:inline-flex;align-items:center;gap:6px;padding:12px 16px;border-radius:18px;background:var(--gold-soft);color:var(--gold)}.stk-fl svg{width:26px;height:26px}.stk-fl b{font:700 2rem/1 var(--f-body);font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--gold) 65%,var(--ink))}
 .stk-grace{display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:var(--sunk);margin-bottom:10px}.stk-grace i{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--surface);color:var(--muted);opacity:.55}
 .stk-grace i.on{background:var(--gold-soft);color:var(--gold);opacity:1}.stk-grace svg{width:16px;height:16px}.stk-grace span{margin-left:4px;font-weight:600}
+.tpc{animation:revealUp .5s var(--expo) both;animation-delay:calc(var(--k,0)*35ms)}
 .tpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
 .tpc{position:relative;display:flex;flex-direction:column;gap:4px;text-align:left;padding:16px 16px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);min-height:44px;transition:transform .25s var(--spring),border-color .2s}
 @media (hover:hover){.tpc:hover{border-color:var(--accent);transform:translateY(-2px)}}.tpc:active{transform:scale(.98)}
@@ -3726,10 +3740,14 @@ const TPLANS=[
  ["jesus","Who is Jesus?","Five passages that say who he is.",[["JHN.1.1","John 1:1–18","The Word was God and became flesh and lived among us."],["MRK.8.27","Mark 8:27–38","Peter says: you are the Christ. Jesus speaks of the cross."],["PHP.2.5","Philippians 2:5–11","He humbled himself to death on a cross, and God exalted him."],["COL.1.15","Colossians 1:15–20","The image of the invisible God, through whom all things were made."],["HEB.1.1","Hebrews 1:1–4","God has spoken to us by his Son."]]],
  ["new","A fresh start","What it means to begin again with God.",[["JHN.3.1","John 3:1–21","Nicodemus at night: you must be born again. John 3:16."],["LUK.19.1","Luke 19:1–10","Zacchaeus meets Jesus and his life turns around."],["ROM.5.1","Romans 5:1–11","Peace with God, and his love poured into our hearts."],["EPH.2.1","Ephesians 2:1–10","Saved by grace through faith, not by our own works."],["2CO.5.17","2 Corinthians 5:17–21","Anyone in Christ is a new creation."]]],
  ["love","Love","God's love, and how to love others.",[["1CO.13.1","1 Corinthians 13","Love is patient, love is kind. The greatest of these is love."],["1JN.4.7","1 John 4:7–21","God is love. We love because he first loved us."],["JHN.15.9","John 15:9–17","Love each other as I have loved you."],["LUK.10.25","Luke 10:25–37","The good Samaritan: who is my neighbour?"],["ROM.8.31","Romans 8:31–39","Nothing can separate us from the love of God."]]],
+ ["work","Work and purpose","Doing ordinary work as worship.",[["COL.3.17","Colossians 3:17–24","Whatever you do, work at it with your whole being, for the Lord."],["EPH.2.8","Ephesians 2:8–10","Saved by grace, and made for the good works God prepared for us."],["ECC.2.17","Ecclesiastes 2:17–26","Toil without God feels empty; enjoying your work is a gift from his hand."],["PRO.6.6","Proverbs 6:6–11","Learn from the ant: steady, faithful work."],["MAT.25.14","Matthew 25:14–30","The talents: well done, good and faithful servant."]]],
+ ["wait","When you're waiting","Trusting God while the answer hasn't come yet.",[["PSA.27.1","Psalm 27","The LORD is my light. Wait patiently for the LORD; be strong."],["ISA.40.27","Isaiah 40:27–31","Those who wait upon the LORD will renew their strength."],["LAM.3.19","Lamentations 3:19–26","His mercies are new every morning. It is good to wait quietly."],["HAB.2.1","Habakkuk 2:1–4","Though it lingers, wait for it. It will surely come."],["ROM.8.18","Romans 8:18–25","We hope for what we do not yet see, and wait for it patiently."]]],
+ ["doubt","When you have doubts","Honest questions, and the God who meets us in them.",[["MRK.9.14","Mark 9:14–29","A father's cry: I do believe; help my unbelief!"],["MAT.14.22","Matthew 14:22–33","Peter sinks, and Jesus takes hold of his hand."],["MAT.11.2","Matthew 11:2–6","Even John the Baptist asked: are you the one?"],["PSA.73.1","Psalm 73","My feet had almost slipped, until I entered God's sanctuary."],["JHN.20.24","John 20:24–31","Thomas sees the wounds: my Lord and my God."]]],
+ ["joy","Joy","Gladness that runs deeper than how things are going.",[["PSA.16.1","Psalm 16","In your presence is fullness of joy."],["NEH.8.9","Nehemiah 8:9–12","The joy of the LORD is your strength."],["LUK.2.8","Luke 2:8–20","Good news of great joy for all the people."],["JHN.15.9","John 15:9–17","Jesus: so that my joy may be in you, and your joy complete."],["HAB.3.17","Habakkuk 3:17–19","Though the fig tree does not bud, yet I will rejoice in the LORD."]]],
  ["courage","When you're afraid","Courage that comes from God being with you.",[["JOS.1.1","Joshua 1:1–9","Be strong and courageous, for the LORD your God is with you."],["PSA.27.1","Psalm 27","The LORD is my light and my salvation. Whom shall I fear?"],["ISA.41.8","Isaiah 41:8–13","Do not fear, for I am with you. I will help you."],["DAN.3.13","Daniel 3:13–28","Three friends refuse to bow, and a fourth figure walks with them in the fire."],["2TI.1.6","2 Timothy 1:6–10","God gave us a spirit of power, love and self-control, not fear."]]]];
 const tpState=id=>(state.settings.tp||{})[id]||{};
 const tpDone=id=>Object.keys(tpState(id).d||{}).length;
-function tpCards(){return `<div class="tpgrid">${TPLANS.map(([id,t,sub,items])=>{const n=tpDone(id);return `<button class="tpc${n===items.length?" all":""}" data-tp="${id}">${n?`<span class="tp-n" aria-hidden="true">${n===items.length?I.check:`${n}/${items.length}`}</span>`:""}<b>${esc(t)}</b><span>${esc(sub)}</span><span class="tp-bar" aria-hidden="true"><i style="width:${n/items.length*100}%"></i></span><small>${n?`${n} of ${items.length} read`:`${items.length} readings`}</small></button>`}).join("")}</div>`}
+function tpCards(){return `<div class="tpgrid">${TPLANS.map(([id,t,sub,items],k)=>{const n=tpDone(id);return `<button class="tpc${n===items.length?" all":""}" data-tp="${id}" style="--k:${k}">${n?`<span class="tp-n" aria-hidden="true">${n===items.length?I.check:`${n}/${items.length}`}</span>`:""}<b>${esc(t)}</b><span>${esc(sub)}</span><span class="tp-bar" aria-hidden="true"><i style="width:${n/items.length*100}%"></i></span><small>${n?`${n} of ${items.length} read`:`${items.length} readings`}</small></button>`}).join("")}</div>`}
 function tpMark(id,i,on){const st=tpState(id),d={...(st.d||{})};if(on)d[i]=new Date().toISOString();else delete d[i];const tp={...(state.settings.tp||{}),[id]:{d}};state.settings.tp=tp;queue({settings:{tp}});paintTp()}
 function openTopic(id){const pl=TPLANS.find(x=>x[0]===id);if(!pl)return;const [,t,sub,items]=pl;
   const body=()=>{const st=tpState(id).d||{},n=Object.keys(st).length;return `<div class="pcard tpsheet"><div class="kick">Read by topic · ${n} of ${items.length}</div><h2>${esc(t)}</h2><p class="muted">${esc(sub)}</p>
@@ -5473,8 +5491,28 @@ async function makeTest(raw){
 }
 
 /* ---------- Prayer wall ---------- */
+/* prayer partners: each week everyone gets one person to pray for, in a ring, so everyone is prayed for too.
+   Every phone works out the same ring from the Monday and the member ids, so nothing new is stored for the group. */
+const ppWeek=()=>dayKey(monOf(Date.now()));
+function ppRing(){const now=Date.now(),me=myKey();
+  const ids=members().filter(id=>id===me||now-Date.parse(G.people[id].seen||G.people[id].joined||0)<60*864e5).sort();
+  if(ids.length<2)return null;
+  let h=7;for(const c of ppWeek()+"|"+ids.join(","))h=(Math.imul(h,31)+c.charCodeAt(0))>>>0;const r=seeded(h);
+  const a=ids.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function ppFor(){const a=ppRing();if(!a)return null;const i=a.indexOf(myKey());if(i<0)return null;return {to:a[(i+1)%a.length],from:a[(i+a.length-1)%a.length]}}
+const ppDid=(id,to)=>{const v=G.people[id]?.pp?.[ppWeek()];return !!v&&(!to||v===to)};
+function paintPP(){const el=$("#ppCard");if(!el)return;const f=ppFor();if(!f){el.innerHTML="";el.hidden=true;return}el.hidden=false;
+  const p=G.people[f.to]||{},nm=esc(pfirst(f.to)),done=ppDid(myKey(),f.to),back=ppDid(f.from,myKey());
+  const reqs=Object.values(p.pr||{}).filter(r=>r&&r.t&&!r.ans&&!r.anon).sort((a,b)=>String(b.at).localeCompare(String(a.at))).slice(0,2);
+  el.innerHTML=`<div class="pp"><div class="pp-k">Your prayer partner this week</div>
+    <div class="pp-top">${face(f.to)}<div><h3>Pray for ${nm}</h3><p>Until Monday, then everyone gets someone new.</p></div></div>
+    ${reqs.length?`<ul class="pp-reqs" aria-label="What ${nm} asked prayer for">${reqs.map(r=>`<li>${esc(r.t.length>180?r.t.slice(0,177)+"…":r.t)}</li>`).join("")}</ul>`:`<p class="pp-none">${nm} hasn't shared a request yet. Pray for their week, the people they love, and their time in God's word.</p>`}
+    <button class="praybtn pp-do ${done?"on":""}" id="ppDo" aria-pressed="${done}">🙏 ${done?`You prayed for ${nm}`:`I prayed for ${nm}`}</button>
+    <p class="pp-back">${face(f.from,"sm")}<span>${f.from===f.to?nm+" is praying for you too":esc(pfirst(f.from))+" is praying for you this week"}${back?`, and has prayed for you ${I.check}`:"."}</span></p></div>`;
+  $("#ppDo").onclick=e=>{if(G.ro&&G.on)return toast("Saving to the group isn't available for you yet");const on=!ppDid(myKey(),f.to);gWrite({pp:{[ppWeek()]:on?f.to:null}},1);
+    if(on){burst(e.currentTarget,14);buzz(10);toast(`Amen. ${pfirst(f.to)} will see that you prayed`)}paintPP();const b=$("#ppDo");if(b)b.focus()}}
 function gPrayer(){
-  return `<section class="card prform"><div class="ghead2"><div class="prhead"><h2>Prayer wall</h2><button class="btn sm gold" id="prNow">${I.flame}Pray through them</button></div><p class="muted">Share what you'd like prayer for. Tap 🙏 when you've prayed for someone, so they know.</p></div>
+  return `<section id="ppCard" hidden></section><section class="card prform"><div class="ghead2"><div class="prhead"><h2>Prayer wall</h2><button class="btn sm gold" id="prNow">${I.flame}Pray through them</button></div><p class="muted">Share what you'd like prayer for. Tap 🙏 when you've prayed for someone, so they know.</p></div>
     <form id="prF"><textarea id="prT" rows="2" maxlength="600" placeholder="What can we pray for?" ${G.ro?"disabled":""}></textarea>
     <div class="prrow"><label class="prhide"><input type="checkbox" id="prAnon"> Hide my name</label><button class="btn primary sm" ${G.ro?"disabled":""}>Share</button></div></form></section>
   <section id="prList" class="prlist"></section>`;
@@ -5486,7 +5524,7 @@ function wPrayer(){
   paintPrayer();
 }
 function paintPrayer(){
-  const el=$("#prList");if(!el||typingIn(el))return;const all=[];
+  paintPP();const el=$("#prList");if(!el||typingIn(el))return;const all=[];
   for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t)all.push({id,k,...p});
   all.sort((a,b)=>String(b.at).localeCompare(String(a.at)));
   const prayCount=key=>members().filter(id=>G.people[id].praying?.[key]).length;
