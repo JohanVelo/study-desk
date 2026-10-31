@@ -3,8 +3,7 @@
 Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and improving every night without asking). Pick from the top, move shipped items to the log.
 
 ## Ideas
-- Accuracy: check BOOKINFO summaries, authors and dates (labels done in v37).
-- Group challenge with one shared goal (e.g. "300 chapters by Christmas"), one ring for the whole group.
+- Accuracy: check BOOKINFO summaries and OT dates (labels done in v37; cited verses and NT dates in v38).
 - Sea of Galilee painted scene for the field background.
 - More hymns (only public-domain words; check the year and author).
 - More topic plans (money, family, rest, temptation).
@@ -18,3 +17,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v35 (28 Oct): Read by topic (8 plans), Hymn of the week (12 hymns), journal tabs scroll to the chosen tab, laptop streak line opens Your streak.
 - v36 (29 Oct): prayer partners (a weekly ring in the group Prayer tab), 4 more topic plans (work, waiting, doubt, joy), topic cards ease in one after another.
 - v37 (30 Oct): leader summary (This week at a glance + Send a weekly recap in Leader tools), press feedback on cards and pills, 222 book-intro chapter labels checked against the BSB (6 quotes reworded to match).
+- v38 (31 Oct): group challenge (leader sets a goal of reading days and an end date; card on the Group page, celebrates once), numbers count up, every verse cited in book author notes checked (Acts 'When' fixed).
