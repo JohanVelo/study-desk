@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261031002424">
+<link rel="stylesheet" href="app.css?v=20261101003042">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261031002424"></script>
+<script src="app.js?v=20261101003042"></script>
 </head>
 <body>
 <style>
@@ -214,6 +214,47 @@ textarea:focus,.input:focus,select:focus{outline:none;border-color:var(--accent)
 .stat b{display:block;font-family:var(--f-body);font-size:2rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.02em}
 .stat span{font-size:.85rem;color:var(--muted)}
 .cal-wrap{overflow-x:auto;padding-bottom:4px}
+/* v39: month in review */
+.mrev{display:flex;flex-direction:column;gap:14px}
+.mr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.mr-top h2{margin:2px 0 0}.mr-top h2 small{font:500 .8rem var(--f-body);color:var(--muted);letter-spacing:0}
+.mr-nav{display:flex;gap:6px;flex:none}.mr-nav .icon-btn:disabled{opacity:.35;cursor:default}
+.mr-body{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+@media (min-width:720px){.mr-body{grid-template-columns:minmax(260px,320px) minmax(0,1fr);align-items:start;gap:28px}}
+.mr-cal{display:flex;flex-direction:column;gap:6px}
+.mr-wd,.mr-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.mr-wd b{font:600 .7rem var(--f-body);color:var(--muted);text-align:center;letter-spacing:.04em}
+.mr-g i{aspect-ratio:1;display:grid;place-items:center;border-radius:9px;background:var(--sunk);font:500 .78rem/1 var(--f-body);font-style:normal;color:var(--muted);font-variant-numeric:lining-nums tabular-nums}
+.mr-g i.mpad{background:none}
+.mr-g i.mrd{background:var(--gold);color:var(--surface);font-weight:700}
+.mr-g i.mqt{background:var(--gold-soft);color:var(--ink);box-shadow:inset 0 0 0 2px var(--gold)}
+.mr-g i.mnow{outline:2px solid var(--accent);outline-offset:1px}
+.mr-g i.mfut{opacity:.45}
+.mr-side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.mr-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mr-stats div{background:var(--sunk);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mr-stats b{font:600 2rem/1.05 var(--f-display);color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.mr-stats span{font-size:.82rem;color:var(--muted)}
+.mr-chips{display:flex;flex-wrap:wrap;gap:6px}
+.mr-books{margin:0;color:var(--ink);line-height:1.45}
+.mr-up{margin:0;display:flex;gap:8px;align-items:center;color:var(--ok);font-weight:600;font-size:.9rem}.mr-up svg{width:18px;height:18px;flex:none}
+#mrShare{align-self:flex-start}
+.mr-empty{margin:0}
+.mteaser{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 18px;background:linear-gradient(135deg,var(--gold-soft),var(--surface) 70%)}
+.mteaser h2{margin:2px 0 4px;font:600 1.25rem var(--f-display)}.mteaser p{margin:0}
+.mt-act{display:flex;gap:8px;flex-wrap:wrap}
+.mt-act .btn,#mrShare{min-height:44px}
+
+@media (prefers-reduced-motion:no-preference){
+  .mr-g i:not(.mpad){animation:mrpop .42s var(--expo) backwards;animation-delay:calc(var(--k)*12ms)}
+  @keyframes mrpop{from{opacity:0;transform:scale(.6)}}
+  /* feel: details open and close smoothly where the browser can animate to auto height */
+  @supports selector(::details-content){
+    details{interpolate-size:allow-keywords}
+    details::details-content{height:0;overflow:clip;overflow-clip-margin:8px;transition:height .34s var(--expo),content-visibility .34s allow-discrete}
+    details[open]::details-content{height:auto}
+  }
+}
 .cal{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,14px);gap:4px;width:max-content}
 .cal i{width:14px;height:14px;border-radius:4px;background:var(--sunk)}
 .cal i.on{background:var(--gold)}
@@ -3218,6 +3259,7 @@ function vToday(){
   </div>
   ${installTip()}
   ${welcomeBack()}
+  ${monTeaser()}
   ${L?groupTeaser():""}
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
@@ -3312,6 +3354,54 @@ function journeyCard(total){const pc=total/TOTAL,R=46,L=+(2*Math.PI*R).toFixed(1
     <div class="bshelf" role="list" aria-label="Your bookshelf: one book for each stage">${STAGES.map((sg,i)=>{const days=PLAN.filter(p=>p.stage===i),d=days.filter(p=>isDone(p.day)).length,f=d/days.length;
       return `<button role="listitem" class="spine${f>=1?" full":""}${cur.stage===i&&f<1?" now":""}${STAGES.filter(x=>x.book===sg.book).length>1?" rng":""}" data-spine="${i}" style="--lc:${LEATHER[i%LEATHER.length]};--h:${(62+38*days.length/mx).toFixed(0)}%" aria-label="Stage ${i+1}, ${esc(sg.title)}: ${d} of ${days.length} read"><i style="--f:${f.toFixed(3)}"></i><span class="sp-lab"><b>${esc(BOOKS[sg.book].name)}${STAGES.filter(x=>x.book===sg.book).length>1?` ${days[0].ch}–${days[days.length-1].ch}`:""}</b></span><small>${["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][i]||i+1}</small></button>`}).join("")}</div></section>`}
 
+
+/* ===== v39: month in review ===== */
+const ymOf=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+const ymName=(ym,yr)=>{const [y,m]=ym.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("en-GB",yr?{month:"long",year:"numeric"}:{month:"long"})};
+const ymShift=(ym,n)=>{const [y,m]=ym.split("-").map(Number);return ymOf(new Date(y,m-1+n,1))};
+function monthData(ym){
+  const inM=t=>{if(!t)return false;const d=new Date(t);return !isNaN(d)&&ymOf(d)===ym};
+  const ch=Object.entries(state.done||{}).filter(([,t])=>inM(t)).map(([d,t])=>({d:+d,t:String(t)})).sort((a,b)=>a.t.localeCompare(b.t));
+  const days=[...myReadKeys()].filter(k=>k.startsWith(ym+"-")).sort();
+  const chDays=new Set(ch.map(c=>hereDay(new Date(c.t))));
+  const qt=Object.keys(state.qt||{}).filter(k=>state.qt[k]&&k.startsWith(ym+"-")).length;
+  const notes=Object.values(state.notes||{}).filter(x=>x&&inM(x.at)&&Object.entries(x).some(([k,v])=>k!=="at"&&typeof v==="string"&&v.trim())).length;
+  const saved=Object.values(state.saved||{}).filter(v=>v&&v.text&&inM(v.at)).length;
+  const ans=Object.values(state.pl||{}).filter(p=>p&&p.t&&p.ans&&inM(p.ans)).length;
+  const ex=Object.keys(state.ex||{}).filter(k=>state.ex[k]&&k.startsWith(ym+"-")).length;
+  let tp=0;for(const v of Object.values(state.settings.tp||{}))for(const t of Object.values(v?.d||{}))if(inM(t))tp++;
+  let run=0,best=0,prev=null;for(const k of days){const dt=new Date(k+"T12:00");run=prev&&Math.round((dt-prev)/864e5)===1?run+1:1;best=Math.max(best,run);prev=dt}
+  const books=[];for(const c of ch){const b=PLAN[c.d-1]?.book;if(b&&!books.includes(b))books.push(b)}
+  return{ym,ch:ch.length,days:days.length,dset:new Set(days),chDays,qt,notes,saved,ans,ex,tp,best,books,any:ch.length+days.length+notes+saved+ans+ex+tp>0}}
+function monthFirst(){const ts=[...Object.values(state.done||{}).filter(Boolean).map(t=>new Date(t)),...[...myReadKeys()].map(k=>new Date(k+"T12:00"))].filter(d=>!isNaN(d));return ts.length?ymOf(new Date(Math.min(...ts))):ymOf(new Date())}
+function monthDefault(){const now=new Date(),cur=ymOf(now),pv=ymShift(cur,-1);return now.getDate()<=7&&monthData(pv).any?pv:cur}
+let MR=null;
+function monthCal(d){const [y,m]=d.ym.split("-").map(Number),n=new Date(y,m,0).getDate(),lead=(new Date(y,m-1,1).getDay()+6)%7,today=hereDay();
+  let c="";for(let i=0;i<lead;i++)c+=`<i class="mpad"></i>`;
+  for(let i=1;i<=n;i++){const k=`${d.ym}-${String(i).padStart(2,"0")}`;c+=`<i class="${d.chDays.has(k)?"mrd":d.dset.has(k)?"mqt":""}${k===today?" mnow":""}${k>today?" mfut":""}" style="--k:${i}">${i}</i>`}
+  return `<div class="mr-cal" role="img" aria-label="${esc(ymName(d.ym))}: read on ${plural(d.days,"day")} of ${n}"><div class="mr-wd" aria-hidden="true">${["M","T","W","T","F","S","S"].map(x=>`<b>${x}</b>`).join("")}</div><div class="mr-g" aria-hidden="true">${c}</div></div>`}
+function monthCard(){const cur=ymOf(new Date());if(!MR||MR>cur)MR=monthDefault();const ym=MR,d=monthData(ym),first=monthFirst(),pv=monthData(ymShift(ym,-1));
+  const extra=[[d.notes,"note","written"],[d.saved,"verse","saved"],[d.ans,"prayer","answered"],[d.ex,"evening Examen",""],[d.tp,"topic reading",""]].filter(x=>x[0]).map(([n,w,t])=>`<span class="chip">${plural(n,w)}${t?" "+t:""}</span>`).join("");
+  const up=pv.any&&d.days>pv.days?`<p class="mr-up">${I.spark}<span>${plural(d.days-pv.days,"more reading day")} than ${esc(ymName(pv.ym))}</span></p>`:"";
+  return `<section class="card mrev" id="monCard" aria-labelledby="mrH"><div class="mr-top"><div><div class="kicker">Month in review</div><h2 id="mrH">${esc(ymName(ym,true))}${ym===cur?` <small>so far</small>`:""}</h2></div>
+    <div class="mr-nav"><button class="icon-btn" id="mrPrev" aria-label="Previous month"${ym<=first?" disabled":""}>${I.left}</button><button class="icon-btn" id="mrNext" aria-label="Next month"${ym>=cur?" disabled":""}>${I.right}</button></div></div>
+    ${d.any?`<div class="mr-body">${monthCal(d)}<div class="mr-side"><div class="mr-stats">${[[d.ch,d.ch===1?"Chapter":"Chapters"],[d.days,d.days===1?"Reading day":"Reading days"],[d.best,"Longest run"],[d.qt,d.qt===1?"Quiet time":"Quiet times"]].map(([n,l])=>`<div><b data-mrn="${n}">${n}</b><span>${l}</span></div>`).join("")}</div>
+      ${extra?`<div class="mr-chips">${extra}</div>`:""}${d.books.length?`<p class="mr-books">You read in ${esc(d.books.map(b=>BOOKS[b].name).join(", ").replace(/, ([^,]*)$/," and $1"))}.</p>`:""}${up}
+      <button class="btn sm" id="mrShare">${I.send}Share my month</button></div></div>`
+      :`<p class="muted mr-empty">${ym===cur?"Nothing yet this month. Today's chapter is a good start.":"Nothing read this month."}</p>`}</section>`}
+function monthText(d){return `My ${ymName(d.ym)} in Lamp: ${plural(d.ch,"chapter")} on ${plural(d.days,"day")}${d.qt?`, ${plural(d.qt,"quiet time")}`:""}${d.best>1?`, and a run of ${d.best} days in a row`:""}. ${LAMP_URL}`}
+function wireMonth(anim){const c=$("#monCard");if(!c)return;
+  const mv=n=>{MR=ymShift(MR,n);c.outerHTML=monthCard();wireMonth(true);buzz(8);$(n<0?"#mrPrev":"#mrNext")?.focus()};
+  $("#mrPrev").onclick=()=>mv(-1);$("#mrNext").onclick=()=>mv(1);
+  $("#mrShare")?.addEventListener("click",async()=>{const t=monthText(monthData(MR));if(navigator.share){try{await navigator.share({text:t});return}catch(e){if(e?.name==="AbortError")return}}window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank","noopener")});
+  $("#monCard").querySelectorAll("[data-mrn]").forEach(b=>countUp(b,+b.dataset.mrn));
+  if(anim&&!reduced())$("#monCard .mr-body")?.animate([{opacity:0,transform:"translateY(6px)"},{opacity:1,transform:"none"}],{duration:320,easing:"cubic-bezier(.16,1,.3,1)"})}
+function monTeaser(){const now=new Date();if(now.getDate()>7)return"";const pv=ymShift(ymOf(now),-1);try{if(localStorage.getItem("lamp-mr-seen-"+pv))return""}catch(e){}
+  const d=monthData(pv);if(!d.ch&&!d.days)return"";
+  return `<section class="card mteaser" id="mTeaser"><div><div class="kicker">Month in review</div><h2>Your ${esc(ymName(pv))} in Lamp</h2><p class="muted">${plural(d.ch,"chapter")} on ${plural(d.days,"day")}. Take a look back before the new month gets going.</p></div><div class="mt-act"><button class="btn sm primary" id="mtGo">See your month</button><button class="btn sm ghost" id="mtX">Not now</button></div></section>`}
+function wireTeaser(){const t=$("#mTeaser");if(!t)return;const pv=ymShift(ymOf(new Date()),-1);const seen=()=>{try{localStorage.setItem("lamp-mr-seen-"+pv,"1")}catch(e){}};
+  $("#mtGo").onclick=()=>{seen();MR=pv;setView("path");setTimeout(()=>$("#monCard")?.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"center"}),reduced()?0:380)};
+  $("#mtX").onclick=()=>{seen();if(reduced()){t.remove();return}t.animate([{opacity:1},{opacity:0,transform:"scale(.97)"}],{duration:200,easing:"ease-in"}).onfinish=()=>t.remove()}}
 /* ================= Your Lamp story ================= */
 const ST={i:0,t:null,hold:false,list:[]};
 function storyData(){const D=Object.values(state.done||{}).filter(Boolean).map(t=>new Date(t)).sort((a,b)=>a-b);const n=D.length;
@@ -3593,7 +3683,7 @@ function markDone(day,btn){
 }
 const after={
   today(){
-    srMigrate();fillDevo();
+    srMigrate();fillDevo();wireTeaser();
     document.querySelectorAll("[data-fresh]").forEach(wireFresh);
     const day=curDay();const p=PLAN[day-1];
     if(!GEO)idle(()=>loadGeo().then(()=>view==="today"&&refreshThumbs()));
@@ -3639,7 +3729,7 @@ const after={
     document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{state.selected=+c.dataset.day;lsWrite();setView("today")});
     document.querySelectorAll("[data-spine]").forEach(b=>b.onclick=()=>{const el=document.getElementById("stage-"+b.dataset.spine);if(!el)return;el.open=true;el.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"start"})});
     $("#badgeMore")?.addEventListener("click",e=>{const g=$("#badgeGrid"),on=g.classList.toggle("all");e.currentTarget.setAttribute("aria-expanded",on);e.currentTarget.textContent=on?"Show fewer badges":`Show all ${BADGES.length} badges`});
-    $("#storyGo")?.addEventListener("click",openStory);
+    $("#storyGo")?.addEventListener("click",openStory);wireMonth(false);
     if(!reduced()){const r=$(".jr-ring .jr-p");if(r){const L=+r.dataset.len;r.animate([{strokeDashoffset:L},{strokeDashoffset:r.style.strokeDashoffset}],{duration:1100,easing:"cubic-bezier(.16,1,.3,1)"})}
       document.querySelectorAll(".spine i").forEach((x,j)=>x.animate([{transform:"scaleY(0)"},{transform:"scaleY(1)"}],{duration:700,delay:200+j*60,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}))}},
   learn(){
@@ -3716,6 +3806,7 @@ function vPath(){
     <div class="card stat"><b>${Object.values(state.saved).filter(Boolean).length}</b><span>Saved verses</span></div>
     <div class="card stat"><b>${plAns().length}</b><span>Answered prayers</span></div>
   </div>
+  ${monthCard()}
   <div class="sec-h"><h2>Stages</h2><div class="legend"><span><i class="d"></i>Read</span><span><i class="c"></i>Up next</span><span><i></i>Not yet</span></div></div>
   ${STAGES.map((s,si)=>{
     const days=PLAN.filter(p=>p.stage===si);const d=days.filter(p=>isDone(p.day)).length;const open=days.some(p=>p.day===cur)||(si===0&&!PLAN.some(p=>p.day===cur));
@@ -3802,6 +3893,10 @@ const TPLANS=[
  ["wait","When you're waiting","Trusting God while the answer hasn't come yet.",[["PSA.27.1","Psalm 27","The LORD is my light. Wait patiently for the LORD; be strong."],["ISA.40.27","Isaiah 40:27–31","Those who wait upon the LORD will renew their strength."],["LAM.3.19","Lamentations 3:19–26","His mercies are new every morning. It is good to wait quietly."],["HAB.2.1","Habakkuk 2:1–4","Though it lingers, wait for it. It will surely come."],["ROM.8.18","Romans 8:18–25","We hope for what we do not yet see, and wait for it patiently."]]],
  ["doubt","When you have doubts","Honest questions, and the God who meets us in them.",[["MRK.9.14","Mark 9:14–29","A father's cry: I do believe; help my unbelief!"],["MAT.14.22","Matthew 14:22–33","Peter sinks, and Jesus takes hold of his hand."],["MAT.11.2","Matthew 11:2–6","Even John the Baptist asked: are you the one?"],["PSA.73.1","Psalm 73","My feet had almost slipped, until I entered God's sanctuary."],["JHN.20.24","John 20:24–31","Thomas sees the wounds: my Lord and my God."]]],
  ["joy","Joy","Gladness that runs deeper than how things are going.",[["PSA.16.1","Psalm 16","In your presence is fullness of joy."],["NEH.8.9","Nehemiah 8:9–12","The joy of the LORD is your strength."],["LUK.2.8","Luke 2:8–20","Good news of great joy for all the people."],["JHN.15.9","John 15:9–17","Jesus: so that my joy may be in you, and your joy complete."],["HAB.3.17","Habakkuk 3:17–19","Though the fig tree does not bud, yet I will rejoice in the LORD."]]],
+ ["money","Money and enough","What the Bible says about having, wanting and giving.",[["MAT.6.19","Matthew 6:19–24","Store up treasure in heaven. You cannot serve both God and money."],["LUK.12.13","Luke 12:13–21","The rich fool builds bigger barns but is not rich toward God."],["1TI.6.6","1 Timothy 6:6–19","Godliness with contentment is great gain. Be generous and ready to share."],["PHP.4.10","Philippians 4:10–20","Paul: I have learned to be content whatever my circumstances."],["2CO.9.6","2 Corinthians 9:6–15","Give what you have decided in your heart. God loves a cheerful giver."]]],
+ ["family","Family and home","God at the centre of the people closest to you.",[["GEN.45.1","Genesis 45:1–15","Joseph makes himself known and weeps with the brothers who sold him."],["RUT.1.6","Ruth 1:6–18","Ruth stays with Naomi: where you go, I will go."],["DEU.6.4","Deuteronomy 6:4–9","Love the LORD with all your heart, and talk about his words at home."],["PSA.127.1","Psalm 127","Unless the LORD builds the house, its builders labour in vain."],["EPH.6.1","Ephesians 6:1–4","Honour your father and mother. Fathers, don't provoke your children."]]],
+ ["rest","Rest","Permission to stop, and the rest only God gives.",[["EXO.20.8","Exodus 20:8–11","Six days of work, then a Sabbath day of rest, because God rested too."],["1KI.19.1","1 Kings 19:1–8","Worn-out Elijah sleeps, and an angel brings food: get up and eat."],["PSA.4.1","Psalm 4","I will lie down and sleep in peace."],["MRK.6.30","Mark 6:30–32","Jesus to his tired friends: come away to a quiet place and rest a while."],["MAT.11.28","Matthew 11:28–30","Come to me, all who are weary, and I will give you rest."]]],
+ ["tempt","When you're tempted","Standing firm, and the God who gives a way out.",[["MAT.4.1","Matthew 4:1–11","Jesus is tempted in the wilderness and answers with Scripture."],["GEN.39.1","Genesis 39","Joseph says no to Potiphar's wife and runs from the house."],["1CO.10.12","1 Corinthians 10:12–13","God is faithful: when you are tempted, he will provide a way out."],["JAS.1.12","James 1:12–18","God tempts no one. Every good and perfect gift is from above."],["HEB.4.14","Hebrews 4:14–16","Jesus was tempted in every way, yet without sin. Come to him for help."]]],
  ["courage","When you're afraid","Courage that comes from God being with you.",[["JOS.1.1","Joshua 1:1–9","Be strong and courageous, for the LORD your God is with you."],["PSA.27.1","Psalm 27","The LORD is my light and my salvation. Whom shall I fear?"],["ISA.41.8","Isaiah 41:8–13","Do not fear, for I am with you. I will help you."],["DAN.3.13","Daniel 3:13–28","Three friends refuse to bow, and a fourth figure walks with them in the fire."],["2TI.1.6","2 Timothy 1:6–10","God gave us a spirit of power, love and self-control, not fear."]]]];
 const tpState=id=>(state.settings.tp||{})[id]||{};
 const tpDone=id=>Object.keys(tpState(id).d||{}).length;
