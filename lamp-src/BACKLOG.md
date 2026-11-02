@@ -4,7 +4,8 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 
 ## Ideas
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
-- Accuracy: check BOOKINFO summaries and OT dates (labels done in v37; cited verses and NT dates in v38).
+- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40).
+- Second chance for the chapter quiz and the group quick quiz too.
 - Sea of Galilee painted scene for the field background.
 - More hymns (only public-domain words; check the year and author).
 - Verse of the week for the group to memorise together.
@@ -19,3 +20,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v37 (30 Oct): leader summary (This week at a glance + Send a weekly recap in Leader tools), press feedback on cards and pills, 222 book-intro chapter labels checked against the BSB (6 quotes reworded to match).
 - v38 (31 Oct): group challenge (leader sets a goal of reading days and an end date; card on the Group page, celebrates once), numbers count up, every verse cited in book author notes checked (Acts 'When' fixed).
 - v39 (1 Nov): Month in review (My path card + Today nudge in the first week), 4 more topic plans (money, family, rest, temptation; 16 in total), folding sections open and close smoothly.
+- v40 (2 Nov): Second chance (missed quiz questions come back the next day until learnt), headings and paragraphs wrap evenly, book-intro dates for Psalms, Isaiah and Nahum checked against the verses.
