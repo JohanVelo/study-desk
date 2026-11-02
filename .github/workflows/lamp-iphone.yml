@@ -12,7 +12,7 @@ permissions:
 jobs:
   iphone:
     runs-on: macos-15
-    timeout-minutes: 40
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
       - name: Pick and boot an iPhone
@@ -29,6 +29,8 @@ jobs:
           cd /tmp/site && nohup python3 -m http.server 8000 >/tmp/http.log 2>&1 &
           sleep 2 && curl -sI http://localhost:8000/ | head -1
       - name: Drive Mobile Safari
+        # a step limit (not only the job limit) so a stuck simulator still leaves the log and screenshots
+        timeout-minutes: 30
         run: |
           pip3 install --break-system-packages selenium==4.27.1 >/dev/null
           sudo safaridriver --enable

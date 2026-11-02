@@ -13,6 +13,7 @@ log = []; fails = 0
 def note(ok, msg):
     global fails
     log.append(("PASS " if ok else "FAIL ") + msg); fails += 0 if ok else 1; print(log[-1], flush=True)
+    open(f"{OUT}/log.txt", "w").write("\n".join(log) + "\n\n(still running)\n")
 
 def shot(name):
     subprocess.run(["xcrun", "simctl", "io", UDID, "screenshot", f"{OUT}/{name}.png"], capture_output=True)
@@ -61,6 +62,8 @@ def run():
     o.set_capability("safari:useSimulator", True)
     o.set_capability("safari:deviceUDID", UDID)
     d = webdriver.Safari(options=o)
+    # a stuck page load or script should fail loudly, not hang until the job is cancelled
+    d.set_page_load_timeout(90); d.set_script_timeout(30)
     try:
         info = js(d, "return navigator.userAgent")
         note("iPhone" in info, "real Mobile Safari: " + info)
