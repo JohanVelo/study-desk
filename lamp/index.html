@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261102003249">
+<link rel="stylesheet" href="app.css?v=20261103015029">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261102003249"></script>
+<script src="app.js?v=20261103015029"></script>
 </head>
 <body>
 <style>
@@ -214,6 +214,39 @@ textarea:focus,.input:focus,select:focus{outline:none;border-color:var(--accent)
 .stat b{display:block;font-family:var(--f-body);font-size:2rem;font-weight:700;line-height:1;font-variant-numeric:tabular-nums lining-nums;letter-spacing:-.02em}
 .stat span{font-size:.85rem;color:var(--muted)}
 .cal-wrap{overflow-x:auto;padding-bottom:4px}
+/* v41: search your journal */
+.jsearch{display:flex;flex-direction:column;gap:12px}
+.jsf{position:relative;display:flex;align-items:center}
+.jsf input{width:100%;min-height:48px;padding:10px 48px 10px 44px;border-radius:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:500 1rem var(--f-body);-webkit-appearance:none;appearance:none}
+.jsf input::-webkit-search-cancel-button{display:none}
+.jsf input:focus{border-color:var(--accent);outline:0;box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.jsf-i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);display:flex;pointer-events:none}.jsf-i svg{width:18px;height:18px}
+.jsx{position:absolute;right:2px;top:0;bottom:0;margin:auto 0;z-index:2}.jsx[hidden]{display:none}
+.jsearch.on~*{display:none!important}
+.js-n{margin:0;font-weight:600;color:var(--ink)}
+#jRes>.js-n,.js-more{align-self:flex-start;padding:6px 12px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow);font-size:.9rem}
+#jRes{display:flex;flex-direction:column;gap:12px}#jRes:empty{display:none}
+.js-none{background:var(--surface);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:4px}
+.js-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.js-it{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;box-shadow:var(--shadow)}
+button.js-it{cursor:pointer}button.js-it:hover{border-color:var(--accent)}
+.js-k{font:600 .72rem var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--gold)}
+.js-it b{font:600 1.08rem/1.3 var(--f-display)}
+.js-x{color:var(--muted);line-height:1.5;font-size:.95rem}
+.js-it mark{background:color-mix(in srgb,var(--gold) 28%,transparent);color:inherit;border-radius:3px;padding:0 1px}
+.js-tip,.js-more{margin:0}.js-more{font-weight:500;color:var(--muted)}
+[data-pl].js-flash{box-shadow:0 0 0 3px var(--gold),var(--shadow);border-radius:14px}
+/* v41 feel: pick up where you stopped */
+.rresume{position:absolute;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;background:var(--ink);color:var(--bg);box-shadow:var(--shadow-lg);animation:rresin .42s var(--expo)}
+.rresume.out{opacity:0;transform:translate(-50%,10px);transition:opacity .22s,transform .22s}
+.rres-go{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 14px;border:0;border-radius:999px;background:transparent;color:inherit;font:600 .95rem var(--f-body);cursor:pointer;white-space:nowrap}
+.rres-go svg{width:18px;height:18px}
+.rres-x{width:44px;height:44px;border:0;border-radius:999px;background:transparent;color:inherit;display:grid;place-items:center;cursor:pointer;opacity:.75}.rres-x svg{width:16px;height:16px}
+.rres-go:hover,.rres-x:hover{background:color-mix(in srgb,var(--bg) 14%,transparent)}
+#scr .v.rres-flash{background:color-mix(in srgb,var(--gold) 26%,transparent);border-radius:4px;transition:background 1.2s}
+@keyframes rresin{from{opacity:0;transform:translate(-50%,14px)}}
+@media (prefers-reduced-motion:no-preference){.js-list li{animation:jsin .36s var(--expo) backwards;animation-delay:calc(var(--k)*28ms)}@keyframes jsin{from{opacity:0;transform:translateY(6px)}}}
+@media (prefers-reduced-motion:reduce){.rresume{animation:none}}
 /* v40: second chance */
 .mc-row{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;margin-top:12px;padding:10px 14px;border:1.5px solid color-mix(in srgb,var(--accent) 35%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface));color:var(--ink);text-align:left;font:inherit;cursor:pointer}
 .mc-row:hover{border-color:var(--accent)}
@@ -3529,7 +3562,7 @@ function plView(){const o=plOpen(),a=plAns();
     <form id="plF" class="plf"><input id="plT" class="search" maxlength="300" placeholder="For example: Mum's health" aria-label="New prayer"><button class="btn primary">Add</button></form>
     ${o.length?`<button class="btn" id="plPray">${I.hand}Pray through my list · ${o.length}</button>`:""}</section>
   ${o.length?`<div class="pl-list">${o.map(([k,p])=>`<article class="card plc" data-pl="${k}"><p>${esc(p.t)}</p><footer><span class="muted">Added ${fmtD(p.at)}${p.n?` · prayed ${p.n}×`:""}</span><span><button class="btn sm" data-pla="${k}">${I.check}Answered</button><button class="icon-btn sm" data-pld="${k}" aria-label="Remove this prayer">${I.close}</button></span></footer></article>`).join("")}</div>`:`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("lamp")}</span><h2>Start a prayer list</h2><p>Add the people and things you're praying for. When God answers, mark it, and you'll build up a record of his faithfulness to look back on.</p></div>`}
-  ${a.length?`<section class="pl-ans"><h2>Answered prayers <span class="muted">· ${a.length}</span></h2><ol class="pl-tl">${a.map(([k,p])=>{const d=Math.max(1,Math.round((new Date(p.ans)-new Date(p.at))/864e5));return `<li><span class="pl-dot" aria-hidden="true"></span><div><b>${esc(p.t)}</b>${p.an?`<p>${esc(p.an)}</p>`:""}<small>Answered ${fmtD(p.ans)} · after ${d} day${d===1?"":"s"}</small></div></li>`}).join("")}</ol></section>`:""}`}
+  ${a.length?`<section class="pl-ans"><h2>Answered prayers <span class="muted">· ${a.length}</span></h2><ol class="pl-tl">${a.map(([k,p])=>{const d=Math.max(1,Math.round((new Date(p.ans)-new Date(p.at))/864e5));return `<li data-pl="${k}"><span class="pl-dot" aria-hidden="true"></span><div><b>${esc(p.t)}</b>${p.an?`<p>${esc(p.an)}</p>`:""}<small>Answered ${fmtD(p.ans)} · after ${d} day${d===1?"":"s"}</small></div></li>`}).join("")}</ol></section>`:""}`}
 function plWire(){$("#plF")?.addEventListener("submit",e=>{e.preventDefault();const t=$("#plT").value.trim();if(!t)return;const k="p"+Date.now().toString(36);const v={t,at:new Date().toISOString(),u:new Date().toISOString()};state.pl[k]=v;queue({pl:{[k]:v}});render();toast("Added to your prayer list")});
   $("#plPray")?.addEventListener("click",()=>openPrayNow(true));
   document.querySelectorAll("[data-pld]").forEach(b=>b.onclick=()=>{const k=b.dataset.pld;state.pl[k]=null;queue({pl:{[k]:null}});render();toast("Removed")});
@@ -3790,6 +3823,7 @@ const after={
 
   },
   journal(){
+    jWire();
     document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.open;lsWrite();setView("today")});
     document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{jTab=b.dataset.tab;memoLv=0;render()});
     if(jTab==="hl")hlFill();
@@ -3964,7 +3998,11 @@ const HYMNS=[
  ["Come, Thou Fount of Every Blessing","Robert Robinson, 1758","Come, Thou Fount of every blessing,\nTune my heart to sing Thy grace;\nStreams of mercy, never ceasing,\nCall for songs of loudest praise.","Robinson wrote it as a young man in England. A later verse says “Here I raise my Ebenezer”, from Samuel's stone of help.",[["1SA.7.12","1 Samuel 7:12"]]],
  ["What a Friend We Have in Jesus","Joseph Scriven, 1855","What a friend we have in Jesus,\nAll our sins and griefs to bear!\nWhat a privilege to carry\nEverything to God in prayer!","Scriven, an Irishman living in Canada, first wrote it as a poem to comfort his mother.",[["JHN.15.15","John 15:15"],["PHP.4.6","Philippians 4:6"]]],
  ["Blessed Assurance","Fanny Crosby, 1873","Blessed assurance, Jesus is mine!\nO what a foretaste of glory divine!\nHeir of salvation, purchase of God,\nBorn of His Spirit, washed in His blood.","Crosby was blind from infancy and wrote thousands of hymns. Her friend Phoebe Knapp wrote the tune.",[["HEB.10.22","Hebrews 10:22"]]],
- ["Nearer, My God, to Thee","Sarah Flower Adams, 1841","Nearer, my God, to Thee, nearer to Thee!\nE'en though it be a cross that raiseth me,\nStill all my song shall be,\nNearer, my God, to Thee.","The hymn retells Jacob's dream of a stairway to heaven at Bethel.",[["GEN.28.10","Genesis 28:10–22"]]]];
+ ["Nearer, My God, to Thee","Sarah Flower Adams, 1841","Nearer, my God, to Thee, nearer to Thee!\nE'en though it be a cross that raiseth me,\nStill all my song shall be,\nNearer, my God, to Thee.","The hymn retells Jacob's dream of a stairway to heaven at Bethel.",[["GEN.28.10","Genesis 28:10–22"]]],
+ ["Crown Him with Many Crowns","Matthew Bridges, 1851","Crown Him with many crowns,\nThe Lamb upon His throne;\nHark! how the heavenly anthem drowns\nAll music but its own.","Bridges, an English writer, published it in 1851. Godfrey Thring wrote more verses for it about twenty years later, and many hymn books mix the two.",[["REV.19.12","Revelation 19:12"],["REV.5.12","Revelation 5:12"]]],
+ ["All Hail the Power of Jesus' Name","Edward Perronet, 1779","All hail the power of Jesus' name!\nLet angels prostrate fall;\nBring forth the royal diadem,\nAnd crown Him Lord of all.","Perronet was an English preacher who worked for a time with John and Charles Wesley. The hymn first appeared in a magazine in 1779.",[["PHP.2.9","Philippians 2:9–11"],["REV.5.12","Revelation 5:12"]]],
+ ["Just As I Am","Charlotte Elliott, 1835","Just as I am, without one plea,\nBut that Thy blood was shed for me,\nAnd that Thou bidd'st me come to Thee,\nO Lamb of God, I come, I come.","Elliott lived with long illness. She wrote it in her forties, and it is about coming to Jesus with nothing to offer but need.",[["JHN.6.37","John 6:37"],["JHN.1.29","John 1:29"]]],
+ ["O Worship the King","Robert Grant, 1833","O worship the King, all glorious above,\nO gratefully sing His power and His love;\nOur Shield and Defender, the Ancient of Days,\nPavilioned in splendour, and girded with praise.","Grant was a British member of parliament and later governor of Bombay. He based the hymn on Psalm 104.",[["PSA.104.1","Psalm 104:1–4"],["DAN.7.9","Daniel 7:9"]]]];
 const hymnNow=()=>HYMNS[Math.floor((monOf(Date.now())-new Date(2026,0,5))/6048e5)%HYMNS.length+(Math.floor((monOf(Date.now())-new Date(2026,0,5))/6048e5)<0?HYMNS.length:0)]||HYMNS[0];
 function hymnCard(){const h=hymnNow();return `<button class="card qtcard hymncard" data-hymn aria-label="Open the hymn of the week: ${esc(h[0])}"><span class="hy-ic" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span><span class="qt-txt"><span class="kicker">Hymn of the week</span><b>${esc(h[0])}</b><span>${esc(h[2].split("\n")[0])}</span></span><span class="qt-go">${I.right}</span></button>`}
 let hySpeak=false;
@@ -4055,7 +4093,7 @@ function vJournal(){
   const entries=Object.entries(state.notes).filter(([,n])=>n&&(n.what||n.shows||n.stands)).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const saved=Object.entries(state.saved).filter(([,v])=>v).sort((a,b)=>(b[1].at||"").localeCompare(a[1].at||""));
   const head=`<div><h1 class="page-h">Journal</h1></div>
-  <div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorise</button><button data-tab="pray" aria-pressed="${jTab==="pray"}">Prayers${plOpen().length?`<span class="segn"> · ${plOpen().length}</span>`:""}</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
+  ${jSearchBar()}<div class="seg" role="group" aria-label="Journal sections"><button data-tab="notes" aria-pressed="${jTab==="notes"}">Notes<span class="segn"> · ${entries.length}</span></button><button data-tab="verses" aria-pressed="${jTab==="verses"}">Verses<span class="segn"> · ${saved.length}</span></button><button data-tab="memo" aria-pressed="${jTab==="memo"}">Memorise</button><button data-tab="pray" aria-pressed="${jTab==="pray"}">Prayers${plOpen().length?`<span class="segn"> · ${plOpen().length}</span>`:""}</button><button data-tab="hl" aria-pressed="${jTab==="hl"}">Highlights<span class="segn">${hlCount()?` · ${hlCount()}`:""}</span></button></div>`;
   if(jTab==="hl")return head+hlView();
   if(jTab==="pray")return head+plView();
   if(jTab==="memo"){
@@ -4091,6 +4129,55 @@ function vJournal(){
   </article>`}).join("");
 }
 
+
+/* ===== v41: search your journal (notes, quiet times, Examens, saved verses, prayers) ===== */
+let jQ="";
+const jFold=t=>String(t||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+function jItems(){const L=[],dt=t=>{const d=new Date(t);return isNaN(d)?"":d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"})};
+  for(const [d,n] of Object.entries(state.notes||{})){const p=PLAN[d-1];if(!p||!n)continue;const t=[n.what,n.shows,n.stands].filter(x=>typeof x==="string"&&x.trim()).join(" · ");if(t)L.push({k:"Note",t:`${refName(p)}: ${p.title}`,x:t,at:n.at||"",go:"d:"+d})}
+  for(const [k,q] of Object.entries(state.qt||{})){if(!q)continue;const t=[q.word,q.note].filter(x=>typeof x==="string"&&x.trim()).join(" · ");if(t)L.push({k:"Quiet time",t:q.ref&&!/\./.test(q.ref)?q.ref:"Quiet time",x:t,at:q.at||k})}
+  for(const [k,e] of Object.entries(state.ex||{})){if(!e)continue;const t=["q0","q1","q2","q3"].map(f=>e[f]).filter(x=>typeof x==="string"&&x.trim()).join(" · ");if(t)L.push({k:"Examen",t:`Evening Examen, ${dt(k+"T12:00")}`,x:t,at:e.at||k})}
+  for(const [k,v] of Object.entries(state.saved||{})){if(v&&v.text)L.push({k:"Verse",t:v.ref||k,x:v.text,at:v.at||"",go:"v:"+k})}
+  for(const [k,p] of Object.entries(state.pl||{})){if(p&&p.t)L.push({k:p.ans?"Answered prayer":"Prayer",t:p.ans?`Answered ${dt(p.ans)}`:`Added ${dt(p.at)}`,x:p.t,at:p.at||"",go:"p:"+k})}
+  return L}
+function jMark(text,terms){const raw=String(text);const f=jFold(raw);let at=-1;for(const t of terms){const i=f.indexOf(t);if(i>=0&&(at<0||i<at))at=i}
+  let a=0,b=raw.length;if(raw.length>170){a=Math.max(0,at-60);b=Math.min(raw.length,a+170);if(a>0)a=raw.indexOf(" ",a)+1||a}
+  const seg=raw.slice(a,b),fs=jFold(seg),hits=[];for(const t of terms){let i=fs.indexOf(t);while(i>=0&&t){hits.push([i,i+t.length]);i=fs.indexOf(t,i+t.length)}}
+  hits.sort((x,y)=>x[0]-y[0]);let out="",c=0;for(const [x,y] of hits){if(x<c)continue;out+=esc(seg.slice(c,x))+`<mark>${esc(seg.slice(x,y))}</mark>`;c=y}out+=esc(seg.slice(c));
+  return (a>0?"…":"")+out+(b<raw.length?"…":"")}
+function jSearch(q){const terms=jFold(q).split(/\s+/).filter(Boolean);if(!terms.length)return[];
+  return jItems().filter(it=>{const h=jFold(it.t+" "+it.x+" "+it.k);return terms.every(t=>h.includes(t))}).sort((a,b)=>String(b.at).localeCompare(String(a.at)))}
+function jSearchBar(){const n=jItems().length;if(n<2)return"";
+  return `<div class="jsearch${jQ.trim()?" on":""}" role="search"><label class="jsf"><span class="jsf-i" aria-hidden="true">${I.search}</span><input id="jq" type="search" enterkeyhint="search" autocomplete="off" placeholder="Search your journal" aria-label="Search your journal: notes, quiet times, verses and prayers" value="${esc(jQ)}"><button class="icon-btn jsx" id="jqX" aria-label="Clear search"${jQ?"":" hidden"}>${I.close}</button></label><div id="jRes" aria-live="polite"></div></div>`}
+function jPaint(){const box=$("#jRes"),wrap=$(".jsearch");if(!box||!wrap)return;const q=jQ.trim();wrap.classList.toggle("on",!!q);$("#jqX").hidden=!jQ;
+  if(!q){box.innerHTML="";return}
+  const terms=jFold(q).split(/\s+/).filter(Boolean),R=jSearch(q);
+  box.innerHTML=(R.length?`<p class="js-n">${plural(R.length,"result")} for “${esc(q)}”</p>`:`<div class="js-none"><p class="js-n">Nothing in your journal matches “${esc(q)}”.</p><p class="muted js-tip">Try one word, like a name, a place or a feeling.</p></div>`)+(R.length?`<ol class="js-list">${R.slice(0,60).map((r,i)=>`<li style="--k:${Math.min(i,12)}">${r.go?`<button class="js-it" data-jgo="${esc(r.go)}">`:`<div class="js-it">`}<span class="js-k">${esc(r.k)}</span><b>${jMark(r.t,terms)}</b><span class="js-x">${jMark(r.x,terms)}</span>${r.go?`</button>`:`</div>`}</li>`).join("")}</ol>${R.length>60?`<p class="js-more">Showing the newest 60. Add another word to narrow it down.</p>`:""}`:"");
+  box.querySelectorAll("[data-jgo]").forEach(b=>b.onclick=()=>jGo(b.dataset.jgo))}
+function jGo(g){const [t,...r]=g.split(":"),k=r.join(":");
+  if(t==="d"){state.selected=+k;lsWrite();setView("today");return}
+  if(t==="v"){const v=state.saved[k];if(!v)return;const [bk,c,vn]=k.split(".");openPassage(passFor(bk,+c),false,+vn);return}
+  if(t==="p"){jQ="";jTab="pray";render();requestAnimationFrame(()=>{const c=document.querySelector(`[data-pl="${CSS.escape(k)}"]`);if(!c)return;c.scrollIntoView({block:"center",behavior:reduced()?"auto":"smooth"});c.classList.add("js-flash");setTimeout(()=>c.classList.remove("js-flash"),1600)})}}
+function jWire(){const i=$("#jq");if(!i)return;let t=null;
+  i.addEventListener("input",()=>{jQ=i.value;clearTimeout(t);t=setTimeout(jPaint,120)});
+  i.addEventListener("keydown",e=>{if(e.key==="Escape"&&i.value){e.preventDefault();i.value="";jQ="";jPaint()}});
+  $("#jqX").onclick=()=>{i.value="";jQ="";jPaint();i.focus()};
+  if(jQ)jPaint()}
+document.addEventListener("keydown",e=>{if(e.key!=="/"||view!=="journal"||e.ctrlKey||e.metaKey||e.altKey)return;const a=document.activeElement;if(a&&(a.matches("input,textarea,select,[contenteditable]")||$("#scrim")||$(".reader")))return;const i=$("#jq");if(i){e.preventDefault();i.focus()}});
+
+/* ===== v41 feel: the reader remembers where you stopped in a chapter ===== */
+const RPOS_K="lamp-rpos";
+function rposAll(){try{const o=JSON.parse(localStorage.getItem(RPOS_K)||"{}");return o&&typeof o==="object"&&!Array.isArray(o)?o:{}}catch(e){return{}}}
+function rposSet(k,v){const o=rposAll();if(v)o[k]={v,at:Date.now()};else delete o[k];const ks=Object.keys(o);if(ks.length>40)ks.sort((a,b)=>o[a].at-o[b].at).slice(0,ks.length-40).forEach(x=>delete o[x]);try{localStorage.setItem(RPOS_K,JSON.stringify(o))}catch(e){}}
+function rposTop(){const sc=$("#rScroll");if(!sc)return 0;const top=sc.getBoundingClientRect().top+90;for(const v of document.querySelectorAll("#scr .v")){if(v.getBoundingClientRect().bottom>top)return +v.dataset.vn}return 0}
+function rposSave(){if(!R||!R.p||R.range)return;const sc=$("#rScroll");if(!sc)return;const k=`${R.p.book}.${R.p.ch}`,m=sc.scrollHeight-sc.clientHeight;if(m<=0)return;
+  if(sc.scrollTop/m>.92){rposSet(k,0);return}const v=rposTop();if(v>=4)rposSet(k,v);else if(v&&v<4)rposSet(k,0)}
+function rposOffer(p){const o=rposAll()[`${p.book}.${p.ch}`];if(!o||o.v<4||Date.now()-o.at>21*864e5)return;const ve=$(`#scr .v[data-vn="${o.v}"]`),rd=$(".reader");if(!ve||!rd)return;
+  rd.insertAdjacentHTML("beforeend",`<div class="rresume" id="rRes"><button class="rres-go" id="rResGo">${I.down||I.chev}<span>Pick up at verse ${o.v}</span></button><button class="rres-x" id="rResX" aria-label="Start from the top">${I.close}</button></div>`);
+  const el=$("#rRes"),dk=$(".rdock");if(dk&&getComputedStyle(dk).display!=="none")el.style.bottom=(dk.offsetHeight+14)+"px";const gone=()=>{if(!el.isConnected)return;if(reduced()){el.remove();return}el.classList.add("out");setTimeout(()=>el.remove(),260)};
+  $("#rResGo").onclick=()=>{const v=$(`#scr .v[data-vn="${o.v}"]`);gone();if(!v)return;v.scrollIntoView({block:"start",behavior:reduced()?"auto":"smooth"});v.classList.add("rres-flash");setTimeout(()=>v.classList.remove("rres-flash"),1800);buzz(8)};
+  $("#rResX").onclick=()=>{gone();rposSet(`${p.book}.${p.ch}`,0)};
+  const sc=$("#rScroll");const onS=()=>{if(sc.scrollTop>240){gone();sc.removeEventListener("scroll",onS)}};sc.addEventListener("scroll",onS,{passive:true});setTimeout(gone,9000)}
 /* ================= Ask ================= */
 let chat=[],askCtx=true,busy=false,askPrefill=null;
 try{chat=JSON.parse(localStorage.getItem("lamp-chat")||"[]")}catch(e){}
@@ -4163,7 +4250,7 @@ function openPassage(p,listen,jumpV,opt){
   $("#rTr").onclick=toggleFontPop;
   $("#rBack")?.addEventListener("click",()=>{const st=R.stack.slice(0,-1);openPassage(back,false,0,{stack:st})});
   $("#rSpeak")?.addEventListener("click",openListen);
-  const sc=$("#rScroll");sc.addEventListener("scroll",()=>{const pr=$("#rProg");if(!pr)return;const m=sc.scrollHeight-sc.clientHeight;pr.style.width=(m>0?sc.scrollTop/m*100:100)+"%"},{passive:true}); /* the reader may already be closing */
+  const sc=$("#rScroll");let rpT=null;sc.addEventListener("scroll",()=>{clearTimeout(rpT);rpT=setTimeout(rposSave,600)},{passive:true});sc.addEventListener("scroll",()=>{const pr=$("#rProg");if(!pr)return;const m=sc.scrollHeight-sc.clientHeight;pr.style.width=(m>0?sc.scrollTop/m*100:100)+"%"},{passive:true}); /* the reader may already be closing */
   (was?$("#rBack")||$("#rClose"):$("#rClose")).focus({preventScroll:true,focusVisible:false});
   $("#scr").addEventListener("click",e=>{const v=e.target.closest(".v");if(v)selectVerse(+v.dataset.vn)});
   loadText().then(ok=>{
@@ -4171,6 +4258,7 @@ function openPassage(p,listen,jumpV,opt){
     renderEnd();
     if(jumpV){const ve=$(`#scr .v[data-vn="${jumpV}"]`);if(ve){ve.scrollIntoView({block:opt.range?"start":"center"});if(!opt.range)selectVerse(jumpV)}else toast(`${refName(p)} has no verse ${jumpV}, so here is the whole chapter`)}
     if(listen) toggleSpeak();
+    else if(!jumpV&&!opt.range)rposOffer(p);
   });
 }
 async function loadText(){
@@ -4358,7 +4446,7 @@ function toggleSpeak(){
   next();
 }
 function closeReader(){
-  stopSpeak();if($("#ls"))closeListen();R=null;const rd=$(".reader");if(rd)rd.classList.add("closing");
+  rposSave();stopSpeak();if($("#ls"))closeListen();R=null;const rd=$(".reader");if(rd)rd.classList.add("closing");
   const done=()=>{if(R)return;$("#layer").innerHTML="";document.body.style.overflow="";if(view==="today")render()};
   if(rd&&!reduced()&&rd.animate){rd.animate([{opacity:1,transform:"none"},{opacity:0,transform:"translateY(18px)"}],{duration:220,easing:"cubic-bezier(.4,0,1,1)",fill:"forwards"}).onfinish=done}else done();
 }

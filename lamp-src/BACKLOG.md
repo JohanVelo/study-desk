@@ -3,11 +3,11 @@
 Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and improving every night without asking). Pick from the top, move shipped items to the log.
 
 ## Ideas
+- Research notes (3 Nov): habit apps lean on streak freezes, friend streaks and home-screen widgets; Lamp has grace days and buddies. Next: 'On this day' memories in Journal, a weekly email-free summary card for buddies.
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
 - Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40).
 - Second chance for the chapter quiz and the group quick quiz too.
 - Sea of Galilee painted scene for the field background.
-- More hymns (only public-domain words; check the year and author).
 - Verse of the week for the group to memorise together.
 - Afrikaans screens (UI text only: Bible text in Afrikaans is BSSA copyright).
 - Audio: gentle background music for quiet time (public-domain recordings only).
@@ -21,3 +21,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v38 (31 Oct): group challenge (leader sets a goal of reading days and an end date; card on the Group page, celebrates once), numbers count up, every verse cited in book author notes checked (Acts 'When' fixed).
 - v39 (1 Nov): Month in review (My path card + Today nudge in the first week), 4 more topic plans (money, family, rest, temptation; 16 in total), folding sections open and close smoothly.
 - v40 (2 Nov): Second chance (missed quiz questions come back the next day until learnt), headings and paragraphs wrap evenly, book-intro dates for Psalms, Isaiah and Nahum checked against the verses.
+- v41 (3 Nov): search your journal (like Day One's full-text search), the reader offers to pick up where you stopped (like e-readers' 'furthest read'), 4 more public-domain hymns (16).
