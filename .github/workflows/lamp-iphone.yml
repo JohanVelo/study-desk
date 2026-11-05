@@ -34,7 +34,8 @@ jobs:
         run: |
           pip3 install --break-system-packages selenium==4.27.1 >/dev/null
           sudo safaridriver --enable
-          python3 .github/lamp-ios/run.py
+          # a hard 25-minute alarm too: twice the step limit alone did not stop a hung safaridriver
+          perl -e 'alarm 1500; exec @ARGV' python3 .github/lamp-ios/run.py
       - name: Summary
         if: always()
         run: cat out/log.txt >> $GITHUB_STEP_SUMMARY || true
