@@ -7,7 +7,8 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
 - Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Next: the gospels' one-line summaries.
 - Say it by heart for saved verses in Journal → Memorise too (reuse heartHTML).
-- Second chance for the chapter quiz and the group quick quiz too.
+- Second chance for the chapter quiz too (group quick quiz done v44).
+- More bank questions for the books still without a book quiz (prophets, short letters).
 - Sea of Galilee painted scene for the field background.
 - Verse of the week for the group to memorise together.
 - Afrikaans screens (UI text only: Bible text in Afrikaans is BSSA copyright).
@@ -25,3 +26,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v41 (3 Nov): search your journal (like Day One's full-text search), the reader offers to pick up where you stopped (like e-readers' 'furthest read'), 4 more public-domain hymns (16).
 - v42 (4 Nov): Say it by heart for the group's key verse (like The Bible Memory App's step-by-step hiding and its groups where everyone learns the same verse), toasts stay up long enough to read, minor-prophet dates tied to their verses.
 - v43 (5 Nov): On this day on Today (like Day One's On This Day: what you wrote a week, a month or a year ago), tabs keep their scroll place and a second tap goes to the top (like iOS apps), 1 Chronicles to Esther dates tied to their verses.
+- v44 (6 Nov): Quiz me on this book in the Library (like Duolingo's unit review), read chapters marked in the book sheet, group quick-quiz misses join Second chance, 17 new checked questions on six letters.

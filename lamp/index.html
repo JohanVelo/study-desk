@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261105133347">
+<link rel="stylesheet" href="app.css?v=20261107172436">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261105133347"></script>
+<script src="app.js?v=20261107172436"></script>
 </head>
 <body>
 <style>
@@ -290,6 +290,16 @@ p,li,figcaption,dd{text-wrap:pretty}
 .mteaser h2{margin:2px 0 4px;font:600 1.25rem var(--f-display)}.mteaser p{margin:0}
 .mt-act{display:flex;gap:8px;flex-wrap:wrap}
 .mt-act .btn,#mrShare{min-height:44px}
+/* v44: quiz me on this book; read chapters marked */
+.bq-row{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:10px 12px;border:1.5px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface))}
+.bq-ico{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent);color:var(--on-accent);flex:none}.bq-ico svg{width:20px;height:20px}
+.bq-t{display:flex;flex-direction:column;min-width:0;flex:1}.bq-t b{font-weight:700}.bq-t small{color:var(--muted);font-size:.85rem}
+.bq-row .btn{min-height:44px;flex:none}
+.bq-sum{margin:0 0 12px;line-height:1.5}
+.cgrid button.rd{position:relative;background:color-mix(in srgb,var(--accent) 14%,var(--bg));border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:var(--ink)}
+.cgrid button.rd::after{content:"";position:absolute;top:4px;right:4px;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.bk-rd{color:var(--accent);font-weight:600}
+@media (pointer:coarse){.cgrid button{min-height:44px}}
 /* v43: on this day */
 .otd{background:linear-gradient(160deg,color-mix(in srgb,var(--accent-soft) 70%,var(--surface)),var(--surface) 75%)}
 .otd-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
@@ -2641,10 +2651,12 @@ function openBook(c){const info=BOOKINFO[c],n=chCount(c),onp=PLAN.filter(p=>p.bo
   openSheet(`<div class="pcard bookcard"><div class="kick">${CANON.indexOf(c)<39?"Old":"New"} Testament · ${plural(n,"chapter")}</div><h2>${esc(bookName(c))}</h2><p class="bk-sum">${esc(sum)}</p>
     <dl class="bk-meta"><div><dt>Written by</dt><dd>${esc(by)}</dd></div><div><dt>When</dt><dd>${esc(when)}</dd></div>${onp.length?`<div><dt>On your path</dt><dd>${plural(onp.length,"day")}</dd></div>`:""}</dl>
     <div class="kicker">Good places to start</div><div class="bk-key">${key.map(([ch,l])=>`<button data-bch="${ch}"><b>${ch}</b><span>${esc(l)}</span></button>`).join("")}</div>
-    <details class="bk-all"><summary>All ${plural(n,"chapter")}</summary><div class="cgrid">${Array.from({length:n},(_,i)=>`<button data-bch="${i+1}">${i+1}</button>`).join("")}</div></details>
+    <details class="bk-all"${bkRead(c).size?" open":""}><summary>All ${plural(n,"chapter")}${bkRead(c).size?` <span class="bk-rd">· ${bkRead(c).size} read</span>`:""}</summary><div class="cgrid">${Array.from({length:n},(_,i)=>bkRead(c).has(i+1)?`<button class="rd" data-bch="${i+1}" aria-label="Chapter ${i+1}, read">${i+1}</button>`:`<button data-bch="${i+1}">${i+1}</button>`).join("")}</div></details>
+    <div id="bqSlot"></div>
     <div class="row-end"><button class="btn primary" data-bch="1">${I.open}Start at chapter 1</button></div>
     <p class="src">Who wrote each book: what the book itself says, otherwise what tradition holds (marked “traditionally”). Dates are approximate.</p></div>`,bookName(c));
-  $("#scrim").querySelectorAll("[data-bch]").forEach(b=>b.onclick=()=>{$("#scrim")?.remove();openPassage(passFor(c,+b.dataset.bch))})}
+  $("#scrim").querySelectorAll("[data-bch]").forEach(b=>b.onclick=()=>{$("#scrim")?.remove();openPassage(passFor(c,+b.dataset.bch))});
+  bqFill(c)}
 const TERMS=[
   ["Messiah / Christ","ideas","Both mean \"anointed one\" (Hebrew and Greek). Israel waited for an anointed king from David's family who would rescue them. \"Christ\" is a title, not Jesus' surname."],
   ["Son of Man","ideas","Jesus' favourite name for himself. It draws on Daniel 7, where a human figure receives an everlasting kingdom from God."],
@@ -3165,6 +3177,31 @@ function wireOtd(){const c=$("#otd");if(!c)return;
   $("#otdX").onclick=()=>{try{localStorage.setItem(OTD_K+hereDay(),"1")}catch(e){}
     toast("Hidden until tomorrow");const gone=()=>{c.remove()};if(reduced())return gone();c.classList.add("otd-out");setTimeout(gone,320)};
   c.querySelectorAll("[data-otd]").forEach(b=>b.onclick=()=>otdGo(b.dataset.otd))}
+
+/* ===== v44: quiz me on this book. Five questions from the bank about one book (not "which book" ones);
+   misses go to Second chance; best score per book in lamp-bq ===== */
+const BQ_K="lamp-bq";
+function bkRead(c){const m=new Set();PLAN.forEach((p,i)=>{if(p.book===c&&state.done?.[i+1])m.add(p.ch)});return m}
+function bqBest(){try{const o=JSON.parse(localStorage.getItem(BQ_K)||"{}");return o&&typeof o==="object"?o:{}}catch(e){return{}}}
+async function bqPool(c){const F=await loadFun();if(!F)return[];return F.q.map((x,i)=>[x,i]).filter(([x])=>x.ref&&x.ref.split(".")[0]===c&&x.c!=="books").map(([x,i])=>bankQ(x,i))}
+async function bqFill(c){const slot=$("#bqSlot");if(!slot)return;const pool=await bqPool(c);if(!pool.length||pool.length<4||!$("#bqSlot"))return;
+  const b=bqBest()[c];
+  slot.innerHTML=`<div class="bq-row"><span class="bq-ico" aria-hidden="true">${I.spark}</span><div class="bq-t"><b>Quiz me on ${esc(bookName(c))}</b><small>${b?`Your best: ${b.s} of ${b.n}`:`${Math.min(5,pool.length)} questions about what happens in it`}</small></div><button class="btn sm primary" id="bqGo">${b?"Play again":"Start"}</button></div>`;
+  $("#bqGo").onclick=()=>openBookQuiz(c)}
+async function openBookQuiz(c){const pool=await bqPool(c);if(pool.length<4)return;
+  openSheet(`<div class="fun" id="fun"></div>`,"Quiz on "+bookName(c));$("#scrim").classList.add("fun-scrim");const box=$("#fun");
+  const qs=freshOrder(pool,q=>q.id).slice(0,5).map(q=>{const o=shuffle(q.o.slice());return {...q,o,c:o.indexOf(q.o[q.c])}});let i=0,right=0;const rev=[];
+  const end=()=>{const n=qs.length,best=bqBest(),old=best[c];const nb=!old||right>old.s;if(nb){best[c]={s:right,n};try{localStorage.setItem(BQ_K,JSON.stringify(best))}catch(e){}}
+    const miss=rev.filter(x=>!x.ok).length;
+    box.innerHTML=funHead(bookName(c),`${right} of ${n} right${nb&&old?" · a new best":""}`)+`<p class="bq-sum">${right===n?"Every one right. You know this book well.":miss?`${plural(miss,"question")} you missed will come back tomorrow in Second chance.`:""}</p>`+(miss?`<div class="kicker ar-k">The ones to remember</div>${ansRev(rev.filter(x=>!x.ok))}`:"")+`<div class="actions"><button class="btn" id="bqAgain">Play again</button><button class="btn primary" id="bqDone">Done</button></div>`;
+    if(right===n){if(!reduced())burst(box.querySelector(".fun-hd h2"),18);chime?.(1)}
+    funStreakTick();$("#bqDone").onclick=()=>{$("#scrim")?.remove();paintFresh()};$("#bqAgain").onclick=()=>openBookQuiz(c);$("#bqDone").focus({preventScroll:true})};
+  const draw=()=>{const q=qs[i];if(!q)return end();
+    box.innerHTML=funHead(bookName(c),`Question ${i+1} of ${qs.length}`)+qCard(q);
+    box.querySelectorAll("[data-qo]").forEach(b=>b.onclick=()=>{const k=+b.dataset.qo,ok=k===q.c;revealQ(q,k);markSeen([q.id]);if(ok)right++;else missAdd(q);
+      rev.push({q:q.q,ok,right:q.o[q.c],mine:q.o[k],f:q.f});i++;setTimeout(draw,ok?(q.f?1700:1000):3200)});
+    box.querySelector("[data-qo]")?.focus({preventScroll:true})};
+  draw()}
 /* ---------- The "New today" corner ---------- */
 const FINDS=[["place","Place of the day"],["art","Engraving of the day"],["fact","Did you know?"]];
 function freshHTML(full){const s=season(),n=dCount(),fs=funStats();
@@ -5750,7 +5787,7 @@ async function gmQuiz(){
     $("#gStat").textContent=`${pts} pts${streak>1?` · 🔥${streak}`:""}`;$("#gBack").onclick=()=>{clearInterval(timer);endGame()};
     const T=$("#qT");timer=setInterval(()=>{const f=1-(Date.now()-t0)/15000;if(!$("#qT")){clearInterval(timer);return}T.style.width=Math.max(0,f*100)+"%";if(f<=0){clearInterval(timer);answer(-1)}},100);
     document.querySelectorAll("[data-qo]").forEach(b=>b.onclick=()=>{clearInterval(timer);answer(+b.dataset.qo)});};
-  const answer=k=>{const q=Q[i];const ok=k===q.c;markSeen([q.id]);log.push({q:q.q,ok,right:q.o[q.c],mine:k<0?null:q.o[k],f:q.f});const ff=$(".fq-f"),ft=rightLine(q,ok);if(ff&&ft){ff.hidden=false;ff.textContent=ft;ff.classList.toggle("miss",!ok)}document.querySelectorAll("[data-qo]").forEach(b=>{b.disabled=true;const n=+b.dataset.qo;b.classList.toggle("right",n===q.c);b.classList.toggle("wrong",n===k&&!ok)});
+  const answer=k=>{const q=Q[i];const ok=k===q.c;markSeen([q.id]);if(!ok)missAdd(q);log.push({q:q.q,ok,right:q.o[q.c],mine:k<0?null:q.o[k],f:q.f});const ff=$(".fq-f"),ft=rightLine(q,ok);if(ff&&ft){ff.hidden=false;ff.textContent=ft;ff.classList.toggle("miss",!ok)}document.querySelectorAll("[data-qo]").forEach(b=>{b.disabled=true;const n=+b.dataset.qo;b.classList.toggle("right",n===q.c);b.classList.toggle("wrong",n===k&&!ok)});
     if(ok){streak++;const gain=Math.round(100+100*Math.max(0,1-(Date.now()-t0)/15000))+(streak>2?25:0);pts+=gain;burst($(`[data-qo="${k}"]`),10);buzz(10)}else{streak=0;buzz([30,40,30])}
     $("#gStat").textContent=`${pts} pts${streak>1?` · 🔥${streak}`:""}`;
     setTimeout(()=>{i++;if(i<Q.length)draw();else{const m=log.filter(x=>!x.ok);finishCard("Quick quiz",pts,saveScore("quiz",pts),gmQuiz,m.length?`<div class="kicker ar-k">The ones to remember</div>${ansRev(m)}`:"")}},(ok?900:2400)+(q.f?900:0))};
