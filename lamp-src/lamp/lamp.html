@@ -253,7 +253,7 @@ p,li,figcaption,dd{text-wrap:pretty}
 .mr-g i.mrd{background:var(--gold);color:var(--surface);font-weight:700}
 .mr-g i.mqt{background:var(--gold-soft);color:var(--ink);box-shadow:inset 0 0 0 2px var(--gold)}
 .mr-g i.mnow{outline:2px solid var(--accent);outline-offset:1px}
-.mr-g i.mfut{opacity:.45}
+.mr-g i.mfut{color:var(--muted);font-weight:400}
 .mr-side{display:flex;flex-direction:column;gap:14px;min-width:0}
 .mr-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .mr-stats div{background:var(--sunk);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:2px;min-width:0}
@@ -268,6 +268,20 @@ p,li,figcaption,dd{text-wrap:pretty}
 .mteaser h2{margin:2px 0 4px;font:600 1.25rem var(--f-display)}.mteaser p{margin:0}
 .mt-act{display:flex;gap:8px;flex-wrap:wrap}
 .mt-act .btn,#mrShare{min-height:44px}
+/* v45: compare translations */
+.cmp-ref{margin:2px 0 12px;font-family:var(--f-display)}
+.cmp-l{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.cmp-i{padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.cmp-i.cur{border-color:color-mix(in srgb,var(--accent) 55%,var(--line));background:color-mix(in srgb,var(--accent-soft) 55%,var(--surface))}
+.cmp-h{display:flex;align-items:center;gap:8px}
+.cmp-h b{font-weight:800;letter-spacing:.04em;color:var(--accent);min-width:3.2em}
+.cmp-h span{flex:1;min-width:0;color:var(--muted);font-size:.85rem}
+.cmp-c{flex:none;margin:-8px -8px -8px 0}
+.cmp-t{margin:4px 0 0;font-family:var(--f-display);font-size:1.12rem;line-height:1.55}
+.cmp-more{margin-top:12px;min-height:44px;width:100%;justify-content:center}
+.cmp-off{margin:10px 0 0}.cmp-src{margin-top:14px}
+.cmp-wait{padding:8px 0}
+@media (prefers-reduced-motion:no-preference){.cmp-i{animation:pop2 .35s var(--expo) both}}
 /* v44: quiz me on this book; read chapters marked */
 .bq-row{display:flex;align-items:center;gap:12px;margin:14px 0 4px;padding:10px 12px;border:1.5px solid color-mix(in srgb,var(--accent) 30%,var(--line));border-radius:16px;background:color-mix(in srgb,var(--accent-soft) 60%,var(--surface))}
 .bq-ico{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--accent);color:var(--on-accent);flex:none}.bq-ico svg{width:20px;height:20px}
@@ -3177,6 +3191,26 @@ async function openBookQuiz(c){const pool=await bqPool(c);if(pool.length<4)retur
       rev.push({q:q.q,ok,right:q.o[q.c],mine:q.o[k],f:q.f});i++;setTimeout(draw,ok?(q.f?1700:1000):3200)});
     box.querySelector("[data-qo]")?.focus({preventScroll:true})};
   draw()}
+
+/* ===== v45: compare a verse in every translation Lamp has (like YouVersion's Compare) ===== */
+const CMP_FAST=["BSB","WEB","KJV","BBE"],CMP_BIG=["NHEB","ASV","YLT"];
+const I_COPY=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>`,I_DL=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>`;
+async function cmpText(t,p,v){try{if(t==="WEB"){const x=verseText(p,v);return x||null}
+  const b=await loadBook(t,p.book);const x=b?.[p.ch-1]?.[v-1];return typeof x==="string"&&x.trim()?x.replace(/\s+/g," ").trim():null}catch(e){return null}}
+function cmpRow(t,x,cur){return `<li class="cmp-i${t===cur?" cur":""}"><div class="cmp-h"><b>${t}</b><span>${esc(TRN[t]||t)}${t===cur?" · reading now":""}</span><button class="icon-btn cmp-c" data-cmpc="${t}" aria-label="Copy the ${esc(TRN[t]||t)}">${I_COPY}</button></div><p class="cmp-t">${esc(x)}</p></li>`}
+async function openCompare(p,v,ref,cur,curText){
+  openSheet(`<div class="cmp" id="cmp"><div class="kicker">Compare translations</div><h2 class="cmp-ref">${esc(ref)}</h2><ul class="cmp-l" id="cmpL" aria-live="polite"><li class="muted cmp-wait">Gathering translations…</li></ul><div id="cmpMore"></div><p class="src cmp-src">All public domain. NLT, NIV, ESV and others are on Bible.com.</p></div>`,"Compare "+ref);
+  const got={};if(cur&&curText)got[cur]=curText;
+  const paint=()=>{const L=$("#cmpL");if(!L)return;const order=[cur,...CMP_FAST,...CMP_BIG].filter((t,i,a)=>t&&a.indexOf(t)===i&&got[t]);
+    L.innerHTML=order.length?order.map(t=>cmpRow(t,got[t],cur)).join(""):`<li class="muted">These translations aren't available offline yet. Open this chapter once with a signal.</li>`;
+    L.querySelectorAll("[data-cmpc]").forEach(b=>b.onclick=()=>{const t=b.dataset.cmpc;copy(`"${got[t]}" (${ref}, ${t})`)})};
+  await Promise.all(CMP_FAST.filter(t=>!got[t]).map(async t=>{const x=await cmpText(t,p,v);if(x)got[t]=x}));
+  if(!$("#cmp"))return;paint();
+  const big=CMP_BIG.filter(t=>!got[t]);const m=$("#cmpMore");
+  if(big.length&&m){m.innerHTML=`<button class="btn ghost cmp-more" id="cmpBig">${I_DL}<span>Add ${big.join(", ")} (a bigger download)</span></button>`;
+    $("#cmpBig").onclick=async()=>{const b=$("#cmpBig");b.disabled=true;b.lastChild.textContent="Loading…";
+      await Promise.all(big.map(async t=>{const x=await cmpText(t,p,v);if(x)got[t]=x}));if(!$("#cmp"))return;
+      const miss=big.filter(t=>!got[t]);m.innerHTML=miss.length?`<p class="muted cmp-off">${miss.join(", ")} couldn't load. Try again with a signal.</p>`:"";paint()}}}
 /* ---------- The "New today" corner ---------- */
 const FINDS=[["place","Place of the day"],["art","Engraving of the day"],["fact","Did you know?"]];
 function freshHTML(full){const s=season(),n=dCount(),fs=funStats();
@@ -4502,7 +4536,7 @@ function selectVerse(v){
   const key=`${p.book}.${p.ch}.${v}`;const isSaved=!!state.saved[key];
   const ref=`${refName(p)}:${v}`;
   $("#vbar")?.remove();
-  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vPic">Picture</button>${HAS_ORIG?`<button id="vOrig">${CANON.indexOf(p.book)<39?"Hebrew":"Greek"}</button>`:""}<button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
+  document.querySelector(".reader").insertAdjacentHTML("beforeend",`<div class="vbar" id="vbar" role="toolbar" aria-label="Verse actions for ${esc(ref)}"><b>${esc(ref)}</b><span class="hlsw" role="group" aria-label="Highlight">${HL.map(([c,l])=>`<button class="hl-dot hd-${c}" data-hl="${c}" aria-label="${l} highlight" aria-pressed="${state.hl[key]===c}"></button>`).join("")}</span><button id="vSave">${isSaved?"Unsave":"Save"}</button><button id="vLinks">Links</button><button id="vAsk">Ask</button><button id="vCopy">Copy</button><button id="vCmp">Compare</button><button id="vPic">Picture</button>${HAS_ORIG?`<button id="vOrig">${CANON.indexOf(p.book)<39?"Hebrew":"Greek"}</button>`:""}<button id="vX" aria-label="Close">${I.close.replace('<svg','<svg width="16" height="16"')}</button></div>`);
   requestAnimationFrame(()=>{const ve=document.querySelector(`#scr .v[data-vn="${v}"]`),bar=$("#vbar");if(!ve||!bar)return;
     const vr=ve.getBoundingClientRect(),br=bar.getBoundingClientRect(),gap=vr.bottom-(br.top-16);if(gap<=0)return;
     let sc=ve.parentElement;while(sc&&!(sc.scrollHeight>sc.clientHeight+4&&/(auto|scroll)/.test(getComputedStyle(sc).overflowY)))sc=sc.parentElement;
@@ -4516,11 +4550,14 @@ function selectVerse(v){
   $("#vCopy").onclick=()=>{copy(`"${vt()}" (${ref}, ${R.tr})`);clearSel()};
   $("#vLinks").onclick=()=>{clearSel();openLinks(key,ref)};
   $("#vPic").onclick=()=>{const t=vt();clearSel();openPicture(t,`${ref} ${R.tr}`,p.book,p.ch)};
+  $("#vCmp").onclick=()=>{const t=vt(),tr=R.tr;clearSel();openCompare(p,v,ref,tr,t)};
   if($("#vOrig"))$("#vOrig").onclick=()=>{const t=vt();clearSel();openOrig(p.book,p.ch,v,t)};
   $("#vX").onclick=clearSel;
   document.querySelectorAll("[data-hl]").forEach(b=>b.onclick=()=>{const c=b.dataset.hl;const on=state.hl[key]!==c;state.hl[key]=on?c:null;queue({hl:{[key]:state.hl[key]}});markSavedVerses();buzz(8);clearSel()});
 }
-function clearSel(){if(!R)return;R.sel=null;document.querySelectorAll("#scr .v.sel").forEach(s=>s.classList.remove("sel"));$("#vbar")?.remove()}
+function clearSel(){if(!R)return;R.sel=null;document.querySelectorAll("#scr .v.sel").forEach(s=>s.classList.remove("sel"));const vb=$("#vbar");if(!vb)return;
+  if(reduced()||!vb.animate){vb.remove();return}vb.removeAttribute("id");vb.style.pointerEvents="none";
+  vb.animate([{opacity:1,transform:"translateX(-50%)"},{opacity:0,transform:"translate(-50%,14px)"}],{duration:180,easing:"cubic-bezier(.4,0,1,1)"}).onfinish=()=>vb.remove()}
 document.addEventListener("pointerdown",e=>{const fp=$("#fontpop");if(fp&&!fp.contains(e.target)&&!e.target.closest("#rFont,#dText"))fp.remove()},true);
 function toggleFontPop(){
   const ex=$("#fontpop");if(ex){ex.remove();return}

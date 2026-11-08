@@ -27,3 +27,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v42 (4 Nov): Say it by heart for the group's key verse (like The Bible Memory App's step-by-step hiding and its groups where everyone learns the same verse), toasts stay up long enough to read, minor-prophet dates tied to their verses.
 - v43 (5 Nov): On this day on Today (like Day One's On This Day: what you wrote a week, a month or a year ago), tabs keep their scroll place and a second tap goes to the top (like iOS apps), 1 Chronicles to Esther dates tied to their verses.
 - v44 (6 Nov): Quiz me on this book in the Library (like Duolingo's unit review), read chapters marked in the book sheet, group quick-quiz misses join Second chance, 17 new checked questions on six letters.
+- v45 (8 Nov): Compare a verse across 7 public-domain translations (like YouVersion's Compare), the verse bar eases away, 10 new checked questions so Isaiah, Jeremiah and Ruth get book quizzes.

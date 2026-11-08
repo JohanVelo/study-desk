@@ -54,8 +54,8 @@ for(const [w,h,cs] of [[390,844,'light'],[1440,900,'dark'],[390,844,'dark'],[144
  ok(await p.evaluate(()=>document.activeElement?.matches('#fun [data-qo]')),'keyboard: Enter starts the quiz and focuses an answer');
  const r=await rightIdx(p);await p.keyboard.press('Tab');await p.focus(`#fun [data-qo="${r}"]`);await p.keyboard.press('Enter');await p.waitForTimeout(300);
  ok(await p.evaluate(()=>!!document.querySelector('#fun [data-qo].right')),'keyboard: Enter answers');
- const bank=await p.evaluate(async()=>{const F=await loadFun();const nw=F.q.slice(485);return {n:F.q.length,ok:nw.every(x=>x.a.length===4&&new Set(x.a).size===4&&/^[1-3A-Z]{3}\.\d+\.\d+$/.test(x.ref)&&x.c!=='books'),books:[...new Set(nw.map(x=>x.ref.split('.')[0]))].sort().join(',')}});
- ok(bank.n===502&&bank.ok&&bank.books==='1CO,EPH,GAL,HEB,PHP,ROM','17 new questions, well formed, on 6 letters: '+JSON.stringify(bank));
+ const bank=await p.evaluate(async()=>{const F=await loadFun();const nw=F.q.slice(485,502);return {n:F.q.length,ok:nw.every(x=>x.a.length===4&&new Set(x.a).size===4&&/^[1-3A-Z]{3}\.\d+\.\d+$/.test(x.ref)&&x.c!=='books'),books:[...new Set(nw.map(x=>x.ref.split('.')[0]))].sort().join(',')}});
+ ok(bank.n>=502&&bank.ok&&bank.books==='1CO,EPH,GAL,HEB,PHP,ROM','17 new questions, well formed, on 6 letters: '+JSON.stringify(bank));
  const counts=await p.evaluate(async()=>{const o={};for(const c of ['ROM','PHP','EPH','HEB','GAL','1CO','MAT','OBA'])o[c]=(await bqPool(c)).length;return o});
  ok(['ROM','PHP','EPH','HEB','GAL','1CO'].every(c=>counts[c]>=4)&&counts.MAT>=20&&counts.OBA<4,'each of the 6 letters now has a quiz: '+JSON.stringify(counts));
  ok(!errs.length,'motion: no errors '+errs.join('|'));await ctx.close()}
