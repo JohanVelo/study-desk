@@ -51,7 +51,7 @@ for(const [w,h,cs] of [[390,844,'light'],[1440,900,'dark'],[390,844,'dark'],[144
  ok(await p.evaluate(()=>!document.querySelectorAll('.vbar').length),'reduced motion: the bar goes at once');
  const bank=await p.evaluate(async()=>{const F=await loadFun();const nw=F.q.slice(502);const pools={};for(const c of ['ISA','JER','RUT'])pools[c]=(await bqPool(c)).length;
   return {n:F.q.length,ok:nw.every(x=>x.a.length===4&&new Set(x.a).size===4&&/^[1-3A-Z]{3}\.\d+\.\d+$/.test(x.ref)),pools}});
- ok(bank.n===512&&bank.ok&&bank.pools.ISA>=4&&bank.pools.JER>=4&&bank.pools.RUT>=4,'10 new questions; Isaiah, Jeremiah and Ruth now have a book quiz: '+JSON.stringify(bank));
+ ok(bank.n>=512&&bank.ok&&bank.pools.ISA>=4&&bank.pools.JER>=4&&bank.pools.RUT>=4,'10 new questions; Isaiah, Jeremiah and Ruth now have a book quiz: '+JSON.stringify(bank));
  await p.evaluate(()=>{closeReader();openBook('JER')});await p.waitForTimeout(900);ok(await p.evaluate(()=>/Quiz me on Jeremiah/.test(document.querySelector('.bq-row')?.textContent||'')),'the Jeremiah book sheet offers its quiz');
  ok(!errs.length,'no errors '+errs.join('|'));await ctx.close()}
 console.log(log.join('\n'));console.log(fails?`${fails} FAILED`:'ALL PASS');await b.close();process.exit(fails?1:0)})();

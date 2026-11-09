@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261108012006">
+<link rel="stylesheet" href="app.css?v=20261109004407">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261108012006"></script>
+<script src="app.js?v=20261109004407"></script>
 </head>
 <body>
 <style>
@@ -327,6 +327,56 @@ p,li,figcaption,dd{text-wrap:pretty}
 .otd-p{margin:0;font-family:var(--f-display);font-size:1.08rem;line-height:1.5;color:var(--ink);max-width:62ch}
 .otd-go{justify-self:start;margin-top:6px;min-height:44px}
 .otd-more{margin:10px 0 0;font-size:.9rem}
+.sn-sec{display:grid;gap:10px}
+.sn-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sn-top h2{margin:0;font:600 1.3rem var(--f-display)}
+.sn-n{color:var(--muted);font:500 .95rem var(--f-body)}
+.sn-top .btn{min-height:44px}
+.sn-list{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.sn-item{width:100%;display:grid;grid-template-columns:1fr auto;column-gap:12px;row-gap:2px;text-align:left;padding:14px 14px 14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);min-height:64px;transition:transform .18s var(--ease),border-color .2s,box-shadow .2s}
+.sn-item:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.sn-item:active{transform:scale(.985)}
+.sn-item>*{grid-column:1}
+.sn-chev{grid-column:2;grid-row:1/span 4;align-self:center;color:var(--muted);display:flex}
+.sn-chev svg{width:18px;height:18px}
+.sn-date{font-size:.74rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.sn-ti{font:600 1.12rem var(--f-display);overflow-wrap:anywhere}
+.sn-sub{font-size:.9rem;color:var(--muted);overflow-wrap:anywhere}
+.sn-pk{font-size:.95rem;line-height:1.45;color:var(--ink);opacity:.86;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sn-more{justify-self:start;min-height:44px}
+.sn-empty{display:grid;gap:6px;justify-items:start}
+.sn-empty h2{margin:0;font:600 1.25rem var(--f-display)}
+.sn-empty p{margin:0 0 6px;max-width:58ch}
+.sn{display:grid;gap:12px}
+.sn-h2{margin:0;font:600 1.5rem var(--f-display);overflow-wrap:anywhere;padding-right:44px}
+.sn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sn-f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.sn-f small{font-size:.82rem;font-weight:600;color:var(--muted)}
+.sn-f input{width:100%;min-height:48px}
+.sn-b{min-height:11em;resize:vertical;font:400 1.02rem/1.55 var(--f-body)}
+.sn-actf input{border-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.sn-rl:empty{display:none}
+.sn-rl .btn{min-height:44px}
+.sn-hint{margin:0;font-size:.88rem}
+.sn-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sn-st{margin:0;font-size:.88rem;color:var(--muted)}
+.sn-btns{display:flex;gap:8px;margin-left:auto}
+.sn-btns .btn{min-height:44px}
+.sn-warn{color:var(--ink)!important;background:color-mix(in srgb,#D84A3A 16%,var(--surface))!important;border-color:#D84A3A!important}
+@media (max-width:480px){.sn-row{grid-template-columns:1fr}}
+.sncard{background:linear-gradient(160deg,color-mix(in srgb,var(--accent-soft) 55%,var(--surface)),var(--surface) 75%)}
+.sncard h2{margin:2px 0 0;font:600 1.25rem var(--f-display)}
+.sn-cp{margin:8px 0 0;max-width:60ch;overflow-wrap:anywhere}
+.sn-act{margin:10px 0 0;font:500 1.22rem/1.45 var(--f-display);color:var(--ink);max-width:60ch;overflow-wrap:anywhere}
+.sn-csub{margin:4px 0 0;font-size:.9rem}
+.sn-cbtns{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px}
+.sn-cbtns .btn,.sn-off{min-height:44px}
+@media (prefers-reduced-motion:no-preference){.sncard{transition:opacity .3s,scale .3s}.sncard.otd-out{opacity:0;scale:.97}}
+.seg{position:relative}
+.seg>button{position:relative;z-index:1}
+.seg-ind{position:absolute;top:4px;bottom:4px;left:0;border-radius:9px;background:var(--surface);box-shadow:var(--shadow);pointer-events:none;z-index:0;transition:transform .34s cubic-bezier(.32,.72,0,1),width .34s cubic-bezier(.32,.72,0,1)}
+.seg.has-ind>button[aria-pressed="true"]{background:none;box-shadow:none}
+@media (prefers-reduced-motion:reduce){.seg-ind{transition:none}}
 @media (prefers-reduced-motion:no-preference){.otd{transition:opacity .3s,scale .3s}.otd.otd-out{opacity:0;scale:.97}}
 
 @media (prefers-reduced-motion:no-preference){
@@ -3184,13 +3234,88 @@ function otdSnip(t){t=String(t||"").replace(/\s+/g," ").trim();if(t.length<=150)
 function otdCard(){let o;try{if(localStorage.getItem(OTD_K+hereDay()))return""}catch(e){}
   try{o=otdFind()}catch(e){return""}if(!o)return"";
   return `<section class="card otd" id="otd" aria-labelledby="otdH"><div class="otd-h"><div><div class="kicker">On this day</div><h2 id="otdH">${esc(o.label)}</h2></div><button class="icon-btn otd-x" id="otdX" aria-label="Hide until tomorrow">${I.close}</button></div>
-    <ul class="otd-l">${o.items.map(it=>`<li class="otd-i"><span class="otd-k">${esc(it.k)}</span><b class="otd-t">${esc(it.t)}</b><p class="otd-p">${esc(otdSnip(it.x))}</p>${it.go?`<button class="btn sm ghost otd-go" data-otd="${esc(it.go)}">${I.open}<span>${it.go[0]==="v"?"Open the verse":it.go[0]==="p"?"Open the prayer":"Open that day"}</span></button>`:""}</li>`).join("")}</ul>
+    <ul class="otd-l">${o.items.map(it=>`<li class="otd-i"><span class="otd-k">${esc(it.k)}</span><b class="otd-t">${esc(it.t)}</b><p class="otd-p">${esc(otdSnip(it.x))}</p>${it.go?`<button class="btn sm ghost otd-go" data-otd="${esc(it.go)}">${I.open}<span>${it.go[0]==="v"?"Open the verse":it.go[0]==="p"?"Open the prayer":it.go[0]==="s"?"Open the notes":"Open that day"}</span></button>`:""}</li>`).join("")}</ul>
     ${o.more>0?`<p class="muted otd-more">And ${plural(o.more,"more thing")} from that day in your journal.</p>`:""}</section>`}
 function otdGo(g){if(g[0]==="p"){setView("journal");setTimeout(()=>jGo(g),60);return}jGo(g)}
 function wireOtd(){const c=$("#otd");if(!c)return;
   $("#otdX").onclick=()=>{try{localStorage.setItem(OTD_K+hereDay(),"1")}catch(e){}
     toast("Hidden until tomorrow");const gone=()=>{c.remove()};if(reduced())return gone();c.classList.add("otd-out");setTimeout(gone,320)};
   c.querySelectorAll("[data-otd]").forEach(b=>b.onclick=()=>otdGo(b.dataset.otd))}
+
+/* ===== v46: sermon notes. Notes from church (date, passage, who preached, notes, one thing to live out) in state.sn, synced like prayers.
+   On Sunday a Today card offers to start them; the rest of the week the "one thing" comes back on Today until hidden ===== */
+const SN_X="lamp-sn-x-";
+const I_PEN=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>`;
+const I_PLUS=`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>`;
+const snHas=v=>!!v&&["t","who","ref","body","act"].some(k=>typeof v[k]==="string"&&v[k].trim());
+const snAll=()=>Object.entries(state.sn||{}).filter(([,v])=>snHas(v)).sort((a,b)=>String(b[1].d||"").localeCompare(String(a[1].d||""))||String(b[1].at||"").localeCompare(String(a[1].at||"")));
+const snTitle=v=>(v.t||"").trim()||(v.ref||"").trim()||"Sermon notes";
+function snFmt(d){const x=new Date(d+"T12:00");if(isNaN(x))return"";const o={weekday:"short",day:"numeric",month:"short"};if(x.getFullYear()!==new Date().getFullYear())o.year="numeric";return x.toLocaleDateString("en-GB",o)}
+const snDays=d=>Math.round((new Date(hereDay()+"T12:00")-new Date(d+"T12:00"))/864e5);
+function snPeek(v){const t=String(v.body||v.act||"").replace(/\s+/g," ").trim();if(t.length<=110)return t;const c=t.slice(0,110);return c.slice(0,c.lastIndexOf(" ")>60?c.lastIndexOf(" "):110)+"…"}
+function snRef(r){const p=parseRef(String(r||"").split(/[;,–—-]/)[0]);return p}
+let snMore=false;
+function snBlock(){const L=snAll();
+  if(!L.length)return `<section class="card sn-empty" aria-labelledby="snH"><div class="kicker">At church</div><h2 id="snH">Sermon notes</h2><p class="muted">Jot down the sermon: the passage, what stood out and one thing to live out. That one thing comes back on Today during the week.</p><button class="btn primary" id="snNew">${I_PEN}<span>Take sermon notes</span></button></section>`;
+  const sh=snMore?L:L.slice(0,3);
+  return `<section class="sn-sec" aria-labelledby="snH"><div class="sn-top"><h2 id="snH">Sermon notes<span class="sn-n"> · ${L.length}</span></h2><button class="btn sm ghost" id="snNew">${I_PLUS}<span>New</span></button></div>
+    <ul class="sn-list">${sh.map(([id,v])=>{const sub=[v.t&&v.ref?v.ref:"",v.who].filter(Boolean).join(" · ");return `<li><button class="sn-item" data-sn="${esc(id)}"><span class="sn-date">${esc(snFmt(v.d))}</span><b class="sn-ti">${esc(snTitle(v))}</b>${sub?`<span class="sn-sub">${esc(sub)}</span>`:""}${snPeek(v)?`<span class="sn-pk">${esc(snPeek(v))}</span>`:""}<span class="sn-chev" aria-hidden="true">${I.right}</span></button></li>`}).join("")}</ul>
+    ${L.length>3?`<button class="linkbtn sn-more" id="snMore" aria-expanded="${snMore}">${snMore?"Show fewer":`Show all ${L.length}`}</button>`:""}</section>`}
+function snWire(){const n=$("#snNew");if(n)n.onclick=()=>openSermon();
+  document.querySelectorAll(".sn-item[data-sn]").forEach(b=>b.onclick=()=>openSermon(b.dataset.sn));
+  const m=$("#snMore");if(m)m.onclick=()=>{snMore=!snMore;render();requestAnimationFrame(()=>$("#snMore")?.focus({preventScroll:true}))}}
+function openSermon(id){const had=!!(id&&state.sn?.[id]);if(!had)id="s"+Date.now().toString(36);
+  const v={d:hereDay(),t:"",who:"",ref:"",body:"",act:"",...(state.sn?.[id]||{})};
+  const fld=(k,lab,ph,max,cls="")=>`<label class="sn-f${cls}"><small>${lab}</small><input id="sn_${k}" class="search" maxlength="${max}" autocomplete="off" placeholder="${ph}" value="${esc(v[k]||"")}"></label>`;
+  openSheet(`<div class="sn" id="sn"><div class="kicker">Sermon notes</div><h2 class="sn-h2" id="snH2">${esc(had?snTitle(v):"Notes from church")}</h2>
+    <div class="sn-row"><label class="sn-f"><small>Date</small><input id="sn_d" class="search" type="date" max="${hereDay()}" value="${esc(v.d)}"></label>${fld("ref","Passage","Like Luke 15",60)}</div>
+    <div class="sn-rl" id="snRl"></div>
+    <div class="sn-row">${fld("t","Title (optional)","What was it called?",80)}${fld("who","Who preached (optional)","Their name",60)}</div>
+    <label class="sn-f"><small>Notes</small><textarea id="sn_body" class="search sn-b" rows="8" placeholder="Main points, verses that came up, questions to look into">${esc(v.body||"")}</textarea></label>
+    ${fld("act","One thing to live out this week","It comes back on Today as a reminder",160," sn-actf")}
+    <div class="sn-foot"><p class="sn-st" id="snS" aria-live="polite">${had?"Saved.":"Saves as you type."}</p><div class="sn-btns"><button class="btn ghost" id="snDel"${had?"":" hidden"}>Delete</button><button class="btn primary" id="snOk">Done</button></div></div></div>`,"Sermon notes");
+  let t=null,dirty=false,gone=false;const K=["d","ref","t","who","body","act"];
+  const read=()=>{for(const k of K){const el=$("#sn_"+k);if(el)v[k]=k==="body"?el.value.replace(/\s+$/,""):el.value.trim()}if(!/^\d{4}-\d\d-\d\d$/.test(v.d)||v.d>hereDay())v.d=hereDay()};
+  const commit=()=>{clearTimeout(t);if(!dirty||gone)return false;dirty=false;if(!snHas(v)&&!state.sn[id])return false;
+    const now=new Date().toISOString();v.at=v.at||now;v.u=now;state.sn[id]={...v};queue({sn:{[id]:{...v}}});return true};
+  const st=m=>{const e=$("#snS");if(e)e.textContent=m};
+  const link=()=>{const box=$("#snRl");if(!box)return;const r=(v.ref||"").trim(),p=snRef(r);
+    box.innerHTML=p?`<button class="btn sm ghost" id="snGo">${I.open}<span>Read ${esc(bookName(p.b))} ${p.c}${p.v?":"+p.v:""}</span></button>`:r?`<p class="muted sn-hint">Type a book and chapter, like John 4, to get a link to read it.</p>`:"";
+    const g=$("#snGo");if(g)g.onclick=()=>{read();dirty=true;commit();$("#scrim")?.remove();openPassage(passFor(p.b,p.c),false,p.v||0)}};
+  link();
+  $("#sn").addEventListener("input",e=>{read();dirty=true;st("Saving…");if(e.target.id==="sn_ref")link();clearTimeout(t);t=setTimeout(()=>{if(commit()){st(docRef?"Saved to your account.":"Saved on this device.");const d=$("#snDel");if(d)d.hidden=false;const h=$("#snH2");if(h)h.textContent=snTitle(v)}else st("Saves as you type.")},500)});
+  const mo=new MutationObserver(()=>{if(document.getElementById("sn"))return;mo.disconnect();const did=commit();if(did&&(view==="journal"||view==="today"))render()});
+  mo.observe(document.body,{childList:true,subtree:true});
+  $("#snOk").onclick=()=>{read();const has=snHas(v);if(has)dirty=true;commit();mo.disconnect();$("#scrim")?.remove();if(has){toast("Sermon notes saved");buzz(12)}if(view==="journal"||view==="today")render()};
+  let arm=null;$("#snDel").onclick=()=>{const b=$("#snDel");if(!arm){b.textContent="Tap again to delete";b.classList.add("sn-warn");arm=setTimeout(()=>{arm=null;if(b.isConnected){b.textContent="Delete";b.classList.remove("sn-warn")}},3500);return}
+    clearTimeout(arm);gone=true;mo.disconnect();state.sn[id]=null;queue({sn:{[id]:null}});$("#scrim")?.remove();toast("Sermon notes deleted");if(view==="journal"||view==="today")render()};
+  if(!had)setTimeout(()=>$("#sn_ref")?.focus({preventScroll:true}),60)}
+function snToday(){const day=hereDay(),L=snAll();
+  const card=(kick,h,body,btn,xl)=>`<section class="card sncard" id="snCard" aria-labelledby="snCH"><div class="otd-h"><div><div class="kicker">${kick}</div><h2 id="snCH">${h}</h2></div><button class="icon-btn otd-x" id="snCX" aria-label="${xl}">${I.close}</button></div>${body}${btn}</section>`;
+  if(new Date().getDay()===0){if(state.settings.snSun===false)return"";try{if(localStorage.getItem(SN_X+"sun"+day))return""}catch(e){}
+    const mine=L.find(([,v])=>v.d===day);
+    if(mine)return card("Sunday","Your notes from church",`<p class="sn-cp">${esc(snTitle(mine[1]))}${snPeek(mine[1])?`: ${esc(snPeek(mine[1]))}`:""}</p>`,`<div class="sn-cbtns"><button class="btn sm ghost" id="snCGo" data-sn="${esc(mine[0])}">${I.open}<span>Open your notes</span></button></div>`,"Hide until tomorrow");
+    return card("Sunday","At church today?",`<p class="sn-cp">Take notes on the sermon: the passage, what stood out and one thing to live out this week.</p>`,`<div class="sn-cbtns"><button class="btn primary" id="snCGo">${I_PEN}<span>Take sermon notes</span></button><button class="linkbtn sn-off" id="snOff">Don't ask on Sundays</button></div>`,"Hide until tomorrow")}
+  const hit=L.find(([,v])=>(v.act||"").trim()&&v.d<day&&snDays(v.d)<=6);if(!hit)return"";
+  const [id,v]=hit;try{if(localStorage.getItem(SN_X+id))return""}catch(e){}
+  const wd=new Date(v.d+"T12:00").toLocaleDateString("en-GB",{weekday:"long"});
+  return card(`From ${esc(wd)}'s sermon`,"One thing to live out",`<p class="sn-act">${esc(v.act)}</p><p class="muted sn-csub">${esc(snTitle(v))}${v.who?" · "+esc(v.who):""}</p>`,`<div class="sn-cbtns"><button class="btn sm ghost" id="snCGo" data-sn="${esc(id)}">${I.open}<span>Open the notes</span></button></div>`,"Hide this reminder")}
+function wireSn(){const c=$("#snCard");if(!c)return;
+  const hide=(k,msg)=>{try{localStorage.setItem(SN_X+k,"1")}catch(e){}toast(msg);if(reduced())return c.remove();c.classList.add("otd-out");setTimeout(()=>c.remove(),320)};
+  $("#snCX").onclick=()=>{const sun=new Date().getDay()===0,id=$("#snCGo")?.dataset.sn;hide(sun?"sun"+hereDay():id,sun?"Hidden until tomorrow":"Hidden. It won't come back for this sermon")};
+  $("#snCGo").onclick=()=>openSermon($("#snCGo").dataset.sn||undefined);
+  const o=$("#snOff");if(o)o.onclick=()=>{setSetting("snSun",false);if(reduced())c.remove();else{c.classList.add("otd-out");setTimeout(()=>c.remove(),320)}toast("Lamp won't ask on Sundays. Sermon notes are still in Journal, Notes")}}
+
+/* ===== v46 feel: the pressed journal tab slides to the one you tap, like an iOS segmented control ===== */
+let segFrom=null;
+function segInd(){const sg=document.querySelector(".seg");if(!sg)return;const on=sg.querySelector('button[aria-pressed="true"]');if(!on)return;
+  let i=sg.querySelector(".seg-ind");if(!i){i=document.createElement("span");i.className="seg-ind";i.setAttribute("aria-hidden","true");sg.prepend(i)}sg.classList.add("has-ind");
+  const to=()=>{i.style.width=on.offsetWidth+"px";i.style.transform=`translateX(${on.offsetLeft}px)`};
+  if(segFrom&&!reduced()){i.style.transition="none";i.style.width=segFrom.w+"px";i.style.transform=`translateX(${segFrom.x}px)`;void i.offsetWidth;i.style.transition="";to()}
+  else{i.style.transition="none";to();void i.offsetWidth;i.style.transition=""}
+  segFrom=null;
+  if(sg.scrollWidth>sg.clientWidth){const l=on.offsetLeft-12,r=on.offsetLeft+on.offsetWidth+12;if(l<sg.scrollLeft||r>sg.scrollLeft+sg.clientWidth)sg.scrollTo({left:Math.max(0,l-(sg.clientWidth-on.offsetWidth)/2),behavior:"auto"})}}
+addEventListener("resize",()=>requestAnimationFrame(()=>{if(view==="journal")segInd()}));
 
 /* ===== v44: quiz me on this book. Five questions from the bank about one book (not "which book" ones);
    misses go to Second chance; best score per book in lamp-bq ===== */
@@ -3281,7 +3406,7 @@ const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Le
 /* ================= State & storage ================= */
 const LS="lamp-state-v1";
 const DEFAULTS={theme:"system",trans:"NLT",rt:"WEB",size:"m",nums:true,rate:1,welcomed:false,onboarded:false,intro:true};
-let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},pl:{},ex:{},settings:{...DEFAULTS},selected:null};
+let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},pl:{},ex:{},sn:{},settings:{...DEFAULTS},selected:null};
 let docRef=null,saveTimer=null,pending={},retryT=null,retryN=0;
 const OUTBOX="lamp-outbox-v1";
 try{const o=JSON.parse(localStorage.getItem(OUTBOX)||"null");if(o&&typeof o==="object")pending=o}catch(e){}
@@ -3292,14 +3417,14 @@ let lsWarned=false;
 function lsWrite(){const j=JSON.stringify(state);try{localStorage.setItem(LS,j);return true}catch(e){}
   try{for(const k of Object.keys(localStorage))if(k!==LS&&k!=="lamp-outbox-v1"&&/^(lamp-chat|lamp-ring-|lamp-ex-draft|lamp-qt-draft)/.test(k))localStorage.removeItem(k);localStorage.setItem(LS,j);return true}catch(e){}
   if(!lsWarned){lsWarned=true;setTimeout(()=>toast(docRef?"This phone's storage is full. Your progress is still saved to your account, but free up some space soon.":"This phone's storage is full, so Lamp can't save. Free up some space, then try again.",7000),300)}return false}
-const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
+const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},sn:ls0.sn||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
 
 function merge(remote){
   if(!remote) return;
   for(const [k,v] of Object.entries(remote.done||{})){ if(v) state.done[k]=v; else if(v===null) state.done[k]=null; }
   for(const [k,v] of Object.entries(remote.notes||{})){ const mine=state.notes[k]; if(!mine||(v&&(v.at||"")>(mine.at||""))) state.notes[k]=v; }
   for(const [k,v] of Object.entries(remote.saved||{})){ const mine=state.saved[k]; if(!(k in state.saved)||v===null||(v&&mine&&((v.m||0)>(mine.m||0)||(v.lr||"")>(mine.lr||"")))) state.saved[k]=v; }
-  for(const k of ["pl","ex"])for(const [id,v] of Object.entries(remote[k]||{})){const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
+  for(const k of ["pl","ex","sn"])for(const [id,v] of Object.entries(remote[k]||{})){const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
   for(const [k,v] of Object.entries(remote.step||{})){ if(v&&typeof v==="object") state.step[k]={...(state.step[k]||{}),...v}; }
   for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)||!(pending.hl&&k in pending.hl)) state.hl[k]=v; }
   for(const [k,v] of Object.entries(remote.qt||{})){ if(v&&(!state.qt[k]||(v.at||"")>(state.qt[k].at||""))) state.qt[k]=v; }
@@ -3315,7 +3440,7 @@ async function flush(){
   if(!docRef||!Object.keys(pending).length) return;
   const body=pending; pending={};
   try{ await docRef.update(body); retryN=0; }
-  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
+  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
     clearTimeout(retryT); retryT=setTimeout(flush,Math.min(300000,5000*2**Math.min(retryN++,6))); } }
   outboxSave(); syncNote();
 }
@@ -3324,7 +3449,7 @@ const resync=()=>docRef?flush():connect();
 addEventListener("online",resync);addEventListener("lamp-online",()=>{connect.g=0;connect()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resync()});
 /* anything that must not be cut off by a silent update */
-window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt");
+window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt,#sn");
 async function connect(){
   if(!window.claude?.use) return;
   try{
@@ -3335,7 +3460,7 @@ async function connect(){
     docRef=db.collection("data/users/"+id).doc("progress");
     const snap=await docRef.get();
     if(snap.exists){ const local=JSON.parse(JSON.stringify(pending)); merge(snap.data()); state=deepMerge(state,local); lsWrite(); if(Object.keys(pending).length)setTimeout(flush,300); }
-    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
+    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
     setSync(true); applyTheme(); render();
   }catch(e){ docRef=null; }
 }
@@ -3509,6 +3634,7 @@ function vToday(){
   ${welcomeBack()}
   ${monTeaser()}
   ${otdCard()}
+  ${snToday()}
   ${L?groupTeaser():""}
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
@@ -3932,7 +4058,7 @@ function markDone(day,btn){
 }
 const after={
   today(){
-    srMigrate();fillDevo();wireTeaser();wireOtd();
+    srMigrate();fillDevo();wireTeaser();wireOtd();wireSn();
     document.querySelectorAll("[data-fresh]").forEach(wireFresh);
     const day=curDay();const p=PLAN[day-1];
     if(!GEO)idle(()=>loadGeo().then(()=>view==="today"&&refreshThumbs()));
@@ -4003,7 +4129,8 @@ const after={
   journal(){
     jWire();
     document.querySelectorAll("[data-open]").forEach(b=>b.onclick=()=>{state.selected=+b.dataset.open;lsWrite();setView("today")});
-    document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{jTab=b.dataset.tab;memoLv=0;render()});
+    segInd();snWire();
+    document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{const o=document.querySelector('.seg button[aria-pressed="true"]');segFrom=o?{x:o.offsetLeft,w:o.offsetWidth}:null;jTab=b.dataset.tab;memoLv=0;render()});
     if(jTab==="hl")hlFill();
     if(jTab==="pray")plWire();
     document.querySelectorAll("[data-mk]").forEach(b=>b.onclick=()=>{memoKey=b.dataset.mk;memoLv=0;render()});
@@ -4292,19 +4419,20 @@ function vJournal(){
     if(!saved.length) return head+`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("seed")}</span><h2>Verses worth keeping</h2><p>While reading, tap any verse and choose Save. It will be kept here so you can come back to it.</p><button class="btn primary" id="emptyRead">Open today's chapter</button></div>`;
     return head+saved.map(([k,v])=>`<article class="card vcard"><blockquote>${esc(v.text)}</blockquote><footer><cite>${esc(v.ref)}</cite><div class="pager"><button class="btn sm ghost" data-readv="${esc(k)}">${I.open}Read</button><button class="btn sm ghost" data-askv="${esc(k)}">${I.ask}Ask</button><button class="btn sm ghost" data-copy="${esc(k)}">Copy</button><button class="btn sm ghost" data-unsave="${esc(k)}" aria-label="Remove ${esc(v.ref)}">${I.close}</button></div></footer></article>`).join("");
   }
+  const SNT=snAll().length?snBlock():"",SNB=SNT?"":snBlock();
   const qts=Object.entries(state.qt||{}).filter(([,q])=>q&&(q.note||q.word));
   if(qts.length){const all=[...entries.map(([d,n])=>({t:"n",at:n.at||"",d,n})),...qts.map(([k,q])=>({t:"q",at:q.at||k,k,q}))].sort((a,b)=>String(b.at).localeCompare(String(a.at)));
-    return head+all.map(x=>x.t==="q"?`<article class="card entry qtentry"><div class="entry-head"><h3>Quiet time <span class="muted" style="font-size:1.05rem;font-style:italic">${esc(x.q.ref||"")}</span></h3><span class="muted" style="font-size:.85rem">${new Date(x.q.at||x.k).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}</span></div>
+    return head+SNT+all.map(x=>x.t==="q"?`<article class="card entry qtentry"><div class="entry-head"><h3>Quiet time <span class="muted" style="font-size:1.05rem;font-style:italic">${esc(x.q.ref||"")}</span></h3><span class="muted" style="font-size:.85rem">${new Date(x.q.at||x.k).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}</span></div>
       <dl>${x.q.word?`<div><dt>The word that stood out</dt><dd class="qtword">${esc(x.q.word)}</dd></div>`:""}${x.q.note?`<div><dt>${esc(x.q.ask||"What I noticed")}</dt><dd>${esc(x.q.note)}</dd></div>`:""}</dl></article>`
       :(()=>{const p=PLAN[x.d-1];if(!p)return"";const n=x.n;return `<article class="card entry"><div class="entry-head"><h3>${refName(p)} <span class="muted" style="font-size:1.05rem;font-style:italic">${esc(p.title)}</span></h3><span class="muted" style="font-size:.85rem">${n.at?new Date(n.at).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}):""}</span></div>
     <dl>${n.what?`<div><dt>What happened</dt><dd>${esc(n.what)}</dd></div>`:""}${n.shows?`<div><dt>What it shows</dt><dd>${esc(n.shows)}</dd></div>`:""}${n.stands?`<div><dt>What stood out</dt><dd>${esc(n.stands)}</dd></div>`:""}</dl>
-    <div><button class="btn sm ghost" data-open="${x.d}">Open day ${x.d}</button></div></article>`})()).join("")}
-  if(!entries.length) return head+`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("path")}</span><h2>Your thoughts will live here</h2><p>After each chapter, answer the three quick questions on the Today page. Every answer is saved here so you can see how far you've come.</p><button class="btn primary" data-v="today">Go to today's reading</button></div>`;
-  return head+entries.map(([d,n])=>{const p=PLAN[d-1];if(!p)return"";return `<article class="card entry">
+    <div><button class="btn sm ghost" data-open="${x.d}">Open day ${x.d}</button></div></article>`})()).join("")+SNB}
+  if(!entries.length) return head+SNT+`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("path")}</span><h2>Your thoughts will live here</h2><p>After each chapter, answer the three quick questions on the Today page. Every answer is saved here so you can see how far you've come.</p><button class="btn primary" data-v="today">Go to today's reading</button></div>`+SNB;
+  return head+SNT+entries.map(([d,n])=>{const p=PLAN[d-1];if(!p)return"";return `<article class="card entry">
     <div class="entry-head"><h3>${refName(p)} <span class="muted" style="font-size:1.05rem;font-style:italic">${esc(p.title)}</span></h3><span class="muted" style="font-size:.85rem">${n.at?new Date(n.at).toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"}):""}</span></div>
     <dl>${n.what?`<div><dt>What happened</dt><dd>${esc(n.what)}</dd></div>`:""}${n.shows?`<div><dt>What it shows</dt><dd>${esc(n.shows)}</dd></div>`:""}${n.stands?`<div><dt>What stood out</dt><dd>${esc(n.stands)}</dd></div>`:""}</dl>
     <div><button class="btn sm ghost" data-open="${d}">Open day ${d}</button></div>
-  </article>`}).join("");
+  </article>`}).join("")+SNB;
 }
 
 
@@ -4316,6 +4444,7 @@ function jItems(){const L=[],dt=t=>{const d=new Date(t);return isNaN(d)?"":d.toL
   for(const [k,q] of Object.entries(state.qt||{})){if(!q)continue;const t=[q.word,q.note].filter(x=>typeof x==="string"&&x.trim()).join(" · ");if(t)L.push({k:"Quiet time",t:q.ref&&!/\./.test(q.ref)?q.ref:"Quiet time",x:t,at:q.at||k})}
   for(const [k,e] of Object.entries(state.ex||{})){if(!e)continue;const t=["q0","q1","q2","q3"].map(f=>e[f]).filter(x=>typeof x==="string"&&x.trim()).join(" · ");if(t)L.push({k:"Examen",t:`Evening Examen, ${dt(k+"T12:00")}`,x:t,at:e.at||k})}
   for(const [k,v] of Object.entries(state.saved||{})){if(v&&v.text)L.push({k:"Verse",t:v.ref||k,x:v.text,at:v.at||"",go:"v:"+k})}
+  for(const [k,v] of snAll())L.push({k:"Sermon",t:`${snTitle(v)}, ${dt(v.d+"T12:00")}`,x:[v.ref,v.who,v.body,v.act].filter(Boolean).join(" · "),at:v.d,go:"s:"+k});
   for(const [k,p] of Object.entries(state.pl||{})){if(p&&p.t)L.push({k:p.ans?"Answered prayer":"Prayer",t:p.ans?`Answered ${dt(p.ans)}`:`Added ${dt(p.at)}`,x:p.t,at:p.at||"",go:"p:"+k})}
   return L}
 function jMark(text,terms){const raw=String(text);const f=jFold(raw);let at=-1;for(const t of terms){const i=f.indexOf(t);if(i>=0&&(at<0||i<at))at=i}
@@ -4334,6 +4463,7 @@ function jPaint(){const box=$("#jRes"),wrap=$(".jsearch");if(!box||!wrap)return;
   box.querySelectorAll("[data-jgo]").forEach(b=>b.onclick=()=>jGo(b.dataset.jgo))}
 function jGo(g){const [t,...r]=g.split(":"),k=r.join(":");
   if(t==="d"){state.selected=+k;lsWrite();setView("today");return}
+  if(t==="s"){openSermon(k);return}
   if(t==="v"){const v=state.saved[k];if(!v)return;const [bk,c,vn]=k.split(".");openPassage(passFor(bk,+c),false,+vn);return}
   if(t==="p"){jQ="";jTab="pray";render();requestAnimationFrame(()=>{const c=document.querySelector(`[data-pl="${CSS.escape(k)}"]`);if(!c)return;c.scrollIntoView({block:"center",behavior:reduced()?"auto":"smooth"});c.classList.add("js-flash");setTimeout(()=>c.classList.remove("js-flash"),1600)})}}
 function jWire(){const i=$("#jq");if(!i)return;let t=null;
