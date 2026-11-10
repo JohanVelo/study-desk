@@ -7,9 +7,10 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
 - Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Next: the gospels' one-line summaries.
 - (Journal → Memorise already has its own 4-step practice and FSRS reviews, so 'Say it by heart for saved verses' is done.)
-- Sermon notes next: share a sermon's notes with the group, or a 'questions to look into' list that links to Ask.
+- Sermon notes next: a 'questions to look into' list that links to Ask; reactions on shared sermon notes.
+- Research notes (10 Nov): PrayerMate and Echo show a few prayer cards a day from each list; Lamp's 'Pray through my list' could rotate the least-prayed first.
 - Second chance for the chapter quiz too (group quick quiz done v44).
-- More bank questions for the books still without a book quiz (Leviticus, Chronicles, Song of Songs, most minor prophets, 2 Thessalonians, Titus, 2 Peter, John's short letters, Jude).
+- More bank questions for the books still without a book quiz (Leviticus, Chronicles, Song of Songs, most minor prophets, John's short letters, Jude).
 - Sea of Galilee painted scene for the field background.
 - Verse of the week for the group to memorise together.
 - Afrikaans screens (UI text only: Bible text in Afrikaans is BSSA copyright).
@@ -30,3 +31,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v44 (6 Nov): Quiz me on this book in the Library (like Duolingo's unit review), read chapters marked in the book sheet, group quick-quiz misses join Second chance, 17 new checked questions on six letters.
 - v45 (8 Nov): Compare a verse across 7 public-domain translations (like YouVersion's Compare), the verse bar eases away, 10 new checked questions so Isaiah, Jeremiah and Ruth get book quizzes.
 - v46 (9 Nov): Sermon notes in Journal with a Sunday card on Today and the week's 'one thing to live out' coming back (like YouVersion's and Logos's sermon notes), the journal tab indicator slides (like iOS segmented controls), 16 new checked questions so Nehemiah, Job, Colossians and 1 Peter get book quizzes.
+- v47 (10 Nov): share sermon notes with the group and save a friend's notes to your journal (like YouVersion Events' shared notes and church apps' 'missed Sunday?' catch-up), Settings → Contrast that also follows the phone's Increase Contrast (like iOS), 44 px settings buttons, 12 new checked questions so 2 Thessalonians, Titus and 2 Peter get book quizzes.

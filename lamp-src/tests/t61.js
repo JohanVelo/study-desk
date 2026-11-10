@@ -13,7 +13,7 @@ const open=async(o)=>{const ctx=await b.newContext({viewport:{width:o.w,height:o
   await ctx.addInitScript(st=>{if(!localStorage.getItem('lamp-state-v1'))localStorage.setItem('lamp-state-v1',JSON.stringify(st))},o.st||ST);
   if(!o.nomock)await ctx.addInitScript(MOCK);
   const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);await p.waitForTimeout(1800);return {ctx,p,errs}};
-const small=p=>p.evaluate(()=>[...document.querySelectorAll('#sn button:not([hidden]),#sn input,#snCard button')].filter(e=>e.offsetParent).map(e=>[e.id||e.className,Math.round(e.getBoundingClientRect().height)]).filter(x=>x[1]<44));
+const small=p=>p.evaluate(()=>[...document.querySelectorAll('#sn button:not([hidden]),#sn input:not([type=checkbox]),#sn label.shr,#snCard button')].filter(e=>e.offsetParent).map(e=>[e.id||e.className,Math.round(e.getBoundingClientRect().height)]).filter(x=>x[1]<44));
 for(const [w,h,cs] of [[390,844,'light'],[1440,900,'dark'],[390,844,'dark'],[1440,900,'light']]){const tag=w+'-'+cs;
  const {ctx,p,errs}=await open({w,h,cs});
  // Sunday, nothing yet: Today asks

@@ -355,6 +355,35 @@ p,li,figcaption,dd{text-wrap:pretty}
 .seg-ind{position:absolute;top:4px;bottom:4px;left:0;border-radius:9px;background:var(--surface);box-shadow:var(--shadow);pointer-events:none;z-index:0;transition:transform .34s cubic-bezier(.32,.72,0,1),width .34s cubic-bezier(.32,.72,0,1)}
 .seg.has-ind>button[aria-pressed="true"]{background:none;box-shadow:none}
 @media (prefers-reduced-motion:reduce){.seg-ind{transition:none}}
+.sn-shr{align-items:flex-start;margin-top:2px}
+.sn-shr input{margin-top:2px}
+.sn-shr small{display:block;font-weight:400;color:var(--muted);font-size:.84rem;margin-top:2px}
+.gsm{display:grid;gap:10px;margin-top:6px}
+.gsm .ghead2 p{margin:4px 0 0}
+html:not(.plainbg) .gsm .ghead2{background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-radius:16px;padding:12px 16px}
+.gsm-c{padding:0}
+.gsm-c>summary{display:flex;align-items:center;gap:12px;padding:14px 16px;min-height:64px;cursor:pointer;list-style:none}
+.gsm-c>summary::-webkit-details-marker{display:none}
+.gsm-c>summary>svg{flex:none;width:18px;height:18px;color:var(--muted);transition:transform .25s var(--ease)}
+.gsm-c[open]>summary>svg{transform:rotate(180deg)}
+.gsm-face{flex:none;display:flex}
+.gsm-s{display:grid;gap:2px;min-width:0;flex:1}
+.gsm-in{display:grid;gap:12px;padding:0 16px 16px}
+.gsm-act{border-left:3px solid var(--gold);padding:4px 0 4px 12px}
+.gsm-act p{margin:2px 0 0;font:500 1.15rem/1.45 var(--f-display);overflow-wrap:anywhere}
+.gsm-b{margin:0;white-space:pre-wrap;line-height:1.55;overflow-wrap:anywhere;max-width:66ch}
+.gsm-btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.gsm-btns .btn{min-height:44px}
+.gsm-have{display:inline-flex;align-items:center;gap:6px;min-height:44px;font-weight:600;font-size:.9rem;color:var(--ok-ink,var(--ink))}
+.gsm-have svg{width:18px;height:18px;color:var(--ok)}
+@media (prefers-contrast:more){:root{--muted:#3D4540;--line:#9BA398}}
+@media (prefers-contrast:more) and (prefers-color-scheme:dark){:root:not([data-theme="light"]){--muted:#C9D1C8;--line:#5C665F}}
+@media (prefers-contrast:more){:root[data-theme="dark"]{--muted:#C9D1C8;--line:#5C665F}}
+html.hc{--muted:#3D4540;--line:#9BA398}
+@media (prefers-color-scheme:dark){html.hc:not([data-theme="light"]){--muted:#C9D1C8;--line:#5C665F}}
+html.hc[data-theme="dark"]{--muted:#C9D1C8;--line:#5C665F}
+html.hc :focus-visible{outline-width:3px!important;outline-offset:2px}
+@media (prefers-contrast:more){:focus-visible{outline-width:3px!important;outline-offset:2px}}
 @media (prefers-reduced-motion:no-preference){.otd{transition:opacity .3s,scale .3s}.otd.otd-out{opacity:0;scale:.97}}
 
 @media (prefers-reduced-motion:no-preference){
@@ -1000,7 +1029,7 @@ html.rfclear .scripture,html.rfclear .devo-s p{font-family:"Atkinson Hyperlegibl
 .field > span{font-weight:600}
 .field small{color:var(--muted)}
 .opts{display:flex;gap:6px;flex-wrap:wrap}
-.opts button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 14px;font-weight:600;font-size:.9rem}
+.opts button{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px 14px;font-weight:600;font-size:.9rem;min-height:44px}
 .opts button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .row-end{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .danger{color:#B4432E}
@@ -3234,7 +3263,7 @@ function snBlock(){const L=snAll();
   if(!L.length)return `<section class="card sn-empty" aria-labelledby="snH"><div class="kicker">At church</div><h2 id="snH">Sermon notes</h2><p class="muted">Jot down the sermon: the passage, what stood out and one thing to live out. That one thing comes back on Today during the week.</p><button class="btn primary" id="snNew">${I_PEN}<span>Take sermon notes</span></button></section>`;
   const sh=snMore?L:L.slice(0,3);
   return `<section class="sn-sec" aria-labelledby="snH"><div class="sn-top"><h2 id="snH">Sermon notes<span class="sn-n"> · ${L.length}</span></h2><button class="btn sm ghost" id="snNew">${I_PLUS}<span>New</span></button></div>
-    <ul class="sn-list">${sh.map(([id,v])=>{const sub=[v.t&&v.ref?v.ref:"",v.who].filter(Boolean).join(" · ");return `<li><button class="sn-item" data-sn="${esc(id)}"><span class="sn-date">${esc(snFmt(v.d))}</span><b class="sn-ti">${esc(snTitle(v))}</b>${sub?`<span class="sn-sub">${esc(sub)}</span>`:""}${snPeek(v)?`<span class="sn-pk">${esc(snPeek(v))}</span>`:""}<span class="sn-chev" aria-hidden="true">${I.right}</span></button></li>`}).join("")}</ul>
+    <ul class="sn-list">${sh.map(([id,v])=>{const sub=[v.t&&v.ref?v.ref:"",v.who,v.from?"From "+v.from:"",v.sh?"Shared":""].filter(Boolean).join(" · ");return `<li><button class="sn-item" data-sn="${esc(id)}"><span class="sn-date">${esc(snFmt(v.d))}</span><b class="sn-ti">${esc(snTitle(v))}</b>${sub?`<span class="sn-sub">${esc(sub)}</span>`:""}${snPeek(v)?`<span class="sn-pk">${esc(snPeek(v))}</span>`:""}<span class="sn-chev" aria-hidden="true">${I.right}</span></button></li>`}).join("")}</ul>
     ${L.length>3?`<button class="linkbtn sn-more" id="snMore" aria-expanded="${snMore}">${snMore?"Show fewer":`Show all ${L.length}`}</button>`:""}</section>`}
 function snWire(){const n=$("#snNew");if(n)n.onclick=()=>openSermon();
   document.querySelectorAll(".sn-item[data-sn]").forEach(b=>b.onclick=()=>openSermon(b.dataset.sn));
@@ -3248,22 +3277,24 @@ function openSermon(id){const had=!!(id&&state.sn?.[id]);if(!had)id="s"+Date.now
     <div class="sn-row">${fld("t","Title (optional)","What was it called?",80)}${fld("who","Who preached (optional)","Their name",60)}</div>
     <label class="sn-f"><small>Notes</small><textarea id="sn_body" class="search sn-b" rows="8" placeholder="Main points, verses that came up, questions to look into">${esc(v.body||"")}</textarea></label>
     ${fld("act","One thing to live out this week","It comes back on Today as a reminder",160," sn-actf")}
+    ${G.on&&!G.ro?`<label class="shr sn-shr"><input type="checkbox" id="sn_sh"${v.sh?" checked":""}><span>Share these notes with my group<small>They'll see everything here on the group's This week tab for two weeks.</small></span></label>`:""}
     <div class="sn-foot"><p class="sn-st" id="snS" aria-live="polite">${had?"Saved.":"Saves as you type."}</p><div class="sn-btns"><button class="btn ghost" id="snDel"${had?"":" hidden"}>Delete</button><button class="btn primary" id="snOk">Done</button></div></div></div>`,"Sermon notes");
   let t=null,dirty=false,gone=false;const K=["d","ref","t","who","body","act"];
   const read=()=>{for(const k of K){const el=$("#sn_"+k);if(el)v[k]=k==="body"?el.value.replace(/\s+$/,""):el.value.trim()}if(!/^\d{4}-\d\d-\d\d$/.test(v.d)||v.d>hereDay())v.d=hereDay()};
   const commit=()=>{clearTimeout(t);if(!dirty||gone)return false;dirty=false;if(!snHas(v)&&!state.sn[id])return false;
-    const now=new Date().toISOString();v.at=v.at||now;v.u=now;state.sn[id]={...v};queue({sn:{[id]:{...v}}});return true};
+    const now=new Date().toISOString();v.at=v.at||now;v.u=now;state.sn[id]={...v};queue({sn:{[id]:{...v}}});snShare(id,v);return true};
   const st=m=>{const e=$("#snS");if(e)e.textContent=m};
   const link=()=>{const box=$("#snRl");if(!box)return;const r=(v.ref||"").trim(),p=snRef(r);
     box.innerHTML=p?`<button class="btn sm ghost" id="snGo">${I.open}<span>Read ${esc(bookName(p.b))} ${p.c}${p.v?":"+p.v:""}</span></button>`:r?`<p class="muted sn-hint">Type a book and chapter, like John 4, to get a link to read it.</p>`:"";
     const g=$("#snGo");if(g)g.onclick=()=>{read();dirty=true;commit();$("#scrim")?.remove();openPassage(passFor(p.b,p.c),false,p.v||0)}};
   link();
-  $("#sn").addEventListener("input",e=>{read();dirty=true;st("Saving…");if(e.target.id==="sn_ref")link();clearTimeout(t);t=setTimeout(()=>{if(commit()){st(docRef?"Saved to your account.":"Saved on this device.");const d=$("#snDel");if(d)d.hidden=false;const h=$("#snH2");if(h)h.textContent=snTitle(v)}else st("Saves as you type.")},500)});
+  $("#sn_sh")?.addEventListener("change",e=>{v.sh=e.target.checked||undefined;if(!v.sh)delete v.sh;dirty=true;if(snHas(v)||state.sn[id]){commit();st(v.sh?"Shared with your group.":"Not shared. Only you can see these notes.");const d=$("#snDel");if(d)d.hidden=false}else st(v.sh?"Will be shared once you write something.":"Saves as you type.");buzz(8)});
+  $("#sn").addEventListener("input",e=>{if(e.target.id==="sn_sh")return;read();dirty=true;st("Saving…");if(e.target.id==="sn_ref")link();clearTimeout(t);t=setTimeout(()=>{if(commit()){st(docRef?"Saved to your account.":"Saved on this device.");const d=$("#snDel");if(d)d.hidden=false;const h=$("#snH2");if(h)h.textContent=snTitle(v)}else st("Saves as you type.")},500)});
   const mo=new MutationObserver(()=>{if(document.getElementById("sn"))return;mo.disconnect();const did=commit();if(did&&(view==="journal"||view==="today"))render()});
   mo.observe(document.body,{childList:true,subtree:true});
   $("#snOk").onclick=()=>{read();const has=snHas(v);if(has)dirty=true;commit();mo.disconnect();$("#scrim")?.remove();if(has){toast("Sermon notes saved");buzz(12)}if(view==="journal"||view==="today")render()};
   let arm=null;$("#snDel").onclick=()=>{const b=$("#snDel");if(!arm){b.textContent="Tap again to delete";b.classList.add("sn-warn");arm=setTimeout(()=>{arm=null;if(b.isConnected){b.textContent="Delete";b.classList.remove("sn-warn")}},3500);return}
-    clearTimeout(arm);gone=true;mo.disconnect();state.sn[id]=null;queue({sn:{[id]:null}});$("#scrim")?.remove();toast("Sermon notes deleted");if(view==="journal"||view==="today")render()};
+    clearTimeout(arm);gone=true;mo.disconnect();if(v.sh||mine().sm?.[id])gWrite({sm:{[id]:null}});state.sn[id]=null;queue({sn:{[id]:null}});$("#scrim")?.remove();toast("Sermon notes deleted");if(view==="journal"||view==="today")render()};
   if(!had)setTimeout(()=>$("#sn_ref")?.focus({preventScroll:true}),60)}
 function snToday(){const day=hereDay(),L=snAll();
   const card=(kick,h,body,btn,xl)=>`<section class="card sncard" id="snCard" aria-labelledby="snCH"><div class="otd-h"><div><div class="kicker">${kick}</div><h2 id="snCH">${h}</h2></div><button class="icon-btn otd-x" id="snCX" aria-label="${xl}">${I.close}</button></div>${body}${btn}</section>`;
@@ -3280,6 +3311,34 @@ function wireSn(){const c=$("#snCard");if(!c)return;
   $("#snCX").onclick=()=>{const sun=new Date().getDay()===0,id=$("#snCGo")?.dataset.sn;hide(sun?"sun"+hereDay():id,sun?"Hidden until tomorrow":"Hidden. It won't come back for this sermon")};
   $("#snCGo").onclick=()=>openSermon($("#snCGo").dataset.sn||undefined);
   const o=$("#snOff");if(o)o.onclick=()=>{setSetting("snSun",false);if(reduced())c.remove();else{c.classList.add("otd-out");setTimeout(()=>c.remove(),320)}toast("Lamp won't ask on Sundays. Sermon notes are still in Journal, Notes")}}
+
+/* ===== v47: share sermon notes with the group. state.sn[id].sh marks it; gm/<uid>.sm[id] = {d,t,ref,who,act,body,at} (null = unshared).
+   The group's This week tab lists notes shared in the last 14 days; others can save a copy to their own journal ===== */
+const SM_DAYS=14;
+function snShare(id,v){if(!G.on||G.ro)return;const has=!!mine().sm?.[id];
+  if(v&&v.sh&&snHas(v)){const pub={d:v.d,t:(v.t||"").slice(0,80),ref:(v.ref||"").slice(0,60),who:(v.who||"").slice(0,60),act:(v.act||"").slice(0,160),body:String(v.body||"").slice(0,4000),at:v.u||new Date().toISOString()};
+    const old={};for(const [k,x] of Object.entries(mine().sm||{}))if(x&&k!==id&&snDays(x.d)>60)old[k]=null;gWrite({sm:{...old,[id]:pub}})}
+  else if(has)gWrite({sm:{[id]:null}})}
+function smList(){const L=[];for(const uid of members())for(const [k,x] of Object.entries(G.people[uid]?.sm||{}))if(x&&x.d&&snDays(x.d)<=SM_DAYS&&snDays(x.d)>=0&&(x.t||x.ref||x.body||x.act))L.push({uid,k,...x});
+  return L.sort((a,b)=>String(b.d).localeCompare(String(a.d))||String(b.at||"").localeCompare(String(a.at||"")))}
+const smCopied=(uid,k)=>Object.values(state.sn||{}).some(x=>x&&x.src===uid+":"+k);
+function smCard(x,open){const me=x.uid===myKey(),p=snRef(x.ref),sub=[x.t&&x.ref?x.ref:"",x.who].filter(Boolean).join(" · ");
+  return `<details class="card gsm-c" data-smk="${esc(x.uid+":"+x.k)}"${open?" open":""}><summary><span class="gsm-face" aria-hidden="true">${face(x.uid,"sm")}</span><span class="gsm-s"><span class="sn-date">${esc(snFmt(x.d))} · ${esc(me?"You":pname(x.uid))}</span><b class="sn-ti">${esc((x.t||"").trim()||(x.ref||"").trim()||"Sermon notes")}</b>${sub?`<span class="sn-sub">${esc(sub)}</span>`:""}</span>${I.chev}</summary>
+    <div class="gsm-in">${x.act?`<div class="gsm-act"><span class="kicker">One thing to live out</span><p>${esc(x.act)}</p></div>`:""}${x.body?`<p class="gsm-b">${esc(x.body)}</p>`:""}
+    <div class="gsm-btns">${p?`<button class="btn sm ghost" data-smread="${p.b}.${p.c}.${p.v||0}">${I.open}<span>Read ${esc(bookName(p.b))} ${p.c}${p.v?":"+p.v:""}</span></button>`:""}${me?`<button class="btn sm ghost" data-smmine="${esc(x.k)}">${I_PEN}<span>Edit your notes</span></button>`:smCopied(x.uid,x.k)?`<span class="gsm-have">${I.check}<span>In your journal</span></span>`:`<button class="btn sm ghost" data-smsave="${esc(x.uid+":"+x.k)}">${I_PLUS}<span>Save to my journal</span></button>`}</div></div></details>`}
+function paintSm(){const el=$("#gSm");if(!el)return;const L=G.on?smList():[];
+  if(!L.length){el.hidden=true;el.innerHTML="";return}
+  const was=new Set([...el.querySelectorAll("details[open]")].map(d=>d.dataset.smk)),first=!el.childElementCount;
+  if(el.contains(document.activeElement)&&el.childElementCount&&el.dataset.n===String(L.length))return;
+  el.hidden=false;el.dataset.n=L.length;
+  el.innerHTML=`<div class="ghead2"><h2 id="gSmH">Sermon notes from the group</h2><p class="muted">${L.length===1?"One person has":`${L.length} notes have been`} shared in the last two weeks. Missed church? Catch up here.</p></div>${L.map((x,i)=>smCard(x,first?i===0:was.has(x.uid+":"+x.k))).join("")}`;
+  el.querySelectorAll("[data-smread]").forEach(b=>b.onclick=e=>{e.preventDefault();const [bk,c,vn]=b.dataset.smread.split(".");openPassage(passFor(bk,+c),false,+vn)});
+  el.querySelectorAll("[data-smmine]").forEach(b=>b.onclick=()=>openSermon(b.dataset.smmine));
+  el.querySelectorAll("[data-smsave]").forEach(b=>b.onclick=()=>{const [uid,...r]=b.dataset.smsave.split(":"),k=r.join(":"),x=G.people[uid]?.sm?.[k];if(!x)return;
+    const id="s"+Date.now().toString(36),now=new Date().toISOString(),v={d:x.d,t:x.t||"",ref:x.ref||"",who:x.who||"",body:x.body||"",act:x.act||"",src:uid+":"+k,from:pname(uid),at:now,u:now};
+    state.sn[id]=v;queue({sn:{[id]:v}});burst(b,12);buzz(12);toast(`Saved to your journal. ${x.act?"The one thing will come back on Today.":""}`.trim());
+    const s2=document.createElement("span");s2.className="gsm-have";s2.innerHTML=`${I.check}<span>In your journal</span>`;b.replaceWith(s2)});
+  el.querySelectorAll("details").forEach(d=>d.querySelector("summary").addEventListener("click",()=>buzz(6)))}
 
 /* ===== v46 feel: the pressed journal tab slides to the one you tap, like an iOS segmented control ===== */
 let segFrom=null;
@@ -3441,7 +3500,7 @@ async function connect(){
 }
 function setSync(on){document.querySelectorAll(".sync").forEach(s=>{s.classList.toggle("on",on);s.querySelector("span").textContent=on?"Synced to your account":"Saved on this device"})}
 function setSetting(k,v){state.settings[k]=v;queue({settings:{[k]:v}});}
-function applyTheme(){applyEasy();document.documentElement.classList.toggle("rfclear",state.settings.rf==="clear");setTimeout(applyFieldBg);const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
+function applyTheme(){applyEasy();document.documentElement.classList.toggle("hc",state.settings.hc==="more");document.documentElement.classList.toggle("rfclear",state.settings.rf==="clear");setTimeout(applyFieldBg);const t=state.settings.theme;if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t);else document.documentElement.removeAttribute("data-theme")}
 
 /* ================= Scripture text ================= */
 let BIBLE=null,biblePromise=null;
@@ -4896,6 +4955,7 @@ function openSettings(){
     <h3 class="set-g first">Look and feel</h3>
     <div class="field"><span>Appearance</span><div class="opts">${[["system","Match device"],["light","Light"],["dark","Dark"]].map(([k,l])=>`<button data-theme-opt="${k}" aria-pressed="${s.theme===k}">${l}</button>`).join("")}</div></div>
     <div class="field"><span>Background</span><small>A peaceful field behind every screen that follows the time of day, or a plain colour.</small><div class="opts"><button data-bgopt="field" aria-pressed="${s.bg!=="plain"}">Field</button><button data-bgopt="plain" aria-pressed="${s.bg==="plain"}">Plain</button></div></div>
+    <div class="field"><span>Contrast</span><small>More contrast makes grey text darker and lines stronger. Match device follows your phone's Increase Contrast setting.</small><div class="opts"><button data-hc="auto" aria-pressed="${s.hc!=="more"}">Match device</button><button data-hc="more" aria-pressed="${s.hc==="more"}">More</button></div></div>
     <div class="field"><span>Easy mode</span><small>Bigger text, the chapter read aloud first, and a slower reading voice. Good for anyone who finds small text or long reading hard.</small><div class="opts"><button data-easy="1" aria-pressed="${!!s.easy}">On</button><button data-easy="0" aria-pressed="${!s.easy}">Off</button></div></div>
     <div class="field"><span>A word for today</span><small>A short morning or evening reading on Today, from Spurgeon's <i>Morning and Evening</i> (1866).</small><div class="opts"><button data-devo="1" aria-pressed="${s.devo!==false}">Show</button><button data-devo="0" aria-pressed="${s.devo===false}">Hide</button></div></div>
     <div class="field"><span>Sounds and touch</span><small>A soft chime when you finish a chapter, and a gentle tap on phones that support it.</small><div class="opts"><button data-snd="1" aria-pressed="${s.sound!==false}">Chime on</button><button data-snd="0" aria-pressed="${s.sound===false}">Silent</button></div></div>
@@ -4923,6 +4983,7 @@ function openSettings(){
   document.querySelectorAll("[data-wg]").forEach(b=>b.onclick=()=>{setSetting("weekGoal",+b.dataset.wg);document.querySelectorAll("[data-wg]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   document.querySelectorAll("[data-mode-opt]").forEach(b=>b.onclick=()=>{setSetting("mode",b.dataset.modeOpt);document.querySelectorAll("[data-mode-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b));if(view==="today")render()});
   syncNote();$("#setX").onclick=close;$("#setDone").onclick=close;$("#scrim").onclick=e=>{if(e.target.id==="scrim")close()};
+  document.querySelectorAll("[data-hc]").forEach(b=>b.onclick=()=>{setSetting("hc",b.dataset.hc);applyTheme();document.querySelectorAll("[data-hc]").forEach(x=>x.setAttribute("aria-pressed",x===b));buzz(8)});
   document.querySelectorAll("[data-bgopt]").forEach(b=>b.onclick=()=>{setSetting("bg",b.dataset.bgopt);applyFieldBg();document.querySelectorAll("[data-bgopt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   document.querySelectorAll("[data-theme-opt]").forEach(b=>b.onclick=()=>{setSetting("theme",b.dataset.themeOpt);applyTheme();document.querySelectorAll("[data-theme-opt]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
   if($("#offBible")){offCheck();$("#offBible").onclick=()=>offSave("bible");$("#offOrig").onclick=()=>offSave("orig")}
@@ -5769,7 +5830,8 @@ function gStudy(){
   <section class="grid2">
     <article class="card gtry"><div class="kicker">Try this week</div><p>${esc(w.tryit)}</p><div class="gcheck"><button class="tick ${ck.tried?"on":""}" data-ck="tried">${I.check}<span>I did it</span></button><span class="whos" id="gw-tried"></span></div></article>
     <article class="card gpray"><div class="kicker">Pray together</div><p>${esc(w.pray)}</p><button class="btn sm ghost" data-gt-go="prayer">Open the prayer wall</button></article>
-  </section>`;
+  </section>
+  <section class="gsm" id="gSm" aria-labelledby="gSmH" hidden></section>`;
 }
 function wStudy(){
   const w=WK();
@@ -5794,6 +5856,7 @@ function paintStudy(){
     const o=$("#go-"+i);if(o&&!o.hidden&&!typingIn(o))o.innerHTML=others.map(id=>{const key=id+":"+w.id+":q"+i;return `<div class="oans">${face(id,"sm")}<div><b>${esc(pname(id))}</b><p>${esc(G.people[id].ans[w.id]["q"+i])}</p>${reacts(key)}${replyBlock(key,id)}</div></div>`}).join("");
     const mr=$("#gr-"+i);if(mr)mr.innerHTML=reactSum(myKey()+":"+w.id+":q"+i);
     const mk=myKey()+":"+w.id+":q"+i,mb=$("#gm-"+i);if(mb&&!typingIn(mb))mb.innerHTML=replyList(mk).length?replyBlock(mk,myKey()):""});
+  paintSm();
 }
 
 /* ---------- Icebreakers ---------- */
