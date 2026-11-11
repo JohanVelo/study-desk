@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261110011911">
+<link rel="stylesheet" href="app.css?v=20261111012329">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261110011911"></script>
+<script src="app.js?v=20261111012329"></script>
 </head>
 <body>
 <style>
@@ -377,6 +377,18 @@ p,li,figcaption,dd{text-wrap:pretty}
 .seg-ind{position:absolute;top:4px;bottom:4px;left:0;border-radius:9px;background:var(--surface);box-shadow:var(--shadow);pointer-events:none;z-index:0;transition:transform .34s cubic-bezier(.32,.72,0,1),width .34s cubic-bezier(.32,.72,0,1)}
 .seg.has-ind>button[aria-pressed="true"]{background:none;box-shadow:none}
 @media (prefers-reduced-motion:reduce){.seg-ind{transition:none}}
+.pl-day.set{border-color:color-mix(in srgb,var(--accent) 50%,var(--line));color:var(--accent)}
+.pl-day svg{width:16px;height:16px}
+.pld{display:grid;gap:10px}
+.pld h2{margin:0;font:600 1.4rem var(--f-display);padding-right:44px}
+.pld-t{margin:0;font:500 1.08rem/1.45 var(--f-display);overflow-wrap:anywhere}
+.pld-h{margin:4px 0 0;font-size:.9rem}
+.pltcard{background:linear-gradient(160deg,color-mix(in srgb,var(--gold-soft) 60%,var(--surface)),var(--surface) 75%)}
+.pltcard h2{margin:2px 0 0;font:600 1.25rem var(--f-display)}
+.plt-l{margin:10px 0 0;padding-left:1.1em;display:grid;gap:6px}
+.plt-l li{font:500 1.08rem/1.45 var(--f-display);overflow-wrap:anywhere}
+.plt-more{margin:6px 0 0;font-size:.9rem}
+@media (prefers-reduced-motion:no-preference){.pltcard{transition:opacity .3s,scale .3s}.pltcard.otd-out{opacity:0;scale:.97}}
 .sn-shr{align-items:flex-start;margin-top:2px}
 .sn-shr input{margin-top:2px}
 .sn-shr small{display:block;font-weight:400;color:var(--muted);font-size:.84rem;margin-top:2px}
@@ -3365,6 +3377,33 @@ function paintSm(){const el=$("#gSm");if(!el)return;const L=G.on?smList():[];
     const s2=document.createElement("span");s2.className="gsm-have";s2.innerHTML=`${I.check}<span>In your journal</span>`;b.replaceWith(s2)});
   el.querySelectorAll("details").forEach(d=>d.querySelector("summary").addEventListener("click",()=>buzz(6)))}
 
+/* ===== v48: prayer days (like PrayerMate): each private prayer can be for any day, every day, or one weekday (pl[id].dw: 7 = every day, 0–6 = Sun–Sat).
+   Today shows that day's prayers until they are prayed; Pray through my list puts today's first, then the longest since prayed ===== */
+const I_CAL2=`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>`;
+const DWN=["Sundays","Mondays","Tuesdays","Wednesdays","Thursdays","Fridays","Saturdays"];
+const dwShort=d=>d==null?"Any day":d===7?"Every day":DWN[d];
+const dwLong=d=>d==null?"any day":d===7?"every day":DWN[d];
+function plSince(at){const d=Math.floor((Date.now()-Date.parse(at))/864e5);if(!isFinite(d))return"On your list";if(d<1)return"Added today";if(d<14)return`On your list for ${plural(d,"day")}`;if(d<60)return`On your list for ${Math.floor(d/7)} weeks`;return`On your list since ${fmtD(at)}`}
+const plIsToday=p=>p&&(p.dw===7||p.dw===new Date().getDay());
+const plDoneToday=p=>!!(p&&p.last&&hereDay(new Date(p.last))===hereDay());
+function plOrder(a,b){const ta=plIsToday(a)?0:1,tb=plIsToday(b)?0:1;if(ta!==tb)return ta-tb;const la=a.last||"",lb=b.last||"";if(la!==lb)return la<lb?-1:1;return String(a.at).localeCompare(String(b.at))}
+function openPlDay(k){const p=state.pl[k];if(!p)return;const order=[null,7,1,2,3,4,5,6,0];
+  openSheet(`<div class="pld" id="pld"><div class="kicker">Prayer days</div><h2>When do you want to pray for this?</h2><p class="pld-t">${esc(p.t)}</p>
+    <div class="opts pld-o" role="group" aria-label="Pray for this on">${order.map(d=>`<button data-dw="${d==null?"":d}" aria-pressed="${(p.dw??null)===d}">${dwShort(d)}</button>`).join("")}</div>
+    <p class="muted pld-h">Prayers for today show on Today until you've prayed for them. Pray through my list starts with today's.</p></div>`,"Prayer days");
+  document.querySelectorAll("#pld [data-dw]").forEach(b=>b.onclick=()=>{const d=b.dataset.dw===""?null:+b.dataset.dw,now=new Date().toISOString();const v={...state.pl[k],dw:d,u:now};state.pl[k]=v;queue({pl:{[k]:v}});buzz(10);
+    $("#scrim")?.remove();toast(d==null?"Back to any day":d===7?"You'll see it on Today every day":`You'll see it on Today on ${DWN[d]}`);if(view==="journal")render()});
+  setTimeout(()=>document.querySelector('#pld [aria-pressed="true"]')?.focus({preventScroll:true}),60)}
+function plToday(){const day=hereDay();try{if(localStorage.getItem("lamp-plt-x-"+day))return""}catch(e){}
+  const all=plOpen().filter(([,p])=>plIsToday(p));const L=all.filter(([,p])=>!plDoneToday(p));if(!L.length)return"";
+  const wd=new Date().toLocaleDateString("en-GB",{weekday:"long"});
+  return `<section class="card pltcard" id="pltCard" aria-labelledby="pltH"><div class="otd-h"><div><div class="kicker">${esc(wd)}'s prayers</div><h2 id="pltH">${L.length===1?"One prayer for today":`${L.length} prayers for today`}</h2></div><button class="icon-btn otd-x" id="pltX" aria-label="Hide until tomorrow">${I.close}</button></div>
+    <ul class="plt-l">${L.slice(0,3).map(([,p])=>`<li>${esc(p.t.length>120?p.t.slice(0,117).replace(/\s+\S*$/,"")+"…":p.t)}</li>`).join("")}</ul>${L.length>3?`<p class="muted plt-more">And ${plural(L.length-3,"more")}.</p>`:""}
+    <div class="sn-cbtns"><button class="btn primary" id="pltGo">${I.hand}<span>Pray now</span></button></div></section>`}
+function wirePlt(){const c=$("#pltCard");if(!c)return;
+  $("#pltGo").onclick=()=>openPrayNow("today");
+  $("#pltX").onclick=()=>{try{localStorage.setItem("lamp-plt-x-"+hereDay(),"1")}catch(e){}toast("Hidden until tomorrow");if(reduced())return c.remove();c.classList.add("otd-out");setTimeout(()=>c.remove(),320)}}
+
 /* ===== v46 feel: the pressed journal tab slides to the one you tap, like an iOS segmented control ===== */
 let segFrom=null;
 function segInd(){const sg=document.querySelector(".seg");if(!sg)return;const on=sg.querySelector('button[aria-pressed="true"]');if(!on)return;
@@ -3694,6 +3733,7 @@ function vToday(){
   ${monTeaser()}
   ${otdCard()}
   ${snToday()}
+  ${plToday()}
   ${L?groupTeaser():""}
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
@@ -3924,10 +3964,11 @@ function plView(){const o=plOpen(),a=plAns();
   return `<section class="card plnew"><div class="kicker">Only you can see this list</div><h2>What do you want to pray about?</h2>
     <form id="plF" class="plf"><input id="plT" class="search" maxlength="300" placeholder="For example: Mum's health" aria-label="New prayer"><button class="btn primary">Add</button></form>
     ${o.length?`<button class="btn" id="plPray">${I.hand}Pray through my list · ${o.length}</button>`:""}</section>
-  ${o.length?`<div class="pl-list">${o.map(([k,p])=>`<article class="card plc" data-pl="${k}"><p>${esc(p.t)}</p><footer><span class="muted">Added ${fmtD(p.at)}${p.n?` · prayed ${p.n}×`:""}</span><span><button class="btn sm" data-pla="${k}">${I.check}Answered</button><button class="icon-btn sm" data-pld="${k}" aria-label="Remove this prayer">${I.close}</button></span></footer></article>`).join("")}</div>`:`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("lamp")}</span><h2>Start a prayer list</h2><p>Add the people and things you're praying for. When God answers, mark it, and you'll build up a record of his faithfulness to look back on.</p></div>`}
+  ${o.length?`<div class="pl-list">${o.map(([k,p])=>`<article class="card plc" data-pl="${k}"><p>${esc(p.t)}</p><footer><span class="muted">Added ${fmtD(p.at)}${p.n?` · prayed ${p.n}×`:""}</span><span><button class="btn sm ghost pl-day${p.dw!=null?" set":""}" data-pldw="${k}" aria-label="Pray for this on: ${dwLong(p.dw)}. Change">${I_CAL2}<span>${dwShort(p.dw)}</span></button><button class="btn sm" data-pla="${k}">${I.check}Answered</button><button class="icon-btn sm" data-pld="${k}" aria-label="Remove this prayer">${I.close}</button></span></footer></article>`).join("")}</div>`:`<div class="card empty"><span class="empty-art" aria-hidden="true">${fieldEmpty("lamp")}</span><h2>Start a prayer list</h2><p>Add the people and things you're praying for. When God answers, mark it, and you'll build up a record of his faithfulness to look back on.</p></div>`}
   ${a.length?`<section class="pl-ans"><h2>Answered prayers <span class="muted">· ${a.length}</span></h2><ol class="pl-tl">${a.map(([k,p])=>{const d=Math.max(1,Math.round((new Date(p.ans)-new Date(p.at))/864e5));return `<li data-pl="${k}"><span class="pl-dot" aria-hidden="true"></span><div><b>${esc(p.t)}</b>${p.an?`<p>${esc(p.an)}</p>`:""}<small>Answered ${fmtD(p.ans)} · after ${d} day${d===1?"":"s"}</small></div></li>`}).join("")}</ol></section>`:""}`}
 function plWire(){$("#plF")?.addEventListener("submit",e=>{e.preventDefault();const t=$("#plT").value.trim();if(!t)return;const k="p"+Date.now().toString(36);const v={t,at:new Date().toISOString(),u:new Date().toISOString()};state.pl[k]=v;queue({pl:{[k]:v}});render();toast("Added to your prayer list")});
   $("#plPray")?.addEventListener("click",()=>openPrayNow(true));
+  document.querySelectorAll("[data-pldw]").forEach(b=>b.onclick=()=>openPlDay(b.dataset.pldw));
   document.querySelectorAll("[data-pld]").forEach(b=>b.onclick=()=>{const k=b.dataset.pld;state.pl[k]=null;queue({pl:{[k]:null}});render();toast("Removed")});
   document.querySelectorAll("[data-pla]").forEach(b=>b.onclick=()=>{const k=b.dataset.pla,c=b.closest(".plc");c.querySelector("footer").innerHTML=`<form class="plf" data-plaf="${k}"><input class="search" maxlength="300" placeholder="How was it answered? (optional)" aria-label="How was it answered"><button class="btn primary sm">Save</button></form>`;
     c.querySelector("input").focus();c.querySelector("form").onsubmit=e=>{e.preventDefault();const v={...state.pl[k],ans:new Date().toISOString(),an:c.querySelector("input").value.trim(),u:new Date().toISOString()};state.pl[k]=v;queue({pl:{[k]:v}});burst(c,30);buzz([20,40,20]);toast("Praise God! Saved to your answered prayers");setTimeout(render,500)}})}
@@ -4117,7 +4158,7 @@ function markDone(day,btn){
 }
 const after={
   today(){
-    srMigrate();fillDevo();wireTeaser();wireOtd();wireSn();
+    srMigrate();fillDevo();wireTeaser();wireOtd();wireSn();wirePlt();
     document.querySelectorAll("[data-fresh]").forEach(wireFresh);
     const day=curDay();const p=PLAN[day-1];
     if(!GEO)idle(()=>loadGeo().then(()=>view==="today"&&refreshThumbs()));
@@ -6813,10 +6854,11 @@ function rsvpRow(){const wk=rsvpKey(),ids=members(),my=mine().rsvp?.[wk];const b
 /* ================= Pray through the wall, one at a time ================= */
 const PN={i:0,list:[],n:0};
 function openPrayNow(own){const L=[];
-  if(own===true){for(const [k,p] of Object.entries(state.pl||{}))if(p&&p.t&&!p.ans)L.push({id:myKey(),k,...p})}
+  const mineL=own===true||own==="today";
+  if(mineL){for(const [k,p] of Object.entries(state.pl||{}))if(p&&p.t&&!p.ans&&(own!=="today"||(plIsToday(p)&&!plDoneToday(p))))L.push({id:myKey(),k,...p})}
   else for(const id of members())for(const [k,p] of Object.entries(G.people[id].pr||{}))if(p&&p.t&&!p.ans)L.push({id,k,...p});
-  if(!L.length)return toast(own===true?"Your prayer list is empty. Add something first.":"No prayer requests yet. Share one first.");
-  L.sort((a,b)=>String(b.at).localeCompare(String(a.at)));PN.list=L;PN.i=0;PN.n=0;PN.own=own===true;
+  if(!L.length)return toast(own==="today"?"You've prayed for today's prayers. Well done.":own===true?"Your prayer list is empty. Add something first.":"No prayer requests yet. Share one first.");
+  if(mineL)L.sort(plOrder);else L.sort((a,b)=>String(b.at).localeCompare(String(a.at)));PN.list=L;PN.i=0;PN.n=0;PN.own=mineL;
   const art=artSrc(ART.findIndex(a=>/pray|gethsemane|agony/i.test(a[0]))>=0?ART.findIndex(a=>/pray|gethsemane|agony/i.test(a[0])):0);
   $("#layer").insertAdjacentHTML("beforeend",`<div class="qt" id="pn" role="dialog" aria-modal="true" aria-label="Pray through the prayer wall"><div class="qt-bg" style="background-image:url(${art})"></div><div class="qt-shade"></div>
     <header class="qt-top"><div class="qt-steps" id="pnSteps"></div><div class="qt-tools"><button class="mt-btn" id="pnX" aria-label="Close">${I.close}</button></div></header>
@@ -6824,9 +6866,10 @@ function openPrayNow(own){const L=[];
     <footer class="qt-bot pn-bot"><button class="qt-skip" id="pnSkip">Next</button><button class="qt-next" id="pnPray">🙏 I prayed</button></footer></div>`);
   document.documentElement.classList.add("meeting");$("#pn").tabIndex=-1;$("#pn").focus({preventScroll:true});
   $("#pnX").onclick=closePN;$("#pnSkip").onclick=()=>pnGo(false);$("#pnPray").onclick=()=>pnGo(true);
-  let sx=null;const st=$("#pnStage");st.addEventListener("pointerdown",e=>sx=e.clientX);st.addEventListener("pointerup",e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(dx<-60)pnGo(false)});
+  let sx=null;const st=$("#pnStage");st.addEventListener("pointerdown",e=>sx=e.clientX);st.addEventListener("pointerup",e=>{if(sx==null)return;const dx=e.clientX-sx;sx=null;if(!PN.list[PN.i])return;if(dx<-60)pnGo(false);else if(dx>60)pnGo(true)});
+  $("#pn").addEventListener("keydown",e=>{if(!PN.list[PN.i]||e.target.closest("button"))return;if(e.key==="ArrowRight"){e.preventDefault();pnGo(false)}});
   pnPaint()}
-function closePN(){const m=$("#pn");document.documentElement.classList.remove("meeting");if(!m)return;m.remove();if(PN.own&&view==="journal")render();if(view==="group"&&G.sub==="prayer")paintPrayer()}
+function closePN(){const m=$("#pn");document.documentElement.classList.remove("meeting");if(!m)return;m.remove();if(PN.own&&(view==="journal"||view==="today"))render();if(view==="group"&&G.sub==="prayer")paintPrayer()}
 function pnGo(prayed){const p=PN.list[PN.i];if(prayed&&p&&PN.own){const v={...state.pl[p.k],last:new Date().toISOString(),n:(state.pl[p.k]?.n||0)+1,u:new Date().toISOString()};state.pl[p.k]=v;queue({pl:{[p.k]:v}});PN.n++;burst($("#pnPray"),12);buzz(12)}
   else if(prayed&&p){const key=p.id+":"+p.k;if(!mine().praying?.[key]&&!(G.ro&&G.on))gWrite({praying:{[key]:true}},1);PN.n++;burst($("#pnPray"),12);buzz(12)}
   PN.i++;pnPaint(true)}
@@ -6834,7 +6877,7 @@ function pnPaint(anim){const st=$("#pnStage");if(!st)return;const L=PN.list,p=L[
   $("#pnSteps").innerHTML=L.length<=12?L.map((_,j)=>`<i class="${j<PN.i?"done":j===PN.i?"on":""}"></i>`).join(""):`<span class="pn-count">${Math.min(PN.i+1,L.length)} of ${L.length}</span>`;
   if(!p){st.innerHTML=`<div class="qs qs-peace"><div class="qt-glow" aria-hidden="true">${I.logo}</div><div class="qt-k">Amen</div><h2 class="qt-q">You prayed for ${PN.n} ${PN.n===1?"request":"requests"}</h2><p class="qt-sub">“The prayer of a righteous person has great power as it is working.” James 5:16. ${PN.own?"Mark a prayer as answered in your journal when you see God at work.":"Your group can see who's praying for them."}</p></div>`;
     $("#pnSkip").hidden=true;$("#pnPray").textContent="Done";$("#pnPray").onclick=closePN}
-  else if(PN.own){st.innerHTML=`<div class="qs"><div class="qt-k">Your prayer list</div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">On your list for ${ago(p.at).replace(/ ago$/,"")}${p.n?` · prayed ${p.n} ${p.n===1?"time":"times"}`:""}</p></div>`}
+  else if(PN.own){st.innerHTML=`<div class="qs"><div class="qt-k">Your prayer list${p.dw!=null?` · ${esc(dwLong(p.dw))}`:""}</div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">${plSince(p.at)}${p.n?` · prayed ${p.n} ${p.n===1?"time":"times"}`:""}</p></div>`}
   else{const nm=p.anon&&p.id!==myKey()?"Someone in your group":p.id===myKey()?"Your request":pname(p.id);const n=members().filter(id=>G.people[id].praying?.[p.id+":"+p.k]).length;
     st.innerHTML=`<div class="qs"><div class="pn-who">${p.anon&&p.id!==myKey()?`<span class="face anon">?</span>`:face(p.id)}<span>${esc(nm)}</span></div><p class="pn-text">${esc(p.t)}</p><p class="qt-sub">${n?`${n} ${n===1?"person is":"people are"} praying for this`:"Be the first to pray for this"} · shared ${ago(p.at)}</p></div>`}
   if(anim&&!reduced())st.firstElementChild?.animate([{opacity:0,transform:"translateX(30px)"},{opacity:1,transform:"none"}],{duration:500,easing:"cubic-bezier(.16,1,.3,1)"})}
