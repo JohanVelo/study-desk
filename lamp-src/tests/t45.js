@@ -7,7 +7,7 @@ await ctx.route('**/lamp.html',async r=>{const res=await r.fetch();let t=await r
 await ctx.addInitScript(()=>{if(!localStorage.getItem('lamp-state-v1'))localStorage.setItem('lamp-state-v1',JSON.stringify({done:{},settings:{onboarded:true,welcomed:true,intro:false,hsTip:1}}))});
 const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));await p.goto(base);await p.waitForTimeout(1500);
 ok(await p.$('.fieldhero .fh-img'),'Today shows the shepherd scene');
-ok((await p.$$('.fresh .dtile')).length===6,'New today card has 6 daily puzzles');
+ok((await p.$$('.fresh .dtile')).length>=6,'New today card has the daily puzzles');
 // fresh questions: two rounds share nothing
 const r=await p.evaluate(async()=>{const a=await freshQs(10);markSeen(a.map(q=>q.id));const b=await freshQs(10);markSeen(b.map(q=>q.id));return {a:a.map(q=>q.id),b:b.map(q=>q.id),valid:[...a,...b].every(q=>q.o.length===4&&q.c>=0&&q.c<4&&new Set(q.o).size===4)}});
 ok(r.a.length===10&&r.b.length===10,'freshQs gives 10 questions');

@@ -11,6 +11,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Prayer next: categories (family, church, world) like PrayerMate's lists; a gentle reminder time.
 - Second chance for the chapter quiz too (group quick quiz done v44).
 - More bank questions for the books still without a book quiz (Chronicles, Song of Songs, most minor prophets, John's short letters).
+- Where is it? next: a harder mode with the wider maps (Abraham, Exodus, Paul in geo.json); a 'Where is it?' round in the group quick quiz.
 - Sea of Galilee painted scene for the field background.
 - Verse of the week for the group to memorise together.
 - Afrikaans screens (UI text only: Bible text in Afrikaans is BSSA copyright).
@@ -33,3 +34,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v46 (9 Nov): Sermon notes in Journal with a Sunday card on Today and the week's 'one thing to live out' coming back (like YouVersion's and Logos's sermon notes), the journal tab indicator slides (like iOS segmented controls), 16 new checked questions so Nehemiah, Job, Colossians and 1 Peter get book quizzes.
 - v47 (10 Nov): share sermon notes with the group and save a friend's notes to your journal (like YouVersion Events' shared notes and church apps' 'missed Sunday?' catch-up), Settings → Contrast that also follows the phone's Increase Contrast (like iOS), 44 px settings buttons, 12 new checked questions so 2 Thessalonians, Titus and 2 Peter get book quizzes.
 - v48 (11 Nov): prayer days (each prayer for any day, every day or one weekday; Today shows that day's; Pray through my list puts today's first then the longest since prayed, like PrayerMate's daily rotation), swipe right to say I prayed, 12 new checked questions so Leviticus, Jude and Joel get book quizzes.
+- v49 (12 Nov): Where is it?, a daily map puzzle (find five Bible places, scored by km off, like MapTap), finished puzzle tiles pop and the progress bar grows (like Duolingo's daily quests), 40 places checked against the BSB verse that names them.
