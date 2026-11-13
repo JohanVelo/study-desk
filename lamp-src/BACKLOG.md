@@ -8,7 +8,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Next: the gospels' one-line summaries.
 - (Journal → Memorise already has its own 4-step practice and FSRS reviews, so 'Say it by heart for saved verses' is done.)
 - Sermon notes next: a 'questions to look into' list that links to Ask; reactions on shared sermon notes.
-- Prayer next: categories (family, church, world) like PrayerMate's lists; a gentle reminder time.
+- Prayer next: a gentle reminder time (calendar file); share a group's list with a prayer partner.
 - Second chance for the chapter quiz too (group quick quiz done v44).
 - More bank questions for the books still without a book quiz (Chronicles, Song of Songs, most minor prophets, John's short letters).
 - Where is it? next: a harder mode with the wider maps (Abraham, Exodus, Paul in geo.json); a 'Where is it?' round in the group quick quiz.
@@ -35,3 +35,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v47 (10 Nov): share sermon notes with the group and save a friend's notes to your journal (like YouVersion Events' shared notes and church apps' 'missed Sunday?' catch-up), Settings → Contrast that also follows the phone's Increase Contrast (like iOS), 44 px settings buttons, 12 new checked questions so 2 Thessalonians, Titus and 2 Peter get book quizzes.
 - v48 (11 Nov): prayer days (each prayer for any day, every day or one weekday; Today shows that day's; Pray through my list puts today's first then the longest since prayed, like PrayerMate's daily rotation), swipe right to say I prayed, 12 new checked questions so Leviticus, Jude and Joel get book quizzes.
 - v49 (12 Nov): Where is it?, a daily map puzzle (find five Bible places, scored by km off, like MapTap), finished puzzle tiles pop and the progress bar grows (like Duolingo's daily quests), 40 places checked against the BSB verse that names them.
+- v50 (13 Nov): prayer groups (Family, Friends, Church, Work and study, The world, Me; filter and pray through one group, like PrayerMate's categories), filtered prayer cards ease in, 4 UI verse quotes corrected to the BSB (James 5:16 had ESV wording), 14 new checked questions so Deuteronomy, Ezra, Micah, 2 Corinthians, 1 John and 1 Thessalonians get book quizzes.
