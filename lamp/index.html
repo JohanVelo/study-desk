@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261113004020">
+<link rel="stylesheet" href="app.css?v=20261114004146">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261113004020"></script>
+<script src="app.js?v=20261114004146"></script>
 </head>
 <body>
 <style>
@@ -1054,6 +1054,19 @@ html.rfclear .scripture,html.rfclear .devo-s p{font-family:"Atkinson Hyperlegibl
 .scripture .speaking{background:color-mix(in srgb,var(--accent-soft) 80%,transparent);border-radius:6px}
 .scripture.nonum sup{display:none}
 .scripture .ptitle{font-style:italic;color:var(--muted);font-size:.86em;margin:0 0 .8em}
+.yb .yb-top h2{margin:2px 0 4px}.yb .yb-top h2 b{font-variant-numeric:tabular-nums}
+.yb .yb-top p{margin:0 0 6px;font-size:.92rem}
+.yb-sec{margin-top:16px}
+.yb-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:.9rem}.yb-h span{color:var(--muted);font-variant-numeric:tabular-nums}
+.yb-bar{height:6px;border-radius:6px;background:var(--sunk);overflow:hidden;margin:6px 0 10px}.yb-bar i{display:block;height:100%;background:var(--ok);border-radius:inherit}
+.yb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px}
+.yb-b{position:relative;min-height:44px;border-radius:10px;border:1px solid var(--line);background:linear-gradient(to top,color-mix(in srgb,var(--ok) 30%,var(--surface)) var(--p),var(--surface) var(--p));font:600 .74rem/1 var(--f-body);color:var(--muted);display:grid;place-items:center;padding:0;cursor:pointer;overflow:hidden}
+.yb-b.some{color:var(--ink);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.yb-b.full{background:var(--ok);border-color:var(--ok);color:#fff}
+:root[data-theme="dark"] .yb-b.full{color:#0E2417}@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .yb-b.full{color:#0E2417}}
+@media (hover:hover){.yb-b:hover{border-color:var(--ink)}}
+.yb-b:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:no-preference){.rc-pop svg{animation:dtpop .6s var(--expo) both}}
 .rend{max-width:640px;margin:36px auto 0;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
 .rend p{color:var(--muted);font-size:.9rem}
 .skel{display:flex;flex-direction:column;gap:12px}
@@ -3517,6 +3530,25 @@ function paintSm(){const el=$("#gSm");if(!el)return;const L=G.on?smList():[];
     const s2=document.createElement("span");s2.className="gsm-have";s2.innerHTML=`${I.check}<span>In your journal</span>`;b.replaceWith(s2)});
   el.querySelectorAll("details").forEach(d=>d.querySelector("summary").addEventListener("click",()=>buzz(6)))}
 
+/* ===== v51: Your Bible (like Bible-tracker apps): every chapter you've read, path days plus chapters ticked at the end of the reader (state.rc["BOOK.ch"] = {u}, null = unticked) ===== */
+const rcKey=p=>`${p.book}.${p.ch}`;
+const rcHas=p=>!!state.rc?.[rcKey(p)];
+function rcBtn(p){const on=rcHas(p);return `<button class="btn ${on?"done":"ghost"} rc-tick" id="rcTick" aria-pressed="${on}">${I.check}<span>${on?"Read · counts in Your Bible":"I've read this chapter"}</span></button>`}
+function rcToggle(p,btn){const k=rcKey(p),on=!rcHas(p),v=on?{u:new Date().toISOString()}:null;state.rc=state.rc||{};state.rc[k]=v;queue({rc:{[k]:v}});
+  btn.outerHTML=rcBtn(p);const b=$("#rcTick");b.addEventListener("click",e=>rcToggle(p,e.currentTarget));if(on){b.classList.add("rc-pop");buzz([10,30,10]);chime();burst(b,12);const t=bibleTotals();toast(`${refName(p)} counted. ${t.n.toLocaleString("en-GB")} of 1,189 chapters read.`)}else toast("Not counted any more");b.focus({preventScroll:true})}
+function bibleTotals(){const per=BCODES.map(c=>({c,n:bkRead(c).size,of:chCount(c)}));const n=per.reduce((a,x)=>a+Math.min(x.n,x.of),0);
+  const ot=per.slice(0,39),nt=per.slice(39);const sum=a=>a.reduce((t,x)=>t+Math.min(x.n,x.of),0),all=a=>a.reduce((t,x)=>t+x.of,0);
+  return {per,n,ot:sum(ot),otOf:all(ot),nt:sum(nt),ntOf:all(nt),books:per.filter(x=>x.n>=x.of).length}}
+const bAbbr=c=>c.replace(/^(\d?)(.)(.*)$/,(m,a,b,r)=>a+b+r.toLowerCase());
+function bibleCard(){const T=bibleTotals();const pc=x=>Math.round(x.n/x.of*100);
+  const grid=(a,lbl)=>`<div class="yb-sec"><div class="yb-h"><b>${lbl}</b><span>${a===0?T.ot:T.nt} of ${(a===0?T.otOf:T.ntOf).toLocaleString("en-GB")}</span></div><div class="yb-bar"><i style="width:${(a===0?T.ot/T.otOf:T.nt/T.ntOf)*100}%"></i></div>
+    <div class="yb-grid">${T.per.slice(a===0?0:39,a===0?39:66).map(x=>{const p=pc(x);return `<button class="yb-b${x.n>=x.of?" full":x.n?" some":""}" data-ybk="${x.c}" style="--p:${p}%" aria-label="${esc(bookName(x.c))}: ${x.n} of ${plural(x.of,"chapter")} read" title="${esc(bookName(x.c))} · ${x.n} of ${x.of}"><span>${bAbbr(x.c)}</span></button>`}).join("")}</div></div>`;
+  return `<section class="card yb" id="ybCard"><div class="yb-top"><div><div class="kicker">Your Bible</div><h2><b id="ybN">${T.n.toLocaleString("en-GB")}</b> of 1,189 chapters</h2>
+    <p class="muted">Your path counts here, and so does any chapter you tick at the end of the reader.${T.books?` ${plural(T.books,"whole book")} read.`:""}</p></div></div>
+    ${grid(0,"Old Testament")}${grid(1,"New Testament")}</section>`}
+function wireBible(){const c=$("#ybCard");if(!c)return;c.querySelectorAll("[data-ybk]").forEach(b=>b.onclick=()=>openBook(b.dataset.ybk));
+  const n=bibleTotals().n,el=$("#ybN");if(el&&n>1&&!reduced()){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){io.disconnect();countUp(el,n)}});io.observe(c)}}
+
 /* ===== v48: prayer days (like PrayerMate): each private prayer can be for any day, every day, or one weekday (pl[id].dw: 7 = every day, 0–6 = Sun–Sat).
    Today shows that day's prayers until they are prayed; Pray through my list puts today's first, then the longest since prayed ===== */
 const I_CAL2=`<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>`;
@@ -3561,7 +3593,7 @@ addEventListener("resize",()=>requestAnimationFrame(()=>{if(view==="journal")seg
 /* ===== v44: quiz me on this book. Five questions from the bank about one book (not "which book" ones);
    misses go to Second chance; best score per book in lamp-bq ===== */
 const BQ_K="lamp-bq";
-function bkRead(c){const m=new Set();PLAN.forEach((p,i)=>{if(p.book===c&&state.done?.[i+1])m.add(p.ch)});return m}
+function bkRead(c){const m=new Set();PLAN.forEach((p,i)=>{if(p.book===c&&state.done?.[i+1])m.add(p.ch)});for(const [k,v] of Object.entries(state.rc||{}))if(v){const [b,n]=k.split(".");if(b===c)m.add(+n)}return m}
 function bqBest(){try{const o=JSON.parse(localStorage.getItem(BQ_K)||"{}");return o&&typeof o==="object"?o:{}}catch(e){return{}}}
 async function bqPool(c){const F=await loadFun();if(!F)return[];return F.q.map((x,i)=>[x,i]).filter(([x])=>x.ref&&x.ref.split(".")[0]===c&&x.c!=="books").map(([x,i])=>bankQ(x,i))}
 async function bqFill(c){const slot=$("#bqSlot");if(!slot)return;const pool=await bqPool(c);if(!pool.length||pool.length<4||!$("#bqSlot"))return;
@@ -3652,7 +3684,7 @@ const VIEWS=[["today","Today"],["group","Group"],["path","My path"],["learn","Le
 /* ================= State & storage ================= */
 const LS="lamp-state-v1";
 const DEFAULTS={theme:"system",trans:"NLT",rt:"WEB",size:"m",nums:true,rate:1,welcomed:false,onboarded:false,intro:true};
-let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},pl:{},ex:{},sn:{},settings:{...DEFAULTS},selected:null};
+let state={done:{},notes:{},saved:{},hl:{},qt:{},step:{},pl:{},ex:{},sn:{},rc:{},settings:{...DEFAULTS},selected:null};
 let docRef=null,saveTimer=null,pending={},retryT=null,retryN=0;
 const OUTBOX="lamp-outbox-v1";
 try{const o=JSON.parse(localStorage.getItem(OUTBOX)||"null");if(o&&typeof o==="object")pending=o}catch(e){}
@@ -3663,14 +3695,14 @@ let lsWarned=false;
 function lsWrite(){const j=JSON.stringify(state);try{localStorage.setItem(LS,j);return true}catch(e){}
   try{for(const k of Object.keys(localStorage))if(k!==LS&&k!=="lamp-outbox-v1"&&/^(lamp-chat|lamp-ring-|lamp-ex-draft|lamp-qt-draft)/.test(k))localStorage.removeItem(k);localStorage.setItem(LS,j);return true}catch(e){}
   if(!lsWarned){lsWarned=true;setTimeout(()=>toast(docRef?"This phone's storage is full. Your progress is still saved to your account, but free up some space soon.":"This phone's storage is full, so Lamp can't save. Free up some space, then try again.",7000),300)}return false}
-const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},sn:ls0.sn||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
+const ls0=lsRead(); if(ls0) state={...state,...ls0,done:ls0.done||{},notes:ls0.notes||{},saved:ls0.saved||{},hl:ls0.hl||{},qt:ls0.qt||{},step:ls0.step||{},pl:ls0.pl||{},ex:ls0.ex||{},sn:ls0.sn||{},rc:ls0.rc||{},settings:{...DEFAULTS,...(ls0.settings||{})}};
 
 function merge(remote){
   if(!remote) return;
   for(const [k,v] of Object.entries(remote.done||{})){ if(v) state.done[k]=v; else if(v===null) state.done[k]=null; }
   for(const [k,v] of Object.entries(remote.notes||{})){ const mine=state.notes[k]; if(!mine||(v&&(v.at||"")>(mine.at||""))) state.notes[k]=v; }
   for(const [k,v] of Object.entries(remote.saved||{})){ const mine=state.saved[k]; if(!(k in state.saved)||v===null||(v&&mine&&((v.m||0)>(mine.m||0)||(v.lr||"")>(mine.lr||"")))) state.saved[k]=v; }
-  for(const k of ["pl","ex","sn"])for(const [id,v] of Object.entries(remote[k]||{})){const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
+  for(const k of ["pl","ex","sn","rc"])for(const [id,v] of Object.entries(remote[k]||{})){state[k]=state[k]||{};const mine=state[k][id];if(!mine||v===null||(v&&(v.u||v.at||"")>(mine.u||mine.at||"")))state[k][id]=v}
   for(const [k,v] of Object.entries(remote.step||{})){ if(v&&typeof v==="object") state.step[k]={...(state.step[k]||{}),...v}; }
   for(const [k,v] of Object.entries(remote.hl||{})){ if(!(k in state.hl)||!(pending.hl&&k in pending.hl)) state.hl[k]=v; }
   for(const [k,v] of Object.entries(remote.qt||{})){ if(v&&(!state.qt[k]||(v.at||"")>(state.qt[k].at||""))) state.qt[k]=v; }
@@ -3686,7 +3718,7 @@ async function flush(){
   if(!docRef||!Object.keys(pending).length) return;
   const body=pending; pending={};
   try{ await docRef.update(body); retryN=0; }
-  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
+  catch(e){ try{ const snap=await docRef.get(); if(!snap.exists){ await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,rc:state.rc,settings:state.settings}); retryN=0; } else throw e; }catch(e2){ pending=deepMerge(body,pending);
     clearTimeout(retryT); retryT=setTimeout(flush,Math.min(300000,5000*2**Math.min(retryN++,6))); } }
   outboxSave(); syncNote();
 }
@@ -3706,7 +3738,7 @@ async function connect(){
     docRef=db.collection("data/users/"+id).doc("progress");
     const snap=await docRef.get();
     if(snap.exists){ const local=JSON.parse(JSON.stringify(pending)); merge(snap.data()); state=deepMerge(state,local); lsWrite(); if(Object.keys(pending).length)setTimeout(flush,300); }
-    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
+    else{await docRef.set({done:state.done,notes:state.notes,saved:state.saved,hl:state.hl,qt:state.qt,step:state.step,pl:state.pl,ex:state.ex,sn:state.sn,rc:state.rc,settings:state.settings,startedAt:new Date().toISOString()});if(Object.keys(pending).length)setTimeout(flush,300)}
     setSync(true); applyTheme(); render();
   }catch(e){ docRef=null; }
 }
@@ -4361,7 +4393,7 @@ const after={
     document.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{state.selected=+c.dataset.day;lsWrite();setView("today")});
     document.querySelectorAll("[data-spine]").forEach(b=>b.onclick=()=>{const el=document.getElementById("stage-"+b.dataset.spine);if(!el)return;el.open=true;el.scrollIntoView({behavior:reduced()?"auto":"smooth",block:"start"})});
     $("#badgeMore")?.addEventListener("click",e=>{const g=$("#badgeGrid"),on=g.classList.toggle("all");e.currentTarget.setAttribute("aria-expanded",on);e.currentTarget.textContent=on?"Show fewer badges":`Show all ${BADGES.length} badges`});
-    $("#storyGo")?.addEventListener("click",openStory);wireMonth(false);
+    $("#storyGo")?.addEventListener("click",openStory);wireMonth(false);wireBible();
     if(!reduced()){const r=$(".jr-ring .jr-p");if(r){const L=+r.dataset.len;r.animate([{strokeDashoffset:L},{strokeDashoffset:r.style.strokeDashoffset}],{duration:1100,easing:"cubic-bezier(.16,1,.3,1)"})}
       document.querySelectorAll(".spine i").forEach((x,j)=>x.animate([{transform:"scaleY(0)"},{transform:"scaleY(1)"}],{duration:700,delay:200+j*60,easing:"cubic-bezier(.16,1,.3,1)",fill:"backwards"}))}},
   learn(){
@@ -4441,6 +4473,7 @@ function vPath(){
     <div class="card stat"><b>${plAns().length}</b><span>Answered prayers</span></div>
   </div>
   ${monthCard()}
+  ${bibleCard()}
   <div class="sec-h"><h2>Stages</h2><div class="legend"><span><i class="d"></i>Read</span><span><i class="c"></i>Up next</span><span><i></i>Not yet</span></div></div>
   ${STAGES.map((s,si)=>{
     const days=PLAN.filter(p=>p.stage===si);const d=days.filter(p=>isDone(p.day)).length;const open=days.some(p=>p.day===cur)||(si===0&&!PLAN.some(p=>p.day===cur));
@@ -4866,12 +4899,14 @@ function renderEnd(){
   $("#rEnd").innerHTML=`<p>End of ${esc(refName(p))}</p>
     ${R.day?`<button class="btn ${done?"done":"primary"}" id="rDone">${I.check}${done?"Marked as read":"Mark as read"}</button>
     <button class="btn ghost" id="rReflect">Reflect on it</button>`:""}
+    ${!R.day?rcBtn(p):""}
     <div class="rnav">${pr?`<button id="rPrev"><small>Previous</small><b>${esc(refName(pr))}</b></button>`:"<span></span>"}${nx?`<button id="rNext"><small>Next</small><b>${esc(refName(nx))}</b></button>`:"<span></span>"}</div>
     <div class="who" id="rWho" hidden></div>`;
   if(R.day){
     $("#rDone").onclick=e=>{if(isDone(R.day)){toast("Already marked as read. Untick it on Today if you need to.");return}markDone(R.day,e.currentTarget);renderEnd()};
     $("#rReflect").onclick=()=>{const d=R.day;closeReader();state.selected=d===nextDay()||d===todayDone()?null:d;stepDay=d;stepOpen=1;setView("today");requestAnimationFrame(()=>{$('[data-tsi="1"]')?.scrollIntoView({block:"center"});$("#q1")?.focus({preventScroll:true,focusVisible:false})})};
   }
+  $("#rcTick")?.addEventListener("click",e=>rcToggle(p,e.currentTarget));
   $("#rPrev")?.addEventListener("click",()=>{openPassage(pr,false,0,{stack:R.stack});$("#rScroll").scrollTop=0});
   $("#rNext")?.addEventListener("click",()=>{openPassage(nx,false,0,{stack:R.stack});$("#rScroll").scrollTop=0});
   loadWho().then(W=>{
