@@ -17,6 +17,8 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Afrikaans screens (UI text only: Bible text in Afrikaans is BSSA copyright).
 - Audio: gentle background music for quiet time (public-domain recordings only).
 - Year in review (December): build on Month in review.
+- Words of Jesus in red (researched 15 Nov): WEB (eng-web.usfx.xml `<wj>`, 2,263 spans) and KJV (eng-kjv.osis.xml `who="Jesus"`) in github.com/seven1m/open-bibles (raw.githubusercontent works; ebible.org is blocked here). The BSB file has no markup, and Lamp's WEB covers only path chapters (Matthew falls back to BSB), so red letters would show in some chapters and not others. Needs a plan before building.
+- Learn the books next: a 'Books of the Bible' round in the group quick quiz; sync the learnt rounds.
 
 ## Shipped
 - v34 (28 Oct): grace days, right answers in every quiz.
@@ -37,3 +39,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v49 (12 Nov): Where is it?, a daily map puzzle (find five Bible places, scored by km off, like MapTap), finished puzzle tiles pop and the progress bar grows (like Duolingo's daily quests), 40 places checked against the BSB verse that names them.
 - v50 (13 Nov): prayer groups (Family, Friends, Church, Work and study, The world, Me; filter and pray through one group, like PrayerMate's categories), filtered prayer cards ease in, 4 UI verse quotes corrected to the BSB (James 5:16 had ESV wording), 14 new checked questions so Deuteronomy, Ezra, Micah, 2 Corinthians, 1 John and 1 Thessalonians get book quizzes.
 - v51 (14 Nov): Your Bible (every chapter you've read across all 66 books, path plus a tick at the end of any chapter in the reader, like Bible-tracker apps), the tick pops, library chapter counts and all Read by topic references checked against the BSB.
+- v52 (15 Nov): Learn the 66 books (8 short rounds plus All 66: look at the list, then put the books back in order, like Bible-books drill apps and Duolingo's short units), Learn tabs slide in from the side you tapped (like iOS), 13 new checked questions so Malachi, Amos, Hosea and 1 Timothy get book quizzes; the gospels' and Acts' one-line summaries checked against their verses.

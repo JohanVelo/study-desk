@@ -2471,6 +2471,53 @@ html.plainbg .fieldbg{display:none}
 html:not(.plainbg) .rail{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1px 12px color-mix(in srgb,var(--bg) 80%,transparent)}
 @media (prefers-reduced-transparency:reduce){.fieldbg::after{background:color-mix(in srgb,var(--bg) 82%,transparent)}}
+
+/* v52 Learn the 66 books */
+.b66c{border:1px solid var(--line);border-radius:20px;padding:16px;margin:0 0 18px;background:color-mix(in srgb,var(--gold) 7%,var(--surface))}
+.b66c-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.b66c-h h3{font-family:var(--f-display);font-size:1.4rem;margin:2px 0 0;line-height:1.2}
+.b66c-n{text-align:right;flex:none}.b66c-n b{display:block;font-family:var(--f-display);font-variant-numeric:lining-nums tabular-nums;font-size:2rem;line-height:1}.b66c-n span{font-size:.78rem;color:var(--muted)}
+.b66c-p{margin:8px 0 12px;color:var(--muted);line-height:1.5}
+.b66c-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:8px}
+@media (max-width:720px){.b66c-g{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.b66r{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:56px;padding:8px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;transition:border-color .2s,background .2s}
+.b66r-t{display:flex;flex-direction:column;min-width:0}.b66r-t b{font-size:.95rem;line-height:1.25}.b66r-t small{font-size:.78rem;color:var(--muted);margin-top:2px}
+.b66r.ok{border-color:color-mix(in srgb,var(--ok) 55%,var(--line));background:color-mix(in srgb,var(--ok) 9%,var(--surface))}
+.b66r-ok{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ok);color:#fff;flex:none}.b66r-ok svg{width:14px;height:14px}
+:root[data-theme="dark"] .b66r-ok{color:#0E2417}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .b66r-ok{color:#0E2417}}
+.b66r.all{width:100%}.b66r.all>svg{width:16px;height:16px;color:var(--muted);flex:none}
+@media (hover:hover){.b66r:hover{border-color:var(--accent)}}
+.b66r:active{scale:.98}
+.b66-d{margin:4px 0 14px;line-height:1.5;color:var(--muted)}
+.b66-l{list-style:none;padding:0;margin:0 0 16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.b66-l li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--bg);border:1px solid var(--line);font-weight:600}
+.b66-l li span{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:color-mix(in srgb,var(--gold) 22%,var(--bg));font-size:.8rem;flex:none}
+@media (prefers-reduced-motion:no-preference){.b66-l li{animation:b66In .35s var(--ease) both;animation-delay:calc(var(--i)*45ms)}}
+@keyframes b66In{from{opacity:0;transform:translateY(6px)}}
+.b66-bar{margin:4px 0 12px}.b66-bar i{background:var(--ok);transition:width .35s var(--ease)}
+.b66-t{list-style:none;padding:0;margin:0 0 14px;display:flex;flex-wrap:wrap;gap:6px}
+.b66p{padding:5px 10px;border-radius:99px;font-size:.82rem;font-weight:600;background:color-mix(in srgb,var(--ok) 13%,var(--bg));border:1px solid color-mix(in srgb,var(--ok) 40%,var(--line));min-height:28px;display:flex;align-items:center}
+.b66p.miss{background:color-mix(in srgb,var(--gold) 20%,var(--bg));border-color:var(--gold)}
+.b66p.now{border:1.5px dashed var(--accent);background:var(--bg);color:var(--accent);min-width:44px;justify-content:center}
+.b66p.fut{background:var(--bg);border-color:color-mix(in srgb,var(--muted) 45%,var(--line));min-width:28px}
+.b66p.more{background:none;border-color:transparent;color:var(--muted);font-weight:500}
+@media (prefers-reduced-motion:no-preference){.b66p.now{animation:b66Pulse 1.6s ease-in-out infinite}.b66p.got{animation:gpop .4s var(--spring)}}
+@keyframes b66Pulse{50%{border-color:color-mix(in srgb,var(--accent) 35%,transparent)}}
+.b66-q{font-family:var(--f-display);font-size:clamp(1.3rem,4vw,1.6rem);line-height:1.25;margin:0 0 12px;text-wrap:balance}
+.qopts.b66-o{grid-template-columns:1fr 1fr}
+.b66-o .qo{padding-left:14px;min-height:56px;display:flex;align-items:center;gap:10px}
+.b66-o kbd{display:none;font:600 .72rem/1 var(--f-body,inherit);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:3px 6px}
+@media (hover:hover) and (pointer:fine){.b66-o kbd{display:inline-block}}
+.b66-o .qo.wrong{animation:shake .35s}
+.b66-s{min-height:1.5em;margin:12px 0 0;font-weight:600}
+.b66-st{display:flex;gap:12px;margin:4px 0 12px}.b66-st>div{flex:1;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--bg)}
+.b66-st b{display:block;font-family:var(--f-display);font-variant-numeric:lining-nums;font-size:1.6rem;line-height:1.1}.b66-st span{font-size:.8rem;color:var(--muted)}
+.b66-t.end{margin-bottom:16px}
+/* v52 feel: Learn tabs slide in from the side you tapped */
+@keyframes linR{from{opacity:0;transform:translateX(28px)}}
+@keyframes linL{from{opacity:0;transform:translateX(-28px)}}
+.lsec.lin-r{animation:linR .28s var(--ease) both}.lsec.lin-l{animation:linL .28s var(--ease) both}
 </style>
 
 <div class="intro" id="intro" aria-label="Lamp is starting" role="presentation">
@@ -3590,6 +3637,63 @@ async function openBookQuiz(c){const pool=await bqPool(c);if(pool.length<4)retur
     box.querySelector("[data-qo]")?.focus({preventScroll:true})};
   draw()}
 
+/* ===== v52: Learn the 66 books (look at a short list, then put the books back in order; like Bible-books drill apps and Duolingo's short units) ===== */
+const B66=[["law","Law",0,5,"Genesis to Deuteronomy. Also called the Torah."],["hist","History",5,12,"Joshua to Esther. Israel in the land, its kings, the exile and the return."],["poet","Poetry & wisdom",17,5,"Job to Song of Songs. Prayers, songs and wise living."],["major","Major prophets",22,5,"Isaiah to Daniel. ‘Major’ means longer, not more important."],["minor","Minor prophets",27,12,"Hosea to Malachi. Twelve shorter prophets."],["gosp","Gospels & Acts",39,5,"Four accounts of Jesus, then the story of the early church."],["paul","Paul’s letters",44,13,"Romans to Philemon. Each one opens with Paul’s name."],["gen","Hebrews to Revelation",57,9,"Eight more letters, then Revelation. Hebrews doesn’t name its writer."]],B66_K="lamp-b66";
+function b66St(){try{return JSON.parse(localStorage.getItem(B66_K)||"{}")||{}}catch(e){return{}}}
+function b66Save(o){try{localStorage.setItem(B66_K,JSON.stringify(o))}catch(e){}}
+function b66Time(ms){const t=Math.max(1,Math.round(ms/1000));return t<60?`${t} s`:`${Math.floor(t/60)} min ${t%60} s`}
+function b66Round(k){if(k==="all")return["all","All 66 books",0,66,"The whole Bible, Genesis to Revelation."];return B66.find(r=>r[0]===k)}
+function b66Card(){const st=b66St(),n=B66.filter(r=>st[r[0]]?.ok).length,a=st.all;
+  return `<div class="b66c" id="b66c"><div class="b66c-h"><div><div class="kicker">Learn the books</div><h3>Know all 66 in order</h3></div><div class="b66c-n" aria-label="${n} of 8 rounds learnt"><b>${n}</b><span>of 8 learnt</span></div></div>
+    <p class="b66c-p">Eight short rounds. Look at the list, then put the books back in order from memory.</p>
+    <div class="b66c-g">${B66.map(r=>{const x=st[r[0]];return `<button class="b66r${x?.ok?" ok":""}" data-b66="${r[0]}"><span class="b66r-t"><b>${esc(r[1])}</b><small>${r[3]} books${x?.b?` · best ${b66Time(x.b)}`:""}</small></span>${x?.ok?`<i class="b66r-ok" aria-label="learnt">${I.check}</i>`:""}</button>`}).join("")}</div>
+    <button class="b66r all${a?.ok?" ok":""}" data-b66="all"><span class="b66r-t"><b>All 66 books</b><small>${a?.b?`Best ${b66Time(a.b)} with none missed`:n===8?"You've learnt every round. Try them all at once.":"The full challenge, Genesis to Revelation"}</small></span>${I.right}</button></div>`}
+function b66Paint(){const el=$("#b66c");if(el)el.outerHTML=b66Card()}
+function b66Opts(r,pos){const from=r[2],n=r[3],right=from+pos,o=new Set([right]);
+  const later=[];for(let g=right+1;g<from+n&&later.length<6;g++)later.push(g);
+  for(const g of shuffle(later)){if(o.size>=4)break;o.add(g)}
+  for(let d=1;o.size<4&&d<66;d++){for(const g of [right+d,right-d]){if(o.size>=4)break;if(g>=0&&g<66&&(g>right||g<from))o.add(g)}}
+  for(let d=1;o.size<4;d++)o.add(right-d);
+  return shuffle([...o])}
+function openB66(k){const r=b66Round(k);if(!r)return;
+  openSheet(`<div class="fun b66" id="b66"></div>`,"Learn the books: "+r[1]);$("#scrim").classList.add("fun-scrim");const box=$("#b66");
+  const idx=[...Array(r[3]).keys()].map(i=>r[2]+i),big=r[3]>13;let pos=0,miss=new Set(),t0=0,lock=false;
+  const pill=(g,c)=>`<li class="b66p${c?" "+c:""}">${esc(LIB[g][0])}</li>`;
+  const look=()=>{box.innerHTML=funHead(r[1],big?"66 books":`Look first · ${r[3]} books`)+`<p class="b66-d">${esc(r[4])}</p>
+      ${big?`<p class="b66-d">Go through each group in turn. Take your time: the clock starts with the first book.</p>`:`<ol class="b66-l">${idx.map((g,i)=>`<li style="--i:${i}"><span>${i+1}</span>${esc(LIB[g][0])}</li>`).join("")}</ol>`}
+      <div class="actions"><button class="btn primary" id="b66Go">${big?"Start":"I've got it. Start"}</button></div>`;
+    $("#b66Go").onclick=()=>{pos=0;miss=new Set();t0=performance.now();ask()};$("#b66Go").focus({preventScroll:true})};
+  const trail=()=>{const done=idx.slice(0,pos),show=big?done.slice(-4):done;
+    return `<ol class="b66-t" aria-hidden="true">${big&&pos>4?`<li class="b66p more">${pos-4} before</li>`:""}${show.map(g=>pill(g,miss.has(g)?"miss":"")).join("")}<li class="b66p now">?</li>${big?"":idx.slice(pos+1).map(()=>`<li class="b66p fut"></li>`).join("")}</ol>`};
+  const live=()=>box.isConnected&&!!document.getElementById("b66");
+  const ask=()=>{if(!live())return;if(pos>=r[3])return end();lock=false;const g=idx[pos],o=b66Opts(r,pos),before=pos?LIB[idx[pos-1]][0]:null;
+    box.innerHTML=funHead(r[1],`Book ${pos+1} of ${r[3]}`)+`<div class="qbar b66-bar" aria-hidden="true"><i style="width:${(pos/r[3]*100).toFixed(1)}%"></i></div>${trail()}
+      <h3 class="b66-q">${before?`Which book comes after ${esc(before)}?`:r[2]===0?"Which book comes first in the Bible?":`Which book starts this group?`}</h3>
+      <div class="qopts tall b66-o">${o.map((x,i)=>`<button class="qo" data-b6="${x}"><kbd aria-hidden="true">${i+1}</kbd>${esc(LIB[x][0])}</button>`).join("")}</div><p class="b66-s" role="status" aria-live="polite"></p>`;
+    box.querySelectorAll("[data-b6]").forEach(b=>b.onclick=()=>pick(+b.dataset.b6,b,g));
+    box.querySelector("[data-b6]")?.focus({preventScroll:true})};
+  const pick=(x,b,g)=>{if(lock)return;lock=true;if(!t0)t0=performance.now();const ok=x===g,st=box.querySelector(".b66-s");
+    box.querySelectorAll("[data-b6]").forEach(y=>{y.disabled=true;if(+y.dataset.b6===g)y.classList.add("right")});
+    if(ok){buzz(8);if(st)st.textContent=`Right: ${LIB[g][0]}.`;const now=box.querySelector(".b66p.now");if(now){now.textContent=LIB[g][0];now.classList.remove("now");now.classList.add("got")}}
+    else{b.classList.add("wrong");miss.add(g);buzz([30,40,30]);if(st)st.textContent=`Not quite. After ${pos?LIB[idx[pos-1]][0]:"the start"} comes ${LIB[g][0]}.`;const now=box.querySelector(".b66p.now");if(now){now.textContent=LIB[g][0];now.classList.remove("now");now.classList.add("got","miss")}}
+    pos++;setTimeout(ask,ok?(reduced()?150:420):1900)};
+  const end=()=>{const ms=t0?performance.now()-t0:0,m=miss.size,S=b66St(),old=S[k]||{};const clean=!m,nb=clean&&(!old.b||ms<old.b);
+    if(clean)S[k]={b:nb?Math.round(ms):old.b,ok:1};else if(!S[k])S[k]={ok:0};b66Save(S);
+    const ri=B66.findIndex(x=>x[0]===k),next=ri>=0?B66.slice(ri+1).concat(B66.slice(0,ri)).find(x=>!S[x[0]]?.ok):null,allDone=B66.every(x=>S[x[0]]?.ok);
+    box.innerHTML=funHead(r[1],clean?"All in order":`${r[3]-m} of ${r[3]} first time`)+`<div class="b66-st"><div><b>${b66Time(ms||1000)}</b><span>${nb&&old.b?"a new best":"time"}</span></div><div><b>${m}</b><span>missed</span></div></div>
+      <p class="b66-d">${clean?(k==="all"?"Genesis to Revelation, every one in place.":`You know the ${esc(r[1].toLowerCase())} in order.`):`Go again to learn the ${m===1?"one":"ones"} in amber. A round counts as learnt when none are missed.`}</p>
+      ${big?"":`<ol class="b66-t end">${idx.map(g=>pill(g,miss.has(g)?"miss":"got")).join("")}</ol>`}${big&&m?`<ol class="b66-t end">${[...miss].map(g=>pill(g,"miss")).join("")}</ol>`:""}
+      <div class="actions"><button class="btn" id="b66Again">${clean?"Play again":"Try again"}</button>${clean&&next&&k!=="all"?`<button class="btn primary" id="b66Next" data-k="${next[0]}">Next: ${esc(next[1])}</button>`:clean&&allDone&&k!=="all"&&!S.all?.ok?`<button class="btn primary" id="b66Next" data-k="all">Try all 66</button>`:`<button class="btn primary" id="b66Done">Done</button>`}</div>`;
+    if(clean){if(!reduced())burst(box.querySelector(".fun-hd h2"),18);chime?.(1)}
+    funStreakTick?.();b66Paint();
+    $("#b66Again").onclick=()=>{pos=0;miss=new Set();t0=performance.now();clean?ask():look()};
+    const nx=$("#b66Next");if(nx)nx.onclick=()=>openB66(nx.dataset.k);
+    const dn=$("#b66Done");if(dn)dn.onclick=()=>$("#scrim")?.remove();
+    (nx||dn)?.focus({preventScroll:true})};
+  box.addEventListener("keydown",e=>{if(!/^[1-4]$/.test(e.key)||lock)return;const b=box.querySelectorAll("[data-b6]")[+e.key-1];if(b){e.preventDefault();b.click()}});
+  look()}
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-b66]");if(!b)return;buzz?.(8);openB66(b.dataset.b66)});
+
 /* ===== v45: compare a verse in every translation Lamp has (like YouVersion's Compare) ===== */
 const CMP_FAST=["BSB","WEB","KJV","BBE"],CMP_BIG=["NHEB","ASV","YLT"];
 const I_COPY=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>`,I_DL=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>`;
@@ -3702,7 +3806,7 @@ const resync=()=>docRef?flush():connect();
 addEventListener("online",resync);addEventListener("lamp-online",()=>{connect.g=0;connect()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resync()});
 /* anything that must not be cut off by a silent update */
-window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt,#sn,.wh");
+window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt,#sn,.wh,#b66");
 async function connect(){
   if(!window.claude?.use) return;
   try{
@@ -4588,9 +4692,10 @@ function openHymn(){const h=hymnNow();const [t,by,words,story,refs]=h;
 
 const LTABS=[["fresh","New today"],["topics","Read by topic"],["diagrams","Maps & plans"],["art","Art"],["story","Big story"],["map","The land"],["library","Library"],["words","Who's who"],["how","How to read"]];
 let ltab=(()=>{try{const t=localStorage.getItem("lamp-ltab");return LTABS.some(x=>x[0]===t)?t:"fresh"}catch(e){return "fresh"}})();
-function setLtab(t){ltab=t;try{localStorage.setItem("lamp-ltab",t)}catch(e){}
+function setLtab(t){const was=LTABS.findIndex(x=>x[0]===ltab),now=LTABS.findIndex(x=>x[0]===t);ltab=t;try{localStorage.setItem("lamp-ltab",t)}catch(e){}
   document.querySelectorAll(".ltabs [data-t]").forEach(b=>b.setAttribute("aria-selected",b.dataset.t===t));
-  document.querySelectorAll(".lsec").forEach(x=>x.hidden=x.id!==t);
+  document.querySelectorAll(".lsec").forEach(x=>{x.hidden=x.id!==t;x.classList.remove("lin-r","lin-l")});
+  if(was!==now&&!reduced()){const p=document.getElementById(t);if(p){void p.offsetWidth;p.classList.add(now>was?"lin-r":"lin-l");p.addEventListener("animationend",()=>p.classList.remove("lin-r","lin-l"),{once:true})}}
   const b=document.querySelector(`.ltabs [data-t="${t}"]`);b?.scrollIntoView?.({block:"nearest",inline:"center"})}
 function vLearn(){
   if(learnJump){ltab=learnJump;learnJump=null}
@@ -4631,6 +4736,7 @@ function vLearn(){
   <section ${H("library")}>
     <h2 style="font-size:1.85rem">It's a library, not one book</h2>
     <p class="lede" style="margin:6px 0 14px">66 books written over many centuries by many writers, in Hebrew, Aramaic and Greek. Knowing what kind of writing you're in changes how you read it.</p>
+    ${b66Card()}
     <div class="shelf">${libShelves()}</div>
   </section>
   <section ${H("words")}>
