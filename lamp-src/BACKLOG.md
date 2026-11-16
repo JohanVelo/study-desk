@@ -18,6 +18,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - Audio: gentle background music for quiet time (public-domain recordings only).
 - Year in review (December): build on Month in review.
 - Words of Jesus in red (researched 15 Nov): WEB (eng-web.usfx.xml `<wj>`, 2,263 spans) and KJV (eng-kjv.osis.xml `who="Jesus"`) in github.com/seven1m/open-bibles (raw.githubusercontent works; ebible.org is blocked here). The BSB file has no markup, and Lamp's WEB covers only path chapters (Matthew falls back to BSB), so red letters would show in some chapters and not others. Needs a plan before building.
+- Cheers next: a cheer for the group's prayer partners; a weekly 'who cheered you' line in Month in review.
 - Learn the books next: a 'Books of the Bible' round in the group quick quiz; sync the learnt rounds.
 
 ## Shipped
@@ -40,3 +41,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v50 (13 Nov): prayer groups (Family, Friends, Church, Work and study, The world, Me; filter and pray through one group, like PrayerMate's categories), filtered prayer cards ease in, 4 UI verse quotes corrected to the BSB (James 5:16 had ESV wording), 14 new checked questions so Deuteronomy, Ezra, Micah, 2 Corinthians, 1 John and 1 Thessalonians get book quizzes.
 - v51 (14 Nov): Your Bible (every chapter you've read across all 66 books, path plus a tick at the end of any chapter in the reader, like Bible-tracker apps), the tick pops, library chapter counts and all Read by topic references checked against the BSB.
 - v52 (15 Nov): Learn the 66 books (8 short rounds plus All 66: look at the list, then put the books back in order, like Bible-books drill apps and Duolingo's short units), Learn tabs slide in from the side you tapped (like iOS), 13 new checked questions so Malachi, Amos, Hosea and 1 Timothy get book quizzes; the gospels' and Acts' one-line summaries checked against their verses.
+- v53 (16 Nov): cheer someone on from the reading ring (6 set cheers with a verse, seen on their Today for 3 days, like Duolingo's high fives and Strava's kudos), the week's reading dots pop in, 10 Who am I people checked clue by clue (Martha reworded to John 11:1).

@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261115005107">
+<link rel="stylesheet" href="app.css?v=20261116004525">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261115005107"></script>
+<script src="app.js?v=20261116004525"></script>
 </head>
 <body>
 <style>
@@ -2540,6 +2540,42 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 @keyframes linR{from{opacity:0;transform:translateX(28px)}}
 @keyframes linL{from{opacity:0;transform:translateX(-28px)}}
 .lsec.lin-r{animation:linR .28s var(--ease) both}.lsec.lin-l{animation:linL .28s var(--ease) both}
+
+/* v53 cheers */
+.rg-list.cz{gap:0}.rg-list.cz li{min-height:44px}.cz-sp{margin-left:auto;flex:none;width:44px}
+.cz-b{margin-left:auto;flex:none;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:transparent;color:var(--muted);cursor:pointer;transition:color .2s,background .2s}
+.cz-b.on{color:#B03A55;background:color-mix(in srgb,#B03A55 10%,transparent)}
+.cz-b.on svg path:first-child{fill:currentColor}
+:root[data-theme="dark"] .cz-b.on{color:#F28BA3}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .cz-b.on{color:#F28BA3}}
+@media (hover:hover){.cz-b:hover{color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent)}}
+.cz-b:active{scale:.9}
+@media (prefers-reduced-motion:no-preference){.cz-b.cz-pop{animation:gpop .45s var(--spring)}}
+.czcard{background:linear-gradient(160deg,color-mix(in srgb,#B03A55 9%,var(--surface)),var(--surface) 75%);transition:opacity .3s,scale .3s}
+@media (prefers-reduced-motion:no-preference){.czcard.cz-in{animation:czIn .5s var(--spring) both}}
+@keyframes czIn{from{opacity:0;transform:translateY(10px) scale(.98)}}
+.cz-l{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:12px}
+.cz-l li{display:flex;align-items:flex-start;gap:10px}
+.cz-l .face{margin-top:2px;flex:none}
+.cz-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.cz-t b{font-size:1rem}
+.cz-t q{font-family:var(--f-display);font-size:1.02rem;line-height:1.4;quotes:"\201C" "\201D"}
+.cz-t small{color:var(--muted);font-size:.8rem}
+.cz-back{flex:none;min-height:44px;padding:0 14px;align-self:center}
+@media (max-width:480px){.cz-l li{flex-wrap:wrap}.cz-t{flex:1 1 calc(100% - 40px)}.cz-back{margin-left:34px}}
+.cz-h{display:flex;align-items:center;gap:10px;margin:4px 0 6px}
+.cz-p0{margin:0 0 14px;line-height:1.5}
+.cz-o{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:560px){.cz-o{grid-template-columns:1fr}}
+.cz-p{display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left;padding:12px 14px;min-height:56px;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .2s,background .2s}
+.cz-p b{font-size:1rem}.cz-p span{font-family:var(--f-display);font-size:.98rem;line-height:1.35}.cz-p small{color:var(--muted);font-size:.78rem}
+.cz-p.on{border-color:#B03A55;background:color-mix(in srgb,#B03A55 8%,var(--surface))}
+@media (hover:hover){.cz-p:hover{border-color:var(--accent)}}
+.cz-p:active{scale:.98}
+.cz-src{margin-top:14px}
+/* v53 feel: the week's reading dots pop in one day after another when the group opens */
+@media (prefers-reduced-motion:no-preference){.gring.rg-in .rg-dots i.on{animation:rgPop .4s var(--spring) both;animation-delay:calc(180ms + var(--j)*55ms)}}
+@keyframes rgPop{from{transform:scale(.2);opacity:0}}
 #explain,#quizBtn,#askAbout,#vAsk,[data-askv],#iceGen,.tmake,#explainOut,#quizOut,.deeper{display:none!important}
 .gnote .btn{margin-left:auto;flex:none}
 .gcode{display:flex;align-items:center;gap:12px;margin:4px 0 6px}.gcode b{font-family:var(--f-mono,monospace);font-size:1.35rem;letter-spacing:.14em;padding:6px 14px;border-radius:12px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink)}
@@ -3626,6 +3662,29 @@ function wirePlt(){const c=$("#pltCard");if(!c)return;
   $("#pltGo").onclick=()=>openPrayNow("today");
   $("#pltX").onclick=()=>{try{localStorage.setItem("lamp-plt-x-"+hereDay(),"1")}catch(e){}toast("Hidden until tomorrow");if(reduced())return c.remove();c.classList.add("otd-out");setTimeout(()=>c.remove(),320)}}
 
+/* ===== v53: cheer someone on (like Duolingo's high fives and Strava's kudos): set words with a verse, seen on their Today for 3 days ===== */
+const CZ=[["Keep going!","Let us not grow weary in well-doing, for in due time we will reap a harvest if we do not give up.","Galatians 6:9"],["Praying for you today","We always thank God for all of you, remembering you in our prayers…","1 Thessalonians 1:2"],["Glad you’re in our group","I thank my God every time I remember you.","Philippians 1:3"],["Well done this week","Therefore encourage and build one another up, just as you are already doing.","1 Thessalonians 5:11"],["Missing you. Come and read with us","Let us not neglect meeting together… but let us encourage one another…","Hebrews 10:25"],["The LORD bless you","May the LORD bless you and keep you…","Numbers 6:24"]],CZ_DAYS=3,CZ_X="lamp-cz-x";
+const I_CZ=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/><path d="M19.5 2.5v3M18 4h3"/></svg>`;
+const czFirst=id=>(pname(id)||"Someone").split(" ")[0];
+function czSentToday(id){const c=mine().cz?.[id];return !!(c&&c.at&&hereDay(new Date(c.at))===hereDay())}
+function czXs(){try{return JSON.parse(localStorage.getItem(CZ_X)||"{}")||{}}catch(e){return{}}}
+function czIn(){if(!G.on)return[];const me=myKey(),x=czXs();return members().filter(id=>id!==me).map(id=>[id,G.people[id]?.cz?.[me]]).filter(([id,c])=>c&&CZ[c.k]&&c.at&&Date.now()-Date.parse(c.at)<CZ_DAYS*864e5&&Date.parse(c.at)<=Date.now()+6e4&&x[id]!==c.at).sort((a,b)=>Date.parse(b[1].at)-Date.parse(a[1].at))}
+function czToday(){const L=czIn();if(!L.length)return `<div id="czSlot"></div>`;const n=L.length;
+  return `<div id="czSlot"><section class="card czcard" id="czCard" aria-labelledby="czH"><div class="otd-h"><div><div class="kicker">From your group</div><h2 id="czH">${n===1?`${esc(czFirst(L[0][0]))} cheered you on`:`${n} people cheered you on`}</h2></div><button class="icon-btn otd-x" id="czX" aria-label="Hide ${n===1?"this cheer":"these cheers"}">${I.close}</button></div>
+    <ul class="cz-l">${L.slice(0,3).map(([id,c])=>`<li>${face(id,"sm")}<div class="cz-t"><b>${esc(CZ[c.k][0])}</b><q>${esc(CZ[c.k][1])}</q><small>${esc(CZ[c.k][2])} · from ${esc(pname(id))}</small></div>${G.ro?"":`<button class="btn cz-back" data-czto="${esc(id)}">${czSentToday(id)?"Cheered":"Cheer back"}</button>`}</li>`).join("")}</ul>${n>3?`<p class="muted plt-more">And ${plural(n-3,"more")}.</p>`:""}</section></div>`}
+function wireCz(){const c=$("#czCard");if(!c)return;$("#czX").onclick=()=>{const x=czXs();czIn().forEach(([id,z])=>x[id]=z.at);try{localStorage.setItem(CZ_X,JSON.stringify(x))}catch(e){}
+  toast("Hidden. New cheers will still show here.");if(reduced())return c.remove();c.classList.add("otd-out");setTimeout(()=>c.remove(),320)}}
+function paintCz(){const s=$("#czSlot");if(!s)return;const was=!!$("#czCard");s.outerHTML=czToday();wireCz();const c=$("#czCard");if(c&&!was&&!reduced())c.classList.add("cz-in")}
+function openCheer(id){if(!G.on||G.ro||!G.people[id]||id===myKey())return;const nm=pname(id),f=czFirst(id),cur=mine().cz?.[id];
+  openSheet(`<div class="cz" id="cz"><div class="kicker">Cheer on</div><h2 class="cz-h">${face(id)}<span>${esc(nm)}</span></h2><p class="muted cz-p0">Pick one. ${esc(f)} will see it on their Today page for three days.${czSentToday(id)?` You cheered ${esc(f)} today: this one will replace it.`:""}</p>
+    <div class="cz-o">${CZ.map((c,k)=>`<button class="cz-p${cur&&cur.k===k&&czSentToday(id)?" on":""}" data-czk="${k}"><b>${esc(c[0])}</b><span>“${esc(c[1])}”</span><small>${esc(c[2])}</small></button>`).join("")}</div>
+    <p class="src cz-src">Cheers are set words, so nothing private is sent. Your group can see who cheered whom.</p></div>`,"Cheer on "+nm);
+  document.querySelectorAll("#cz [data-czk]").forEach(b=>b.onclick=()=>{const k=+b.dataset.czk;gWrite({cz:{[id]:{k,at:new Date().toISOString()}}},true);
+    buzz([12,40,12]);chime?.();$("#scrim")?.remove();toast(`Sent. ${f} will see “${CZ[k][0]}” on Today.`);
+    if(view==="group")paintRing();const rb=document.querySelector(`#gRing [data-czto="${CSS.escape(id)}"]`);if(rb&&!reduced()){burst(rb,12);rb.classList.add("cz-pop")}if(view==="today")paintCz()});
+  document.querySelector("#cz [data-czk]")?.focus({preventScroll:true})}
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-czto]");if(!b)return;buzz?.(8);openCheer(b.dataset.czto)});
+
 /* ===== v46 feel: the pressed journal tab slides to the one you tap, like an iOS segmented control ===== */
 let segFrom=null;
 function segInd(){const sg=document.querySelector(".seg");if(!sg)return;const on=sg.querySelector('button[aria-pressed="true"]');if(!on)return;
@@ -4018,6 +4077,7 @@ function vToday(){
   ${otdCard()}
   ${snToday()}
   ${plToday()}
+  ${czToday()}
   ${L?groupTeaser():""}
   <div class="tgrid"><div class="tmain">
   ${stepCard(day)}
@@ -4451,7 +4511,7 @@ function markDone(day,btn){
 }
 const after={
   today(){
-    srMigrate();fillDevo();wireTeaser();wireOtd();wireSn();wirePlt();
+    srMigrate();fillDevo();wireTeaser();wireOtd();wireSn();wirePlt();wireCz();
     document.querySelectorAll("[data-fresh]").forEach(wireFresh);
     const day=curDay();const p=PLAN[day-1];
     if(!GEO)idle(()=>loadGeo().then(()=>view==="today"&&refreshThumbs()));
@@ -6162,7 +6222,7 @@ function gBody(anim){
 /* repaint only the live slots, never the inputs someone may be typing in */
 function gPaint(part){
   if(view==="today"&&$("#gTeaser"))$("#gTeaser").outerHTML=groupTeaser();
-  if(view==="today"){stepGroupRefresh();paintGrpRef(curDay())}
+  if(view==="today"){stepGroupRefresh();paintGrpRef(curDay());paintCz()}
   gDots();if($("#meet"))meetPaint();
   if(view!=="group")return;
   gFaces();liveBanner();paintHere();paintRing();
@@ -6846,7 +6906,7 @@ function chalField(){const c=G.meta?.ch,live=!!(c&&chNow()&&hereDay()<=c.to),n=M
     <div class="row-end"><button class="btn primary" id="chGo">Start the challenge</button></div>`}</div>`}
 async function saveMeta(d,msg){if(!G.db){G.meta={...G.meta,...d};$("#scrim")?.remove();render();toast("Saved on this device");return}
   try{await G.db.doc("group/meta").set({...G.meta,...d});G.meta={...G.meta,...d};$("#scrim")?.remove();render();toast(msg)}catch(e){toast("Only the group's leader can change this.")}}
-function paintRing(){paintChal();const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}
+function paintRing(){paintChal();const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}if(!el.querySelector(".gring"))el._t0=Date.now();const firstPaint=Date.now()-(el._t0||0)<900;
   ringShare();paintBuddy();
   const wk=ringWeek(),today=hereDay(),ti=wk.indexOf(today),ids=members(),n=Math.max(1,ids.length);
   const read=id=>wk.filter(k=>G.people[id].rd?.[k]);
@@ -6859,14 +6919,15 @@ function paintRing(){paintChal();const el=$("#gRing");if(!el)return;if(!G.on){el
   const DL=["M","T","W","T","F","S","S"];
   const lbl=wk.map((k,i)=>{const a=(i+.5)/7*2*Math.PI-Math.PI/2,r=R0+19;return `<text x="${(Math.cos(a)*r).toFixed(1)}" y="${(Math.sin(a)*r+4).toFixed(1)}" class="${i===ti?"now":""}">${DL[i]}</text>`}).join("");
   const done=total>=goal;const meOff=state.settings.shareRead===false;
-  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" role="img" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}"></i>`).join("")}</span></li>`}).join("");
+  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" role="img" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}" style="--j:${i}"></i>`).join("")}</span>${id===myKey()&&ids.length>1&&!G.ro?`<span class="cz-sp" aria-hidden="true"></span>`:""}${id!==myKey()&&!G.ro?`<button class="cz-b${czSentToday(id)?" on":""}" data-czto="${esc(id)}" aria-label="${czSentToday(id)?`You cheered ${esc(pname(id))} today. Cheer again`:`Cheer on ${esc(pname(id))}`}">${I_CZ}</button>`:""}</li>`}).join("");
   el.innerHTML=`<section class="card gring${done?" won":""}" aria-label="This week's reading together">
     <div class="rg-ring"><svg viewBox="-80 -80 160 160" role="img" aria-label="${total} of ${goal} readings this week">${arcs}${lbl}</svg>
       <div class="rg-mid"><b>${Math.round(pct*100)}%</b><span>${total} of ${goal}</span></div></div>
     <div class="rg-side"><div class="kicker">This week together</div>
       <h3>${done?"You did it together!":ti>=5&&pct<.6?"A few days left. Let's finish strong":`Read ${RING_GOAL} days each and close the ring`}</h3>
-      <ul class="rg-list">${rows}</ul>
+      <ul class="rg-list${ids.length>1&&!G.ro?" cz":""}">${rows}</ul>
       ${meOff?`<p class="muted rg-off">Your reading days are private, so they're not in the ring. You can change this in Settings.</p>`:""}</div></section>`;
+  if(firstPaint&&!reduced())el.querySelector(".gring")?.classList.add("rg-in");
   if(done&&!reduced()){const key="lamp-ring-"+wk[0];try{if(!localStorage.getItem(key)){localStorage.setItem(key,"1");setTimeout(()=>{burst(el.querySelector(".rg-ring"),40);buzz([20,50,20]);toast("Your group closed this week's reading ring!")},400)}}catch(e){}}}
 
 /* ================= Meeting mode: the study on a big screen ================= */
