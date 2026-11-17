@@ -2554,6 +2554,20 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 /* v53 feel: the week's reading dots pop in one day after another when the group opens */
 @media (prefers-reduced-motion:no-preference){.gring.rg-in .rg-dots i.on{animation:rgPop .4s var(--spring) both;animation-delay:calc(180ms + var(--j)*55ms)}}
 @keyframes rgPop{from{transform:scale(.2);opacity:0}}
+
+/* v54 Find the places */
+.mq-map{max-width:100%}
+.mq-svg:not(.sat) .wline{stroke:var(--ink)}
+.mq-svg .g-region{font-size:13px}
+.fg-quiz{margin:-4px 0 10px}
+@media (min-width:900px){.fun-scrim .sheet:has(#mq){width:min(860px,100%);max-width:860px}.mq .wh-sum{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mq .wh-sum li{margin:0}}
+.mq-note{margin:10px 0 0;line-height:1.55;color:var(--muted)}
+.mq-end{margin:12px 0 0;line-height:1.5}
+.mq-more{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 0}
+.mq-more>span{flex-basis:100%;font-size:.86rem;color:var(--muted)}
+.mq-more .btn{min-height:44px}
+#view h1.vf:focus{outline:none}
+#view h1.vf:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:6px}
 </style>
 
 <div class="intro" id="intro" aria-label="Lamp is starting" role="presentation">
@@ -3368,8 +3382,9 @@ function fWhere(){const box=$("#fun");if(!box)return;const P=whToday();let st=dG
   const readBtn=p=>`<button class="btn ghost" data-whread="${p[3]}" aria-label="Read ${esc(refLbl(p[3]))}">${I.open}${esc(refLbl(p[3]))}</button>`;
   const draw=()=>{const k=st.g.length;
     if(st.done){box.innerHTML=funHead("Where is it?",`Day ${funDay()+1} · ${total()} of 500`)+`<div class="wh"><div class="wh-map shown">${svgOpen("Map showing today's five places")}${whBase()}${P.map((p,i)=>{const g=st.g[i];if(!g)return "";const [tx,ty]=px(p[1],p[2]);return `<line class="wline" x1="${g.x}" y1="${g.y}" x2="${tx}" y2="${ty}"/>`}).join("")}${P.map((p,i)=>whTrue(p,i+1)).join("")}</svg></div>
-      <ul class="wh-sum">${P.map((p,i)=>`<li><b><i>${i+1}</i>${esc(p[0])}</b><span>${whSq(st.g[i]?.km??999)} ${whKmT(st.g[i]?.km??0)} · ${st.g[i]?.p??0} points</span></li>`).join("")}</ul></div>`;
-      wireRead();if(!box.querySelector(".fun-end")){const best=total();funDone("where","Where is it?",best>=450?`${best} of 500. You know the land!`:best>=300?`${best} of 500. Well found.`:`${best} of 500. The map gets easier with every day.`,`Lamp · Where is it?, day ${funDay()+1}: ${best}/500\n${st.g.map(g=>whSq(g.km)).join("")}`)}return}
+      <ul class="wh-sum">${P.map((p,i)=>`<li><b><i>${i+1}</i>${esc(p[0])}</b><span>${whSq(st.g[i]?.km??999)} ${whKmT(st.g[i]?.km??0)} · ${st.g[i]?.p??0} points</span></li>`).join("")}</ul>
+      <div class="mq-more"><span>More maps to find your way around</span>${MQ_MAPS.map(k=>`<button class="btn sm ghost" data-mqgo="${k}">${esc(FIGS[k].t)}</button>`).join("")}</div></div>`;
+      wireRead();box.querySelectorAll("[data-mqgo]").forEach(b=>b.onclick=()=>openMapQuiz(b.dataset.mqgo));if(!box.querySelector(".fun-end")){const best=total();funDone("where","Where is it?",best>=450?`${best} of 500. You know the land!`:best>=300?`${best} of 500. Well found.`:`${best} of 500. The map gets easier with every day.`,`Lamp · Where is it?, day ${funDay()+1}: ${best}/500\n${st.g.map(g=>whSq(g.km)).join("")}`)}return}
     const p=P[k];
     if(shown){const g=st.g[k-1],q=P[k-1],[tx,ty]=px(q[1],q[2]);
       box.innerHTML=funHead("Where is it?",`Place ${k} of 5 · ${total()} points`)+`<div class="wh"><div class="wh-q"><div><h3>${esc(q[0])}</h3><div class="wh-res${g.km<=8?" hit":""}" role="status">${whSq(g.km)} <b>${whKmT(g.km)} away</b> · ${g.p} points${g.km<=3?" · spot on!":""}</div><p>${esc(q[4])}</p></div>${dots()}</div>
@@ -3753,6 +3768,59 @@ function openB66(k){const r=b66Round(k);if(!r)return;
   look()}
 document.addEventListener("click",e=>{const b=e.target.closest?.("[data-b66]");if(!b)return;buzz?.(8);openB66(b.dataset.b66)});
 
+/* ===== v54: Find the places, a map quiz on the journey maps (like Seterra's 'click the place' maps): six stops a round, scored by km off ===== */
+const MQ_MAPS=["abraham","paul"],MQ_K="lamp-mq",MQ_N=6;
+function mqBest(){try{return JSON.parse(localStorage.getItem(MQ_K)||"{}")||{}}catch(e){return{}}}
+const mqPts=(km,sc)=>{const a=sc*.06,b=sc*.9;return km<=a?100:Math.max(0,Math.round(100*(1-(km-a)/(b-a))))};
+const mqSq=p=>p>=90?"\u{1F7E9}":p>=60?"\u{1F7E8}":p>=25?"\u{1F7E7}":"⬜";
+const mqLL=(m,x,y)=>[m.lat1-y/m.k,m.lon0+(x-m.w/2)/(m.k*m.c)];
+function mqBase(f,m){const s=f.map,P=(a,b)=>GPx(m,a,b),pts=a=>a.map(([x,y])=>P(x,y).join(",")).join(" ");
+  return `<rect width="${m.w}" height="${m.h}" class="g-sea"/><image class="satimg" href="sat/${s.id}.webp" x="0" y="0" width="${m.w}" height="${m.h}" preserveAspectRatio="none"/><path d="${m.land}" class="g-land"/>
+  ${s.rivers.map(r=>`<polyline points="${pts(RIVERS[r])}" class="g-river"/>`).join("")}${LAKES.map(l=>`<polygon points="${pts(l)}" class="g-lake"/>`).join("")}
+  ${s.waters.map(([n,a,b,an,rot])=>{const [x,y]=P(a,b);return `<text x="${x}" y="${y}" class="g-water" text-anchor="${an||"middle"}" ${rot?`transform="rotate(${rot} ${x} ${y})"`:""}>${n}</text>`}).join("")}
+  ${s.regions.map(([n,a,b])=>{const [x,y]=P(a,b);return `<text x="${x}" y="${y}" class="g-region" text-anchor="middle">${n}</text>`}).join("")}`}
+function mqTrue(m,st,num){const [x,y]=GPx(m,st[1],st[2]),left=x>m.w-150;if(num)return `<g class="wtrue wh-old"><circle class="wt-d" cx="${x}" cy="${y}" r="9"/><text class="wn" x="${x}" y="${y+4}">${num}</text></g>`;
+  return `<g class="wtrue"><circle class="wt-r" cx="${x}" cy="${y}" r="13"/><circle class="wt-d" cx="${x}" cy="${y}" r="5"/><text x="${left?x-14:x+14}" y="${y+5}" text-anchor="${left?"end":"start"}">${esc(st[0])}</text></g>`}
+async function openMapQuiz(id){const f=FIGS[id];if(!f||!f.map)return;await loadGeo();const m=GEO&&GEO[f.map.id];
+  if(!m){toast("The map needs a signal the first time. Try again when you're online.");return}
+  const sc=f.map.scale,notes=f.notes||{},P=shuffle(f.map.stops.slice()).slice(0,MQ_N),N=P.length;let res=[],pin=null,shown=false;
+  openSheet(`<div class="fun mq" id="mq"></div>`,"Find the places: "+f.t);$("#scrim").classList.add("fun-scrim");const box=$("#mq");
+  const total=()=>res.reduce((a,r)=>a+r.p,0),live=()=>box.isConnected&&!!document.getElementById("mq");
+  const dots=()=>`<div class="wh-dots" aria-hidden="true">${P.map((_,k)=>`<i class="${k<res.length?"g":k===res.length?"on":""}"></i>`).join("")}</div>`;
+  const svgOpen=lbl=>`<svg class="fig gmap mq-svg${satOn()?" sat":""}" id="mqSvg" viewBox="0 0 ${m.w} ${m.h}" tabindex="0" role="application" aria-label="${esc(lbl)}" aria-describedby="mqHelp">`;
+  const ref=st=>{const n=notes[st[5]];return n&&n[2]&&n[2][0]};
+  const readBtn=st=>{const r=ref(st);return r?`<button class="btn ghost" data-mqread="${r[1]}.${r[2]}.${(r[0].match(/:(\d+)/)||[])[1]||0}">${I.open}${esc(r[0])}</button>`:""};
+  const wireRead=()=>box.querySelectorAll("[data-mqread]").forEach(b=>b.onclick=()=>{const [bk,c,v]=b.dataset.mqread.split(".");$("#scrim")?.remove();openPassage(passFor(bk,+c),false,+v||undefined)});
+  const draw=()=>{if(!live())return;const k=res.length;
+    if(k>=N&&!shown){const t=total(),B=mqBest(),old=B[id]||0,nb=t>old;if(nb){B[id]=t;try{localStorage.setItem(MQ_K,JSON.stringify(B))}catch(e){}}
+      box.innerHTML=funHead(f.t,`Find the places · ${t} of ${N*100}`)+`<div class="wh"><div class="wh-map mq-map shown">${svgOpen("Map showing the places you found")}${mqBase(f,m)}${P.map((st,i)=>{const r=res[i],[tx,ty]=GPx(m,st[1],st[2]);return `<line class="wline" x1="${r.x}" y1="${r.y}" x2="${tx}" y2="${ty}"/>`}).join("")}${P.map((st,i)=>mqTrue(m,st,i+1)).join("")}</svg></div>
+        <ul class="wh-sum">${P.map((st,i)=>`<li><b><i>${i+1}</i>${esc(st[0])}</b><span>${mqSq(res[i].p)} ${whKmT(res[i].km)} · ${res[i].p} points</span></li>`).join("")}</ul>
+        <p class="mq-end">${t>=N*90?"You know these places well.":nb&&old?`A new best, up from ${old}.`:t>=N*50?"Well found. Play again for six different places.":"Every round makes the map easier. Play again for six different places."}</p>
+        <div class="wh-acts"><button class="btn" id="mqAgain">Play again</button><button class="btn primary" id="mqDone">Done</button></div></div>`;
+      if(t>=N*90&&!reduced())burst(box.querySelector(".fun-hd h2"),18);chime?.(t>=N*60?1:0);funStreakTick?.();
+      $("#mqAgain").onclick=()=>openMapQuiz(id);$("#mqDone").onclick=()=>$("#scrim")?.remove();$("#mqDone").focus({preventScroll:true});return}
+    if(shown){const r=res[k-1],st=P[k-1],[tx,ty]=GPx(m,st[1],st[2]),n=notes[st[5]];
+      box.innerHTML=funHead(f.t,`Place ${k} of ${N} · ${total()} points`)+`<div class="wh"><div class="wh-q"><div><h3>${esc(st[0])}</h3><div class="wh-res${r.p>=90?" hit":""}" role="status">${mqSq(r.p)} <b>${whKmT(r.km)} away</b> · ${r.p} points${r.p===100?" · spot on!":""}</div></div>${dots()}</div>
+        <div class="wh-map mq-map shown">${svgOpen(`${st[0]} is ${whKmT(r.km)} from your pin`)}${mqBase(f,m)}<line class="wline" x1="${r.x}" y1="${r.y}" x2="${tx}" y2="${ty}"/>${whPin(r.x,r.y)}${mqTrue(m,st)}</svg></div>
+        ${n?`<p class="mq-note">${esc(n[1])}</p>`:""}
+        <div class="wh-acts">${readBtn(st)}<button class="btn primary" id="mqNext">${k===N?"See your score":"Next place"}</button></div><p class="wh-help" id="mqHelp" hidden></p></div>`;
+      wireRead();$("#mqNext").onclick=()=>{shown=false;draw()};$("#mqNext").focus({preventScroll:true});return}
+    const st=P[k],r=ref(st);
+    box.innerHTML=funHead(f.t,`Place ${k+1} of ${N} · ${total()} points`)+`<div class="wh"><div class="wh-q"><div><h3>Where is ${esc(st[0])}?</h3>${r?`<p>${esc(r[0])}</p>`:""}</div>${dots()}</div>
+      <div class="wh-map mq-map">${svgOpen(`Map. Find ${st[0]}`)}${mqBase(f,m)}<g id="mqMine"></g></svg></div>
+      <p class="wh-help" id="mqHelp">Tap the map to drop your pin. With a keyboard: arrow keys, then Enter.</p>
+      <div class="wh-acts"><button class="btn primary" id="mqGo" disabled>Drop it here</button></div></div>`;
+    pin=null;const svg=$("#mqSvg"),mine=$("#mqMine"),go=$("#mqGo");
+    const set=(x,y)=>{x=Math.max(4,Math.min(m.w-4,x));y=Math.max(20,Math.min(m.h-4,y));pin=[x,y];mine.innerHTML=whPin(x.toFixed(1),y.toFixed(1));go.disabled=false};
+    svg.addEventListener("click",e=>{const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const mt=svg.getScreenCTM();if(!mt)return;const q=pt.matrixTransform(mt.inverse());set(q.x,q.y);buzz(8)});
+    svg.addEventListener("keydown",e=>{const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];
+      if(d){e.preventDefault();const s2=e.shiftKey?4:16,[x,y]=pin||[m.w/2,m.h/2];set(x+d[0]*s2,y+d[1]*s2);return}
+      if(e.key==="Enter"||e.key===" "){e.preventDefault();if(!pin)set(m.w/2,m.h/2);else guess()}});
+    const guess=()=>{if(!pin)return;const [la,lo]=mqLL(m,pin[0],pin[1]),km=whKm(la,lo,st[1],st[2]),p=mqPts(km,sc);
+      res.push({x:+pin[0].toFixed(1),y:+pin[1].toFixed(1),km:+km.toFixed(1),p});shown=true;if(p>=90){chime();buzz([10,40,10])}else buzz(14);draw()};
+    go.onclick=guess};
+  draw()}
+
 /* ===== v45: compare a verse in every translation Lamp has (like YouVersion's Compare) ===== */
 const CMP_FAST=["BSB","WEB","KJV","BBE"],CMP_BIG=["NHEB","ASV","YLT"];
 const I_COPY=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>`,I_DL=`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>`;
@@ -3865,7 +3933,7 @@ const resync=()=>docRef?flush():connect();
 addEventListener("online",resync);addEventListener("lamp-online",()=>{connect.g=0;connect()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")resync()});
 /* anything that must not be cut off by a silent update */
-window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt,#sn,.wh,#b66");
+window.LAMP_BUSY=()=>!!document.querySelector("#qt,#ls,#fd,#pn,#meet,.pcard.pz,.reader,#memoBody,#hrt,#sn,.wh,#b66,#mq");
 async function connect(){
   if(!window.claude?.use) return;
   try{
@@ -3996,12 +4064,15 @@ function scrKeep(){SCR[view]={y:window.scrollY,t:Date.now()}}
 function scrFor(v){const m=SCR[v];return m&&Date.now()-m.t<20*60e3?m.y:0}
 function setView(v,keep){
   const from=VIEWS.findIndex(([k])=>k===view),to=VIEWS.findIndex(([k])=>k===v);
-  const go=()=>{view=v;try{history.replaceState(null,"","#"+v)}catch(e){};render();const y=keep?scrFor(v):0;window.scrollTo({top:y,behavior:"instant"});if(y)requestAnimationFrame(()=>{if(view===v&&Math.abs(window.scrollY-y)>4)window.scrollTo({top:y,behavior:"instant"})})};
+  const go=()=>{const fromNav=!!document.activeElement?.closest?.("#nav,#tabbar");view=v;try{history.replaceState(null,"","#"+v)}catch(e){};render();viewTitle();if(fromNav)viewFocus();const y=keep?scrFor(v):0;window.scrollTo({top:y,behavior:"instant"});if(y)requestAnimationFrame(()=>{if(view===v&&Math.abs(window.scrollY-y)>4)window.scrollTo({top:y,behavior:"instant"})})};
   if(document.startViewTransition&&!reduced()&&v!==view&&!document.hidden){
     document.documentElement.dataset.dir=to<from?"back":"fwd";document.documentElement.classList.add("vt");
     const t=document.startViewTransition(go);t.finished.finally(()=>document.documentElement.classList.remove("vt"));
   } else go();
 }
+function viewTitle(){const l=(VIEWS.find(([k])=>k===view)||[])[1];document.title=view==="today"||!l?"Lamp Bible Path":`${l} · Lamp Bible Path`}
+/* v54: after a tab change from the tab bar or sidebar, focus moves to the new screen's heading so screen readers say where you are */
+function viewFocus(){const h=document.querySelector("#view h1");if(!h)return;h.setAttribute("tabindex","-1");h.classList.add("vf");try{h.focus({preventScroll:true})}catch(e){}}
 function renderNav(){
   const html=VIEWS.map(([k,l])=>`<button data-v="${k}" ${view===k?'aria-current="page"':""}>${I[k]}<span>${l}</span></button>`).join("");
   if(!$("#navBtns")){$("#nav").innerHTML=`<span class="nav-ind" id="navInd"></span><div id="navBtns" style="display:flex;flex-direction:column;gap:4px"></div>`;$("#tabbar").innerHTML=`<span class="tab-ind" id="tabInd"></span><div class="tabbtns" id="tabBtns"></div>`}
@@ -5464,9 +5535,9 @@ abraham:{t:"Abraham's journey",k:"Map · Genesis 11–25",ref:[["Genesis 12","GE
     regions:[["MESOPOTAMIA",33.9,43.9],["ARAM",35.6,37.4],["CANAAN",30.55,35.15],["ARABIAN DESERT",31.4,40.6]],
     routes:[{c:"c2",l:"Ur to Canaan",pts:[[30.96,46.1],[31.31,45.28],[32.54,44.42],[33.42,43.3],[34.13,42.38],[34.45,40.92],[35.33,40.14],[35.95,39.01],[36.86,39.03],[36.2,37.16],[33.51,36.29],[32.21,35.28],[31.93,35.22]]},
             {c:"c3",l:"To Egypt and back",dash:1,pts:[[31.93,35.22],[31.2,34.75],[30.95,33.6],[30.85,31.9],[30.7,31.4],[30.95,32.3],[31.1,33.8],[31.53,35.1]]}],
-    stops:[["Ur",30.96,46.1,"e",1,"ur"],["Harran",36.86,39.03,"e",1,"harran"],["Damascus",33.51,36.29,"e",0,"damascus"],["Shechem",32.21,35.28,"e",0,"shechem"],["Bethel",31.93,35.22,"w",0,"bethel"],["Hebron",31.53,35.1,"e",0,"hebron"],["Egypt",30.7,31.4,"s",0,"egypt"]],scale:200},
+    stops:[["Ur",30.96,46.1,"e",1,"ur"],["Haran",36.86,39.03,"e",1,"harran"],["Damascus",33.51,36.29,"e",0,"damascus"],["Shechem",32.21,35.28,"e",0,"shechem"],["Bethel",31.93,35.22,"w",0,"bethel"],["Hebron",31.53,35.1,"e",0,"hebron"],["Egypt",30.7,31.4,"s",0,"egypt"]],scale:200},
   notes:{ur:["Ur","Abram's hometown, a wealthy city of the Chaldeans devoted to the moon god. Archaeologists have found its temple tower (a ziggurat) and royal tombs full of gold.",[["Genesis 11:27–31","GEN",11]]],
-    harran:["Harran","The family stopped here and Terah died. Abram set out from here, as the LORD had told him: 'Go from your country… to the land I will show you. I will make you into a great nation… all peoples on earth will be blessed through you.' Abram was 75.",[["Genesis 12:1–4","GEN",12]]],
+    harran:["Haran","The family settled here and Terah died here. Abram set out from here, as the LORD had told him: 'Leave your country… and go to the land I will show you. I will make you into a great nation… all the families of the earth will be blessed through you.' Abram was 75. (Today the site is usually spelled Harran.)",[["Genesis 12:1–4","GEN",12],["Genesis 11:31–32","GEN",11]]],
     damascus:["Damascus","One of the oldest continuously lived-in cities on earth. Abram's chief servant Eliezer came from here.",[["Genesis 15:2","GEN",15]]],
     shechem:["Shechem","Abram's first stop in Canaan. God promised the land to his offspring and Abram built an altar.",[["Genesis 12:6–7","GEN",12]]],
     bethel:["Bethel","Abram pitched his tent between Bethel and Ai and 'called on the name of the LORD'. Later Jacob dreamed of the stairway to heaven here.",[["Genesis 12:8","GEN",12],["Genesis 28","GEN",28]]],
@@ -5520,7 +5591,7 @@ paul:{t:"Paul's journeys",k:"Map · Acts 13–28",ref:[["Acts 13","ACT",13]],
     troas:["Troas","Paul saw a vision of a man saying 'Come over to Macedonia and help us.' The gospel crossed into Europe. On a later visit Eutychus fell asleep during Paul's long talk and fell from a window.",[["Acts 16:8–10","ACT",16],["Acts 20:7–12","ACT",20]]],
     philippi:["Philippi","Lydia believed by a river. Paul and Silas were beaten and jailed, sang hymns at midnight, and an earthquake opened the doors.",[["Acts 16","ACT",16]]],
     thess:["Thessalonica","Paul reasoned in the synagogue for three Sabbaths, then a riot forced him out, but a lasting church formed. He later wrote 1 and 2 Thessalonians to it.",[["Acts 17:1–9","ACT",17]]],
-    berea:["Berea","The Bereans 'examined the Scriptures every day to see if these things were so.' A model for reading the Bible well.",[["Acts 17:10–15","ACT",17]]],
+    berea:["Berea","The Bereans 'examined the Scriptures every day to see if these teachings were true.' A model for reading the Bible well.",[["Acts 17:10–15","ACT",17]]],
     athens:["Athens","Paul spoke to philosophers on Mars Hill, starting from an altar 'to an unknown god'.",[["Acts 17:16–34","ACT",17]]],
     corinth:["Corinth","Paul stayed 18 months, making tents with Priscilla and Aquila. He probably wrote Romans here, around AD 57.",[["Acts 18:1–18","ACT",18]]],
     ephesus:["Ephesus","Paul's longest stay, about three years. Burned magic books worth 50,000 silver coins, and a riot in the theatre over the goddess Artemis.",[["Acts 19","ACT",19]]],
@@ -5529,7 +5600,7 @@ paul:{t:"Paul's journeys",k:"Map · Acts 13–28",ref:[["Acts 13","ACT",13]],
     malta:["Malta","Shipwrecked, all 276 people on board survived. Paul shook off a viper and healed the island chief's father.",[["Acts 27:39–28:10","ACT",28]]],
     syracuse:["Syracuse","Three days in Sicily's great harbour on the way north.",[["Acts 28:12","ACT",28]]],
     puteoli:["Puteoli","The main port for Rome. Believers here welcomed Paul for a week.",[["Acts 28:13–14","ACT",28]]],
-    rome:["Rome","Capital of the empire. Paul lived two years under house arrest, welcoming everyone and preaching 'without hindrance'. That is where Acts ends.",[["Acts 28:16–31","ACT",28],["Romans 1","ROM",1]]]}},
+    rome:["Rome","Capital of the empire. Paul lived two years in a rented house with a soldier guarding him, welcoming everyone and preaching 'boldly and freely'. That is where Acts ends.",[["Acts 28:16–31","ACT",28],["Romans 1","ROM",1]]]}},
 timeline:{t:"The Bible on one line",k:"Timeline · to scale",ref:[],sum:"Two thousand years of story, drawn to scale, with a zoom on the time of Jesus and the first church. Dates are approximate.",tl:1},
 library:{t:"66 books at a glance",k:"The library · to scale",ref:[],sum:"Each spine is as thick as the book is long, in chapters. The books in your plan have a flame on top. Tap any spine.",lib:1}
 };
@@ -5560,10 +5631,10 @@ function figMap(f){
 /* ---- Family tree ---- */
 const FAM={
  nodes:[
-  ["terah",500,40,"Terah","father of Abram","Lived in Ur, then set out for Canaan but stopped in Harran and died there.",[["Genesis 11:26–32","GEN",11]]],
+  ["terah",500,40,"Terah","father of Abram","Lived in Ur, then set out for Canaan but settled in Haran and died there.",[["Genesis 11:26–32","GEN",11]]],
   ["haran",170,150,"Haran","died in Ur","Abram's brother, who died in Ur while his father Terah was still alive. His son Lot went with Abram.",[["Genesis 11:28","GEN",11]]],
   ["abraham",500,150,"Abraham","husband of Sarah","Called by God at 75 and promised a land, a nation and a blessing for the whole world. Renamed from Abram ('exalted father') to Abraham ('father of many').",[["Genesis 12","GEN",12],["Genesis 17","GEN",17]]],
-  ["nahor",830,150,"Nahor","stayed in Harran","Abram's brother. His family stayed behind in the region of Harran, where Abraham later sent for a wife for Isaac.",[["Genesis 22:20–23","GEN",22]]],
+  ["nahor",830,150,"Nahor","stayed in Haran","Abram's brother. His family stayed behind in the region of Haran, where Abraham later sent for a wife for Isaac.",[["Genesis 22:20–23","GEN",22]]],
   ["lot",170,265,"Lot","Abram's nephew","Chose the well-watered plain near Sodom. Rescued twice, once by Abram and once by angels before Sodom's destruction.",[["Genesis 13","GEN",13],["Genesis 19","GEN",19]]],
   ["ishmael",350,265,"Ishmael","son of Hagar","'God hears.' Sent away with his mother, but God promised to make him a great nation too. Father of twelve tribal princes of Arabia.",[["Genesis 16","GEN",16],["Genesis 21:8–21","GEN",21]]],
   ["isaac",560,265,"Isaac","son of Sarah","'He laughs.' The promised son, born when Abraham was 100. Nearly sacrificed on Mount Moriah, where God provided a ram instead.",[["Genesis 21:1–7","GEN",21],["Genesis 22","GEN",22]]],
@@ -5666,7 +5737,7 @@ const tabNotes=()=>Object.fromEntries(TAB.map(t=>[t[0],[t[1],t[2],t[3]]]));
 /* ---- Timeline ---- */
 const TL={
  eras:[[-2100,-1876,"Patriarchs"],[-1876,-1446,"In Egypt"],[-1446,-1406,""],[-1406,-1050,"Judges"],[-1050,-586,"Kings"],[-586,-538,""],[-538,-430,"Return"],[-430,-6,"Between the Testaments"],[-6,100,"Jesus & church"]],
- main:[[-2000,"Abraham is called","u1","GEN",12,"God calls Abram from Harran and promises a land, a nation and a blessing for all peoples."],[-1880,"Joseph rules Egypt","d1","GEN",41,"Sold as a slave, Joseph rises to second in Egypt and saves his family from famine."],[-1446,"The Exodus","u1","EXO",12,"Israel leaves Egypt after the Passover. Some scholars date it around 1260 BC instead."],[-1406,"Into Canaan","d1",null,0,"Joshua leads Israel across the Jordan into the promised land."],[-1010,"David is king","u1","PSA",23,"David unites the tribes and makes Jerusalem the capital. Many psalms come from his life."],[-966,"Temple built","d1",null,0,"Solomon builds the first temple in Jerusalem, on Mount Moriah (2 Chronicles 3:1), the name of the land where Abraham was told to offer Isaac (Genesis 22:2)."],[-930,"Kingdom splits","u2",null,0,"Ten tribes break away as Israel in the north, leaving Judah in the south."],[-722,"Israel falls","d2",null,0,"Assyria destroys the northern kingdom and scatters its people."],[-586,"Jerusalem falls","u1",null,0,"Babylon destroys the temple and takes the people into exile."],[-538,"Return home","u2",null,0,"Persia's King Cyrus lets the exiles go home to rebuild."],[-3,"Jesus","d1","MRK",1,"Jesus is born around 6 to 4 BC. See the zoomed view below."]],
+ main:[[-2000,"Abraham is called","u1","GEN",12,"God calls Abram from Haran and promises a land, a nation and a blessing for all peoples."],[-1880,"Joseph rules Egypt","d1","GEN",41,"Sold as a slave, Joseph rises to second in Egypt and saves his family from famine."],[-1446,"The Exodus","u1","EXO",12,"Israel leaves Egypt after the Passover. Some scholars date it around 1260 BC instead."],[-1406,"Into Canaan","d1",null,0,"Joshua leads Israel across the Jordan into the promised land."],[-1010,"David is king","u1","PSA",23,"David unites the tribes and makes Jerusalem the capital. Many psalms come from his life."],[-966,"Temple built","d1",null,0,"Solomon builds the first temple in Jerusalem, on Mount Moriah (2 Chronicles 3:1), the name of the land where Abraham was told to offer Isaac (Genesis 22:2)."],[-930,"Kingdom splits","u2",null,0,"Ten tribes break away as Israel in the north, leaving Judah in the south."],[-722,"Israel falls","d2",null,0,"Assyria destroys the northern kingdom and scatters its people."],[-586,"Jerusalem falls","u1",null,0,"Babylon destroys the temple and takes the people into exile."],[-538,"Return home","u2",null,0,"Persia's King Cyrus lets the exiles go home to rebuild."],[-3,"Jesus","d1","MRK",1,"Jesus is born around 6 to 4 BC. See the zoomed view below."]],
  zoom:[[-5,"Jesus is born","u1","LUK",2,"Born in Bethlehem while Herod the Great is king, around 6 to 4 BC."],[27,"Ministry begins","d1","MRK",1,"Jesus is baptised and begins teaching, about 30 years old."],[30,"Cross & resurrection","u2","MRK",16,"Jesus is crucified and rises again, around AD 30 or 33."],[35,"Paul meets Jesus","d2","ACT",9,"Saul is turned around on the Damascus road."],[47,"1st journey","u1","ACT",13,"Paul and Barnabas take the message to Cyprus and Galatia."],[50,"2nd journey","d1","ACT",16,"The gospel crosses into Europe."],[54,"3rd journey","u2","ACT",19,"Three years in Ephesus."],[57,"Romans written","d2","ROM",1,"Paul writes from Corinth to the believers in Rome."],[61,"Paul in Rome","u1","ACT",28,"Two years under house arrest. Acts ends here."],[70,"Temple destroyed","d1",null,0,"Rome destroys Jerusalem and its temple, as Jesus warned."],[95,"Revelation","u1",null,0,"John's vision of the end of the story: a new heaven and a new earth."]]
 };
 function figTL(){
@@ -5814,6 +5885,7 @@ function openFig(id,focus){
    <header class="figv-h"><div><div class="kicker">${f.k}</div><h2>${f.t}</h2></div>
     <div class="figv-btns">${f.map?satSwitch():""}<button class="icon-btn" id="fgPrev" aria-label="Previous diagram">${I.chev}</button><button class="icon-btn" id="fgNext" aria-label="Next diagram">${I.chev}</button><button class="icon-btn" id="fgClose" aria-label="Close">${I.close}</button></div></header>
    <p class="figv-sum">${f.sum}</p>
+   ${MQ_MAPS.includes(id)?`<div class="fg-quiz"><button class="btn sm gold" id="fgQuiz">${I.spark}Find the places${mqBest()[id]?` · best ${mqBest()[id]} of ${MQ_N*100}`:""}</button></div>`:""}
    ${legend}${f.tab?`<div class="tabmode" role="group" aria-label="How to look at it">${TAB_MODES.map(([k,l])=>`<button data-tabm="${k}" aria-pressed="${tabMode===k}">${l}</button>`).join("")}</div>`:""}
    <div class="figv-stage ${f.map?"is-map":f.hw?"is-hw":""}" id="fgStage"><div class="pz" id="fgPz">${figSVG(id)}</div>
     <span class="fghint" aria-hidden="true">Drag to explore · tap to learn</span><div class="zoomctl"><button id="zIn" aria-label="Zoom in">+</button><button id="zOut" aria-label="Zoom out">−</button><button id="zFit" aria-label="Reset zoom">⤢</button></div></div>
@@ -5862,7 +5934,7 @@ function openFig(id,focus){
   document.querySelectorAll(".fig-legend button").forEach(b=>b.onclick=()=>{const on=b.getAttribute("aria-pressed")!=="true";document.querySelectorAll(".fig-legend button").forEach(x=>x.setAttribute("aria-pressed",x===b&&on));
     if(on&&notes["r"+b.dataset.rt])show("r"+b.dataset.rt);
     document.querySelectorAll(".figv .g-route").forEach(g=>{const hit=!on||g.dataset.route===b.dataset.rt;g.classList.toggle("dim",!hit);if(hit&&on&&!reduced()){const l=g.querySelector(".g-line");l.style.animation="none";void l.getBoundingClientRect();l.style.animation="";l.style.setProperty("--d","0s")}})});
-  $("#fgClose").onclick=closeFig;
+  $("#fgClose").onclick=closeFig;$("#fgQuiz")?.addEventListener("click",()=>{closeFig(true);openMapQuiz(id)});
   $("#fgPrev").onclick=()=>{closeFig(true);openFig(FIG_ORDER[(nav+FIG_ORDER.length-1)%FIG_ORDER.length])};
   $("#fgNext").onclick=()=>{closeFig(true);openFig(FIG_ORDER[(nav+1)%FIG_ORDER.length])};
   requestAnimationFrame(fit);
