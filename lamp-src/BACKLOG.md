@@ -5,7 +5,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 ## Ideas
 - Research notes (3 Nov): habit apps lean on streak freezes, friend streaks and home-screen widgets; Lamp has grace days and buddies. Next: a weekly email-free summary card for buddies.
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
-- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Next: the gospels' one-line summaries.
+- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Gospels v55. Next: Acts and Paul's letters.
 - (Journal → Memorise already has its own 4-step practice and FSRS reviews, so 'Say it by heart for saved verses' is done.)
 - Sermon notes next: a 'questions to look into' list that links to Ask; reactions on shared sermon notes.
 - Prayer next: a gentle reminder time (calendar file); share a group's list with a prayer partner.
@@ -43,3 +43,4 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v52 (15 Nov): Learn the 66 books (8 short rounds plus All 66: look at the list, then put the books back in order, like Bible-books drill apps and Duolingo's short units), Learn tabs slide in from the side you tapped (like iOS), 13 new checked questions so Malachi, Amos, Hosea and 1 Timothy get book quizzes; the gospels' and Acts' one-line summaries checked against their verses.
 - v53 (16 Nov): cheer someone on from the reading ring (6 set cheers with a verse, seen on their Today for 3 days, like Duolingo's high fives and Strava's kudos), the week's reading dots pop in, 10 Who am I people checked clue by clue (Martha reworded to John 11:1).
 - v54 (17 Nov): Find the places, a map quiz on Abraham's and Paul's journey maps (like Seterra), tab changes move focus to the new screen's heading and name the page, journey notes quote the BSB word for word (3 misquotes fixed, Haran spelling). Next ideas: a quiz for the Holy Land map's towns, a 'hard mode' with no labels, ask JJ whether the Exodus map should get one (most stops there are debated sites).
+- v55 (18 Nov): Verse match in Memorise (like Quizlet's Match: your verses or 30 well-known ones, against the clock, save any to memorise), memorise steps hide words one by one, gospels' book labels checked (Mark 16 'He has risen!'). Next ideas: a Verse match round in the group quick quiz, a 'hard' board with 8 pairs, more decks (Psalms, promises, words of Jesus).
