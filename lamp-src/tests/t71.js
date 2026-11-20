@@ -61,7 +61,7 @@ for(const o of [{w:390,h:844,cs:'light',t:'phone-light'},{w:390,h:844,cs:'dark',
  await p.evaluate(()=>{window.__opened=[];window.open=(u)=>{window.__opened.push(u);return null}});
  await p.click('#plRem');await p.waitForSelector('.rem-pray',{timeout:5000});await p.waitForTimeout(300);
  ok(await p.$$eval('[data-rd][aria-pressed="true"]',x=>x.length)===7&&/Every day/.test(await txt(p,'#remSum')),o.t+': all seven days start on');
- ok((await p.$$eval('[data-rd]',x=>x.map(b=>b.textContent))).join(' ')==='Mon Tue Wed Thu Fri Sat Sun',o.t+': the week starts on Monday');
+ ok((await p.$$eval('[data-rd]',x=>x.map(b=>b.firstChild.textContent))).join(' ')==='Mon Tue Wed Thu Fri Sat Sun',o.t+': the week starts on Monday');
  await p.click('[data-rd="6"]');await p.click('[data-rd="0"]');
  ok(await txt(p,'#remSum')==='Weekdays',o.t+': turning off Saturday and Sunday says Weekdays');
  await p.fill('#remT','06:45');
