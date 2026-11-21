@@ -60,7 +60,7 @@ for(const o of [{w:390,h:844,cs:'light',t:'phone-light'},{w:390,h:844,cs:'dark',
  ok(!(await p.$('#vbar')),o.t+': the verse bar closes when the note opens');
  const q=await txt(p,'.vn-q');ok(/For God so loved the world/.test(q)&&/John 3:16/.test(await txt(p,'.vn-ref')),o.t+': the note sheet shows the verse');
  ok(await p.evaluate(()=>document.activeElement.id)==='vnT',o.t+': the cursor is ready in the note');
- await p.click('#vnSave');await p.waitForTimeout(200);ok(/Write something first/.test(await txt(p,'#toast'))&&!!(await p.$('#vnote')),o.t+': an empty note is not saved');
+ await p.click('#vnSave');await p.waitForTimeout(200);ok(/Write something first/.test(await txt(p,'#vnC'))&&!!(await p.$('#vnote')),o.t+': an empty note is not saved');
  await p.fill('#vnT','God gave first. That is what love looks like.\nAsk the group on Thursday what "perish" means.');
  if(o.t!=='desk-dark')await shot(p,o.t+'-2-sheet');
  const a1=await axe(p,'#vnote');ok(!a1.length,o.t+': axe clean on the note sheet '+JSON.stringify(a1));
