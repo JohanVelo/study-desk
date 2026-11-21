@@ -1710,3 +1710,8 @@ section.ai-card:not(.card){padding:14px;border-radius:14px}
 .ai-skel i:first-child{height:18px;margin-bottom:4px}
 @media (prefers-reduced-motion:reduce){.ai-skel i{animation:none}}
 .ai-set .steps a{color:var(--pen);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+/* v4.15 maths: equations on their own line, scroll sideways on a phone rather than overflow */
+.math-d{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;margin:6px 0 10px;padding:4px 2px;scrollbar-width:thin}
+.math-d:focus-visible{outline:2px solid var(--pen);outline-offset:2px;border-radius:6px}
+.math{color:inherit}
+.math-raw{font-family:"JetBrains Local",ui-monospace,monospace;font-size:.92em;background:var(--sunken);padding:1px 5px;border-radius:5px}

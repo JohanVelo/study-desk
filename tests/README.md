@@ -50,4 +50,4 @@ All pin the clock to Wednesday 7 October 2026, 10:00 (`sdlib.js`), print `FAIL <
 - `mksumtest.js` makes `sumtest/` (memory.pptx, methods.pdf, biopsych.docx, lecture.wav, today.png) for t9, t10, t13, t14
 - Port: `SD_PORT` (and `SD_PORT2` for t7) are required; never 8765 on JJ's laptop
 - t2, t5, t7, t8 need the old sample subjects inside `data.js` (runall swaps `sample-data.js` in and restores it); t3, t6, t9–t12 run with `node -r ./with-sample.js`
-- axe412.js: accessibility of the online AI screens · comp412.js: puts light and dark screenshots side by side · mk*.js: make the PDF fixtures
+- axe412.js: accessibility of the online AI screens · comp412.js: puts light and dark screenshots side by side · mk*.js: make the PDF fixtures · t27.js: maths in notes (PDF, Word, PowerPoint formulas, rendering, podcasts, questions, search; fixtures from `mkmath.js` and `mkoffice-math.js`, shots in `shots415/`)

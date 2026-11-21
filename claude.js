@@ -44,6 +44,7 @@ Rules:
 - If the material doesn't cover something, say so rather than guessing.
 - Read diagrams, charts, tables and formulas carefully as printed. Explain what each shows, how to read it, and what it means.
 - Plain British English, short sentences, no filler. Use Markdown headings and bullet points.
+- Write every formula, variable with a subscript, and unit power in LaTeX: inline between single dollar signs ($E_1 = 4.44 f N_1 \\Phi_m$), a formula on its own line between double dollar signs ($$n_s = \\frac{120 f}{P}$$). Never write maths as plain text like "E1 = 4.44fN1Phim".
 - End with a "## Check yourself" section of 5 questions, each written as two lines: "Q: ..." then "A: ..." (answers in one or two sentences).`;
 
 /* ---------- pages of the textbook as pictures ---------- */

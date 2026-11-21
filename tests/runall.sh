@@ -17,7 +17,7 @@ if [ -n "$T7_PLANT" ] && ! { [ "$RUNALL_FIRE" = 1 ] && [ "$RUNALL_ONLY" = t7 ]; 
 # the second server must serve THIS tree (C:/dev/pages-root2), never another copy of the app
 for f in app.js sw.js; do cmp -s <(curl -s --max-time 5 "http://localhost:$SD_PORT2/study-desk/$f") "../$f" || die "http://localhost:$SD_PORT2/study-desk/$f is not this repo's $f (serve C:/dev/pages-root2 on $SD_PORT2)"; done
 mkdir -p reg shots shots410 shots412
-ALL1="t13 t14 t15 t16 t17 t18 t19 t20 t22 t23 t24 t25 t26"; ALL2="t3 t6 t9 t10 t11 t12"; ALL3="t2 t5 t7 t8"
+ALL1="t13 t14 t15 t16 t17 t18 t19 t20 t22 t23 t24 t25 t26 t27"; ALL2="t3 t6 t9 t10 t11 t12"; ALL3="t2 t5 t7 t8"
 pick() { local out=""; for t in $1; do if [ -z "$RUNALL_ONLY" ] || [ "$RUNALL_ONLY" = "$t" ]; then out="$out $t"; fi; done; echo $out; }
 run() {  # run <test> [preload]: record exit code and timeout flag next to the output
   local t=$1 lim=900; [ "$RUNALL_KILL_EARLY" = "$t" ] && lim=3

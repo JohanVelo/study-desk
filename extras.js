@@ -401,7 +401,7 @@ function settingsExtras() {
 }
 function topicExtras(id) {
   const notes = notesOf(id), sks = SKETCHES.filter(s => s.node === id);
-  return `${notes ? `<details class="card notes-view"><summary><span class="h3">Your notes</span><span class="tiny muted">${Math.max(1, Math.round(notes.split(/\s+/).length / 200))} min read</span></summary><div class="md" data-md="${id}"><p class="muted">Loading…</p></div></details>` : ""}
+  return `${notes ? `<details class="card notes-view"><summary><span class="h3">Your notes</span><span class="tiny muted">${Math.max(1, Math.round(notes.split(/\s+/).length / 200))} min read</span></summary><div class="md" data-md="${id}" tabindex="0" role="region" aria-label="Your notes"><p class="muted">Loading…</p></div></details>` : ""}
     <section class="card stack" style="gap:10px"><div class="sec-head"><h2 style="font-size:18px">Sketches</h2><span class="tiny muted">${sks.length || ""}</span></div>
       ${sks.length ? `<div class="sk-grid">${sks.map(s => `<button class="sk-thumb" data-action="sk-open" data-id="${s.id}" data-node="${id}" aria-label="Open sketch ${esc(s.title || "")}">${skSvg(s)}${s.title ? `<span class="tiny">${esc(s.title)}</span>` : ""}</button>`).join("")}</div>` : `<p class="small muted">Draw a diagram, a mind map or a quick memory aid. Works with a finger, mouse or Apple Pencil.</p>`}
       <button class="btn btn-line btn-sm" data-action="sk-open" data-node="${id}" style="align-self:flex-start">${ico("pencil")}New sketch</button></section>

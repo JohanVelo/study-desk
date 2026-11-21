@@ -23,9 +23,11 @@
   const CUE_DEF = /\b(is|are) (defined as|known as|called|referred to as|termed)\b|\b(refers? to|is defined|means|is the (process|study|ability|amount|rate|measure|state|term|name)|are the (process|study|set|group)|describes?|denotes?)\b/i;
   const CUE_EXAM = /\b(examiners?|exams?|important|key (point|idea|concept|fact|feature|term)s?|remember|note that|exam|test|must know|crucial|essential|main (reason|cause|point|idea|types?|functions?|features?|purpose)|in summary|to summari[sz]e|in conclusion|therefore|as a result|this means|the difference between|compared (to|with)|advantages?|disadvantages?)\b/i;
   const CUE_LIST = /\b(two|three|four|five|six|seven|eight|nine|ten|\d+) (main |key |basic |major |different )?(types|kinds|stages|steps|phases|parts|factors|causes|effects|functions|features|principles|elements|components|categories|levels|ways|reasons|characteristics|properties|rules|laws)\b|\bthe following\b|\bas follows\b/i;
-  const RE_FORMULA = /(\b[A-Za-z]{1,3}\s*=\s*[-\w(√π])|(\b[a-z]{3,}\s*=\s*[\w(]+[^=]*[\/×*+−-]\s*\w)|[×÷±√∑∫≈≠≤≥∝∆Δπ]|\b\w+\s*\^\s*\d|\b\d+\s*[x×*/]\s*\d+\s*=|\b(mol|kg|m\/s|km\/h|N|J|W|Pa|Hz|°C|K)\b\s*$/;
+  const RE_FORMULA = /\$[^$]*[=<>≈≤≥∝\\][^$]*\$|(\b[A-Za-z]{1,3}\s*=\s*[-\w(√π])|(\b[a-z]{3,}\s*=\s*[\w(]+[^=]*[\/×*+−-]\s*\w)|[×÷±√∑∫≈≠≤≥∝∆Δπ]|\b\w+\s*\^\s*\d|\b\d+\s*[x×*/]\s*\d+\s*=|\b(mol|kg|m\/s|km\/h|N|J|W|Pa|Hz|°C|K)\b\s*$/;
   const RE_NUM = /\b(1[0-9]{3}|20[0-9]{2})\b|\b\d+(\.\d+)?\s?(%|percent|per cent)|\b\d[\d,.]*\s?(million|billion|thousand|kg|km|cm|mm|µm|nm|mg|ml|g|m|s|ms|years?|days?|hours?|°C|°F|degrees)\b|R\s?\d|\$\s?\d|€\s?\d|£\s?\d/i;
   const EXAMPLE = /\b(for example|for instance|e\.g\.|an example (of|is)|a good example|case study|case example|to illustrate|imagine (a|that|you)|consider (a|the case)|such as when|in practice,)|^example\b/i;
+  /* LaTeX between $…$ is maths, not words: kept in the text, left out of word counts and key terms */
+  const NOMATH = /\$\$[\s\S]*?\$\$|\$[^$\n]+?\$/g;
   const RE_PAGENUM = /^(page|p\.|slide)?\s*\d{1,4}(\s*(of|\/)\s*\d{1,4})?$/i;
 
   const norm = s => String(s || "").replace(/­/g, "").replace(/[‘’]/g, "'").replace(/[“”]/g, '"');
@@ -36,7 +38,7 @@
     if (w.length > 5) w = w.replace(/(ing|edly|ed|ment|ness|ions?|ity|al|er|ers|est|ive|ize|ise)$/, "").replace(/([a-z]{4,})ly$/, (m, a) => /[aeiou]p?pl$|^(rel|app|fami|ital|supp)/.test(m) ? m : a);
     return w.slice(0, 9);
   };
-  const tokens = s => (norm(s).toLowerCase().match(/[a-zÀ-ɏ][a-zÀ-ɏ0-9'-]*[a-z0-9À-ɏ]|[a-z]/g) || []);
+  const tokens = s => (norm(s).replace(NOMATH, " ").toLowerCase().match(/[a-zÀ-ɏ][a-zÀ-ɏ0-9'-]*[a-z0-9À-ɏ]|[a-z]/g) || []);
   const content = s => tokens(s).filter(w => w.length > 2 && !STOP.has(w)).map(stem);
 
   /* ---------- 1. structure: lines → sections of units ---------- */
@@ -76,6 +78,8 @@
       const l = lines[i], next = nextOf[i];
       if (!l) { flush(); continue; }
       if (RE_PAGENUM.test(l)) continue;
+      /* an equation on its own line ($$…$$) stays whole: with the line that introduces it ("The slip is:"), never a heading */
+      if (/^\$\$[\s\S]*\$\$$/.test(l)) { if (para && /:$/.test(para)) { para += " " + l; flush(); } else { flush(); para = l; flush(); } continue; }
       if (/^(speaker )?notes?:\s*$/i.test(l)) { flush(); continue; }
       if (looksHeading(l, next)) { newSec(cleanHeading(l)); continue; }
       if (isBulletLine(l)) { flush(); para = stripBullet(l); if (!/[.!?:;]$/.test(para)) { flush(); } continue; }
@@ -173,7 +177,7 @@
     const cnt = new Map(), secs = new Map(), surf = new Map();
     const lowerSeen = new Set();
     sections.forEach((s, si) => s.units.forEach(u => {
-      norm(u.t).split(/[.,;:!?()\[\]{}"“”‘’\/\\|–—=+×÷<>]+|\s-\s|'s\b/).forEach(part => {
+      norm(u.t).replace(NOMATH, " , ").split(/[.,;:!?()\[\]{}"“”‘’\/\\|–—=+×÷<>]+|\s-\s|'s\b/).forEach(part => {
         const raw = part.split(/\s+/).map(w => w.replace(/^[^\wÀ-ɏ]+|[^\wÀ-ɏ]+$/g, "")).filter(Boolean);
         let ph = [];
         const end = () => {

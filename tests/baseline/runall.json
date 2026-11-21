@@ -1,5 +1,5 @@
 {
- "written": "2026-10-08T20:15:01.246Z",
+ "written": "2026-11-21T11:24:05.767Z",
  "tests": {
   "t13": {
    "exit": 0,
@@ -200,6 +200,14 @@
    "errors": [
     "["
    ]
+  },
+  "t27": {
+   "exit": 0,
+   "timeout": false,
+   "pass": 20,
+   "fail": 0,
+   "summary": true,
+   "errors": []
   }
  }
 }

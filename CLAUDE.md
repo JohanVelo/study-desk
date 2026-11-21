@@ -9,7 +9,7 @@ Study Desk is an installable study app (a PWA) that turns a student's own PDFs, 
 - **Owner:** JJ (GitHub `JohanVelo`, jjscholtz09@gmail.com), in South Africa. He is not a developer: explain things in plain language with step-by-step guides, be goal-based, and think for him.
 - **Users:** Megan (JJ's girlfriend, a university student) and her friend Shasti, on phones (iPhone Safari matters) and laptops.
 - **Live:** https://johanvelo.github.io/study-desk/ (GitHub Pages, deployed from `main` on every push). Repo: `JohanVelo/study-desk`.
-- **Version:** 4.14.0 (2026-10-09). `APP_VERSION` in `app.js`, `VERSION` in `sw.js`.
+- **Version:** 4.15.0 (2026-11-21). `APP_VERSION` in `app.js`, `VERSION` in `sw.js`.
 - **The ambition:** the best study app in South Africa. It should keep students hooked while giving them every important fact in their own material. Quality over speed, always.
 
 ## 2. Non-negotiable principles
@@ -51,6 +51,7 @@ Scripts load in this order (`index.html` uses `defer`; `artifact.html` is the sa
 | `learn.js` | "Learn it step by step" (`learn:id`): a topic in short parts with checks. |
 | `people.js` | Profile screens: Settings → People on this device, top-bar avatar switcher. |
 | `claude.js` | v4.12 optional online AI: Settings → Online AI (key in `studydesk.aikey`, per profile), "Explain this topic" (renders the topic's textbook pages, max 20, as JPEGs for Claude), "Explain this diagram". Answers cached in IDB `ai`. |
+| `maths.js` | v4.15 maths, loaded last. Wraps `pdfPageItems` (rebuilds lines from pdf.js pieces by position and size: subscripts/powers become `_{}`/`^{}`, stacked rows become `\frac`, math-italic Unicode and Symbol-font private-use characters become plain letters/LaTeX; equation rows become `$$…$$` lines, maths inside sentences `$…$`), `pagesToNotes` (maths lines never headings), `docxToOutline` (Word OMML → LaTeX before mammoth) and `mathify` (queued; Temml + STIX Two Math font `vendor/x/STIXTwoMath.woff2`, OFL; a MutationObserver renders any new `$…$`). `pptxMath` (PowerPoint `a14:m`), `mathWords`/`sayMaths` (formulas in words for podcasts and screen readers), `plainMaths`. |
 | `sw.js` | Service worker. `SHELL` list must include every app file. Bump `VERSION` every release. `vendor/x/` is cached on first use. |
 
 **Extension pattern.** Later files extend earlier ones by wrapping and reassigning globals, for example:
@@ -121,6 +122,7 @@ SD_PORT=8866 node t25.js                    # one test
 - v4.12: optional online AI (Claude) explaining topics from their textbook pages and explaining diagrams.
 - v4.13: PDF import never dead-ends: dot-leader contents pages, bold-only headings, no-structure PDFs (split by pages), scanned books read with on-device text recognition (Tesseract; contents pages have their leader dots wiped and are read line by line, PSM 6). Typed contents lists keep the PDF attached for notes. Missing test fixtures recreated (`mksumtest.js`).
 - v4.14: snappier screens: a tab change shows the new screen at once and it is tappable straight away (only the content slides in, GSAP, no view transition); tap p95 536 → 40 ms. Pressed-chip counts readable, calendar exam-day labels start with their visible text (0 serious axe issues, 88/88). New checks: contrast, tapprobe, audit, fire tests.
+- v4.15: maths done properly: PDF formulas rebuilt from layout (subscripts, powers, stacked fractions, roots, Greek, math-italic), Word and PowerPoint equations (OMML) converted to LaTeX, rendered with Temml + STIX Two Math everywhere (notes, summary, cards, questions, search, AI answers), podcasts and screen readers say formulas in words. Summary engine keeps `$$…$$` lines whole; AI answers write LaTeX. Also fixed: topic titles ending in "p" lost that letter (parseOutline page regex). Test t27 (fixtures `mkmath.js`, `mkoffice-math.js`).
 
 ## 9. What's next
 

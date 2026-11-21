@@ -4,7 +4,7 @@
 "use strict";
 /* "Tap" on touch screens, "Click" with a mouse or trackpad */
 const TAP = (window.matchMedia && matchMedia("(hover: hover) and (pointer: fine)").matches) ? "Click" : "Tap";
-const APP_VERSION = "4.14.0";
+const APP_VERSION = "4.15.0";
 
 /* =====================================================================
    1. UTILS
@@ -924,9 +924,9 @@ function parseOutline(text) {
     let diff = 2; const dm = /[\s,(\-–]*\b(easy|medium|med|hard|difficult|tough)\)?\s*$/i.exec(t);
     if (dm) { diff = /easy/i.test(dm[1]) ? 1 : /med/i.test(dm[1]) ? 2 : 3; t = t.slice(0, dm.index); }
     let p1 = null, p2 = null;
-    const pr = /[\s,(]*(?:pages?|pp?\.?)?\s*(\d{1,5})\s*(?:-|–|—|to)\s*(\d{1,5})\s*\)?\s*$/i.exec(t);
+    const pr = /[\s,(]*(?:\b(?:pages?|pp?\.?))?\s*(\d{1,5})\s*(?:-|–|—|to)\s*(\d{1,5})\s*\)?\s*$/i.exec(t);
     if (pr) { p1 = +pr[1]; p2 = +pr[2]; t = t.slice(0, pr.index); }
-    else { const ps = /(?:[\s.·…_]{2,}|[\s,(]*(?:pages?|pp?\.?)\s*|\s+)(\d{1,5})\s*\)?\s*$/i.exec(t); if (ps) { p1 = +ps[1]; t = t.slice(0, ps.index); } }
+    else { const ps = /(?:[\s.·…_]{2,}|[\s,(]*\b(?:pages?|pp?\.?)\s*|\s+)(\d{1,5})\s*\)?\s*$/i.exec(t); if (ps) { p1 = +ps[1]; t = t.slice(0, ps.index); } }
     const title = t.replace(/[\s.·…_:,\-–—]+$/, "").trim();
     if (!title) { warnings.push(`Line ${li + 1} has no title, so it was skipped.`); return; }
     if (p1 !== null && p2 !== null && p2 < p1) { warnings.push(`“${title}”: the last page is before the first, so they were swapped.`); [p1, p2] = [p2, p1]; }
@@ -1515,8 +1515,8 @@ async function pdfToOutline(buf, name = "") {
   if (IMPP) { IMPP.sampling = false; IMPP.done = 0; IMPP.t0p = Date.now(); }
   for (let k = 0; k < pages; k++) (await pdfPageItems(doc, k + 1)).forEach(l => {
     /* the same size as the text but in a font of its own (bold headings) */
-    if (rareFont(l.font) && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;:]$/.test(l.s) && !PAGE_NUM.test(l.s) && notCaption(l.s)) { const prev = fheads[fheads.length - 1]; if (prev && prev.y === k && prev.last && prev.font === l.font) prev.t += " " + l.s; else fheads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size, font: l.font }); } else { const prev = fheads[fheads.length - 1]; if (prev) prev.last = false; }
-    if (l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last && Math.abs(prev.size - l.size) < .5) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } });
+    if (!l.math && rareFont(l.font) && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;:]$/.test(l.s) && !PAGE_NUM.test(l.s) && notCaption(l.s)) { const prev = fheads[fheads.length - 1]; if (prev && prev.y === k && prev.last && prev.font === l.font) prev.t += " " + l.s; else fheads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size, font: l.font }); } else { const prev = fheads[fheads.length - 1]; if (prev) prev.last = false; }
+    if (!l.math && l.size >= body * 1.18 && l.s.length >= 3 && l.s.length < 90 && /[a-z]{3}/i.test(l.s) && !/[.,;]$/.test(l.s) && !PAGE_NUM.test(l.s) && l.rel > .06 && l.rel < .94) { const prev = heads[heads.length - 1]; if (prev && prev.p === pageNo(k) && prev.y === k && prev.last && Math.abs(prev.size - l.size) < .5) prev.t += " " + l.s; else heads.push({ t: l.s, p: pageNo(k), y: k, last: true, size: l.size }); } else { const prev = heads[heads.length - 1]; if (prev) prev.last = false; } });
   let viaFont = false;
   if (heads.length < 2) {
     /* lines repeated on many pages are running headers, not headings */
@@ -1565,7 +1565,8 @@ async function pptxToOutline(buf, name) {
   if (!files.length) files = Object.keys(zip.files).filter(f => /^ppt\/slides\/slide\d+\.xml$/.test(f)).sort((a, b) => +a.match(/(\d+)\.xml$/)[1] - +b.match(/(\d+)\.xml$/)[1]);
   const phType = sp => (all(sp, "ph")[0]?.getAttribute("type")) || (all(sp, "ph").length ? "body" : "");
   const paras = el => all(el, "p").filter(p => p.namespaceURI && /drawingml/.test(p.namespaceURI)).map(p => {
-    const t = [...p.childNodes].map(c => c.localName === "r" || c.localName === "fld" ? all(c, "t").map(x => x.textContent).join("") : c.localName === "br" ? " " : "").join("").replace(/\s+/g, " ").trim();
+    /* equations (a14:m holding Office maths) become $LaTeX$ (maths.js) */
+    const t = [...p.childNodes].map(c => c.localName === "r" || c.localName === "fld" ? all(c, "t").map(x => x.textContent).join("") : c.localName === "br" ? " " : c.localName === "m" && typeof pptxMath === "function" ? pptxMath(c) : "").join("").replace(/\s+/g, " ").trim();
     const lvl = +(all(p, "pPr")[0]?.getAttribute("lvl") || 0);
     return { t, lvl };
   }).filter(x => x.t);
@@ -1753,7 +1754,7 @@ function pickVoice() {
   return vs.find(v => v.name === pref) || vs.find(v => /natural|enhanced|premium|neural/i.test(v.name) && /GB|US|AU|ZA/.test(v.lang)) || vs.find(v => /Google UK English Female|Samantha|Karen|Daniel|Serena/i.test(v.name)) || vs.find(v => /en-(GB|ZA|AU)/i.test(v.lang)) || vs[0] || null;
 }
 if (TTS) { TTS.onvoiceschanged = () => { P_.voice = pickVoice(); }; P_.voice = pickVoice(); }
-const chunk = t => { const out = []; String(t).replace(/\s+/g, " ").split(/(?<=[.!?;])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out.reduce((m, s) => { if (m.length && m[m.length - 1].length < 14 && m[m.length - 1].length + s.length <= 240) m[m.length - 1] += " " + s; else m.push(s); return m; }, []); };
+const chunk = t => { const out = []; String(typeof sayMaths === "function" ? sayMaths(t) : t).replace(/\s+/g, " ").split(/(?<=[.!?;])\s+/).forEach(s => { while (s.length > 220) { const k = s.lastIndexOf(",", 220) > 80 ? s.lastIndexOf(",", 220) + 1 : s.lastIndexOf(" ", 220); out.push(s.slice(0, k).trim()); s = s.slice(k).trim(); } if (s) out.push(s); }); return out.reduce((m, s) => { if (m.length && m[m.length - 1].length < 14 && m[m.length - 1].length + s.length <= 240) m[m.length - 1] += " " + s; else m.push(s); return m; }, []); };
 function buildEpisode(title, subtitle, leafList, opts = {}) {
   const segs = [], add = (text, kind = "body", extra = {}) => chunk(text).forEach(c => segs.push({ text: c, kind, ...extra }));
   const pause = ms => segs.push({ kind: "pause", ms, text: "" });
