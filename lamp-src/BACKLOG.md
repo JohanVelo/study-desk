@@ -5,7 +5,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 ## Ideas
 - Research notes (3 Nov): habit apps lean on streak freezes, friend streaks and home-screen widgets; Lamp has grace days and buddies. Next: a weekly email-free summary card for buddies.
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
-- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Gospels v55, Acts and Paul v56, Hebrews to Revelation v57, Law and Poetry v58, History v59. Next: the prophets' labels (Isaiah to Malachi).
+- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Gospels v55, Acts and Paul v56, Hebrews to Revelation v57, Law and Poetry v58, History v59, prophets v60. Next: the prophets' summaries (Isaiah to Malachi), then the Gospels' labels.
 - (Journal → Memorise already has its own 4-step practice and FSRS reviews, so 'Say it by heart for saved verses' is done.)
 - Sermon notes next: a 'questions to look into' list that links to Ask; reactions on shared sermon notes.
 - Prayer next: (reminder time done v56) share a group's list with a prayer partner.
@@ -47,4 +47,5 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v56 (19 Nov): a nudge to pray (prayer time reminder on chosen days, from Prayers and Settings), answered prayers fold away and land glowing, Acts and Paul's letters' labels checked (Philippians 4, Philemon). Next ideas: Android home-screen shortcuts (manifest `shortcuts`: Pray, Today's reading), share a prayer list with a prayer partner.
 - v57 (20 Nov): notes on verses (from the verse bar, pen marker in the reader, Journal > Verses, search), 44 px verse bar, Hebrews to Revelation labels checked. Next ideas: verse notes in the share/export of a study, Android home-screen shortcuts (Pray, Today's reading), share a prayer list with a prayer partner.
 - v58 (21 Nov): Find the book (tap the named book on a shelf of 66, names shown or hidden, misses lead to Learn the books), toasts never cover an open sheet, the empty verse-note hint sits under the box, Law and Poetry labels checked. Next ideas: a 'Find the book' round in the group quick quiz, a daily sword drill puzzle.
+- v60 (23 Nov): Pray with ACTS (guided four-step prayer with a verse per step and your own list), focus returns after full-screen prayer and quiet time, prophets' labels checked.
 - v59 (22 Nov): keep a copy of your journal (one printable page, chosen sections and dates, shared or saved on the device), Android home-screen shortcuts, History labels checked. Next ideas: import a journal copy back (restore), a yearly 'my journal' printout in December.
