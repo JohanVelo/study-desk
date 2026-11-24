@@ -2668,6 +2668,33 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 .vn-t:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
 
 
+/* v61 Advent */
+.advcard{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:14px 16px;border:1px solid color-mix(in srgb,#8A63C4 30%,var(--line));background:linear-gradient(120deg,color-mix(in srgb,#8A63C4 10%,var(--surface)),var(--surface) 65%)}
+.advcard .adv-t{min-width:0;flex:1}.advcard h2{font-size:1.15rem;margin:2px 0 4px;text-wrap:balance}.advcard p{margin:0 0 10px;color:var(--muted);font-size:.95rem}
+.adv-acts{display:flex;flex-wrap:wrap;gap:8px}.advcard>.adv-acts{flex:1 1 100%;margin-top:6px}.adv-acts .btn{min-height:44px}
+.adv-w{width:84px;height:66px;flex:none;color:var(--muted);overflow:visible}.adv-w.big{width:150px;height:118px}
+.adv-g{fill:color-mix(in srgb,#3F7A4A 55%,var(--surface))}.adv-l{fill:none;stroke:#2F6B3B;stroke-width:3;stroke-linecap:round}.adv-b{fill:#B8323A}
+.adv-f{fill:#F2B347;transform-box:fill-box;transform-origin:50% 100%;filter:drop-shadow(0 0 3px rgba(242,179,71,.8))}
+.adv-c.on .adv-f{animation:advFl 2.6s ease-in-out infinite alternate;animation-delay:calc(var(--k)*-.7s)}
+@keyframes advFl{0%{transform:scale(1,1) rotate(-2deg)}40%{transform:scale(.92,1.08) rotate(2deg)}100%{transform:scale(1.04,.95) rotate(-1deg)}}
+@media (prefers-reduced-motion:reduce){.adv-c.on .adv-f{animation:none}}
+.advcard.done h2{color:var(--muted)}
+@media (max-width:520px){.advcard{align-items:flex-start}.advcard .adv-w{width:64px;height:50px;margin-top:4px}.advcard>.adv-acts .btn{flex:1 1 auto}.advcard>.adv-acts .btn:first-child{flex-basis:100%}}
+.adv-top{display:flex;gap:18px;align-items:center;margin:8px 0 6px}
+.adv-sun{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:.9rem}.adv-sun li{display:flex;gap:8px;color:var(--muted)}.adv-sun b{min-width:52px;font-weight:600}.adv-sun li.on{color:var(--ink)}.adv-sun li.on b{color:#7E55BE}
+:root[data-theme=dark] .adv-sun li.on b{color:#C3A6EE}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .adv-sun li.on b{color:#C3A6EE}}
+.adv-why{font-size:.88rem;margin:0 0 12px}
+.adv-pick{margin:0 0 14px;padding:12px 14px;border-radius:14px;background:var(--sunk);min-height:44px}.adv-pick b{display:block;font-size:1.05rem}.adv-pick p{margin:2px 0 10px;color:var(--muted)}
+.adv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.adv-d{min-height:52px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 1rem/1 inherit;font-variant-numeric:tabular-nums;cursor:pointer;display:grid;place-items:center;transition:transform .25s var(--spring),background .2s;animation:revealUp .45s var(--expo) both;animation-delay:calc(var(--k)*18ms)}
+.adv-d svg{width:20px;height:20px}
+.adv-d.dn{background:color-mix(in srgb,#8A63C4 16%,var(--surface));border-color:color-mix(in srgb,#8A63C4 45%,var(--line));color:#5E3D96}
+:root[data-theme=dark] .adv-d.dn{color:#D2BCF3}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .adv-d.dn{color:#D2BCF3}}
+.adv-d.now{box-shadow:0 0 0 2px var(--gold)}.adv-d.sel{outline:2px solid var(--accent);outline-offset:2px}
+.adv-d[aria-disabled]{background:var(--sunk);color:var(--muted);cursor:default}
+.adv-d:not([aria-disabled]):active{transform:scale(.94)}
 /* v60 Pray with ACTS */
 .ac-go{margin-left:0}
 .ac-list{list-style:none;padding:0;margin:18px 0 10px;display:grid;gap:10px}.ac-list li{display:flex;align-items:center;gap:14px;font-size:1.15rem;color:#F2EBDC}.ac-list small{font-size:.8rem;color:#CFC6B4}
@@ -4391,6 +4418,7 @@ function vToday(){
   ${installTip()}
   ${welcomeBack()}
   ${monTeaser()}
+  ${advCard()}
   ${otdCard()}
   ${snToday()}
   ${plToday()}
@@ -7706,6 +7734,88 @@ function focusKey(f){if(!f||f===document.body||!f.getAttribute)return null;if(f.
 function restoreFocus(f){if(!f||f===document.body)return;const k=focusKey(f);setTimeout(()=>{try{let t=f.isConnected?f:(k&&document.querySelector(k));if(t&&t.offsetParent!==null)t.focus({preventScroll:true})}catch(e){}},30)}
 document.addEventListener("click",e=>{if(e.target.closest?.("[data-acts]")){buzz?.(8);openActs()}});
 
+
+/* ===== v61: Advent calendar (like YouVersion's and Lectio 365's Advent plans, and a paper calendar with doors): 25 short readings, 1–25 December, from the promises to the manger; an Advent wreath on Today lights a candle each Sunday (BSB) ===== */
+const ADV=[["ISA.9.2","Isaiah 9:2–7","The people walking in darkness have seen a great light. For unto us a child is born."],
+ ["ISA.11.1","Isaiah 11:1–10","A shoot will spring up from the stump of Jesse."],
+ ["ISA.7.10","Isaiah 7:10–14","The sign: the virgin will give birth to a son and call Him Immanuel."],
+ ["MIC.5.2","Micah 5:2–5","Out of little Bethlehem will come One to be ruler over Israel."],
+ ["ISA.40.1","Isaiah 40:1–11","Comfort, comfort My people. Prepare the way for the LORD."],
+ ["JER.23.5","Jeremiah 23:5–6","The LORD will raise up for David a righteous Branch."],
+ ["GEN.3.8","Genesis 3:8–15","The first promise: the woman's offspring will crush the serpent's head."],
+ ["GEN.12.1","Genesis 12:1–3","All the families of the earth will be blessed through Abram."],
+ ["2SA.7.8","2 Samuel 7:8–16","God promises David a house and a throne that will last forever."],
+ ["MAL.3.1","Malachi 3:1–4","I will send My messenger, who will prepare the way before Me."],
+ ["LUK.1.5","Luke 1:5–25","An angel tells Zechariah that Elizabeth will have a son, John."],
+ ["LUK.1.26","Luke 1:26–38","Gabriel comes to Mary: you are to give Him the name Jesus."],
+ ["LUK.1.39","Luke 1:39–45","Mary visits Elizabeth, and the baby leaps in her womb."],
+ ["LUK.1.46","Luke 1:46–56","Mary's song: my soul magnifies the Lord."],
+ ["MAT.1.18","Matthew 1:18–25","An angel tells Joseph in a dream not to be afraid to take Mary as his wife."],
+ ["LUK.1.57","Luke 1:57–66","John is born, and Zechariah writes: his name is John."],
+ ["LUK.1.67","Luke 1:67–80","Zechariah sings: God has visited and redeemed His people."],
+ ["JHN.1.1","John 1:1–14","The Word became flesh and made His dwelling among us."],
+ ["MAT.1.1","Matthew 1:1–17","The family line of Jesus, son of David, son of Abraham."],
+ ["PHP.2.5","Philippians 2:5–11","He emptied Himself, taking the form of a servant."],
+ ["ISA.9.6","Isaiah 9:6–7","Wonderful Counselor, Mighty God, Everlasting Father, Prince of Peace."],
+ ["JHN.3.16","John 3:16–17","For God so loved the world that He gave His one and only Son."],
+ ["LUK.2.1","Luke 2:1–7","Mary gives birth to her firstborn and lays Him in a manger."],
+ ["LUK.2.8","Luke 2:8–14","An angel brings the shepherds good news of great joy."],
+ ["LUK.2.15","Luke 2:15–20","The shepherds find the baby, and Mary treasures it all in her heart."]];
+const ADV_C=["Hope","Peace","Joy","Love"];
+const dOnly=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+function advSun(y){const w=new Date(y,11,25).getDay();return new Date(y,11,25-(w===0?28:w+21))}
+function advInfo(now=new Date()){const t=dOnly(now),y=t.getFullYear(),s=advSun(y),from=new Date(y,s.getMonth(),s.getDate()-7),xmas=new Date(y,11,25);
+  if(t<from||t>xmas)return null;
+  const lit=+t===+xmas?5:t<s?0:Math.min(4,Math.floor(Math.round((t-s)/864e5)/7)+1);
+  return{y,s,lit,day:t.getMonth()===11?t.getDate():0,key:"adv"+y}}
+const advSt=k=>tpState(k).d||{};
+function advMark(k,i,on){const st=tpState(k),d={...(st.d||{})};if(on)d[i]=new Date().toISOString();else delete d[i];const tp={...(state.settings.tp||{}),[k]:{d}};state.settings.tp=tp;queue({settings:{tp}})}
+function advWreath(lit,big){const C=[["#6E4BA3",0],["#6E4BA3",1],["#D77FA1",2],["#6E4BA3",3]],P=[[22,30],[38,22],[54,22],[70,30]];
+  const cand=(x,col,on,h,k)=>`<g class="adv-c${on?" on":""}" style="--k:${k}"><rect x="${x-4}" y="${58-h}" width="8" height="${h}" rx="2" fill="${col}"/>${on?`<path class="adv-f" d="M${x} ${44-h}c3 5 4 8 0 12c-4-4-3-7 0-12z"/>`:`<line x1="${x}" y1="${58-h}" x2="${x}" y2="${55-h}" stroke="currentColor" stroke-width="1.2" opacity=".5"/>`}</g>`;
+  const order=[0,3,1,2];
+  return `<svg class="adv-w${big?" big":""}" viewBox="0 0 92 72" role="img" aria-label="Advent wreath: ${lit>=5?"all five candles lit":`${lit} of 4 candles lit`}">
+    <ellipse cx="46" cy="60" rx="40" ry="9" class="adv-g"/>${order.map(i=>cand(P[i][0],C[i][0],lit>i,i===0||i===3?22:26,i)).join("")}
+    ${cand(46,"#F4EEDC",lit>=5,30,4)}<path d="M8 60c10 6 66 6 76 0" class="adv-l"/><circle cx="16" cy="61" r="2.4" class="adv-b"/><circle cx="76" cy="61" r="2.4" class="adv-b"/><circle cx="46" cy="68" r="2.4" class="adv-b"/></svg>`}
+function advCard(){const a=advInfo();if(!a)return"";const st=advSt(a.key),n=Object.keys(st).length;
+  if(!a.day){const sd=a.s.toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+    return `<section class="card advcard" id="advCard" aria-labelledby="advH">${advWreath(a.lit)}<div class="adv-t"><div class="kicker">Advent</div><h2 id="advH">${a.lit?"The first candle is lit":"Advent begins on "+esc(sd)}</h2>
+      <p>${a.lit?"Your Advent calendar opens on 1 December: 25 short readings, from God's promises to the manger.":"Light a candle each Sunday, and open a short reading every day from 1 December to Christmas."}</p><button class="btn sm" data-adv>${I.spark}See the calendar</button></div></section>`}
+  const i=Math.min(25,a.day)-1,[ref,lbl,line]=ADV[i],done=!!st[i];
+  return `<section class="card advcard${done?" done":""}" id="advCard" aria-labelledby="advH">${advWreath(a.lit)}<div class="adv-t"><div class="kicker">${a.day===25?"Christmas Day":`Advent · ${a.day} December`}${a.lit&&a.lit<5?` · ${ADV_C[a.lit-1].toLowerCase()}`:""}</div><h2 id="advH">${esc(line)}</h2></div>
+    <div class="adv-acts"><button class="btn sm${done?"":" primary"}" data-advr="${i}">${I.open}Read ${esc(lbl)}</button><button class="btn sm ghost adv-ck" data-advk="${i}" aria-pressed="${done}">${done?I.check+"Read":"Mark as read"}</button><button class="btn sm ghost" data-adv>Calendar · ${n} of 25</button></div></section>`}
+const ADVS={sel:null};
+function advSheetBody(){const a=advInfo()||{y:new Date().getFullYear(),day:new Date().getMonth()===11?26:0,lit:0,key:"adv"+new Date().getFullYear(),s:advSun(new Date().getFullYear())};
+  const st=advSt(a.key),n=Object.keys(st).length,open=i=>a.day>=i+1;
+  const sel=ADVS.sel!=null?ADVS.sel:a.day?Math.min(25,a.day)-1:null;
+  const pick=sel!=null&&open(sel)?ADV[sel]:null;
+  const sun=k=>new Date(a.s.getFullYear(),a.s.getMonth(),a.s.getDate()+7*k).toLocaleDateString("en-GB",{day:"numeric",month:"long"});
+  return `<div class="pcard advsheet"><div class="kick">Advent calendar · ${n} of 25 read</div><h2>Twenty-five days to Christmas</h2>
+    <div class="adv-top">${advWreath(a.lit,true)}<ul class="adv-sun">${ADV_C.map((c,k)=>`<li class="${a.lit>k?"on":""}"><b>${c}</b><span>${sun(k)}</span></li>`).join("")}<li class="${a.lit>=5?"on":""}"><b>Christ</b><span>25 December</span></li></ul></div>
+    <p class="muted adv-why">Many churches light one candle each Sunday of Advent, often for hope, peace, joy and love, and the white candle on Christmas Day.</p>
+    ${pick?`<div class="adv-pick" aria-live="polite"><div class="kicker">${sel===24?"Christmas Day":`${sel+1} December`}</div><b>${esc(pick[1])}</b><p>${esc(pick[2])}</p><div class="adv-acts"><button class="btn sm primary" data-advr="${sel}">${I.open}Read it</button><button class="btn sm ghost adv-ck" data-advk="${sel}" aria-pressed="${!!st[sel]}">${st[sel]?I.check+"Read":"Mark as read"}</button></div></div>`
+      :`<p class="adv-pick muted" aria-live="polite">${a.day?"Pick a day to see its reading.":"The doors open one a day from 1 December."}</p>`}
+    <div class="adv-grid" role="group" aria-label="Days of Advent">${ADV.map((x,i)=>{const o=open(i),dn=!!st[i];return `<button class="adv-d${dn?" dn":""}${i===sel?" sel":""}${a.day===i+1?" now":""}" data-advd="${i}"${o?"":` aria-disabled="true"`} aria-label="${i+1} December${o?`, ${esc(x[1])}${dn?", read":""}`:`, opens on ${i+1} December`}" style="--k:${i}">${dn?I.check:i+1}</button>`}).join("")}</div>
+    <p class="muted tp-note">Readings use your chosen translation and open at their first verse.</p></div>`}
+function openAdvent(){ADVS.sel=null;openSheet(advSheetBody(),"Advent calendar");advWire()}
+function advPaint(focus){const sc=$("#scrim"),c=sc?.querySelector(".advsheet");if(c){c.outerHTML=advSheetBody();advWire();if(focus)sc.querySelector(focus)?.focus({preventScroll:true})}const t=$("#advCard");if(t)t.outerHTML=advCard()}
+function advWire(){const sc=$("#scrim");if(!sc)return;sc.querySelectorAll("[data-advd]").forEach(b=>b.onclick=()=>{const i=+b.dataset.advd;if(b.getAttribute("aria-disabled")){toast(`This door opens on ${i+1} December.`);buzz?.(6);return}ADVS.sel=i;buzz?.(8);advPaint(`[data-advd="${i}"]`)})}
+document.addEventListener("click",e=>{const t=e.target.closest?.("[data-adv],[data-advr],[data-advk]");if(!t)return;const a=advInfo(),k=a?a.key:"adv"+new Date().getFullYear();
+  if(t.hasAttribute("data-adv")){buzz?.(8);openAdvent();return}
+  if(t.hasAttribute("data-advr")){const i=+t.dataset.advr;if(!advSt(k)[i])advMark(k,i,true);openRef(ADV[i][0]);return}
+  const i=+t.dataset.advk,on=!advSt(k)[i];advMark(k,i,on);if(on){burst?.(t,8);buzz?.(10)}const inSheet=!!t.closest(".advsheet");advPaint(inSheet?`.advsheet [data-advk="${i}"]`:null);if(!inSheet)$(`#advCard [data-advk="${i}"]`)?.focus({preventScroll:true})});
+
+/* v61 feel: on phones, drag a sheet down by its top to close it (like iOS sheets); it follows the finger and springs back if you let go early */
+(()=>{let D=null;const snap=d=>{d.sh.style.transition="transform .38s cubic-bezier(.16,1,.3,1)";d.sh.style.transform="";const sc=d.sh.parentElement;if(sc){sc.style.transition="background-color .38s";sc.style.backgroundColor=""}};
+  const fade=(d,k)=>{const sc=d.sh.parentElement;if(!sc||!d.bg)return;sc.style.backgroundColor=`rgba(${d.bg[0]},${d.bg[1]},${d.bg[2]},${(d.bg[3]*k).toFixed(3)})`};
+  document.addEventListener("touchstart",e=>{D=null;const sh=e.target.closest?.("#scrim>.sheet");if(!sh||e.touches.length!==1||innerWidth>=700)return;
+    if(e.target.closest("input,textarea,select,[contenteditable],svg.map,canvas,[data-nodrag]"))return;const t=e.touches[0];D={sh,x:t.clientX,y:t.clientY,t:performance.now(),dy:0,on:false,top:sh.scrollTop<=0};if(D.top)document.addEventListener("touchmove",move,{passive:false})},{passive:true});
+  const move=e=>{if(!D)return;const t=e.touches[0],dy=t.clientY-D.y,dx=t.clientX-D.x;
+    if(!D.on){if(Math.abs(dx)>12||dy<-6||!D.top){D=null;return}if(dy<10||Math.abs(dx)>dy)return;if(D.sh.scrollTop>0){D=null;return}D.on=true;D.y=t.clientY;D.t=performance.now();D.sh.style.animation="none";D.sh.style.transition="none";const m=getComputedStyle(D.sh.parentElement).backgroundColor.match(/[\d.]+/g);D.bg=m?[m[0],m[1],m[2],m[3]!=null?+m[3]:1]:null;D.sh.parentElement.style.transition="none"}
+    e.preventDefault();D.dy=Math.max(0,t.clientY-D.y);D.sh.style.transform=`translateY(${D.dy}px)`;fade(D,Math.max(.2,1-D.dy/(D.sh.offsetHeight*1.1)))};
+  const end=()=>{document.removeEventListener("touchmove",move);const d=D;D=null;if(!d||!d.on)return;const v=d.dy/Math.max(1,performance.now()-d.t);
+    if(d.dy>110||(v>.55&&d.dy>36)){const sc=d.sh.parentElement;d.sh.style.transition="transform .22s cubic-bezier(.4,0,1,1)";d.sh.style.transform="translateY(105%)";if(sc){sc.style.transition="background-color .22s";fade(d,0)}buzz?.(8);setTimeout(()=>{if(sc&&sc.isConnected&&sc.contains(d.sh))sc.remove()},210)}
+    else snap(d)};
+  document.addEventListener("touchend",end);document.addEventListener("touchcancel",()=>{document.removeEventListener("touchmove",move);const d=D;D=null;if(d&&d.on)snap(d)})})();
 
 /* ================= Original words (Greek and Hebrew) ================= */
 const HAS_ORIG=!!document.querySelector('link[rel="manifest"]');
