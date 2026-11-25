@@ -19,10 +19,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&family=Noto+Serif+Hebrew:wght@400;600&family=Gentium+Book+Plus:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
-<link rel="stylesheet" href="app.css?v=20261124011110">
+<link rel="stylesheet" href="app.css?v=20261125005007">
 <script>window.LAMP_CONFIG={"url": "https://pplkhksununielfnatcq.supabase.co", "key": "sb_publishable_DT7oc8y_Sn_9i7Sm_rRE_Q_qjitJ18L"};</script>
 <script src="supabase.js"></script>
-<script src="app.js?v=20261124011110"></script>
+<script src="app.js?v=20261125005007"></script>
 </head>
 <body>
 <style>
@@ -2717,6 +2717,14 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 .adv-d.now{box-shadow:0 0 0 2px var(--gold)}.adv-d.sel{outline:2px solid var(--accent);outline-offset:2px}
 .adv-d[aria-disabled]{background:var(--sunk);color:var(--muted);cursor:default}
 .adv-d:not([aria-disabled]):active{transform:scale(.94)}
+/* v62 Advent together */
+.advg{margin-top:12px}.advg h3{font-family:var(--f-display);font-size:1.15rem;margin:2px 0 4px;text-wrap:balance}
+.advg>.rg-off{flex-basis:100%}.advg-n{margin:0 0 8px;color:var(--muted);font-size:.92rem}
+.advg-f{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.advg-f li{position:relative;display:inline-grid}.advg-f li:not(.on) .face{opacity:.45;filter:grayscale(.6)}
+.advg-f li.on i{position:absolute;right:-4px;bottom:-4px;width:15px;height:15px;border-radius:50%;background:#6E4BA3;color:#fff;display:grid;place-items:center;border:1.5px solid var(--surface)}
+.advg-f li.on i svg{width:9px;height:9px}.advg-f li.more{font-size:.8rem;color:var(--muted);align-self:center}
+@media (prefers-reduced-motion:no-preference){.advg-f li.on i{animation:pop2 .4s var(--spring) both}}
 /* v60 Pray with ACTS */
 .ac-go{margin-left:0}
 .ac-list{list-style:none;padding:0;margin:18px 0 10px;display:grid;gap:10px}.ac-list li{display:flex;align-items:center;gap:14px;font-size:1.15rem;color:#F2EBDC}.ac-list small{font-size:.8rem;color:#CFC6B4}
@@ -6638,6 +6646,7 @@ function vGroup(){
   <div id="gHereRow"></div>
   <div id="gRing"></div>
   <div id="gChal"></div>
+  <div id="gAdv"></div>
   <div id="gBuddy"></div>
   <div id="gLive"></div>
   ${G.ro&&G.on?`<div class="gnote">${I.spark}<span>You can read everything here, but saving to the group needs you to sign in. Your own reading still saves on this device.</span></div>`:""}
@@ -7357,7 +7366,10 @@ function chalField(){const c=G.meta?.ch,live=!!(c&&chNow()&&hereDay()<=c.to),n=M
     <div class="row-end"><button class="btn primary" id="chGo">Start the challenge</button></div>`}</div>`}
 async function saveMeta(d,msg){if(!G.db){G.meta={...G.meta,...d};$("#scrim")?.remove();render();toast("Saved on this device");return}
   try{await G.db.doc("group/meta").set({...G.meta,...d});G.meta={...G.meta,...d};$("#scrim")?.remove();render();toast(msg)}catch(e){toast("Only the group's leader can change this.")}}
-function paintRing(){paintChal();const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}if(!el.querySelector(".gring"))el._t0=Date.now();const firstPaint=Date.now()-(el._t0||0)<900;
+/* v62 feel: the reading ring shows first names (and a surname initial only when two first names match), so phones stop cutting names off */
+function shortName(id,ids){const full=pname(id).trim(),w=full.split(/\s+/),f=w[0]||full;if(w.length<2)return full;
+  const clash=(ids||members()).some(o=>o!==id&&o!==myKey()&&pname(o).trim().split(/\s+/)[0]===f);return clash?`${f} ${w[w.length-1][0]}.`:f}
+function paintRing(){paintChal();paintAdvG();const el=$("#gRing");if(!el)return;if(!G.on){el.innerHTML="";return}if(!el.querySelector(".gring"))el._t0=Date.now();const firstPaint=Date.now()-(el._t0||0)<900;
   ringShare();paintBuddy();
   const wk=ringWeek(),today=hereDay(),ti=wk.indexOf(today),ids=members(),n=Math.max(1,ids.length);
   const read=id=>wk.filter(k=>G.people[id].rd?.[k]);
@@ -7370,7 +7382,7 @@ function paintRing(){paintChal();const el=$("#gRing");if(!el)return;if(!G.on){el
   const DL=["M","T","W","T","F","S","S"];
   const lbl=wk.map((k,i)=>{const a=(i+.5)/7*2*Math.PI-Math.PI/2,r=R0+19;return `<text x="${(Math.cos(a)*r).toFixed(1)}" y="${(Math.sin(a)*r+4).toFixed(1)}" class="${i===ti?"now":""}">${DL[i]}</text>`}).join("");
   const done=total>=goal;const meOff=state.settings.shareRead===false;
-  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm">${esc(id===myKey()?"You":pname(id))}</span><span class="rg-dots" role="img" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}" style="--j:${i}"></i>`).join("")}</span>${id===myKey()&&ids.length>1&&!G.ro?`<span class="cz-sp" aria-hidden="true"></span>`:""}${id!==myKey()&&!G.ro?`<button class="cz-b${czSentToday(id)?" on":""}" data-czto="${esc(id)}" aria-label="${czSentToday(id)?`You cheered ${esc(pname(id))} today. Cheer again`:`Cheer on ${esc(pname(id))}`}">${I_CZ}</button>`:""}</li>`}).join("");
+  const rows=ids.slice(0,10).map(id=>{const r=new Set(read(id));return `<li>${face(id,"sm")}<span class="rg-nm" title="${esc(id===myKey()?"You":pname(id))}">${id===myKey()?"You":`<span aria-hidden="true">${esc(shortName(id,ids))}</span><span class="sr">${esc(pname(id))}</span>`}</span><span class="rg-dots" role="img" aria-label="${r.size} of 7 days">${wk.map((k,i)=>`<i class="${r.has(k)?"on":i>ti?"fut":""}${i===ti?" now":""}" style="--j:${i}"></i>`).join("")}</span>${id===myKey()&&ids.length>1&&!G.ro?`<span class="cz-sp" aria-hidden="true"></span>`:""}${id!==myKey()&&!G.ro?`<button class="cz-b${czSentToday(id)?" on":""}" data-czto="${esc(id)}" aria-label="${czSentToday(id)?`You cheered ${esc(pname(id))} today. Cheer again`:`Cheer on ${esc(pname(id))}`}">${I_CZ}</button>`:""}</li>`}).join("");
   el.innerHTML=`<section class="card gring${done?" won":""}" aria-label="This week's reading together">
     <div class="rg-ring"><svg viewBox="-80 -80 160 160" role="img" aria-label="${total} of ${goal} readings this week">${arcs}${lbl}</svg>
       <div class="rg-mid"><b>${Math.round(pct*100)}%</b><span>${total} of ${goal}</span></div></div>
@@ -7781,7 +7793,7 @@ function advInfo(now=new Date()){const t=dOnly(now),y=t.getFullYear(),s=advSun(y
   const lit=+t===+xmas?5:t<s?0:Math.min(4,Math.floor(Math.round((t-s)/864e5)/7)+1);
   return{y,s,lit,day:t.getMonth()===11?t.getDate():0,key:"adv"+y}}
 const advSt=k=>tpState(k).d||{};
-function advMark(k,i,on){const st=tpState(k),d={...(st.d||{})};if(on)d[i]=new Date().toISOString();else delete d[i];const tp={...(state.settings.tp||{}),[k]:{d}};state.settings.tp=tp;queue({settings:{tp}})}
+function advMark(k,i,on){const st=tpState(k),d={...(st.d||{})};if(on)d[i]=new Date().toISOString();else delete d[i];const tp={...(state.settings.tp||{}),[k]:{d}};state.settings.tp=tp;queue({settings:{tp}});try{advShare()}catch(e){}}
 function advWreath(lit,big){const C=[["#6E4BA3",0],["#6E4BA3",1],["#D77FA1",2],["#6E4BA3",3]],P=[[22,30],[38,22],[54,22],[70,30]];
   const cand=(x,col,on,h,k)=>`<g class="adv-c${on?" on":""}" style="--k:${k}"><rect x="${x-4}" y="${58-h}" width="8" height="${h}" rx="2" fill="${col}"/>${on?`<path class="adv-f" d="M${x} ${44-h}c3 5 4 8 0 12c-4-4-3-7 0-12z"/>`:`<line x1="${x}" y1="${58-h}" x2="${x}" y2="${55-h}" stroke="currentColor" stroke-width="1.2" opacity=".5"/>`}</g>`;
   const order=[0,3,1,2];
@@ -7809,13 +7821,28 @@ function advSheetBody(){const a=advInfo()||{y:new Date().getFullYear(),day:new D
     <div class="adv-grid" role="group" aria-label="Days of Advent">${ADV.map((x,i)=>{const o=open(i),dn=!!st[i];return `<button class="adv-d${dn?" dn":""}${i===sel?" sel":""}${a.day===i+1?" now":""}" data-advd="${i}"${o?"":` aria-disabled="true"`} aria-label="${i+1} December${o?`, ${esc(x[1])}${dn?", read":""}`:`, opens on ${i+1} December`}" style="--k:${i}">${dn?I.check:i+1}</button>`}).join("")}</div>
     <p class="muted tp-note">Readings use your chosen translation and open at their first verse.</p></div>`}
 function openAdvent(){ADVS.sel=null;openSheet(advSheetBody(),"Advent calendar");advWire()}
-function advPaint(focus){const sc=$("#scrim"),c=sc?.querySelector(".advsheet");if(c){c.outerHTML=advSheetBody();advWire();if(focus)sc.querySelector(focus)?.focus({preventScroll:true})}const t=$("#advCard");if(t)t.outerHTML=advCard()}
+function advPaint(focus){const sc=$("#scrim"),c=sc?.querySelector(".advsheet");if(c){c.outerHTML=advSheetBody();advWire();if(focus)sc.querySelector(focus)?.focus({preventScroll:true})}const t=$("#advCard");if(t)t.outerHTML=advCard();if($("#gAdv"))paintAdvG()}
 function advWire(){const sc=$("#scrim");if(!sc)return;sc.querySelectorAll("[data-advd]").forEach(b=>b.onclick=()=>{const i=+b.dataset.advd;if(b.getAttribute("aria-disabled")){toast(`This door opens on ${i+1} December.`);buzz?.(6);return}ADVS.sel=i;buzz?.(8);advPaint(`[data-advd="${i}"]`)})}
 document.addEventListener("click",e=>{const t=e.target.closest?.("[data-adv],[data-advr],[data-advk]");if(!t)return;const a=advInfo(),k=a?a.key:"adv"+new Date().getFullYear();
   if(t.hasAttribute("data-adv")){buzz?.(8);openAdvent();return}
   if(t.hasAttribute("data-advr")){const i=+t.dataset.advr;if(!advSt(k)[i])advMark(k,i,true);openRef(ADV[i][0]);return}
-  const i=+t.dataset.advk,on=!advSt(k)[i];advMark(k,i,on);if(on){burst?.(t,8);buzz?.(10)}const inSheet=!!t.closest(".advsheet");advPaint(inSheet?`.advsheet [data-advk="${i}"]`:null);if(!inSheet)$(`#advCard [data-advk="${i}"]`)?.focus({preventScroll:true})});
+  const i=+t.dataset.advk,on=!advSt(k)[i];advMark(k,i,on);if(on){burst?.(t,8);buzz?.(10)}const inSheet=!!t.closest(".advsheet"),host=t.closest("#gAdv")?"#gAdv":"#advCard";advPaint(inSheet?`.advsheet [data-advk="${i}"]`:null);if(!inSheet)$(`${host} [data-advk="${i}"]`)?.focus({preventScroll:true})});
 
+/* v62: Advent together (like YouVersion's Plans with Friends showing who has done today's day): on the Group page in December, who in your group has read today's Advent reading. Shared as gm.av {"2026-6":true}, only when reading days are shared (Settings) */
+function advShare(){if(!G.on||G.ro||state.settings.shareRead===false)return;const a=advInfo();if(!a)return;const have=mine().av||{},st=advSt(a.key),patch={};
+  for(const i of Object.keys(st)){const k=a.y+"-"+i;if(!have[k])patch[k]=true}
+  for(const k of Object.keys(have))if(have[k]&&k.startsWith(a.y+"-")&&!st[k.slice(5)])patch[k]=null;
+  if(Object.keys(patch).length)gWrite({av:patch})}
+function paintAdvG(){const el=$("#gAdv");if(!el)return;const a=advInfo();if(!G.on||!a||!a.day||members().length<2){el.innerHTML="";return}advShare();
+  const fa=document.activeElement,fk=fa&&el.contains(fa)?focusKey(fa):null;
+  const i=Math.min(25,a.day)-1,[,lbl,line]=ADV[i],k=a.y+"-"+i,ids=members(),me=!!advSt(a.key)[i],meOff=state.settings.shareRead===false;
+  const on=id=>id===myKey()?me:!!G.people[id]?.av?.[k],who=ids.filter(on).length;
+  el.innerHTML=`<section class="card advcard advg" aria-labelledby="advgH">${advWreath(a.lit)}<div class="adv-t"><div class="kicker">Advent together · ${a.day===25?"Christmas Day":a.day+" December"}</div><h3 id="advgH">${esc(line)}</h3>
+    <p class="advg-n">${who?`${who} of ${ids.length} ${who===1?"has":"have"} read today's Advent reading`:"Nobody has read today's Advent reading yet. Be the first."}</p>
+    <ul class="advg-f">${ids.slice(0,12).map(id=>`<li class="${on(id)?"on":""}"><span aria-hidden="true">${face(id,"sm")}</span>${on(id)?`<i aria-hidden="true">${I.check}</i>`:""}<span class="sr">${esc(id===myKey()?"You":pname(id))}: ${on(id)?"read":"not yet"}</span></li>`).join("")}${ids.length>12?`<li class="more">+${ids.length-12}</li>`:""}</ul></div>
+    <div class="adv-acts"><button class="btn sm${me?"":" primary"}" data-advr="${i}">${I.open}Read ${esc(lbl)}</button><button class="btn sm ghost adv-ck" data-advk="${i}" aria-pressed="${me}">${me?I.check+"Read":"Mark as read"}</button><button class="btn sm ghost" data-adv>Calendar</button></div>
+    ${meOff?`<p class="muted rg-off">Your reading days are private, so the group can't see your tick. You can change this in Settings.</p>`:""}</section>`;
+  if(fk)el.querySelector(fk)?.focus({preventScroll:true})}
 /* v61 feel: on phones, drag a sheet down by its top to close it (like iOS sheets); it follows the finger and springs back if you let go early */
 (()=>{let D=null;const snap=d=>{d.sh.style.transition="transform .38s cubic-bezier(.16,1,.3,1)";d.sh.style.transform="";const sc=d.sh.parentElement;if(sc){sc.style.transition="background-color .38s";sc.style.backgroundColor=""}};
   const fade=(d,k)=>{const sc=d.sh.parentElement;if(!sc||!d.bg)return;sc.style.backgroundColor=`rgba(${d.bg[0]},${d.bg[1]},${d.bg[2]},${(d.bg[3]*k).toFixed(3)})`};
