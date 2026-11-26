@@ -1556,7 +1556,10 @@ html.rfclear .scripture,html.rfclear .devo-s p{font-family:"Atkinson Hyperlegibl
 .gt-r{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:var(--accent);flex:none}
 .gt-r svg{width:16px;height:16px}
 .gt-r .pulse{background:var(--danger,#C0392B)}
-.scripture .v.rng{background:linear-gradient(transparent 0,color-mix(in srgb,var(--gold) 13%,transparent) 0);border-radius:3px}
+/* v63 feel: a verse range reads as one calm band, not striped line by line (the band fills the line gaps) */
+.scripture .v.rng{background:color-mix(in srgb,var(--gold) 13%,transparent);padding:.24em 0;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:0;animation:rngIn .9s ease-out both}
+@keyframes rngIn{from{background-color:color-mix(in srgb,var(--gold) 34%,transparent)}}
+@media (prefers-reduced-motion:reduce){.scripture .v.rng{animation:none}}
 @media (max-width:560px){.ghero{padding:22px 18px 16px;border-radius:20px}.gamebox{padding:12px;border-radius:18px}.icecard{min-height:210px;padding:30px 20px 22px}}
 .ldauto{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;font-size:.88rem;line-height:1.45;color:var(--muted);cursor:pointer}.ldauto b{color:var(--ink)}.ldauto input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent);flex:none}.invmsg{font-size:.86rem;line-height:1.5;resize:vertical;min-height:180px;white-space:pre-wrap}html,body{overscroll-behavior-y:none}
 button,a,[role=button],.tabbar,.nav{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -2703,6 +2706,14 @@ html:not(.plainbg) .page-h,html:not(.plainbg) .view>div>.kicker{text-shadow:0 1p
 .advg-f li.on i{position:absolute;right:-4px;bottom:-4px;width:15px;height:15px;border-radius:50%;background:#6E4BA3;color:#fff;display:grid;place-items:center;border:1.5px solid var(--surface)}
 .advg-f li.on i svg{width:9px;height:9px}.advg-f li.more{font-size:.8rem;color:var(--muted);align-self:center}
 @media (prefers-reduced-motion:no-preference){.advg-f li.on i{animation:pop2 .4s var(--spring) both}}
+/* v63 the same story in other Gospels */
+.gpar{text-align:left;margin:8px 0 22px;padding:16px 16px 12px;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+.gpar h3.kicker{margin:0 0 10px;font-family:inherit}
+.gpar ul{list-style:none;margin:0;padding:0;display:grid;gap:12px}
+.gpar li{display:grid;gap:6px;padding-top:12px;border-top:1px solid var(--line)}.gpar li:first-child{padding-top:0;border-top:0}
+.gp-t{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}.gp-t b{font-family:var(--f-display);font-size:1.1rem;font-weight:600}.gp-t span{color:var(--muted);font-size:.85rem}
+.gp-o{display:flex;flex-wrap:wrap;gap:8px}.gp-o .chip{min-height:44px}
+.gp-note{font-size:.8rem;margin:12px 0 0}
 /* v60 Pray with ACTS */
 .ac-go{margin-left:0}
 .ac-list{list-style:none;padding:0;margin:18px 0 10px;display:grid;gap:10px}.ac-list li{display:flex;align-items:center;gap:14px;font-size:1.15rem;color:#F2EBDC}.ac-list small{font-size:.8rem;color:#CFC6B4}
@@ -5486,7 +5497,7 @@ function renderDock(){const d=$("#rDock");if(!d||!R)return;const p=R.p,pr=nbrCha
   $("#dDone")?.addEventListener("click",e=>{if(isDone(R.day))return toast("Already marked as read");markDone(R.day,e.currentTarget);renderEnd()})}
 function renderEnd(){
   const p=R.p;const done=R.day&&isDone(R.day);const pr=nbrChap(p,-1),nx=nbrChap(p,1);renderDock();
-  $("#rEnd").innerHTML=`<p>End of ${esc(refName(p))}</p>
+  $("#rEnd").innerHTML=`${gpBox(p)}<p>End of ${esc(refName(p))}</p>
     ${R.day?`<button class="btn ${done?"done":"primary"}" id="rDone">${I.check}${done?"Marked as read":"Mark as read"}</button>
     <button class="btn ghost" id="rReflect">Reflect on it</button>`:""}
     ${!R.day?rcBtn(p):""}
@@ -7606,16 +7617,7 @@ function openRemind(kind){const s=state.settings;const mw=meetWhen();const ios=p
   $("#remIcs")?.addEventListener("click",()=>{const a=document.createElement("a");a.href="data:text/calendar;charset=utf-8,"+encodeURIComponent(ics(ev()));a.download=kind==="read"?"lamp-reading.ics":kind==="pray"?"lamp-prayer.ics":"lamp-group.ics";if(ios)a.removeAttribute("download");document.body.appendChild(a);a.click();a.remove()})}
 
 
-/* ================= Phone sheets: swipe down to close ================= */
-(()=>{let sh=null,y0=0,dy=0,t0=0;const phone=()=>matchMedia("(max-width:640px)").matches;
-  document.addEventListener("touchstart",e=>{const s=e.target.closest(".scrim>.sheet");if(!s||!phone()||e.touches.length>1)return;
-    if(s.scrollTop>0&&!e.target.closest(".sheet-grab"))return;if(e.target.closest("input,textarea,select,.picwrap,canvas,.wheel"))return;sh=s;y0=e.touches[0].clientY;dy=0;t0=Date.now()},{passive:true});
-  document.addEventListener("touchmove",e=>{if(!sh)return;dy=Math.max(0,e.touches[0].clientY-y0);if(sh.scrollTop>0&&dy>0){sh=null;return}
-    sh.style.transition="none";sh.style.transform=`translateY(${dy}px)`;sh.parentNode.style.background=`rgba(10,14,12,${Math.max(0,.45-dy/900)})`},{passive:true});
-  document.addEventListener("touchend",()=>{if(!sh)return;const s=sh;sh=null;const fast=dy>40&&Date.now()-t0<250;
-    if(dy>120||fast){s.style.transition="transform .25s cubic-bezier(.4,0,1,1)";s.style.transform="translateY(105%)";setTimeout(()=>s.parentNode?.remove(),240)}
-    else{s.style.transition="transform .35s var(--expo)";s.style.transform="";s.parentNode.style.background=""}});
-})();
+/* (v63: the older swipe-to-close handlers were merged into the v61 one below, so only one runs) */
 
 
 /* ================= Quiet time: five guided minutes ================= */
@@ -7816,6 +7818,16 @@ document.addEventListener("click",e=>{const t=e.target.closest?.("[data-adv],[da
   if(t.hasAttribute("data-advr")){const i=+t.dataset.advr;if(!advSt(k)[i])advMark(k,i,true);openRef(ADV[i][0]);return}
   const i=+t.dataset.advk,on=!advSt(k)[i];advMark(k,i,on);if(on){burst?.(t,8);buzz?.(10)}const inSheet=!!t.closest(".advsheet"),host=t.closest("#gAdv")?"#gAdv":"#advCard";advPaint(inSheet?`.advsheet [data-advk="${i}"]`:null);if(!inSheet)$(`${host} [data-advk="${i}"]`)?.focus({preventScroll:true})});
 
+/* ===== v63: the same story in the other Gospels (like the ESV's and Logos's parallel passages, a simple Gospel harmony): at the end of a Gospel chapter, the events it shares with Matthew, Mark, Luke or John, each opening at the matching verses (BSB-checked in t78) ===== */
+const GPAR=[["John the Baptist prepares the way",["MAT.3.1-12","MRK.1.1-8","LUK.3.1-18","JHN.1.19-28"]],["Jesus is baptised",["MAT.3.13-17","MRK.1.9-11","LUK.3.21-22"]],["Tempted in the wilderness",["MAT.4.1-11","MRK.1.12-13","LUK.4.1-13"]],["Calling the first disciples",["MAT.4.18-22","MRK.1.16-20","LUK.5.1-11"]],["A man with leprosy is healed",["MAT.8.1-4","MRK.1.40-45","LUK.5.12-16"]],["A paralysed man let down through the roof",["MAT.9.1-8","MRK.2.1-12","LUK.5.17-26"]],["Levi (Matthew) is called",["MAT.9.9-13","MRK.2.13-17","LUK.5.27-32"]],["Lord of the Sabbath",["MAT.12.1-8","MRK.2.23-28","LUK.6.1-5"]],["The twelve apostles chosen",["MAT.10.1-4","MRK.3.13-19","LUK.6.12-16"]],["The parable of the sower",["MAT.13.1-23","MRK.4.1-20","LUK.8.4-15"]],["The mustard seed",["MAT.13.31-32","MRK.4.30-32","LUK.13.18-19"]],["Jesus calms the storm",["MAT.8.23-27","MRK.4.35-41","LUK.8.22-25"]],["The man with many demons",["MAT.8.28-34","MRK.5.1-20","LUK.8.26-39"]],["Jairus' daughter and the woman who touched his cloak",["MAT.9.18-26","MRK.5.21-43","LUK.8.40-56"]],["Rejected in his home town",["MAT.13.53-58","MRK.6.1-6","LUK.4.16-30"]],["The death of John the Baptist",["MAT.14.1-12","MRK.6.14-29"]],["Feeding the five thousand",["MAT.14.13-21","MRK.6.30-44","LUK.9.10-17","JHN.6.1-14"]],["Walking on the water",["MAT.14.22-33","MRK.6.45-52","JHN.6.16-21"]],["Feeding the four thousand",["MAT.15.32-39","MRK.8.1-10"]],["Peter: you are the Christ",["MAT.16.13-20","MRK.8.27-30","LUK.9.18-20"]],["Take up your cross",["MAT.16.24-28","MRK.8.34-38","LUK.9.23-27"]],["The transfiguration",["MAT.17.1-13","MRK.9.2-13","LUK.9.28-36"]],["Let the little children come",["MAT.19.13-15","MRK.10.13-16","LUK.18.15-17"]],["The rich young man",["MAT.19.16-30","MRK.10.17-31","LUK.18.18-30"]],["Blind Bartimaeus",["MAT.20.29-34","MRK.10.46-52","LUK.18.35-43"]],["The entry into Jerusalem",["MAT.21.1-11","MRK.11.1-11","LUK.19.28-40","JHN.12.12-19"]],["Clearing the temple",["MAT.21.12-17","MRK.11.15-19","LUK.19.45-48"]],["The greatest commandment",["MAT.22.34-40","MRK.12.28-34"]],["The widow's offering",["MRK.12.41-44","LUK.21.1-4"]],["Anointed at Bethany",["MAT.26.6-13","MRK.14.3-9","JHN.12.1-8"]],["The Last Supper",["MAT.26.17-30","MRK.14.12-26","LUK.22.7-23"]],["Prayer in Gethsemane",["MAT.26.36-46","MRK.14.32-42","LUK.22.39-46"]],["Arrested",["MAT.26.47-56","MRK.14.43-52","LUK.22.47-53","JHN.18.1-11"]],["Peter denies Jesus",["MAT.26.69-75","MRK.14.66-72","LUK.22.54-62","JHN.18.15-27"]],["Before Pilate",["MAT.27.11-26","MRK.15.1-15","LUK.23.13-25","JHN.18.28-40"]],["The crucifixion",["MAT.27.32-56","MRK.15.21-41","LUK.23.26-49","JHN.19.16-37"]],["The burial",["MAT.27.57-61","MRK.15.42-47","LUK.23.50-56","JHN.19.38-42"]],["The empty tomb",["MAT.28.1-10","MRK.16.1-8","LUK.24.1-12","JHN.20.1-10"]]];
+const gpRef=r=>{const [b,c,v]=r.split("."),[a,z]=v.split("-");return{r,b,c:+c,a:+a,z:+(z||a)}};
+const gpLbl=x=>`${bookName(x.b)} ${x.c}:${x.a}${x.z!==x.a?"–"+x.z:""}`;
+function gpFor(p){if(!p||!["MAT","MRK","LUK","JHN"].includes(p.book))return[];
+  return GPAR.map(([t,rs])=>{const R=rs.map(gpRef),here=R.find(x=>x.b===p.book&&x.c===p.ch);return here?{t,here,other:R.filter(x=>x!==here)}:null}).filter(Boolean).sort((a,b)=>a.here.a-b.here.a)}
+function gpBox(p){const L=gpFor(p);if(!L.length)return"";
+  return `<section class="gpar" aria-labelledby="gpH"><h3 class="kicker" id="gpH">Also told in the other Gospels</h3><ul>${L.map(e=>`<li><div class="gp-t"><b>${esc(e.t)}</b><span>${e.here.a===e.here.z?"verse "+e.here.a:`verses ${e.here.a}–${e.here.z}`}</span></div><div class="gp-o">${e.other.map(x=>`<button class="chip" data-gpo="${x.r}">${I.open}${esc(gpLbl(x))}</button>`).join("")}</div></li>`).join("")}</ul>
+    <p class="muted gp-note">The Gospel writers tell some events in their own words and order. A few of these may be similar events rather than the very same one.</p></section>`}
+document.addEventListener("click",e=>{const b=e.target.closest?.("[data-gpo]");if(!b)return;const x=gpRef(b.dataset.gpo);buzz?.(8);openPassage(passFor(x.b,x.c),false,x.a,{push:true,range:[x.a,x.z]});$("#rScroll")&&($("#rScroll").scrollTop=0)});
 /* v62: Advent together (like YouVersion's Plans with Friends showing who has done today's day): on the Group page in December, who in your group has read today's Advent reading. Shared as gm.av {"2026-6":true}, only when reading days are shared (Settings) */
 function advShare(){if(!G.on||G.ro||state.settings.shareRead===false)return;const a=advInfo();if(!a)return;const have=mine().av||{},st=advSt(a.key),patch={};
   for(const i of Object.keys(st)){const k=a.y+"-"+i;if(!have[k])patch[k]=true}
@@ -7834,10 +7846,10 @@ function paintAdvG(){const el=$("#gAdv");if(!el)return;const a=advInfo();if(!G.o
 /* v61 feel: on phones, drag a sheet down by its top to close it (like iOS sheets); it follows the finger and springs back if you let go early */
 (()=>{let D=null;const snap=d=>{d.sh.style.transition="transform .38s cubic-bezier(.16,1,.3,1)";d.sh.style.transform="";const sc=d.sh.parentElement;if(sc){sc.style.transition="background-color .38s";sc.style.backgroundColor=""}};
   const fade=(d,k)=>{const sc=d.sh.parentElement;if(!sc||!d.bg)return;sc.style.backgroundColor=`rgba(${d.bg[0]},${d.bg[1]},${d.bg[2]},${(d.bg[3]*k).toFixed(3)})`};
-  document.addEventListener("touchstart",e=>{D=null;const sh=e.target.closest?.("#scrim>.sheet");if(!sh||e.touches.length!==1||innerWidth>=700)return;
-    if(e.target.closest("input,textarea,select,[contenteditable],svg.map,canvas,[data-nodrag]"))return;const t=e.touches[0];D={sh,x:t.clientX,y:t.clientY,t:performance.now(),dy:0,on:false,top:sh.scrollTop<=0};if(D.top)document.addEventListener("touchmove",move,{passive:false})},{passive:true});
+  document.addEventListener("touchstart",e=>{D=null;const sh=e.target.closest?.(".scrim>.sheet");if(!sh||e.touches.length!==1||innerWidth>=700)return;
+    if(e.target.closest("input,textarea,select,[contenteditable],svg.map,canvas,[data-nodrag],.seg,.gtabs,.qopts,.picwrap,.wheel"))return;const t=e.touches[0];D={sh,x:t.clientX,y:t.clientY,t:performance.now(),dy:0,on:false,grab:!!e.target.closest(".sheet-grab"),top:sh.scrollTop<=0||!!e.target.closest(".sheet-grab")};if(D.top)document.addEventListener("touchmove",move,{passive:false})},{passive:true});
   const move=e=>{if(!D)return;const t=e.touches[0],dy=t.clientY-D.y,dx=t.clientX-D.x;
-    if(!D.on){if(Math.abs(dx)>12||dy<-6||!D.top){D=null;return}if(dy<10||Math.abs(dx)>dy)return;if(D.sh.scrollTop>0){D=null;return}D.on=true;D.y=t.clientY;D.t=performance.now();D.sh.style.animation="none";D.sh.style.transition="none";const m=getComputedStyle(D.sh.parentElement).backgroundColor.match(/[\d.]+/g);D.bg=m?[m[0],m[1],m[2],m[3]!=null?+m[3]:1]:null;D.sh.parentElement.style.transition="none"}
+    if(!D.on){if(Math.abs(dx)>12||dy<-6||!D.top){D=null;return}if(dy<10||Math.abs(dx)>dy)return;if(D.sh.scrollTop>0&&!D.grab){D=null;return}D.on=true;D.y=t.clientY;D.t=performance.now();D.sh.style.animation="none";D.sh.style.transition="none";const m=getComputedStyle(D.sh.parentElement).backgroundColor.match(/[\d.]+/g);D.bg=m?[m[0],m[1],m[2],m[3]!=null?+m[3]:1]:null;D.sh.parentElement.style.transition="none"}
     e.preventDefault();D.dy=Math.max(0,t.clientY-D.y);D.sh.style.transform=`translateY(${D.dy}px)`;fade(D,Math.max(.2,1-D.dy/(D.sh.offsetHeight*1.1)))};
   const end=()=>{document.removeEventListener("touchmove",move);const d=D;D=null;if(!d||!d.on)return;const v=d.dy/Math.max(1,performance.now()-d.t);
     if(d.dy>110||(v>.55&&d.dy>36)){const sc=d.sh.parentElement;d.sh.style.transition="transform .22s cubic-bezier(.4,0,1,1)";d.sh.style.transform="translateY(105%)";if(sc){sc.style.transition="background-color .22s";fade(d,0)}buzz?.(8);setTimeout(()=>{if(sc&&sc.isConnected&&sc.contains(d.sh))sc.remove()},210)}
@@ -8055,16 +8067,7 @@ document.addEventListener("keydown",e=>{
       const sh=el.querySelector(".sheet");if(sh&&sh.style.transform){sh.classList.add("snap");sh.style.transform="translateY(110%)"}
       setTimeout(()=>rm.call(el),320);return}
     return rm.call(this)}})();
-/* drag a sheet down to close it, like iOS */
-(function(){let sh=null,y0=0,dy=0,t0=0;
-  document.addEventListener("touchstart",e=>{const s=e.target.closest?.(".scrim>.sheet");if(!s||innerWidth>640||e.touches.length>1)return;
-    if(s.scrollTop>0||e.target.closest("input,textarea,select,[contenteditable],.seg,.gtabs,.qopts,canvas"))return;sh=s;y0=e.touches[0].clientY;dy=0;t0=Date.now()},{passive:true});
-  document.addEventListener("touchmove",e=>{if(!sh)return;dy=e.touches[0].clientY-y0;if(dy<=0){if(sh.classList.contains("drag")){sh.style.transform="";sh.classList.remove("drag")}if(dy<-6)sh=null;return}
-    if(sh.scrollTop>0){sh=null;return}e.preventDefault();sh.classList.add("drag");sh.style.transform=`translateY(${dy<80?dy:80+(dy-80)*.85}px)`},{passive:false});
-  document.addEventListener("touchend",()=>{if(!sh)return;const s=sh;sh=null;s.classList.remove("drag");const v=dy/Math.max(1,Date.now()-t0);
-    if(dy>120||(dy>40&&v>.6)){const sc=s.closest(".scrim");sc.dispatchEvent(new MouseEvent("click",{bubbles:true}));if(sc.isConnected&&!sc.classList.contains("out")){s.classList.add("snap");s.style.transform="";setTimeout(()=>s.classList.remove("snap"),360)}}
-    else{s.classList.add("snap");s.style.transform="";setTimeout(()=>s.classList.remove("snap"),360)}});
-})();
+
 /* tab rows that scroll show a soft edge until you reach the end */
 function edgeMask(){document.querySelectorAll(".gtabs,.seg").forEach(el=>{const sc=el.scrollWidth>el.clientWidth+2;el.classList.toggle("scrolls",sc);el.classList.toggle("end",!sc||el.scrollLeft+el.clientWidth>=el.scrollWidth-4);if(!el._em){el._em=1;/* bring the chosen tab into view, so "Highlights" isn't half hidden on a phone */const on=el.querySelector('[aria-pressed="true"],[aria-selected="true"],[aria-current]');if(sc&&on){const l=on.offsetLeft-el.offsetLeft,r=l+on.offsetWidth;if(l<el.scrollLeft||r>el.scrollLeft+el.clientWidth){el.scrollLeft=Math.max(0,l-(el.clientWidth-on.offsetWidth)/2);el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4)}}el.addEventListener("scroll",()=>el.classList.toggle("end",el.scrollLeft+el.clientWidth>=el.scrollWidth-4),{passive:true})}})}
 new MutationObserver(()=>{cancelAnimationFrame(edgeMask.r);edgeMask.r=requestAnimationFrame(edgeMask)}).observe(document.body,{childList:true,subtree:true});addEventListener("resize",edgeMask);
