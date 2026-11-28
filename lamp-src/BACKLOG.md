@@ -5,12 +5,13 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 ## Ideas
 - Research notes (3 Nov): habit apps lean on streak freezes, friend streaks and home-screen widgets; Lamp has grace days and buddies. Next: a weekly email-free summary card for buddies.
 - Catch-up queue: skipped on purpose. Lamp's path is self-paced ("No catching up needed"), so a queue of missed days would contradict it. Ask JJ before building one.
-- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Gospels v55, Acts and Paul v56, Hebrews to Revelation v57, Law and Poetry v58, History v59, prophets v60, prophets' summaries v61, Gospels' labels v62, 38 Gospel parallels v63, Ezekiel, Daniel and Jeremiah dates v64. Next: the Psalms' labels, then Lamentations and the minor prophets' summaries.
+- Accuracy: check BOOKINFO summaries (labels v37, cited verses and NT dates v38, OT dates v40, minor prophets v42). History books 1 Chronicles to Esther v43. Gospels v55, Acts and Paul v56, Hebrews to Revelation v57, Law and Poetry v58, History v59, prophets v60, prophets' summaries v61, Gospels' labels v62, 38 Gospel parallels v63, Ezekiel, Daniel and Jeremiah dates v64, Psalms and Lamentations labels v65. Next: the minor prophets' summaries, then the Who said it quotes.
 - (Journal → Memorise already has its own 4-step practice and FSRS reviews, so 'Say it by heart for saved verses' is done.)
 - Sermon notes next: a 'questions to look into' list that links to Ask; reactions on shared sermon notes.
 - Prayer next: (reminder time done v56) share a group's list with a prayer partner.
 - Second chance for the chapter quiz too (group quick quiz done v44).
 - More bank questions for the books still without a book quiz (Chronicles, Song of Songs, most minor prophets, John's short letters).
+- Verse match next: a hard board with 8 pairs; a Verse match round in the group quick quiz.
 - Where is it? next: a harder mode with the wider maps (Abraham, Exodus, Paul in geo.json); a 'Where is it?' round in the group quick quiz.
 - Sea of Galilee painted scene for the field background.
 - Verse of the week for the group to memorise together.
@@ -49,6 +50,7 @@ Ideas for the nightly improvement rounds (JJ, 28 Oct 2026: keep building and imp
 - v56 (19 Nov): a nudge to pray (prayer time reminder on chosen days, from Prayers and Settings), answered prayers fold away and land glowing, Acts and Paul's letters' labels checked (Philippians 4, Philemon). Next ideas: Android home-screen shortcuts (manifest `shortcuts`: Pray, Today's reading), share a prayer list with a prayer partner.
 - v57 (20 Nov): notes on verses (from the verse bar, pen marker in the reader, Journal > Verses, search), 44 px verse bar, Hebrews to Revelation labels checked. Next ideas: verse notes in the share/export of a study, Android home-screen shortcuts (Pray, Today's reading), share a prayer list with a prayer partner.
 - v58 (21 Nov): Find the book (tap the named book on a shelf of 66, names shown or hidden, misses lead to Learn the books), toasts never cover an open sheet, the empty verse-note hint sits under the box, Law and Poetry labels checked. Next ideas: a 'Find the book' round in the group quick quiz, a daily sword drill puzzle.
+- v65 (28 Nov): three more Verse match decks (promises, Psalms, words of Jesus), matched pairs glide together with a glow, Psalms and Lamentations labels checked.
 - v64 (27 Nov): Year in review on My path (12 months of reading days, books, fullest month, share) with a Today nudge in December and early January, month and year cards slide from the side tapped, Ezekiel, Daniel and Jeremiah dates cite their verses.
 - v63 (26 Nov): Also told in the other Gospels at the end of each Gospel chapter (38 events, 119 passages checked), a marked passage reads as one band.
 - v62 (25 Nov): Advent together on the Group page (who has read today's Advent reading), first names in the reading ring, Gospels' labels checked.
